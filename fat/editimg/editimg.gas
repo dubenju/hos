@@ -1,0 +1,1378 @@
+	.file	"editimg.c"
+	.text
+	.def	_printf;	.scl	3;	.type	32;	.endef
+_printf:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%ebx
+	subl	$36, %esp
+	leal	12(%ebp), %eax
+	movl	%eax, -12(%ebp)
+	movl	-12(%ebp), %eax
+	movl	%eax, 4(%esp)
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	call	___mingw_vprintf
+	movl	%eax, %ebx
+	movl	%ebx, %eax
+	addl	$36, %esp
+	popl	%ebx
+	leave
+	ret
+	.def	___main;	.scl	2;	.type	32;	.endef
+	.section .rdata,"dr"
+LC0:
+	.ascii "editimg\0"
+	.align 4
+LC1:
+	.ascii "program'name must be editimg.\12\0"
+	.align 4
+LC2:
+	.ascii "option must be init read write\12\0"
+LC3:
+	.ascii "filesystem must be fat12\12\0"
+LC4:
+	.ascii "size must be 1.44MB\12\0"
+LC5:
+	.ascii "img file uninited.\12\0"
+LC6:
+	.ascii "in type undefined.\12\0"
+LC7:
+	.ascii "to\0"
+	.align 4
+LC8:
+	.ascii "editimg imgfile write file aa to .\12\0"
+LC9:
+	.ascii "out type undefined.\12\0"
+LC10:
+	.ascii "disk position error.\12\0"
+LC11:
+	.ascii "error at img file'dir&file.\12\0"
+	.text
+.globl _main
+	.def	_main;	.scl	2;	.type	32;	.endef
+_main:
+	pushl	%ebp
+	movl	%esp, %ebp
+	andl	$-16, %esp
+	subl	$32, %esp
+	call	___main
+	movl	$0, 28(%esp)
+	movl	$0, 24(%esp)
+	movl	$0, 20(%esp)
+	cmpl	$2, 8(%ebp)
+	jg	L3
+	call	_show_usage
+	jmp	L4
+L3:
+	movl	12(%ebp), %eax
+	movl	(%eax), %eax
+	movl	$LC0, 4(%esp)
+	movl	%eax, (%esp)
+	call	_strcmp
+	testl	%eax, %eax
+	je	L5
+	movl	$LC1, (%esp)
+	call	_printf
+	movl	$-1, %eax
+	jmp	L4
+L5:
+	movl	12(%ebp), %eax
+	addl	$8, %eax
+	movl	(%eax), %eax
+	movl	%eax, (%esp)
+	call	_chk_option
+	movl	%eax, 24(%esp)
+	cmpl	$0, 24(%esp)
+	jns	L6
+	movl	$LC2, (%esp)
+	call	_printf
+	movl	$-1, %eax
+	jmp	L4
+L6:
+	cmpl	$0, 24(%esp)
+	jne	L7
+	movl	12(%ebp), %eax
+	addl	$12, %eax
+	movl	(%eax), %eax
+	movl	%eax, (%esp)
+	call	_chk_fs
+	testl	%eax, %eax
+	jns	L8
+	movl	$LC3, (%esp)
+	call	_printf
+	movl	$-1, %eax
+	jmp	L4
+L8:
+	movl	12(%ebp), %eax
+	addl	$16, %eax
+	movl	(%eax), %eax
+	movl	%eax, (%esp)
+	call	_chk_size
+	testl	%eax, %eax
+	jns	L9
+	movl	$LC4, (%esp)
+	call	_printf
+	movl	$-1, %eax
+	jmp	L4
+L9:
+	movl	12(%ebp), %eax
+	addl	$16, %eax
+	movl	(%eax), %ecx
+	movl	12(%ebp), %eax
+	addl	$12, %eax
+	movl	(%eax), %edx
+	movl	12(%ebp), %eax
+	addl	$4, %eax
+	movl	(%eax), %eax
+	movl	%ecx, 8(%esp)
+	movl	%edx, 4(%esp)
+	movl	%eax, (%esp)
+	call	_init_imgfile
+	movl	%eax, 28(%esp)
+	jmp	L10
+L7:
+	cmpl	$1, 24(%esp)
+	je	L10
+L11:
+	cmpl	$2, 24(%esp)
+	jne	L10
+	movl	12(%ebp), %eax
+	addl	$4, %eax
+	movl	(%eax), %eax
+	movl	%eax, (%esp)
+	call	_check_img_file
+	testl	%eax, %eax
+	jns	L12
+	movl	$LC5, (%esp)
+	call	_printf
+	movl	$-1, %eax
+	jmp	L4
+L12:
+	movl	12(%ebp), %eax
+	addl	$12, %eax
+	movl	(%eax), %eax
+	movl	%eax, (%esp)
+	call	_check_in_type
+	movl	%eax, 16(%esp)
+	cmpl	$0, 16(%esp)
+	jns	L13
+	movl	$LC6, (%esp)
+	call	_printf
+	movl	$-1, %eax
+	jmp	L4
+L13:
+	cmpl	$0, 16(%esp)
+	jne	L14
+	movl	12(%ebp), %eax
+	addl	$20, %eax
+	movl	(%eax), %eax
+	movl	$2, 8(%esp)
+	movl	$LC7, 4(%esp)
+	movl	%eax, (%esp)
+	call	_memcmp
+	testl	%eax, %eax
+	je	L14
+	movl	$LC8, (%esp)
+	call	_printf
+	movl	$-1, %eax
+	jmp	L4
+L14:
+	movl	12(%ebp), %eax
+	addl	$24, %eax
+	movl	(%eax), %eax
+	movl	%eax, (%esp)
+	call	_check_out_type
+	movl	%eax, 20(%esp)
+	cmpl	$0, 20(%esp)
+	jns	L15
+	movl	$LC9, (%esp)
+	call	_printf
+	movl	$-1, %eax
+	jmp	L4
+L15:
+	cmpl	$0, 20(%esp)
+	jne	L16
+	movl	12(%ebp), %eax
+	addl	$28, %eax
+	movl	(%eax), %eax
+	movl	%eax, (%esp)
+	call	_check_disk_pos
+	testl	%eax, %eax
+	jns	L17
+	movl	$LC10, (%esp)
+	call	_printf
+	movl	$-1, %eax
+	jmp	L4
+L17:
+	movl	12(%ebp), %eax
+	addl	$28, %eax
+	movl	(%eax), %ecx
+	movl	12(%ebp), %eax
+	addl	$16, %eax
+	movl	(%eax), %edx
+	movl	12(%ebp), %eax
+	addl	$4, %eax
+	movl	(%eax), %eax
+	movl	%ecx, 8(%esp)
+	movl	%edx, 4(%esp)
+	movl	%eax, (%esp)
+	call	_write_file_2_disk
+	movl	%eax, 28(%esp)
+	jmp	L10
+L16:
+	cmpl	$1, 20(%esp)
+	jne	L10
+	movl	12(%ebp), %eax
+	addl	$28, %eax
+	movl	(%eax), %eax
+	movl	%eax, (%esp)
+	call	_check_dir_file
+	testl	%eax, %eax
+	jns	L18
+	movl	$LC11, (%esp)
+	call	_printf
+	movl	$-1, %eax
+	jmp	L4
+L18:
+	movl	12(%ebp), %eax
+	addl	$28, %eax
+	movl	(%eax), %ecx
+	movl	12(%ebp), %eax
+	addl	$16, %eax
+	movl	(%eax), %edx
+	movl	12(%ebp), %eax
+	addl	$4, %eax
+	movl	(%eax), %eax
+	movl	%ecx, 8(%esp)
+	movl	%edx, 4(%esp)
+	movl	%eax, (%esp)
+	call	_write_file_2_file
+	movl	%eax, 28(%esp)
+L10:
+	movl	28(%esp), %eax
+L4:
+	leave
+	ret
+.globl _show_usage
+	.def	_show_usage;	.scl	2;	.type	32;	.endef
+_show_usage:
+	pushl	%ebp
+	movl	%esp, %ebp
+	movl	$-1, %eax
+	leave
+	ret
+	.section .rdata,"dr"
+LC12:
+	.ascii "init\0"
+LC13:
+	.ascii "read\0"
+LC14:
+	.ascii "write\0"
+	.text
+.globl _chk_option
+	.def	_chk_option;	.scl	2;	.type	32;	.endef
+_chk_option:
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$24, %esp
+	movl	$LC12, 4(%esp)
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_strcmp
+	testl	%eax, %eax
+	jne	L21
+	movl	$0, %eax
+	jmp	L22
+L21:
+	movl	$LC13, 4(%esp)
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_strcmp
+	testl	%eax, %eax
+	jne	L23
+	movl	$1, %eax
+	jmp	L22
+L23:
+	movl	$LC14, 4(%esp)
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_strcmp
+	testl	%eax, %eax
+	jne	L24
+	movl	$2, %eax
+	jmp	L22
+L24:
+	movl	$-1, %eax
+L22:
+	leave
+	ret
+	.section .rdata,"dr"
+LC15:
+	.ascii "fat12\0"
+	.text
+.globl _chk_fs
+	.def	_chk_fs;	.scl	2;	.type	32;	.endef
+_chk_fs:
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$24, %esp
+	movl	$LC15, 4(%esp)
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_strcmp
+	testl	%eax, %eax
+	jne	L26
+	movl	$0, %eax
+	jmp	L27
+L26:
+	movl	$-1, %eax
+L27:
+	leave
+	ret
+	.section .rdata,"dr"
+LC16:
+	.ascii "1474560\0"
+	.text
+.globl _chk_size
+	.def	_chk_size;	.scl	2;	.type	32;	.endef
+_chk_size:
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$24, %esp
+	movl	$LC16, 4(%esp)
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_strcmp
+	testl	%eax, %eax
+	jne	L29
+	movl	$0, %eax
+	jmp	L30
+L29:
+	movl	$-1, %eax
+L30:
+	leave
+	ret
+	.section .rdata,"dr"
+LC17:
+	.ascii "wb\0"
+LC18:
+	.ascii "EDITIMG \0"
+LC19:
+	.ascii "NO NAME    \0"
+LC20:
+	.ascii "FAT12   \0"
+LC21:
+	.ascii "index=%d\12\0"
+	.text
+.globl _init_imgfile
+	.def	_init_imgfile;	.scl	2;	.type	32;	.endef
+_init_imgfile:
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$552, %esp
+	movl	$0, -12(%ebp)
+	movl	16(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_atol
+	movl	%eax, -16(%ebp)
+	movl	$LC17, 4(%esp)
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fopen
+	movl	%eax, -20(%ebp)
+	cmpl	$0, -20(%ebp)
+	jne	L32
+	movl	$-1, %eax
+	jmp	L31
+L32:
+	movl	$513, 8(%esp)
+	movl	$0, 4(%esp)
+	leal	-533(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_memset
+	movb	$-21, -533(%ebp)
+	movb	$60, -532(%ebp)
+	movb	$-112, -531(%ebp)
+	leal	-533(%ebp), %eax
+	addl	$3, %eax
+	movl	$8, 8(%esp)
+	movl	$LC18, 4(%esp)
+	movl	%eax, (%esp)
+	call	_memcpy
+	movb	$0, -522(%ebp)
+	movb	$2, -521(%ebp)
+	movb	$1, -520(%ebp)
+	movb	$1, -519(%ebp)
+	movb	$0, -518(%ebp)
+	movb	$2, -517(%ebp)
+	movb	$-32, -516(%ebp)
+	movb	$0, -515(%ebp)
+	movb	$64, -514(%ebp)
+	movb	$11, -513(%ebp)
+	movb	$-16, -512(%ebp)
+	movb	$9, -511(%ebp)
+	movb	$0, -510(%ebp)
+	movb	$18, -509(%ebp)
+	movb	$0, -508(%ebp)
+	movb	$2, -507(%ebp)
+	movb	$0, -506(%ebp)
+	movb	$0, -505(%ebp)
+	movb	$0, -504(%ebp)
+	movb	$0, -503(%ebp)
+	movb	$0, -502(%ebp)
+	movb	$0, -501(%ebp)
+	movb	$0, -500(%ebp)
+	movb	$0, -499(%ebp)
+	movb	$0, -498(%ebp)
+	movb	$0, -497(%ebp)
+	movb	$0, -496(%ebp)
+	movb	$41, -495(%ebp)
+	movb	$44, -494(%ebp)
+	movb	$12, -493(%ebp)
+	movb	$4, -492(%ebp)
+	movb	$23, -491(%ebp)
+	leal	-533(%ebp), %eax
+	addl	$43, %eax
+	movl	$11, 8(%esp)
+	movl	$LC19, 4(%esp)
+	movl	%eax, (%esp)
+	call	_memcpy
+	leal	-533(%ebp), %eax
+	addl	$54, %eax
+	movl	$8, 8(%esp)
+	movl	$LC20, 4(%esp)
+	movl	%eax, (%esp)
+	call	_memcpy
+	movb	$85, -23(%ebp)
+	movb	$-86, -22(%ebp)
+	movl	-20(%ebp), %eax
+	movl	%eax, 12(%esp)
+	movl	$512, 8(%esp)
+	movl	$1, 4(%esp)
+	leal	-533(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fwrite
+	incl	-12(%ebp)
+	movl	$513, 8(%esp)
+	movl	$0, 4(%esp)
+	leal	-533(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_memset
+	movb	$-16, -533(%ebp)
+	movb	$-1, -532(%ebp)
+	movb	$-1, -531(%ebp)
+	movl	-20(%ebp), %eax
+	movl	%eax, 12(%esp)
+	movl	$512, 8(%esp)
+	movl	$1, 4(%esp)
+	leal	-533(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fwrite
+	incl	-12(%ebp)
+	jmp	L33
+L34:
+	movl	$513, 8(%esp)
+	movl	$0, 4(%esp)
+	leal	-533(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_memset
+	movl	-20(%ebp), %eax
+	movl	%eax, 12(%esp)
+	movl	$512, 8(%esp)
+	movl	$1, 4(%esp)
+	leal	-533(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fwrite
+	incl	-12(%ebp)
+L33:
+	cmpl	$9, -12(%ebp)
+	jbe	L34
+	movl	$513, 8(%esp)
+	movl	$0, 4(%esp)
+	leal	-533(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_memset
+	movb	$-16, -533(%ebp)
+	movb	$-1, -532(%ebp)
+	movb	$-1, -531(%ebp)
+	movl	-20(%ebp), %eax
+	movl	%eax, 12(%esp)
+	movl	$512, 8(%esp)
+	movl	$1, 4(%esp)
+	leal	-533(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fwrite
+	incl	-12(%ebp)
+	jmp	L35
+L36:
+	movl	$513, 8(%esp)
+	movl	$0, 4(%esp)
+	leal	-533(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_memset
+	movl	-20(%ebp), %eax
+	movl	%eax, 12(%esp)
+	movl	$512, 8(%esp)
+	movl	$1, 4(%esp)
+	leal	-533(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fwrite
+	incl	-12(%ebp)
+L35:
+	cmpl	$18, -12(%ebp)
+	jbe	L36
+	jmp	L37
+L38:
+	movl	$513, 8(%esp)
+	movl	$0, 4(%esp)
+	leal	-533(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_memset
+	movl	-20(%ebp), %eax
+	movl	%eax, 12(%esp)
+	movl	$512, 8(%esp)
+	movl	$1, 4(%esp)
+	leal	-533(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fwrite
+	incl	-12(%ebp)
+L37:
+	cmpl	$32, -12(%ebp)
+	jbe	L38
+	jmp	L39
+L40:
+	movl	$513, 8(%esp)
+	movl	$246, 4(%esp)
+	leal	-533(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_memset
+	movl	-20(%ebp), %eax
+	movl	%eax, 12(%esp)
+	movl	$512, 8(%esp)
+	movl	$1, 4(%esp)
+	leal	-533(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fwrite
+	incl	-12(%ebp)
+L39:
+	cmpl	$2879, -12(%ebp)
+	jbe	L40
+	cmpl	$0, -20(%ebp)
+	je	L41
+	movl	-20(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fclose
+	movl	$0, -20(%ebp)
+L41:
+	movl	-12(%ebp), %eax
+	movl	%eax, 4(%esp)
+	movl	$LC21, (%esp)
+	call	_printf
+L31:
+	leave
+	ret
+	.section .rdata,"dr"
+LC22:
+	.ascii "rb\0"
+	.align 4
+LC23:
+	.ascii "check_img_file::fopen error(%s)\12\0"
+	.text
+.globl _check_img_file
+	.def	_check_img_file;	.scl	2;	.type	32;	.endef
+_check_img_file:
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$40, %esp
+	movl	$LC22, 4(%esp)
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fopen
+	movl	%eax, -12(%ebp)
+	cmpl	$0, -12(%ebp)
+	jne	L43
+	movl	8(%ebp), %eax
+	movl	%eax, 4(%esp)
+	movl	$LC23, (%esp)
+	call	_printf
+	movl	$-1, %eax
+	jmp	L44
+L43:
+	movl	$2, 8(%esp)
+	movl	$0, 4(%esp)
+	movl	-12(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fseek
+	movl	-12(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_ftell
+	movl	%eax, -16(%ebp)
+	cmpl	$0, -12(%ebp)
+	je	L45
+	movl	-12(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fclose
+	movl	$0, -12(%ebp)
+L45:
+	cmpl	$0, -16(%ebp)
+	jg	L46
+	movl	$-1, %eax
+	jmp	L44
+L46:
+	jmp	L42
+L44:
+L42:
+	leave
+	ret
+	.section .rdata,"dr"
+LC24:
+	.ascii "file\0"
+LC25:
+	.ascii "dir\0"
+	.text
+.globl _check_in_type
+	.def	_check_in_type;	.scl	2;	.type	32;	.endef
+_check_in_type:
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$24, %esp
+	movl	$LC24, 4(%esp)
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_strcmp
+	testl	%eax, %eax
+	jne	L48
+	movl	$0, %eax
+	jmp	L49
+L48:
+	movl	$LC25, 4(%esp)
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_strcmp
+	testl	%eax, %eax
+	jne	L50
+	movl	$1, %eax
+	jmp	L49
+L50:
+	movl	$-1, %eax
+L49:
+	leave
+	ret
+	.section .rdata,"dr"
+LC26:
+	.ascii "disk\0"
+	.text
+.globl _check_out_type
+	.def	_check_out_type;	.scl	2;	.type	32;	.endef
+_check_out_type:
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$24, %esp
+	movl	$LC26, 4(%esp)
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_strcmp
+	testl	%eax, %eax
+	jne	L52
+	movl	$0, %eax
+	jmp	L53
+L52:
+	movl	$LC25, 4(%esp)
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_strcmp
+	testl	%eax, %eax
+	jne	L54
+	movl	$1, %eax
+	jmp	L53
+L54:
+	movl	$-1, %eax
+L53:
+	leave
+	ret
+.globl _check_disk_pos
+	.def	_check_disk_pos;	.scl	2;	.type	32;	.endef
+_check_disk_pos:
+	pushl	%ebp
+	movl	%esp, %ebp
+	movl	$0, %eax
+	leave
+	ret
+.globl _check_dir_file
+	.def	_check_dir_file;	.scl	2;	.type	32;	.endef
+_check_dir_file:
+	pushl	%ebp
+	movl	%esp, %ebp
+	movl	$0, %eax
+	leave
+	ret
+	.section .rdata,"dr"
+LC27:
+	.ascii "rb+\0"
+LC28:
+	.ascii "write OK\12\0"
+	.text
+.globl _write_file_2_disk
+	.def	_write_file_2_disk;	.scl	2;	.type	32;	.endef
+_write_file_2_disk:
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$552, %esp
+	movl	$LC27, 4(%esp)
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fopen
+	movl	%eax, -12(%ebp)
+	cmpl	$0, -12(%ebp)
+	jne	L58
+	movl	$-1, %eax
+	jmp	L59
+L58:
+	movl	$LC22, 4(%esp)
+	movl	12(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fopen
+	movl	%eax, -16(%ebp)
+	cmpl	$0, -16(%ebp)
+	jne	L67
+	movl	-12(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fclose
+	movl	$0, -12(%ebp)
+	movl	$-1, %eax
+	jmp	L59
+L64:
+	movl	-16(%ebp), %eax
+	movl	%eax, 12(%esp)
+	movl	$512, 8(%esp)
+	movl	$1, 4(%esp)
+	leal	-529(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fread
+	cmpl	$512, %eax
+	jne	L68
+L62:
+	movl	-12(%ebp), %eax
+	movl	%eax, 12(%esp)
+	movl	$512, 8(%esp)
+	movl	$1, 4(%esp)
+	leal	-529(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fwrite
+	jmp	L61
+L67:
+	nop
+L61:
+	movl	-16(%ebp), %eax
+	movl	12(%eax), %eax
+	andl	$16, %eax
+	testl	%eax, %eax
+	je	L64
+	jmp	L63
+L68:
+	nop
+L63:
+	cmpl	$0, -16(%ebp)
+	je	L65
+	movl	-16(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fclose
+	movl	$0, -16(%ebp)
+L65:
+	cmpl	$0, -12(%ebp)
+	je	L66
+	movl	-12(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fclose
+	movl	$0, -12(%ebp)
+L66:
+	movl	$LC28, (%esp)
+	call	_printf
+	jmp	L57
+L59:
+L57:
+	leave
+	ret
+	.section .rdata,"dr"
+LC29:
+	.ascii "@write_file_2_file--\12\0"
+LC30:
+	.ascii "file(%s) open error.\12\0"
+LC31:
+	.ascii "disk space error.(%d)\12\0"
+LC32:
+	.ascii "alloc %d\12\0"
+LC33:
+	.ascii "%d[%d]\12\0"
+LC34:
+	.ascii "file seek error.\12\0"
+	.align 4
+LC35:
+	.ascii "@write_file_2_file-before for\12\0"
+LC36:
+	.ascii "filename=[%s]\12\0"
+LC37:
+	.ascii "max=%d\12\0"
+LC38:
+	.ascii "filename=[%8.8s]\12\0"
+LC39:
+	.ascii "flag=%d,cnt=%d\12\0"
+LC40:
+	.ascii "write_buf[%s]\12\0"
+	.text
+.globl _write_file_2_file
+	.def	_write_file_2_file;	.scl	2;	.type	32;	.endef
+_write_file_2_file:
+	pushl	%ebp
+	movl	%esp, %ebp
+	movl	$12088, %eax
+	call	___chkstk
+	movl	$LC29, (%esp)
+	call	_printf
+	movl	$0, -20(%ebp)
+	movl	$0, -24(%ebp)
+	movl	$LC27, 4(%esp)
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fopen
+	movl	%eax, -32(%ebp)
+	cmpl	$0, -32(%ebp)
+	jne	L70
+	movl	8(%ebp), %eax
+	movl	%eax, 4(%esp)
+	movl	$LC30, (%esp)
+	call	_printf
+	movl	$-1, %eax
+	jmp	L71
+L70:
+	movl	$512, 8(%esp)
+	movl	$0, 4(%esp)
+	leal	-552(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_memset
+	movl	-32(%ebp), %eax
+	movl	%eax, 12(%esp)
+	movl	$1, 8(%esp)
+	movl	$512, 4(%esp)
+	leal	-552(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fread
+	movl	$LC22, 4(%esp)
+	movl	12(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fopen
+	movl	%eax, -36(%ebp)
+	cmpl	$0, -36(%ebp)
+	jne	L72
+	movl	-32(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fclose
+	movl	$0, -32(%ebp)
+	movl	12(%ebp), %eax
+	movl	%eax, 4(%esp)
+	movl	$LC30, (%esp)
+	call	_printf
+	movl	$-1, %eax
+	jmp	L71
+L72:
+	movl	$2, 8(%esp)
+	movl	$0, 4(%esp)
+	movl	-36(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fseek
+	movl	-36(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_ftell
+	movl	%eax, -1104(%ebp)
+	movl	-1104(%ebp), %eax
+	cmpl	$1457664, %eax
+	jle	L73
+	movl	-32(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fclose
+	movl	$0, -32(%ebp)
+	movl	-36(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fclose
+	movl	$0, -36(%ebp)
+	movl	-1104(%ebp), %eax
+	movl	%eax, 4(%esp)
+	movl	$LC31, (%esp)
+	call	_printf
+	movl	$-1, %eax
+	jmp	L71
+L73:
+	movl	-1104(%ebp), %eax
+	testl	%eax, %eax
+	jns	L74
+	addl	$511, %eax
+L74:
+	sarl	$9, %eax
+	movl	%eax, -24(%ebp)
+	movl	-1104(%ebp), %eax
+	andl	$511, %eax
+	testl	%eax, %eax
+	je	L75
+	incl	-24(%ebp)
+L75:
+	movl	-24(%ebp), %eax
+	movl	%eax, 4(%esp)
+	movl	$LC32, (%esp)
+	call	_printf
+	movl	$0, -20(%ebp)
+	movw	$0, -26(%ebp)
+	movl	$6344, 8(%esp)
+	movl	$0, 4(%esp)
+	leal	-12062(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_memset
+	movl	$4609, 8(%esp)
+	movl	$0, 4(%esp)
+	leal	-5717(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_memset
+	movl	-32(%ebp), %eax
+	movl	%eax, 12(%esp)
+	movl	$4608, 8(%esp)
+	movl	$1, 4(%esp)
+	leal	-5717(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fread
+	movl	$0, -16(%ebp)
+	jmp	L76
+L79:
+	movl	$2, 8(%esp)
+	movl	$0, 4(%esp)
+	leal	-1106(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_memset
+	movl	$2, 8(%esp)
+	movl	$0, 4(%esp)
+	leal	-1108(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_memset
+	movl	-16(%ebp), %eax
+	incl	%eax
+	movb	-5717(%ebp,%eax), %al
+	andl	$15, %eax
+	movb	%al, -1106(%ebp)
+	leal	-5717(%ebp), %eax
+	addl	-16(%ebp), %eax
+	movb	(%eax), %al
+	movb	%al, -1105(%ebp)
+	movl	-16(%ebp), %eax
+	incl	%eax
+	movb	-5717(%ebp,%eax), %al
+	andl	$-16, %eax
+	movb	%al, -1108(%ebp)
+	movl	-16(%ebp), %eax
+	addl	$2, %eax
+	movb	-5717(%ebp,%eax), %al
+	movb	%al, -1107(%ebp)
+	leal	-1106(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_toWord
+	testw	%ax, %ax
+	jne	L77
+	movl	-20(%ebp), %edx
+	movw	-26(%ebp), %ax
+	movw	%ax, -12062(%ebp,%edx,2)
+	incl	-20(%ebp)
+L77:
+	incw	-26(%ebp)
+	leal	-1108(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_toWord
+	testw	%ax, %ax
+	jne	L78
+	movl	-20(%ebp), %edx
+	movw	-26(%ebp), %ax
+	movw	%ax, -12062(%ebp,%edx,2)
+	incl	-20(%ebp)
+L78:
+	incw	-26(%ebp)
+	addl	$3, -16(%ebp)
+L76:
+	cmpl	$4607, -16(%ebp)
+	jle	L79
+	movl	$0, -16(%ebp)
+	jmp	L80
+L81:
+	movl	-16(%ebp), %eax
+	movw	-12062(%ebp,%eax,2), %ax
+	cwtl
+	movl	%eax, 8(%esp)
+	movl	-16(%ebp), %eax
+	movl	%eax, 4(%esp)
+	movl	$LC33, (%esp)
+	call	_printf
+	incl	-16(%ebp)
+L80:
+	cmpl	$9, -16(%ebp)
+	jle	L81
+	movl	$1, 8(%esp)
+	movl	$4698, 4(%esp)
+	movl	-32(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fseek
+	testl	%eax, %eax
+	je	L82
+	movl	-32(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fclose
+	movl	$0, -32(%ebp)
+	movl	$LC34, (%esp)
+	call	_printf
+	movl	$-1, %eax
+	jmp	L71
+L82:
+	movl	$LC35, (%esp)
+	call	_printf
+	movl	$0, -20(%ebp)
+	movl	$0, -16(%ebp)
+	movl	$513, 8(%esp)
+	movl	$0, 4(%esp)
+	leal	-1097(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_memset
+	jmp	L83
+L92:
+	movl	-20(%ebp), %eax
+	addl	16(%ebp), %eax
+	movb	(%eax), %al
+	cmpb	$92, %al
+	jne	L84
+	incl	-20(%ebp)
+	jmp	L83
+L84:
+	movl	-20(%ebp), %eax
+	addl	16(%ebp), %eax
+	movb	(%eax), %al
+	cmpb	$46, %al
+	jne	L85
+	jmp	L86
+L87:
+	leal	-1097(%ebp), %eax
+	addl	-16(%ebp), %eax
+	movb	$32, (%eax)
+	incl	-16(%ebp)
+L86:
+	cmpl	$7, -16(%ebp)
+	jle	L87
+	incl	-20(%ebp)
+	jmp	L83
+L85:
+	movl	-20(%ebp), %eax
+	addl	16(%ebp), %eax
+	movb	(%eax), %al
+	cmpb	$96, %al
+	jle	L88
+	movl	-20(%ebp), %eax
+	addl	16(%ebp), %eax
+	movb	(%eax), %al
+	cmpb	$122, %al
+	jg	L88
+	movl	-20(%ebp), %eax
+	addl	16(%ebp), %eax
+	movb	(%eax), %al
+	subl	$32, %eax
+	movb	%al, %dl
+	leal	-1097(%ebp), %eax
+	addl	-16(%ebp), %eax
+	movb	%dl, (%eax)
+	incl	-16(%ebp)
+	jmp	L89
+L88:
+	movl	-20(%ebp), %eax
+	addl	16(%ebp), %eax
+	movb	(%eax), %dl
+	leal	-1097(%ebp), %eax
+	addl	-16(%ebp), %eax
+	movb	%dl, (%eax)
+	incl	-16(%ebp)
+L89:
+	cmpl	$10, -16(%ebp)
+	jg	L110
+L90:
+	incl	-20(%ebp)
+L83:
+	movl	-20(%ebp), %eax
+	addl	16(%ebp), %eax
+	movb	(%eax), %al
+	testb	%al, %al
+	jne	L92
+	jmp	L91
+L110:
+	nop
+L91:
+	leal	-1097(%ebp), %eax
+	movl	%eax, 4(%esp)
+	movl	$LC36, (%esp)
+	call	_printf
+	leal	-552(%ebp), %eax
+	addl	$17, %eax
+	movl	%eax, (%esp)
+	call	_toWord
+	cwtl
+	movl	%eax, -16(%ebp)
+	movl	-16(%ebp), %eax
+	movl	%eax, 4(%esp)
+	movl	$LC37, (%esp)
+	call	_printf
+	movb	$0, -9(%ebp)
+	movl	$0, -20(%ebp)
+	jmp	L93
+L97:
+	movl	$32, 8(%esp)
+	movl	$0, 4(%esp)
+	leal	-584(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_memset
+	movl	-32(%ebp), %eax
+	movl	%eax, 12(%esp)
+	movl	$32, 8(%esp)
+	movl	$1, 4(%esp)
+	leal	-584(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fread
+	leal	-584(%ebp), %eax
+	movl	%eax, 4(%esp)
+	movl	$LC38, (%esp)
+	call	_printf
+	movl	$8, 8(%esp)
+	leal	-1097(%ebp), %eax
+	movl	%eax, 4(%esp)
+	leal	-584(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_memcmp
+	testl	%eax, %eax
+	jne	L94
+	movb	$1, -9(%ebp)
+	jmp	L95
+L94:
+	movb	-584(%ebp), %al
+	testb	%al, %al
+	jne	L96
+	movb	$0, -9(%ebp)
+	jmp	L95
+L96:
+	incl	-20(%ebp)
+L93:
+	movl	-20(%ebp), %eax
+	cmpl	-16(%ebp), %eax
+	jl	L97
+L95:
+	movsbl	-9(%ebp), %eax
+	movl	-20(%ebp), %edx
+	movl	%edx, 8(%esp)
+	movl	%eax, 4(%esp)
+	movl	$LC39, (%esp)
+	call	_printf
+	cmpb	$0, -9(%ebp)
+	jne	L98
+	movl	$32, 8(%esp)
+	movl	$0, 4(%esp)
+	leal	-584(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_memset
+	movl	$8, 8(%esp)
+	leal	-1097(%ebp), %eax
+	movl	%eax, 4(%esp)
+	leal	-584(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_memcpy
+	leal	-1097(%ebp), %eax
+	addl	$8, %eax
+	movl	$3, 8(%esp)
+	movl	%eax, 4(%esp)
+	leal	-584(%ebp), %eax
+	addl	$8, %eax
+	movl	%eax, (%esp)
+	call	_memcpy
+	movb	$39, -573(%ebp)
+	movb	$0, -572(%ebp)
+	movb	$0, -571(%ebp)
+	movb	$2, -558(%ebp)
+	movb	$0, -557(%ebp)
+	movl	$4, 8(%esp)
+	leal	-1104(%ebp), %eax
+	movl	%eax, 4(%esp)
+	leal	-584(%ebp), %eax
+	addl	$28, %eax
+	movl	%eax, (%esp)
+	call	_memcpy
+	movl	-32(%ebp), %eax
+	movl	%eax, 12(%esp)
+	movl	$1, 8(%esp)
+	movl	$32, 4(%esp)
+	leal	-584(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fwrite
+L98:
+	movl	$0, 8(%esp)
+	movl	$0, 4(%esp)
+	movl	-36(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fseek
+	movl	$0, 8(%esp)
+	movl	$16896, 4(%esp)
+	movl	-32(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fseek
+	movl	$2, -20(%ebp)
+	jmp	L99
+L107:
+	movl	$513, 8(%esp)
+	movl	$0, 4(%esp)
+	leal	-1097(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_memset
+	movl	-36(%ebp), %eax
+	movl	%eax, 12(%esp)
+	movl	$512, 8(%esp)
+	movl	$1, 4(%esp)
+	leal	-1097(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fread
+	cmpl	$512, %eax
+	je	L100
+	cmpl	$2, -20(%ebp)
+	jne	L101
+	movl	-20(%ebp), %eax
+	movw	-12062(%ebp,%eax,2), %ax
+	cmpw	$2, %ax
+	jmp	L103
+L101:
+	movl	-20(%ebp), %eax
+	movw	-12062(%ebp,%eax,2), %ax
+	movswl	%ax, %edx
+	movl	-20(%ebp), %eax
+	decl	%eax
+	movw	-12062(%ebp,%eax,2), %ax
+	cwtl
+	movl	%edx, %ecx
+	subl	%eax, %ecx
+	movl	%ecx, %eax
+	movl	%eax, -40(%ebp)
+	cmpl	$1, -40(%ebp)
+	jle	L103
+	movl	-40(%ebp), %eax
+	sall	$9, %eax
+	movl	$1, 8(%esp)
+	movl	%eax, 4(%esp)
+	movl	-32(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fseek
+L103:
+	leal	-1097(%ebp), %eax
+	movl	%eax, 4(%esp)
+	movl	$LC40, (%esp)
+	call	_printf
+	movl	-32(%ebp), %eax
+	movl	%eax, 12(%esp)
+	movl	$512, 8(%esp)
+	movl	$1, 4(%esp)
+	leal	-1097(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fwrite
+	movl	-20(%ebp), %eax
+	movw	$4095, -12062(%ebp,%eax,2)
+	jmp	L104
+L100:
+	cmpl	$2, -20(%ebp)
+	je	L111
+L105:
+	movl	-20(%ebp), %eax
+	movw	-12062(%ebp,%eax,2), %ax
+	movswl	%ax, %edx
+	movl	-20(%ebp), %eax
+	decl	%eax
+	movw	-12062(%ebp,%eax,2), %ax
+	cwtl
+	movl	%edx, %ecx
+	subl	%eax, %ecx
+	movl	%ecx, %eax
+	movl	%eax, -40(%ebp)
+	cmpl	$1, -40(%ebp)
+	jle	L106
+	movl	-40(%ebp), %eax
+	sall	$9, %eax
+	movl	$1, 8(%esp)
+	movl	%eax, 4(%esp)
+	movl	-32(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fseek
+	jmp	L106
+L111:
+	nop
+L106:
+	movl	-32(%ebp), %eax
+	movl	%eax, 12(%esp)
+	movl	$512, 8(%esp)
+	movl	$1, 4(%esp)
+	leal	-1097(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fwrite
+	incl	-20(%ebp)
+L99:
+	movl	-36(%ebp), %eax
+	movl	12(%eax), %eax
+	andl	$16, %eax
+	testl	%eax, %eax
+	je	L107
+L104:
+	cmpl	$0, -36(%ebp)
+	je	L108
+	movl	-36(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fclose
+	movl	$0, -36(%ebp)
+L108:
+	cmpl	$0, -32(%ebp)
+	je	L109
+	movl	-32(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_fclose
+	movl	$0, -32(%ebp)
+L109:
+	movl	$LC28, (%esp)
+	call	_printf
+	jmp	L69
+L71:
+L69:
+	leave
+	ret
+.globl _toWord
+	.def	_toWord;	.scl	2;	.type	32;	.endef
+_toWord:
+	pushl	%ebp
+	movl	%esp, %ebp
+	subl	$16, %esp
+	movw	$0, -2(%ebp)
+	movl	8(%ebp), %eax
+	movb	(%eax), %al
+	cbtw
+	andl	$255, %eax
+	movw	%ax, -2(%ebp)
+	movl	8(%ebp), %eax
+	incl	%eax
+	movb	(%eax), %al
+	movsbl	%al, %eax
+	sall	$8, %eax
+	orw	%ax, -2(%ebp)
+	movw	-2(%ebp), %ax
+	leave
+	ret
+	.def	___mingw_vprintf;	.scl	2;	.type	32;	.endef
+	.def	_strcmp;	.scl	2;	.type	32;	.endef
+	.def	_memcmp;	.scl	2;	.type	32;	.endef
+	.def	_atol;	.scl	2;	.type	32;	.endef
+	.def	_fopen;	.scl	2;	.type	32;	.endef
+	.def	_memset;	.scl	2;	.type	32;	.endef
+	.def	_memcpy;	.scl	2;	.type	32;	.endef
+	.def	_fwrite;	.scl	2;	.type	32;	.endef
+	.def	_fclose;	.scl	2;	.type	32;	.endef
+	.def	_fseek;	.scl	2;	.type	32;	.endef
+	.def	_ftell;	.scl	2;	.type	32;	.endef
+	.def	_fread;	.scl	2;	.type	32;	.endef
