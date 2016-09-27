@@ -1,0 +1,23 @@
+qemu-img version 0.9.0, Copyright (c) 2004-2007 Fabrice Bellard
+usage: qemu-img command [command options]
+QEMU disk image utility
+
+Command syntax:
+  create [-e] [-b base_image] [-f fmt] filename [size]
+  commit [-f fmt] filename
+  convert [-c] [-e] [-f fmt] filename [-O output_fmt] output_filename
+  info [-f fmt] filename
+
+Command parameters:
+  'filename' is a disk image filename
+  'base_image' is the read-only disk image which is used as base for a copy on
+    write image; the copy on write image only stores the modified data
+  'fmt' is the disk image format. It is guessed automatically in most cases
+  'size' is the disk image size in kilobytes. Optional suffixes 'M' (megabyte)
+    and 'G' (gigabyte) are supported
+  'output_filename' is the destination disk image filename
+  'output_fmt' is the destination format
+  '-c' indicates that target image must be compressed (qcow format only)
+  '-e' indicates that the target image must be encrypted (qcow format only)
+
+Supported format: qcow2 vvfat vpc bochs dmg cloop vmdk qcow host_device raw

@@ -1,0 +1,2 @@
+MasterBoot Record,MBR
+Disk Partition Table,DPT

@@ -1,0 +1,27 @@
+
+-boot d
+Plex86/Bochs VGABios current-cvs 14 Jun 2006
+This VGA/VBE Bios is released under the GNU LGPL
+
+Please visit :
+ . http://bochs.sourceforge.net
+ . http://www.nongnu.org/vgabios
+
+Bochs VBE Display Adapter enabled
+
+QEMU BIOS - build:11/01/06
+$Revision: 1.174 $ $Date:2006/10/17 16:48:05 $
+Options: apmbios pcibios eltorito rombios32
+
+ata0 master: QEMU HARDDISK ATA-7 Hard-Disk (1 MBytes)
+ata0  slave: QEMU HARDDISK ATA-7 Hard-Disk (1 MBytes)
+ata1 master: QEMU CD-ROM ATAPI-4 CD-Rom/DVD-Rom
+
+CDROM boot failure code : 0003
+Boot from CD-Rom failed
+FATAL: Could not read the boot disk
+_
+
+-boot n
+No valid PXE rom found for network device
+

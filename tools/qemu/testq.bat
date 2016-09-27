@@ -1,0 +1,2 @@
+REM qemu -L . -M pc -fda M32-085.IMG -hda everyos.bin -hdb OSAIMGQE.BIN -boot d -m 256 -smp 2 -std-vga -localtime
+qemu -L . -M pc -fdb M32-085.IMG -hdb everyos.bin -hdc OSAIMGQE.BIN -boot a -m 256 -smp 2 -std-vga -localtime

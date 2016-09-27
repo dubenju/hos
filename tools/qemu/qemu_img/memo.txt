@@ -1,0 +1,206 @@
+QEMU-IMG命令详解
+qemu-img是QEMU的磁盘管理工具，在qemu-kvm源码编译后就会默认编译好qemu-img这个二进制文件。
+qemu-img也是QEMU/KVM使用过程中一个比较重要的工具，本节对其用法和实践使用方法进行介绍。
+qemu-img工具的命令行基本用法如下：
+qemu-img command [command options]
+它支持的命令分为如下几种：
+（1）check [-f fmt] filename
+对磁盘镜像文件进行一致性检查，查找镜像文件中的错误，
+
+目前仅支持对“qcow2”、“qed”、“vdi”格式文件的检查。
+其中，qcow2是QEMU 0.8.3版本引入的镜像文件格式，也是目前使用最广泛的格式。
+qed（QEMU enhanced disk）是从QEMU 0.14版开始加入的增强磁盘文件格式，
+为了避免qcow2格式的一些缺点，也为了提高性能，不过目前还不够成熟。
+而vdi（Virtual Disk Image）是Oracle的VirtualBox虚拟机中的存储格式。
+参数-f fmt是指定文件的格式，如果不指定格式qemu-img会自动检测，
+
+filename是磁盘镜像文件的名称（包括路径）。
+
+如下命令行演示了qemu-img的check命令的使用方法。
+[root@jay-linux kvm_demo]# qemu-img check rhel6u3.qcow2
+No errors were found on the image.
+
+（2）create [-f fmt] [-o options] filename [size]
+创建一个格式为fmt大小为size文件名为filename的镜像文件。
+根据文件格式fmt的不同，还可以添加一个或多个选项（options）来附加对该文件的各种功能设置，
+可以使用“-o ?”来查询某种格式文件支持那些选项，在“-o”选项中各个选项用逗号来分隔。
+
+如果“-o”选项中使用了backing_file这个选项来指定其后端镜像文件，那么这个创建的镜像文件仅记录与后端镜像文件的差异部分。后端镜像文件不会被修改，除非在QEMU monitor中使用“commit”命令或者使用“qemu-img commit”命令去手动提交这些改动。这种情况下，size参数不是必须需的，其值默认为后端镜像文件的大小。另外，直接使用“-b backfile”参数也与“-o backing_file=backfile”效果相同。
+
+size选项用于指定镜像文件的大小，其默认单位是字节（bytes），
+也可以支持k（或K）、M、G、T来分别表示KB、MB、GB、TB大小。
+另外，镜像文件的大小（size）也并非必须写在命令的最后，
+它也可以被写在“-o”选项中作为其中一个选项。
+
+对create命令的演示如下所示，其中包括查询qcow2格式支持的选项、
+创建有backing_file的qcow2格式的镜像文件、
+创建没有backing_file的10GB大小的qcow2格式的镜像文件。
+[root@jay-linux kvm_demo]# qemu-img create -f qcow2 -o ? temp.qcow
+Supported options:
+size             Virtual disk size
+compat           Compatibility level (0.10 or 1.1)
+backing_file     File name of a base image
+backing_fmt      Image format of the base image
+encryption       Encrypt the image
+cluster_size     qcow2 cluster size
+preallocation    Preallocation mode (allowed values: off, metadata)
+ 
+[root@jay-linux kvm_demo]# qemu-img create -f qcow2 -b rhel6u3.img  rhel6u3.qcow2
+Formatting ‘rhel6u3.qcow2′, fmt=qcow2 size=8589934592 backing_file=’rhel6u3.img’ encryption=off cluster_size=65536
+ 
+[root@jay-linux kvm_demo]# qemu-img create -f qcow2 -o backing_file=rhel6u3.img  rhel6u3-1.qcow2
+Formatting ‘rhel6u3-1.qcow2′, fmt=qcow2 size=8589934592 backing_file=’rhel6u3.img’ encryption=off cluster_size=65536
+ 
+[root@jay-linux kvm_demo]# qemu-img create -f qcow2 -o backing_file=rhel6u3.img,size=20G  rhel6u3-2.qcow2
+Formatting ‘rhel6u3-2.qcow2′, fmt=qcow2 size=21474836480 backing_file=’rhel6u3.img’ encryption=off cluster_size=65536
+ 
+[root@jay-linux kvm_demo]# qemu-img create -f qcow2 ubuntu.qcow2 10G
+Formatting ‘ubuntu.qcow2’, fmt=qcow2 size=10737418240 encryption=off cluster_size=65536
+ 
+（3）commit [-f fmt] filename
+提交filename文件中的更改到后端支持镜像文件（创建时通过backing_file指定的）中去。
+ 
+（4）convert [-c] [-f fmt] [-O output_fmt] [-o options] filename [filename2 […]] output_filename
+将fmt格式的filename镜像文件根据options选项转换为格式为output_fmt的名为output_filename的镜像文件。
+它支持不同格式的镜像文件之间的转换，比如可以用VMware用的vmdk格式文件转换为qcow2文件，
+这对从其他虚拟化方案转移到KVM上的用户非常有用。
+一般来说，输入文件格式fmt由qemu-img工具自动检测到，
+而输出文件格式output_fmt根据自己需要来指定，
+默认会被转换为与raw文件格式（且默认使用稀疏文件的方式存储以节省存储空间）。
+其中，“-c”参数是对输出的镜像文件进行压缩，不过只有qcow2和qcow格式的镜像文件才支持压缩，
+而且这种压缩是只读的，如果压缩的扇区被重写，则会被重写为未压缩的数据。
+同样可以使用“-o options”来指定各种选项，如：后端镜像、文件大小、是否加密等等。
+使用backing_file选项来指定后端镜像，让生成的文件是copy-on-write的增量文件，
+这时必须让转换命令中指定的后端镜像与输入文件的后端镜像的内容是相同的，
+尽管它们各自后端镜像的目录、格式可能不同。
+如果使用qcow2、qcow、cow等作为输出文件格式来转换raw格式的镜像文件（非稀疏文件格式），
+镜像转换还可以起到将镜像文件转化为更小的镜像，因为它可以将空的扇区删除使之在生成的输出文件中并不存在。
+下面的命令行演示了两个转换：将VMware的vmdk格式镜像转换为KVM可以使用的qcow2镜像，将一个raw镜像文件转化为qcow2格式的镜像。
+[root@jay-linux kvm_demo]# qemu-img convert my-vmware.vmdk my-kvm.img
+（此处并无实际存在vmdk文件，仅演示其命令行操作）
+ 
+[root@jay-linux kvm_demo]# qemu-img convert -O qcow2 rhel6u3.img rhel6u3-a.img
+ 
+（5）info [-f fmt] filename
+展示filename镜像文件的信息。如果文件是使用稀疏文件的存储方式，
+也会显示出它的本来分配的大小以及实际已占用的磁盘空间大小。
+如果文件中存放有客户机快照，快照的信息也会被显示出来。
+下面的命令行演示了前面进行文件转换的输入、输出文件的信息。
+[root@jay-linux kvm_demo]# qemu-img info rhel6u3.img
+image: rhel6u3.img
+file format: raw
+virtual size: 8.0G (8589934592 bytes)
+disk size: 8.0G
+[root@jay-linux kvm_demo]# qemu-img info rhel6u3-a.img
+image: rhel6u3-a.img
+file format: qcow2
+virtual size: 8.0G (8589934592 bytes)
+disk size: 6.8G
+cluster_size: 65536
+ 
+（6）snapshot [-l | -a snapshot | -c snapshot | -d snapshot] filename
+“-l” 选项是查询并列出镜像文件中的所有快照，
+“-a snapshot”是让镜像文件使用某个快照，
+“-c snapshot”是创建一个快照，
+“-d”是删除一个快照。
+ 
+（7）rebase [-f fmt] [-t cache] [-p] [-u] -b backing_file [-F backing_fmt] filename
+改变镜像文件的后端镜像文件，只有qcow2和qed格式支持rebase命令。
+使用“-b backing_file”中指定的文件作为后端镜像，
+后端镜像也被转化为“-F backing_fmt”中指定的后端镜像格式。
+它可以工作于两种模式之下，一种是安全模式（Safe Mode）也是默认的模式，
+qemu-img会去比较原来的后端镜像与现在的后端镜像的不同进行合理的处理；
+另一种是非安全模式（Unsafe Mode），是通过“-u”参数来指定的，
+这种模式主要用于将后端镜像进行了重命名或者移动了位置之后对前端镜像文件的修复处理，
+由用户去保证后端镜像的一致性。
+ 
+（8）resize filename [+ | -]size
+改变镜像文件的大小，使其不同于创建之时的大小。
+“+”和“-”分别表示增加和减少镜像文件的大小，而size也是支持K、M、G、T等单位的使用。
+缩小镜像的大小之前，需要在客户机中保证里面的文件系统有空余空间，否则会数据丢失，
+另外，qcow2格式文件不支持缩小镜像的操作。在增加了镜像文件大小后，
+也需启动客户机到里面去应用“fdisk”、“parted”等分区工具进行相应的操作才能真正让客户机使用到增加后的镜像空间。
+不过使用resize命令时需要小心（最好做好备份），如果失败的话，
+可能会导致镜像文件无法正常使用而造成数据丢失。
+如下命令行演示了两个镜像的大小改变：将一个8GB的qcow2镜像增加2GB的空间，
+也将一个8GB大小的raw镜像减少1GB空间。
+[root@jay-linux kvm_demo]# qemu-img resize rhel6u3-a.img +2G
+Image resized.
+[root@jay-linux kvm_demo]# qemu-img info rhel6u3-a.img
+image: rhel6u3-a.img
+file format: qcow2
+virtual size: 10G (10737418240 bytes)
+disk size: 6.8G
+cluster_size: 65536
+ 
+[root@jay-linux kvm_demo]# qemu-img resize rhel6u3-b.img -1G
+Image resized.
+[root@jay-linux kvm_demo]# qemu-img info rhel6u3-b.img
+image: rhel6u3-b.img
+file format: raw
+virtual size: 7.0G (7516192768 bytes)
+disk size: 6.5G
+2016.02.22 update: 将qcow2/raw等格式转化为vhd，记录一下 qemu-img convert source.img -O vpc -o subformat=dynamic dest.vhd
+
+
+\git\hos\tools\qemu\qemu_img>..\qemu-img -help
+qemu-img version 0.9.0, Copyright (c) 2004-2007 Fabrice Bellard
+usage: qemu-img command [command options]
+QEMU disk image utility
+
+Command syntax:
+  create [-e] [-b base_image] [-f fmt] filename [size]
+  commit [-f fmt] filename
+  convert [-c] [-e] [-f fmt] filename [-O output_fmt] output_filename
+  info [-f fmt] filename
+
+Command parameters:
+  'filename' is a disk image filename
+  'base_image' is the read-only disk image which is used as base for a copy on
+    write image; the copy on write image only stores the modified data
+  'fmt' is the disk image format. It is guessed automatically in most cases
+  'size' is the disk image size in kilobytes. Optional suffixes 'M' (megabyte)
+    and 'G' (gigabyte) are supported
+  'output_filename' is the destination disk image filename
+  'output_fmt' is the destination format
+  '-c' indicates that target image must be compressed (qcow format only)
+  '-e' indicates that the target image must be encrypted (qcow format only)
+
+Supported format: qcow2 vvfat vpc bochs dmg cloop vmdk qcow host_device raw
+
+\git\hos\tools\qemu\qemu_img>
+..\qemu-img info everys.img
+\git\hos\tools\qemu\qemu_img>..\qemu-img info everys.img
+image: everys.img
+file format: raw
+virtual size: 1.4M (1474560 bytes)
+disk size: 1.4M
+
+\git\hos\tools\qemu\qemu_img>
+..\qemu-img info fdempty.img
+\git\hos\tools\qemu\qemu_img>..\qemu-img info fdempty.img
+image: fdempty.img
+file format: raw
+virtual size: 1.4M (1474560 bytes)
+disk size: 1.4M
+
+\git\hos\tools\qemu\qemu_img>
+..\qemu-img info M32-085.IMG
+\git\hos\tools\qemu\qemu_img>..\qemu-img info M32-085.IMG
+image: M32-085.IMG
+file format: raw
+virtual size: 1.4M (1474560 bytes)
+disk size: 1.4M
+
+\git\hos\tools\qemu\qemu_img>
+
+..\qemu-img create -f raw raw2m.raw 2M
+\git\hos\tools\qemu\qemu_img>..\qemu-img create -f raw raw2m.raw 2M
+Formating 'raw2m.raw', fmt=raw, size=2048 kB
+
+\git\hos\tools\qemu\qemu_img>
+..\qemu-img create -f qcow2 qcow2m.qcow2 2M
+\git\hos\tools\qemu\qemu_img>..\qemu-img create -f qcow2 qcow2m.qcow2 2M
+Formating 'qcow2m.qcow2', fmt=qcow2, size=2048 kB
+
+\git\hos\tools\qemu\qemu_img>

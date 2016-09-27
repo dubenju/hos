@@ -1,0 +1,173 @@
+QEMU 使用的镜像文件：qcow2 与 raw
+qcow2 的基本原理
+qcow2 镜像格式是 QEMU 模拟器支持的一种磁盘镜像。
+它也是可以用一个文件的形式来表示一块固定大小的块设备磁盘。
+与普通的 raw 格式的镜像相比，有以下特性：
+更小的空间占用，即使文件系统不支持空洞(holes)；
+支持写时拷贝（COW, copy-on-write），镜像文件只反映底层磁盘的变化；
+支持快照（snapshot），镜像文件能够包含多个快照的历史；
+可选择基于 zlib 的压缩方式
+可以选择 AES 加密
+
+qcow2 镜像文件格式
+头部信息
+每一个 qcow2 文件都以一个大端（big-endian）格式的头开始，结构如下:
+清单 1. qcow2 Header
+ typedef struct QCowHeader {
+      uint32_t magic;  // 4
+      uint32_t version; // 4
+
+      uint64_t backing_file_offset; // 8
+      uint32_t backing_file_size; // 4
+
+      uint32_t cluster_bits; // 4
+      uint64_t size; /* in bytes */ // 8
+      uint32_t crypt_method; // 4
+
+      uint32_t l1_size; // 4
+      uint64_t l1_table_offset; // 8
+
+      uint64_t refcount_table_offset; // 8
+      uint32_t refcount_table_clusters; // 4
+
+      uint32_t nb_snapshots; // 4
+      uint64_t snapshots_offset; // 8
+  } QcowHeader;
+
+下面以一个 10G 的 qcow2 文件为例来分析各字段的含义。
+清单 2. qcow2 文件的 16 进制表示
+# file 1.cow2
+1.cow2: QEMU QCOW Image (v2), 10737418240 bytes
+
+0000000: 5146 49fb 0000 0002 0000 0000 0000 0000  QFI.............
+0000010: 0000 0000 0000 0010 0000 0002 8000 0000  ................
+0000020: 0000 0000 0000 0014 0000 0000 0003 0000  ................
+0000030: 0000 0000 0001 0000 0000 0001 0000 0000  ................
+0000040: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+0000050: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+0000060: 0000 0004 0000 0068 0000 0000 0000 0000  .......h........
+0000070: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+......
+
+前 4 个比特包含了字符 Q，F，I，然后是 0xfb，实例中的 5146 49fb 是 magic 字段。
+
+接下来的 4 个比特包含了该镜像文件的版本号，实例中的 0000 0002 是 version 字段，代表使用的是 qcow2 版本。
+
+backing_file_offset 占用 8 个字节，实例中 0000 0000 0000 0000，给出一个从某个文件开始偏移量。
+backing_file_size 给出了一个不以 null 结尾的字符串的长度，实例中为 0000 0000。
+如果这个镜像文件是一个写时拷贝的，那么它是原始文件的路径。
+
+cluster_bits，32 位（0000 0010），描述了如何映射一个镜像的地址到一个本地文件，
+它决定了在一个 cluster 中，偏移地址的低位是如何作为索引的。
+因为 L2 表占用了一个单独的 cluster 并且包含 8 字节的表项（entry），所以 cluster_bits 只有不足 3 个位，作为 L2 表的索引。
+
+接下来的 size ，8 字节代表了该镜像文件所表示的块设备的大小，实例中为 0000 0002 8000 0000 字节，也就是 10G 的空间。
+
+crypt_method 如果为 1 代表使用 AES加密。
+
+l1_size（0000 0014）和 l1_table_offset（0000 0000 0003 0000::）分别给出了 L1 表大小和偏移量。
+
+refcount_table_offset 给出 refcount 表的偏移量（0000 0000 0001 0000）
+而 refcount_table_clusters 描述了以 cluster 为单位的 refcount 表的大小（0000 0001）。
+
+nb_snapshots 给出了该镜像包含的快照数量（0000 0000）， 
+snapshots_offset 给出每个快照到 QCowSnapshotHeader 的偏移量（0000 0000 0000 0000）。
+
+一个典型的 qcow2 镜像文件包含一下几部分：
+上文中提到的头部信息
+L1 表
+refcount 表
+一个或者多个 refcount 块
+快照头
+L2 表
+数据 cluster
+
+2 级查找
+在 qcow2 中，磁盘的内容是保存在 cluster 中（每个 cluster 包含一些大小为 512 字节的扇区）。为了找到给定地址所在的 cluster，我们需要查找两张表，L1->L2。L1 表保存一组到 L2 表的偏移量，L2 表保存一组到 cluster 的偏移量；
+所以一个地址要根据 cluster_bits（64 位）的设置分成 3 部分，比如说 cluster_bits=12；
+低 12 位是一个 4Kb cluster 的偏移（2 的 12 次方=4Kb）；
+接下来 9 位是包含 512 个表项目的 L2 表；
+剩下 43 位的代表 L1 表偏移量。
+为了获取一个给定地址（64 位）的偏移位置：
+从 Head 域中的 l1_table_offset 取得 L1 表的地址
+用前（64-l2_bits-cluster_bits）位地址去索引 L1 表
+在 L1 表中的偏移量获得 L2 表的地址
+用地址中的接下来的 l2_bits 去索引 L2 表，获得一个 64 位的表项
+用 L2 表中的偏移量获得 cluster 的地址
+用地址中剩下的 cluster_bits 位去索引该 cluster，获得该数据块
+如果 L1 表和 L2 表中的偏移量都是空，这块区域就尚未被镜像文件分配。
+注意 L1 表和 L2 表中的偏移量的前两位被保留，用做表示'copied' 或'compressed'。
+Copy-on-Write 镜像文件
+qcow2 镜像可以用来保存另一个镜像文件的变化，它并不去修改原始镜像文件，只记录与原始镜像文件的不同即可，这种镜像文件就叫做 copy-on-write 镜像。虽然是一个单独的文件，但它的大部分的数据都来自原始镜像，只有跟原始镜像文件相比有变化的 cluster 才会被记录下来。
+这很容易去实现，在头部信息中记录原始文件路径即可。当需要从一个 copy-on-write 镜像文件中读取一个 cluster 的时候，首先检查这块区域是否已经在该镜像文件中被分配，如果没有就从原始文件读取。
+快照
+快照有些类似 Copy-On-Write 文件，但区别是快照是一个可写的。快照就是原始文件本身（内部快照）。它既包含做快照之前的原始文件部分，它本身也包含可写的部分。
+每一个快照都包含如下的头部结构：
+清单 3. qcow2 快照 Header
+  typedef struct QCowSnapshotHeader {
+      /* header is 8 byte aligned */
+      uint64_t l1_table_offset;
+
+      uint32_t l1_size;
+      uint16_t id_str_size;
+      uint16_t name_size;
+
+      uint32_t date_sec;
+      uint32_t date_nsec;
+
+      uint64_t vm_clock_nsec;
+
+      uint32_t vm_state_size;
+      uint32_t extra_data_size; /* for extension */
+      /* extra data follows */
+      /* id_str follows */
+      /* name follows  */
+  } QcowSnapshotHeader;
+qcow2 的其他特性
+qcow2 支持压缩，它允许每个簇（cluster）单独使用 zlib 压缩。它也支持使用 128 位的 AES 密钥进行加密。
+回页首
+创建 qcow2 和 raw 文件以及两种镜像的对比
+使用 QEMU 软件包自带的 qemu-img 软件创建 qcow2 文件。
+清单 4. 创建 qcow2 和 raw 文件
+$ qemu-img create -f qcow2 test.qcow2 10G
+Formatting 'test.qcow2', fmt=qcow2 size=10737418240 encryption=off cluster_size=65536 lazy_refcounts=off
+
+$ qemu-img create -f raw test.raw 10G
+Formatting 'test.raw', fmt=raw size=10737418240
+对比两种格式的文件的实际大小以及占用空间大小如下：
+清单 5. qcow2 和 raw 文件占用空间情况对比
+$ ll -sh test.*
+200K -rw-r--r-- 1 qiaoliyong qiaoliyong 193K 5 月   6 10:29 test.qcow2
+   0 -rw-r--r-- 1 qiaoliyong qiaoliyong  10G 5 月   6 10:28 test.raw
+
+[qiaoliyong@localhost ]$ stat test.raw
+  文件："test.raw"
+  大小：10737418240	块：0          IO 块：4096   普通文件
+
+[qiaoliyong@localhost ]$ stat test.qcow2
+  文件："test.qcow2"
+  大小：197120    	块：400        IO 块：4096   普通文件
+从对比中可以看出 qcow 格式的镜像文件大小位 197120 字节，占用空间为 200K，占用了 200 块磁盘空间。而 raw 格式的文件则没有占用磁盘空间，它是一个空洞文件。
+回页首
+Raw 格式与 qcow2 转化
+QEMU 软件包里面提供的 qemu-img 工具可用于 image 镜像一些常用操作。
+将 raw 格式转化为 qcow2 格式的文件命令如下：
+qemu-img convert -f raw -O qcow2 test.raw test.raw.qcow2
+[qiaoliyong@localhost kimchi]$ ll -sh test.*
+200K -rw-r--r-- 1 qiaoliyong qiaoliyong 193K 5 月   6 10:29 test.qcow2
+   0 -rw-r--r-- 1 qiaoliyong qiaoliyong  10G 5 月   6 10:28 test.raw
+200K -rw-r--r-- 1 qiaoliyong qiaoliyong 193K 5 月   6 10:44 test.raw.qcow2
+两种格式文件的性能比较
+表 1. 使用 ide 作为虚拟磁盘的驱动的三种镜像格式性能对比
+cache =	off	writethrough	writeback
+Old qcow2 (0.10.5)	16:52 min	28:58 min	6:02 min
+New qcow2 (0.11.0-rc1)	5:44 min	9:18 min	6:11 min
+raw	5:41 min	7:24 min	6:03 min
+表 2. 使用 virtio 作为虚拟磁盘的驱动的三种镜像格式性能对比
+cache =	off	writeback
+Old qcow2 (0.10.5)	31:09 min	8:00 min
+New qcow2 (0.11.0-rc1)	18:35 min	8:41 min
+raw	8:48 min	7:51 min
+回页首
+小结
+本文着重介绍了 QEMU 虚拟机使用的镜像文件 qcow2 的格式以及特性，并与 raw 格式镜像做了对比。qcow2 格式的文件虽然在性能上比rRaw 格式的有一些损失（主要体现在对于文件增量上，qcow2 格式的文件为了分配 cluster 多花费了一些时间），但是 qcow2 格式的镜像比 Raw 格式文件更小，只有在虚拟机实际占用了磁盘空间时，其文件才会增长，能方便的减少迁移花费的流量，更适用于云计算系统，同时，它还具有加密，压缩，以及快照等 raw 格式不具有的功能。
