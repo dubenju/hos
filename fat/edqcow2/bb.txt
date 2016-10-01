@@ -1,0 +1,3 @@
+
+C:\Users\DBJ\git\hos\fat\edqcow2>C:\prj\tools\gnumake3.81.exe  
+C:/MinGW/bin/gcc.exe -B -std=c99 -v -o edqcow2.exe edqcow2.c

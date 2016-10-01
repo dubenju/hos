@@ -1,0 +1,341 @@
+qcow2 文件格式详解
+qcow2 镜像格式是 QEMU 模拟器支持的一种磁盘镜像。它也是可以用一个文件的形式来表示一块固定大小的块设备磁盘。与普通的 raw 格式的镜像相比，有以下特性：
+
+更小的空间占用，即使文件系统不支持空洞(holes)；
+支持写时拷贝（COW, copy-on-write），镜像文件只反映底层磁盘的变化；
+支持快照（snapshot），镜像文件能够包含多个快照的历史；
+可选择基于 zlib 的压缩方式
+可以选择 AES 加密
+目前网上可以百度到一些对qcow2文件的中文解析，但大多语焉不详，索性自己看qemu官方的文档，顺便在这里记下自己的理解。
+虚拟化新手，理解可能有误，见谅。
+
+下文是对qcow2官方文档的翻译。以及自己的一些理解。
+
+原文地址
+
+概述
+A qcow2 image file is organized in units of constant size, which are called
+(host) clusters.
+qcow2 镜像文件是由多个固定大小的单元组织构成，这些单元被称为 （host）clusters 。
+
+A cluster is the unit in which all allocations are done,
+both for actual guest data and for image metadata.
+无论是实际用户数据（guest data）还是镜像的元数据（metadata），都在一个 cluster 单元中进行存储。
+
+Likewise, the virtual disk as seen by the guest is divided into (guest)
+clusters of the same size.
+同样的，用户所见到的虚拟磁盘也是被分割为多个同样大小的 cluesters 。
+
+All numbers in qcow2 are stored in Big Endian byte order.
+qcow2里所有的数都是Big Endian的。
+
+文件头
+The first cluster of a qcow2 image contains the file header:
+qcow2 镜像的第一个 cluster 内容包含了文件头信息，文件头在源代码里的定义如下：
+
+typedef struct QCowHeader {
+    uint32_t magic;
+    uint32_t version;
+    uint64_t backing_file_offset;
+    uint32_t backing_file_size;
+    uint32_t cluster_bits;
+    uint64_t size; /* in bytes */
+    uint32_t crypt_method;
+    uint32_t l1_size; /* XXX: save number of clusters instead ? */
+    uint64_t l1_table_offset;
+    uint64_t refcount_table_offset;
+    uint32_t refcount_table_clusters;
+    uint32_t nb_snapshots;
+    uint64_t snapshots_offset;
+
+    /* The following fields are only valid for version >= 3 */
+    uint64_t incompatible_features;
+    uint64_t compatible_features;
+    uint64_t autoclear_features;
+
+    uint32_t refcount_order;
+    uint32_t header_length;
+} QEMU_PACKED QCowHeader;
+文件头结构体里的具体含义如下：
+
+字节 0 - 3 ：magic
+QCOW magic string ("QFI\xfb")
+4个字节固定的标识符
+
+4 - 7 version
+Version number (valid values are 2 and 3)
+版本号，2或者3
+
+8 - 15 backing_file_offset
+Offset into the image file at which the backing file name is stored (NB: The string is not null terminated). 0 if the image doesn't have a backing file.
+backing_file 文件路径字符串相对于文件起始位置的偏移地址，这个字符串不是以0结束的。该值为0时，表示该镜像没有 backing file
+
+什么是backing file就不解释了，知道qcow2的人自然知道。
+
+16 - 19 backing_file_size
+Length of the backing file name in bytes. Must not be longer than 1023 bytes. Undefined if the image doesn't have a backing file.
+backing file 文件路径字符串长度，单位是字节数。必须小于1023字节。镜像没有backing file时，该值无意义
+
+20 - 23 cluster_bits
+Number of bits that are used for addressing an offset within a cluster (1 << cluster_bits is the cluster size). Must not be less than 9 (i.e. 512 byte clusters). Note: qemu as of today has an implementation limit of 2 MB as the maximum cluster size and won't be able to open images with larger cluster sizes.
+cluster 位数，代表了 cluster 大小（1 << cluster_bits 就是 cluster 的大小）。不能小于9，也就是每个 cluster 大小不能小于 512个字节。 Note：新版本的qemu启用了最大 2MB 的 cluster 大小。
+
+24 - 31 size
+Virtual disk size in bytes
+虚拟磁盘的大小，单位字节。应该就是镜像文件总的大小。
+
+32 - 35 crypt_method
+0 for no encryption 1 for AES encryption
+0 - 未加密；1 - AES加密
+
+36 - 39 l1_size
+Number of entries in the active L1 table
+L1 table的入口个数。
+L1 table 是什么鬼？目前不理解，以后再说
+
+40 - 47 l1_table_offset
+Offset into the image file at which the active L1 table starts. Must be aligned to a cluster boundary.
+L1 table 相对于镜像文件起始位置的偏移。 必须与 cluster 对齐
+
+48 - 55 refcount_table_offset
+Offset into the image file at which the refcount table starts. Must be aligned to a cluster boundary.
+refcount table 相对于镜像文件起始位置的偏移。必须与 cluster 对齐
+refcount table 在后文有解释？
+
+56 - 59 refcount_table_clusters
+Number of clusters that the refcount table occupies
+refcount table 占用了多少个 cluster
+
+60 - 63 nb_snapshots
+Number of snapshots contained in the image
+镜像文件中包含了多少个快照。
+
+64 - 71 snapshots_offset
+Offset into the image file at which the snapshot table starts. Must be aligned to a cluster boundary.
+快照 table 相对于镜像文件起始位置的偏移。必须与 cluster 对齐
+
+If the version is 3 or higher, the header has the following additional fields.
+For version 2, the values are assumed to be zero, unless specified otherwise
+in the description of a field.
+如果版本是3或更高（目前最高就是3），文件头还会包含以下的信息。在版本2中，这些值都是0，除非特别说明.
+
+72 - 79 incompatible_features
+Bitmask of incompatible features.
+An implementation must fail to open an image if an unknown bit is set.
+未实现的特征的位掩码
+在解析文件的时候，如果发现某个未知的位被设置为1，就是需要报错的时候了。
+
+Bit 0:
+
+Dirty bit. If this bit is set then refcounts may be inconsistent, make sure to scan L1/L2 tables to repair refcounts before accessing the image.
+脏位。如果该位为1，refcounts可能和实际情况是不一致的，在解析的时候需要扫描一遍 L1/L2 table 来修复 refcounts。
+
+Bit 1:
+
+Corrupt bit. If this bit is set then any data structure may be corrupt and the image must not be written to (unless for regaining consistency).
+损坏位。如果该位为1，任何数据结构可能损坏，且镜像不应该被写。
+好吧，如果读到这一位为1，我不想管了……
+
+Bits 2-63:
+
+Reserved (set to 0)
+保留，应该为0。
+
+80 - 87: compatible_features
+Bitmask of compatible features. An implementation can safely ignore any unknown bits that are set.
+兼容特征的位掩码。解析的时候完全可以忽略这些位。
+
+Bit 0:
+
+Lazy refcounts bit.
+If this bit is set then lazy refcount updates can be used. This means marking the image file dirty and postponing refcount metadata updates.
+该位为1，则 lazy refcount 更新可以被使用。 意味着 dirty bit 为1，并且推迟refcount 元数据的更新。
+
+Bits 1-63: Reserved (set to 0)
+88 - 95: autoclear_features
+Bitmask of auto-clear features. An implementation may only write to an image with unknown auto-clear features if it clears the respective bits from this field first.
+我的理解是…… 对于这些autoclear feature，在处理镜像时，如果某一位含义未知，则应该先将其设置为0，再进行写镜像操作。
+
+Bit 0:
+
+Bitmaps extension bit
+This bit indicates consistency for the bitmaps extension data. It is an error if this bit is set without the bitmaps extension present. If the bitmaps extension is present but this bit is unset, the bitmaps extension data must be considered inconsistent.
+这一位表示 bitmap extension 数据一致性。 如果这一位为1，但不存在 bitmaps extension，则应该报错；如果存在 bitmap extension 但这一位为0，则应认为 bitmap extension data 不一致（存在问题？）。
+
+Bits 1-63: Reserved (set to 0)
+96 - 99: refcount_order
+Describes the width of a reference count block entry (width in bits: refcount_bits = 1 << refcount_order). For version 2 images, the order is always assumed to be 4 (i.e. refcount_bits = 16). This value may not exceed 6 (i.e. refcount_bits = 64).
+refcount block 入口的宽度。
+抱歉写到这里的时候，我还不明白refcount是什么含义，无法做出更多解释，不过反正版本2的时候是个固定值16，应该影响不大
+后文有详细解释
+
+refcount_bits = 1 << refcount_order
+版本2时，固定为4，也就是说 refcount_bits = 16.
+该值不超过6，也就是 refcount_bits 不超过 64
+
+100 - 103: header_length
+Length of the header structure in bytes. For version 2 images, the length is always assumed to be 72 bytes.
+文件头结构体的长度，版本2时，长度固定为72字节。
+
+header extensions
+Directly after the image header, optional sections called header extensions can
+be stored. Each extension has a structure like the following:
+紧接着镜像的文件头，存储的是可选的多个 header extensions。
+源代码里header extension的结构体定义如下：
+
+typedef struct Qcow2UnknownHeaderExtension {
+    uint32_t magic;
+    uint32_t len;
+    QLIST_ENTRY(Qcow2UnknownHeaderExtension) next;
+    uint8_t data[];
+} Qcow2UnknownHeaderExtension;
+每一个结构如下：
+
+Byte 0 - 3: Header extension type:
+
+0x00000000 - End of the header extension area
+0xE2792ACA - Backing file format name
+0x6803f857 - Feature name table
+0x23852875 - Bitmaps extension
+other - Unknown header extension, can be safely ignored
+几个固定的，extension的类型，没啥可说的。
+
+4 - 7: Length of the header extension data
+数据长度
+
+8 - n: Header extension data
+数据内容
+
+n - m: Padding to round up the header extension size to the next multiple of 8.
+填充到8字节对齐
+
+Unless stated otherwise, each header extension type shall appear at most once
+in the same image.
+If the image has a backing file then the backing file name should be stored in
+the remaining space between the end of the header extension area and the end of
+the first cluster. It is not allowed to store other data here, so that an
+implementation can safely modify the header and add extensions without harming
+data of compatible features that it doesn't support. Compatible features that
+need space for additional data can use a header extension.
+除非特别说明，每个extension类型在一个镜像里应该只会出现一次。
+
+下面是 Feature name table 和 Bitmaps extension 两种 extension 类型结构的说明。
+
+Feature name table
+The feature name table is an optional header extension that contains the name
+for features used by the image. It can be used by applications that don't know
+the respective feature (e.g. because the feature was introduced only later) to
+display a useful error message.
+
+The number of entries in the feature name table is determined by the length of
+the header extension data. Each entry look like this:
+
+Byte       0:   Type of feature (select feature bitmap)
+                    0: Incompatible feature
+                    1: Compatible feature
+                    2: Autoclear feature
+
+           1:   Bit number within the selected feature bitmap (valid
+                values: 0-63)
+
+      2 - 47:   Feature name (padded with zeros, but not necessarily null
+                terminated if it has full length)
+Bitmaps extension
+The bitmaps extension is an optional header extension. It provides the ability
+to store bitmaps related to a virtual disk. For now, there is only one bitmap
+type: the dirty tracking bitmap, which tracks virtual disk changes from some
+point in time.
+
+The data of the extension should be considered consistent only if the
+corresponding auto-clear feature bit is set, see autoclear_features above.
+
+The fields of the bitmaps extension are:
+
+Byte  0 -  3:  nb_bitmaps
+               The number of bitmaps contained in the image. Must be
+               greater than or equal to 1.
+
+               Note: Qemu currently only supports up to 65535 bitmaps per
+               image.
+
+      4 -  7:  Reserved, must be zero.
+
+      8 - 15:  bitmap_directory_size
+               Size of the bitmap directory in bytes. It is the cumulative
+               size of all (nb_bitmaps) bitmap headers.
+
+     16 - 23:  bitmap_directory_offset
+               Offset into the image file at which the bitmap directory
+               starts. Must be aligned to a cluster boundary.
+Host cluster management
+看到这里，发现似乎有 host cluster 和 guest cluster 的区别，权且这么认为，先继续看吧。
+
+qcow2 manages the allocation of host clusters by maintaining a reference count
+for each host cluster. A refcount of 0 means that the cluster is free, 1 means
+that it is used, and >= 2 means that it is used and any write access must
+perform a COW (copy on write) operation.
+这里解释了前面一直提到的refcount。对于每一个host cluster，qcow2维护了一个refcount表，应该是引用计数的概念，当refcount为0时，表示该cluster是未分配的，1表示是在使用的，>=2时表示在被使用，并且所有的写操作都要进行COW(copy on write)操作。
+
+The refcounts are managed in a two-level table. The first level is called
+refcount table and has a variable size (which is stored in the header). The
+refcount table can cover multiple clusters, however it needs to be contiguous
+in the image file.
+采用了两层表来维护管理 refcounts，第一层叫 refcount table，是可变大小的（refcount table 的 size 存储在header里），refcount table 的每一项覆盖多个 cluster，当然，在镜像文件中refcount table是连续存储的。
+
+It contains pointers to the second level structures which are called refcount
+blocks and are exactly one cluster in size.
+refcount table 包含了多个指针，指向了第二层结构体，第二层结构被称为 refcount block，一个refcount block在大小上就是一个cluster。（意思就是，block也是存在一个个cluster里的）
+
+Given a offset into the image file, the refcount of its cluster can be obtained
+as follows:
+以下是根据镜像偏移量 offset，获得某个cluster对应引用计数的方法：
+
+    refcount_block_entries = (cluster_size * 8 / refcount_bits)
+
+    refcount_block_index = (offset / cluster_size) % refcount_block_entries
+    refcount_table_index = (offset / cluster_size) / refcount_block_entries
+
+    refcount_block = load_cluster(refcount_table[refcount_table_index]);
+    return refcount_block[refcount_block_index];
+注：各种变量前文有述，这里回顾一下
+
+cluster_size = 1 << cluster_bits  //最小 512 bytes
+refcount_bits = 16 //in version 2
+怎么理解呢？
+以版本2为例
+
+cluster_size是一个cluster的字节数，对于一个qcow2文件来说，每个cluster都是固定大小的，比如512字节。
+refcount_bits固定是16，因为refcount block也要按照cluster的大小来存储，所以每个cluster能够存储的block个数： refcount_block_entries = cluster_size / 2 = 256 。
+refcount_table 的一个单元对应 256 个 refcount_block，存在一个cluster里。
+每个block里有2个字节（16位），记录了某个cluster的引用计数。
+所以计算某个 offset 所在的 cluster 引用计数的办法，先 offset / cluster_size 得到这个offset对应的是第几个cluster，然后在refcount table里找，存在table的第几个单元里，最后在这个单元里找是第几个block存着引用计数。
+
+因为一开始没有区分原文里offset所在的cluster和存储block的cluster，理解这个refcount table 颇费了一番功夫，年纪大了脑子真的不好使了？
+
+下面是 refcount table 和 refcount block 的结构体定义，理解了上面这段的话，这里挺简单的了。
+
+Refcount table entry:
+    Bit  0 -  8:    Reserved (set to 0)
+
+         9 - 63:    Bits 9-63 of the offset into the image file at which the
+                    refcount block starts. Must be aligned to a cluster
+                    boundary.
+
+                    If this is 0, the corresponding refcount block has not yet
+                    been allocated. All refcounts managed by this refcount block
+                    are 0.
+Refcount block entry (x = refcount_bits - 1):
+    Bit  0 -  x:    Reference count of the cluster. If refcount_bits implies a
+                    sub-byte width, note that bit 0 means the least significant
+                    bit in this context.
+先写到这里吧，后面还有很重要的 cluster mapping的解读和快照的解读，明天有精力再写。
+
+文／卡塞尔（简书作者）
+原文链接：http://www.jianshu.com/p/d087d3a566f4
+著作权归作者所有，转载请联系作者获得授权，并标注“简书作者”。
+
+
+
+
+l2_bits = cluster_bits - 3，
+L2 table是一个单独的包含若干8字节项的cluster；

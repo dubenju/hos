@@ -1,0 +1,121 @@
+QCOW2镜像格式
+QCOW2镜像格式是Qemu支持的磁盘镜像格式之一。它可以使用一个文件来表示一个固定大小的块设备。与Raw镜像格式相比，QCOW2具有如下优点：
+更小的文件大小，即便不支持holes（稀疏文件）的文件系统同样适用
+支持写时拷贝(COW, Copy-on-write)，QCOW2镜像只反映底层磁盘镜像所做的修改
+支持快照，QCOW2镜像可以包含镜像历史的多重快照
+支持基于zlib的数据压缩
+支持AES加密
+qemu-img是管理镜像文件文件最常用的命令，使用方法如下：
+# 创建一个名为test.qcow2，大小为4G的qcow2镜像
+$ qemu-img create -f qcow2 test.qcow2 4G
+# 将QCOW2格式的test.qcow2文件转换成raw格式的test.img文件
+$ qemu-img convert test.qcow2 -O raw test.img
+ 
+QCOW2头
+每一个QCOW2文件均以一个大端(big endian)格式的头开始，其格式如下：
+typedef struct QCowHeader {
+      uint32_t magic;
+      uint32_t version;
+      uint64_t backing_file_offset;
+      uint32_t backing_file_size;
+      uint32_t cluster_bits;
+      uint64_t size; /* in bytes */
+      uint32_t crypt_method;
+      uint32_t l1_size;
+      uint64_t l1_table_offset;
+      uint64_t refcount_table_offset;
+      uint32_t refcount_table_clusters;
+ 
+      uint32_t nb_snapshots;
+      uint64_t snapshots_offset;
+  } QCowHeader;
+前四个字节magic字段包含了字符’Q’,’F’和’I’，接下来是0xfb。
+接下来的四个字节version字段表示文件所使用的格式版本号。当前有两种版本格式，版本1和版本2，即QCOW和QCOW2.我们将重点介绍QCOW2，结尾处我们会对QCOW和QCOW2进行比较。
+hacking_field_offset字段给出了文件起始位置到包含文件路径字符串的距离偏移值，该字段为8字节；backing_file_size字段给出了表示文件路径的字符串(非’\0’结尾)的长度。如果该镜像文件为COW镜像，该字符串指向原始文件的绝对路径。后续我们会继续讨论。
+cluster_bits字段，该4字节字段描述了如何将镜像偏移位置映射到本地文件中；该字段决定了在一个簇中，可作为索引的偏移地址低位比特位数。由于L2表独占了一个簇，并包含8字节的项，因此地址中cluster_bits减3之外的其余高位比特作为L2表的索引值。L2表的详细内容会在如下的2级检索中介绍。
+接下来的8字节，size字段，表示了该镜像所表示的块设备大小，块设备大小值以字节为单位。
+cypt_method字段包含0和1两种值，为0时表示没有使用加密方法，1表示采用了AES加密算法。
+l1_size字段给出了L1表的大小，l1_table_offset字段给出了L1表中偏移值。
+refcount_table_offset给出了refcount表的偏移量，refcount_table_clusters描述了以簇为单位的refcount表的大小。
+每一个快照都有一个QCowSnapshotHeader,nb_snapshots给出了镜像中包含的快照数目，即QCowSnapshotHeader的数目，snapshots_offset字段给出了QCowSnapshotHeader的偏移值。
+通常一个镜像文件包含以下几部分：
+上文中提到的头文件信息
+L1表，以簇对齐，从下一个簇的起始点存储
+refcount表，同样为簇对齐
+一个或者多个refcount块
+快照头，第一个头要求簇对齐，其余的头要求8字节对齐
+L2表，每个表独占一个簇
+数据簇
+ 
+二级检索
+    对于QCOW2镜像格式，磁盘设备的内容保存在簇中。每一个簇包含多个512字节的扇区。
+    为了将给定的地址定位到簇的地址，必须要遍历L1表和L2表。L1表中存储了一组到L2表的偏移值，而L2表中存储了一组到簇的偏移值。
+    根据cluster_bits字段，给定的地址被划分为三个单独的偏移值。假设cluster_bits的值为12，那么地址可按如下步骤划分:
+地址的低12位作为4Kb的簇偏移值
+接下来的9比特表示L2表中512个表项数组的偏移值。由于L2表是一个包含8字节项的单独簇，因此这里需要的比特数的计算方式为l2_bits=cluster_bits – 3。
+剩下的43比特为L1表中的8字节文件偏移值。
+    注意，L1表的最小值可以通过给定的磁盘镜像大小来计算，计算方法如下：
+l1_size = round_up(disk_size / (cluster_size * l2_size), cluster_size)
+    总而言之，为了将磁盘镜像地址映射到镜像文件偏移值，需要经历如下步骤：
+使用l1_table_offset字段获取L1表的地址
+使用地址中的高(64-l2_bits-cluster_bits)位来检索L1表中的8字节数组项
+使用L1表中的偏移值获取L2表的地址
+使用地址中的l2_bits字段来检索L2表中的8字节数组项
+使用L2表中偏移值来获取簇的地址
+使用地址中剩下的cluster_bits字段作为簇中地址偏移值
+如果L1或者L2表中获取的偏移值为0，则表示磁盘镜像对应的区域尚未被分配。
+    还需注意的是，L1和L2表中偏移值的高2位为“Copied”和“Compress”的预留比特位。具体细节见下文。
+引用计数
+    每一个簇都会被引用计数，这样做的目的是允许这些簇在不被任何快照使用的前提下能够及时的释放。
+    每一个簇的引用计数为2字节，这2字节的引用计数均保存在簇大小的块中。refcount块在镜像中的偏移值可以检索refcount表得到，而引用计数表则由refcount_table_offset和refcount_table_clusters共同定位，其中refcount_table_offset指定了refcount表相对起始位置的偏移值，refcount_table_clusters指定了refcount表占用的簇数。
+为了获取某个簇的引用计数，可以将簇偏移值划分为refcount表偏移值和refcount块偏移值。由于refcount块是一个两字节的存储项，簇偏移值的低cluster_size – 1位表示块偏移值，其余的位数表示表偏移值。
+这里QCOW2有一个优化处理，如果任何由L1表或者L2表的指向的簇的引用计数为1，则L1或L2表项最高位被置为“copied”标记。这意味着没有快照在使用当前簇，当前簇可以直接被写入，而不需要创建引用当前簇的快照。
+ 
+Copy-on-Write镜像
+    QCOW2镜像可以用来存储另一个磁盘镜像的修改内容，而不影响原有磁盘的内容。这种镜像被称之为拷贝镜像，以用户的角度看起来像是一个独立的镜像文件，但是其中的大部分数据是从原始镜像中获取到的。只有原始镜像的簇发生改变的内容才会被存储到拷贝镜像中。
+    这种表示方式很容易实现。可以通过在Copy-on-write镜像中包含原始磁盘镜像中的路径，头文件中记录原文件的路径字符串。
+    当读取Copy-on-write镜像中的簇时，首先检查该区域是否存在Copy-on-write镜像文件内。如果不存在，则从原始磁盘镜像中读取对应的位置。
+快照
+    快照同COW文件概念比较相似，区别在于原文件是可写的，而快照不可写。
+    近一步解释—一个COW镜像也可被称为“快照”，因为COW确实表示了原始镜像文件的状态。我们可以通过创建多个COW镜像来实现对原始镜像的“快照”，每一个镜像指向原始镜像。值得注意的是，原始镜像必须保持只读，而COW快照为可写。
+    快照—“真实快照”—存在于原始镜像文件中。每个快照都是原始镜像在过去的某个时刻的只读记录。原始镜像文件一直保持可写的状态，当原始文件发生改变时，写时复制出来的簇可以被不同的快照引用。
+每个快照对应如下头：
+typedef struct QCowSnapshotHeader {
+      /* header is 8 byte aligned */
+      uint64_t l1_table_offset;
+      uint32_t l1_size;
+      uint16_t id_str_size;
+      uint16_t name_size;
+      uint32_t date_sec;
+      uint32_t date_nsec;
+      uint64_t vm_clock_nsec;
+      uint32_t vm_state_size;
+      uint32_t extra_data_size; /* for extension */
+      /* extra data follows */
+      /* id_str follows */
+      /* name follows  */
+  } QCowSnapshotHeader;
+各字段解释如下：
+每个快照都有一个name和ID，均为字符串格式(非’\0’结尾)，其位置在QCOWSnapshotHeader头之后。
+每个快照至少保留L1表的副本， 其值体现在l1_table_offset和l1_size上。
+快照创建时，通过date_sec和date_nsec获取到主机的gettimeofday()
+vm_clock_nsec表示VM锁的当前状态
+vm_state_size表示虚机状态的大小，而虚机状态作为快照的一部分被存储起来。虚机状态被保存在原始L1表中，紧随镜像头之后。
+extra_data_size表示在头之后扩展数据的长度，不包括ID和name字符串。该字段为后续扩展使用。
+    每创建一个快照就会增加一个头文件，复制L1表的内容，并增加所有L2表中的引用计数和被L1表引用的数据簇。之后，如果镜像中的任何L2表或者数据簇被修改了—也就是说，簇的引用计数值超过1，并且/或者当前簇的“拷贝”标志已被标记—Qemu会先拷贝这些L2表和数据簇，而后再进行写入。这样所有的快照都不会被修改。
+压缩
+    QCOW2镜像格式支持压缩特性，允许每一个簇可以独立通过zlib进行压缩。
+    可以通过如下步骤从L2表中获取簇偏移值：
+如果簇偏移值的最高位为1，则表示该簇已被压缩
+簇偏移值接下来的cluster_bits – 1位为压缩簇的大小，其单位为512字节的扇区
+簇偏移值的其余位数为镜像中簇的实际地址
+加密
+    QCOW2镜像格式同样支持簇的加密特性。
+    若QCowHeader头中的crypt_method字段值为1，则会采用16字符128比特的AES秘钥进行加密。
+簇中的每一个扇区都是通过AES密码块链接模式单独进行加密，采用小端模式的扇区偏移地址(相对于设备的起始位置)来作为128位初始化向量的头64位。
+ 
+QCOW2镜像与上一代镜像
+QCOW2相对于QCOW有如下不同之处：
+QCOW2支持快照概念，QCOW1仅支持copy-on-write镜像的概念
+QCOW2中引用了引用计数的概念，引用计数用来支持快照的概念
+QCOW2中L2表总是可以占据一个单独的簇，而之前簇的大小在头l2_bits中被指定

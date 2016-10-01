@@ -1,0 +1,168 @@
+C语言中long long的用法
+
+在分析BT代码的过程中，遇到了这样的定义:long long line_position;很是纳闷，
+在C语言中我还没有见过这样的写法，网上搜了，资料也很少，
+最后在C语言标准与实现这本书中找到了关于long long的说法。
+在C语言的C99标准扩展了新的整数类型 long long，
+long是32位宽，占4个字节，
+long long通常被定义成 64 位宽，
+也就可以实现了在32位机器上可以扩展8字节的数据，GUN C也支持，
+当然在64位平台上就存在这个问题了。
+C99标准并没有硬性规定具体到某种平台上的某种整数类型究竟占用多少字节、
+能够表示多大范围的数值等， 只是给出一条原则和一个参考数值集合，
+只要同时满足这两方面条件就算是符合 C 标准。
+之后，我查看了C99标准：
+—The rank of long long int shall be greater than the rank of long int,which
+shall be greater than the rank of int,which shall be greater than the rank of short
+int,which shall be greater than the rank of signed char.
+
+意思是说：
+long long 的级别高于 long ，
+long 的级别高于 int ，
+int 的级别高于 short ，
+short 的级别高于 char 。
+（另外有 _Bool 永远是最低级别）。
+级别高的整数类型的宽度大于等于级别较低的整数类型。
+
+编译long long需要支持C99标准的编译器才行，VC并不支持，但有对应的类型__int64
+
+C++ __int64用法
+C++的64位整数 
+
+　　在做ACM题时， 经常都会遇到一些比较大的整数。而常用的内置整数类型常常显得太小了：
+其中long 和 int 范围是[-2^31,2^31)，即-2147483648~2147483647。而unsigned范围是[0,2^32)，
+即0~4294967295。也就 是说，常规的32位整数只能够处理40亿以下 的数。
+　　那遇 到比40亿要大的数怎么办呢？这时就要用到C++的64位扩展 了。
+不同的编译器对64位整数的扩展有所不同。
+基于ACM的需 要，下面仅介绍VC6.0与g++编译器的 扩展。
+　　VC的64位整数分别叫做__int64与unsigned __int64，
+其范 围分别是[-2^63, 2^63)与[0,2^64)，
+即-9223372036854775808~9223372036854775807与0~18446744073709551615(约1800亿亿)。
+对64位整数 的运算与32位整数基本相同，都支持四则运算与位运算等。
+当进行64位与32位的混合运算时，32位整数会被隐式转换成64位整数。
+但是，VC的输入输出与__int64的兼容 就不是很好了，如果你写下这样一段代码：
+1 __int64 a;
+2 cin >> a;
+3 cout << a;
+
+那么，在 第2行会收到“error C2679: binary '>>' : no operator defined which takes a right-hand operand of type '__int64' (or there is no acceptable conversion)”的错 误；在第3行会收到“error C2593: 'operator <<' is ambiguous”的错误。那是不是就不能进行输入输出呢？当然不是，你可以使用C的写 法：
+scanf("%I64d",&a);
+printf("%I64d",a);
+就可以正确输入输出了。当使用unsigned __int64时，把"I64d"改为"I64u"就可以 了。
+　　OJ通常使 用g++编译器。其64位扩展方 式与VC有所不同，它们分别叫做long long 与 unsigned long long。处理规 模与除输入输出外的使用方法同上。对于输入输出，它的扩展比VC好。既可以使用
+1 long long a;
+2 cin>>a;
+3 cout<<a;
+也可以使用
+scanf("%lld",&a);
+printf("%lld",a);
+
+使用无符号数时，将"%lld"改成"%llu"即可。
+　　最后我补充一点：作为一个特例，如果你使用的 是Dev-C++的g++编译器，它使用的是"%I64d"而非"%lld"。
+
+__int64的printf问题！
+
+把Linux的东西移植到Windows 下， 问题真是多， 有时候感觉很是奇怪！ 今天有遇到了一个！
+__int64在 Windows下怎么输出的问题？ 我还以为是强制转换的时候出问题了， 查了好长时间！
+下 面是测试代码， 已经通过Windws, Linux两个平台的测试了！
+
+#include <stdio.h>
+
+#ifdef _WIN32
+typedef unsigned __int64 uint64_t;
+#else
+typedef unsigned long long uint64_t;
+#endif
+
+typedef unsigned int uint32_t;
+typedef unsigned short uint16_t;
+typedef unsigned char uint8_t;
+
+int main(int argc, char *argv[])
+{
+uint32_t t321, t322, t323;
+uint64_t t641, t642, t643;
+uint8_t *p;
+
+uint8_t t[64] =
+{
+0x4E, 0x7C, 0x00, 0x00, 0x00, 0x00,
+0x4E, 0x7C, 0x00, 0x00, 0x00, 0x00, 
+0x04, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+
+printf(
+"sizeof(uint64_t) = %d\n"
+"sizeof(uint32_t) = %d\n"
+, sizeof(uint64_t), sizeof(uint32_t));
+
+p = t;
+t321 = *(uint32_t *)p; p += 6;
+t322 = *(uint32_t *)p; p += 6;
+t323 = *(uint32_t *)p; p += 6;
+
+printf("t321[%X].%d t322[%X].%d t323[%X].%d\n"
+, t321, t321, t322, t322, t323, t323);
+
+p = t;
+t641 = *(uint32_t *)p; p += 6;
+t642 = *(uint32_t *)p; p += 6;
+t643 = *(uint32_t *)p; p += 6;
+
+#ifdef _WIN32
+printf("t641[%I64X].%I64d t642[%I64X].%I64d t643[%I64X].%I64d\n"
+, t641, t641, t642, t642, t643, t643);
+#else
+printf("t641[%llX].%lld t642[%llX].%lld t643[%llX].%lld\n"
+, t641, t641, t642, t642, t643, t643);
+#endif
+
+t641 = 0x1122334455667788;
+
+#ifdef _WIN32
+printf("%I64X %I64d \n", t641, t641);
+#else
+printf("%llX %lld \n", t641, t641);
+#endif
+
+return 0;
+}
+
+
+/*
+Test Env:
+    Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 12.00.8168 for 80x86
+    Microsoft Windows 2000 [Version 5.00.2195]
+
+Result:
+sizeof(uint64_t) = 8
+sizeof(uint32_t) = 4
+t321[7C4E].31822 t322[7C4E].31822 t323[4].4
+t641[7C4E].31822 t642[7C4E].31822 t643[4].4
+1122334455667788 1234605616436508552
+
+--------------------------------------
+Test Env:
+    gcc version 3.2.3 20030502 (Red Hat Linux 3.2.3-47.3)
+
+Result:
+sizeof(uint64_t) = 8
+sizeof(uint32_t) = 4
+t321[7C4E].31822 t322[7C4E].31822 t323[4].4
+t641[7C4E].31822 t642[7C4E].31822 t643[4].4
+1122334455667788 1234605616436508552
+*/
+
+在 进行移植的时候可能用的上的：
+#ifdef _WIN32
+#  define APR_UINT64_T_HEX_FMT     "llx"
+#else
+#  define APR_UINT64_T_HEX_FMT     "I64x"
+#endif
+
+example:
+     sprintf(buf, "%" APR_UINT64_T_HEX_FMT, var);
+
+#define HOST_WIDEST_INT_PRINT_DEC       "%I64d" 
+#define HOST_WIDEST_INT_PRINT_UNSIGNED  "%I64u" 
+#define HOST_WIDEST_INT_PRINT_HEX       "0x%I64x"
