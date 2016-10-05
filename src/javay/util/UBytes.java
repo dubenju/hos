@@ -96,5 +96,32 @@ public class UBytes {
 		}
 		return iRes;
 	}
-
+	public static int be32Toint(byte[] in) {
+		return (in[0] << 24) |
+                (in[1] << 16) |
+                (in[2] << 8) |
+                in[3];
+	}
+	public static long be64Tolong(byte[] in) {
+		long a = 0;
+		for (int i = 0; i < in.length; i ++) {
+			a = a * 256;
+			int b = in[i];
+			// System.out.println(in[i]);
+			if (b < 0) {
+				b += 256;
+			}
+			a += b;
+		}
+		return a;
+        /* return ((in[0] << 56) & 0xFF00000000000000L) |
+               ((in[1] << 48) & 0x00FF000000000000L) |
+               ((in[2] << 40) & 0x0000FF0000000000L) |
+               ((in[3] << 32) & 0x000000FF00000000L) |
+               ((in[4] << 24) & 0x00000000FF000000L) |
+               ((in[5] << 16) & 0x0000000000FF0000L) |
+               ((in[6] <<  8) & 0x000000000000FF00L) |
+                (in[7] & 0x00000000000000FFL) ;
+         */
+	}
 }

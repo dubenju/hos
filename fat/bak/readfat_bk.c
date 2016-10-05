@@ -20,8 +20,6 @@ int main(int argc, char *argv[]) {
 }
 
 int show_usage(void) {
-  printf("readfat <imgfile>");
-  printf("readfat <imgfile> offset");
   return -1;
 }
 
