@@ -1,0 +1,350 @@
+一、汇编速查   
+      MOV   AA,BB         将   BB   放到   AA   里   
+      CALL                   调用子程序   (相当于   BASIC   的   GOSUB)   
+      RET   与   RETF     返回程序       (相当于   BASIC   的   RETURN)   
+      CMP   XX,YY         比较   XX   与   YY   
+      JZ                       若相等则转移   
+      JNZ                     若不相等则转移   
+      JB                       若小于则转移   
+      JG                       若大于则转移   
+      JMP                     无条件转移   
+      J???                   (各种转移指令)   
+      LOOP                   循环直到CX为0   
+      INT   XX               类似   CALL   的中断涵数   
+      PUSH   推入栈（STACK）ESP：PUSH   AX     
+      POP   出栈ESP：POP   CX     
+      XCHG   交换ESP：XCHG   AX，BX     
+      IN、OUT   与PORT有关的IN/OUT     
+      XLAT   查表     
+      LEA   段内偏移量。ESP：LEA   AX，AREA1=MOV   AX，OFFSET   AREA1     
+      LAHF、SAHF与棋标有关的寄存器   AH     
+      PUSHF、POPF将棋标入/出栈     
+      ADD   ESP   ADD   AX，CX   （AX=AX+CX）     
+      ADC   加入棋标C的ADD     
+      INC   ESP   INC   AX（AX=AX+1）     
+      AAA   加法校正     
+      SUB、SBB   减法     
+      DEC   ESP：   DEC   AX（AX=AX-1）     
+      NEG   去补，     
+      MUL、IMUL   乘     
+      DIV、IDIV   除     
+      SHR、SAR、SHL   算术、逻辑位移R=RIGHT   L=LEFT     
+      OR、XOR、AND   逻辑运算   ESP   ：XOR   AX，AX（AX=0）      
+
+
+直接标志转移   
+  指令格式     机器码     测试条件     如...则转移      
+    JC            72             C=1                 有进位     
+    JNS           79             S=0                 正号     
+    JNC           73             C=0                 无进位     
+    JO            70             O=1                 有溢出     
+    JZ/JE         74             Z=1                 零/等于   
+    JNO           71             O=0                 无溢出     
+    JNZ/JNE       75             Z=0                 不为零/不等于   
+    JP/JPE        7A             P=1                 奇偶位为偶     
+    JS            78             S=1                 负号   
+    JNP/IPO       7B             P=0                 奇偶位为奇
+
+     
+  间接标志转移   
+  指令格式                                 机器码                   测试格式                         如...则转移     
+  JA/JNBE(比较无符号数)       77                           C或Z=0   >                      高于/不低于或等于     
+  JAE/JNB(比较无符号数)       73                           C=0   >=                          高于或等于/不低于     
+  JB/JNAE(比较无符号数)       72                           C=1   <                            低于/不高于或等于     
+  JBE/JNA(比较无符号数)       76                           C或Z=1   <=                    低于或等于/不高于     
+  JG/JNLE(比较带符号数)       7F                           (S异或O）或Z=0   >     大于/不小于或等于     
+  JGE/JNL(比较带符号数)       7D                           S异或O=0   >=                大于或等于/不小于     
+  JL/JNGE(比较带符号数)       7C                           S异或O=1   <                  小于/不大于或等于     
+  JLE/JNG(比较带符号数)       7E                           (S异或O)或Z=1   <=      小于或等于/不大于     
+  无条件转移指令JMP   
+  指令格式                                       执行操作                               机器码           说明     
+  段内直接短转移Jmp   short         (IP)←(IP)+8位位移量       EB                   转移范围-128到+127字节     
+  段内直接近转移Jmp   near           (IP)←(IP)+16位位移量     E9                   转移到段内的任一位置     
+  段内间接转移Jmp   word               (IP)←(有效地址EA)           FF   
+  段间直接(远)转移Jmp   far         (IP)←(偏移地址)   
+                                                    (CS)←(段地址)                   EA     
+  段间间接转移   Jmp                       dword   (IP)←(EA)   
+                                                    (CS)←(EA+2)   
+
+                                                      二、断点设置表   
+  一般处理：   
+  bpx   hmemcpy（万能断点）                                 
+  bpx   MessageBox                                                 bpx   MessageBoxExA   
+  bpx   MessageBeep                                               bpx   SendMessage   
+  bpx   GetDlgItemText                                         bpx   GetDlgItemInt   
+  bpx   GetWindowText                                           bpx   GetWindowWord   
+  bpx   GetWindowInt                                             bpx   DialogBoxParamA   
+  bpx   CreateWindow                                             bpx   CreateWindowEx   
+  bpx   ShowWindow                                                 bpx   UpdateWindow   
+  bmsg   xxxx   wm_move                                           bmsg   xxxx   wm_gettext   
+  bmsg   xxxx   wm_command                                     bmsg   xxxx   wm_activate     
+  bmsg   xxxx   wm_create                                       bmsg   xxxx   wm_destroy     
+  时间相关:   
+  bpint   21   if   ah==2A   (DOS)   
+  bpx   GetLocalTime               
+  bpx   GetFileTime   
+  bpx   GetSystemtime     
+  CD-ROM   或   磁盘相关:   
+  bpint   13   if   ah==2   (DOS)                               bpint   13   if   ah==3   (DOS)   
+  bpint   13   if   ah==4   (DOS)   
+  bpx   GetFileAttributesA                                 bpx   GetFileSize   
+  bpx   GetDriveType                                             bpx   GetLastError   
+  bpx   ReadFile   
+  bpio   -h   (Your   CD-ROM   Port   Address)   R   
+  软件狗相关:   
+  bpio   -h   278   R                                                   bpio   -h   378   R     
+  文件访问相关:   
+  bpint   21   if   ah==3dh   (DOS)                           bpint   31   if   ah==3fh   (DOS)   
+  bpint   21   if   ah==3dh   (DOS)   
+  bpx   ReadFile                                                     bpx   WriteFile   
+  bpx   CreateFile                                                 bpx   SetFilePointer   
+  bpx   GetSystemDirectory   
+  INI   初始化文件相关:   
+  bpx   GetPrivateProfileString                       bpx   GetPrivateProfileInt   
+  bpx   WritePrivateProfileString                   bpx   WritePrivateProfileInt   
+  注册表相关:   
+  bpx   RegCreateKey                                             bpx   RegDeleteKey   
+  bpx   RegCloseKey                                               bpx   RegOpenKey   
+  bpx   RegQueryvalue   
+  注册标志相关:   bpx   cs:eip   if   EAX==0   
+  内存标准相关:   bpmb   cs:eip   rw   if   0x30:0x45AA==0   
+  显示相关:   bpx   0x30:0x45AA   do   "d   0x30:0x44BB"   
+                  bpx   CS:0x66CC   do   "?   EAX"     
+  利用S命令设断：   
+  S   [-cu][address   L   length   data-list]   
+  address :搜索的起始地址   
+  length   :搜索的长度(字节长)   
+  data-list :可以是一系列字节,也可以是字符串,   字符串可以用单引号或双引号括住   
+  例如：S   30:0   L   ffffffff   '********'     
+                                                        三、经典句式   
+  1         mov     eax   [             ]     这里可以是地址，也可以是其它寄存器   
+        mov     edx   [             ]     同上     通常这两个地址就储存着重要信息   
+        call   00??????   
+        test   eax   eax   
+        jz(jnz)   
+  2         mov     eax   [             ]     这里可以是地址，也可以是其它寄存器   
+        mov     edx   [             ]     同上     通常这两个地址就储存着重要信息   
+        call   00??????   
+        jne(je)   
+  3         mov   eax   [       ]   
+        mov   edx   [       ]   
+        cmp   eax,edx   
+        jnz(jz)   
+  或者   
+  begin:   mov   al   [       ]   
+            mov   cl   [       ]   
+            cmp   al,cl   
+            jnz(jz)   
+            mov   al   [     +1]   
+            mov   cl   [     +1]   
+            cmp   al,cl   
+            jnz(jz)   
+            cmp   eax   ecx   (eax为计数器）   
+            jnl   begin   
+            mov   al   01   
+  4         lea   edi   [         ]   
+        lea   esi   [         ]   
+        repz   cmpsd   
+        jz(jnz)   
+  5         mov     eax   [             ]     这里可以是地址，也可以是其它寄存器   
+        mov     edx   [             ]     同上     通常这两个地址就储存着重要信息   
+        call   00??????   
+        setz   (setnz)   al   (bl,cl…)   
+  6         mov     eax   [             ]     这里可以是地址，也可以是其它寄存器   
+        mov     edx   [             ]     同上     通常这两个地址就储存着重要信息   
+        call   00??????   
+        test   eax   eax   
+        setz   (setnz)   bl,cl…   
+  7         call   00??????     ***   
+        push   eax   (ebx,ecx…)   
+        ……   
+        call   00??????   
+        pop   eax   (ebx,ecx…)   
+        test   eax   eax     
+        jz(jnz)  
+
+
+intel   x86   类NOP   指令列表(修订版)   
+  bkbll(bkbll@cnhonker.net)   
+  2003/09/10   
+  这篇文章是无聊的时候写的,   因为看到phrack   61上面的fake-nop的东东,   觉得有意思.   
+  后来又受到eyas(cooleyas@21cn.com)的启发,从intel指令手册上找了找,下面是我试验通过可以替换NOP的指令.   
+  注1:   这里不考虑双字节或以上的指令的fake-nop编码.   
+  注2:   eyas加了xchg指令.   
+  16进制机器码   x86汇编指令   指令意义   可能影响的寄存器或标志位   
+  --------------   -------------   -------------------   ---------------------------   
+  06   PUSHL   %es   es进栈   esp   
+  0E   PUSHL   %cs   cs进栈   esp   
+  16   PUSHL   %ss   ss进栈   esp   
+  1E   PUSHL   %ds   ds进栈   esp   
+  27   DAA   加法小数位调整   AF   CF   PF   SF   ZF   AL   
+  2F   DAS   减法小数位调整   AF   CF   PF   SF   ZF   AL   
+  37   AAA   加法的ASCII调整   AF   CF   AL   
+  3F   AAS   减法小数位调整   AF   CF   AL   
+  40   INC   %eax   %eax加1   AF   OF   PF   SF   ZF   eax   
+  41   INC   %ecx   %ecx加1   AF   OF   PF   SF   ZF   ecx   
+  42   INC   %edx   %edx加1   AF   OF   PF   SF   ZF   edx     
+  43   INC   %ebx   %ebx加1   AF   OF   PF   SF   ZF   ebx   
+  44   INC   %esp   %esp加1   AF   OF   PF   SF   ZF   esp   
+  45   INC   %ebp   %ebp加1   AF   OF   PF   SF   ZF   ebp   
+  46   INC   %esi   %esi加1   AF   OF   PF   SF   ZF   esi   
+  47   INC   %edi   %edi加1   AF   OF   PF   SF   ZF   edi   
+  48   DEC   %eax   %eax减1   AF   OF   PF   SF   ZF   eax   
+  49   DEC   %ecx   %ecx减1   AF   OF   PF   SF   ZF   ecx   
+  4A   DEC   %edx   %edx减1   AF   OF   PF   SF   ZF   edx   
+  4B   DEC   %ebx   %ebx减1   AF   OF   PF   SF   ZF   ebx   
+  4C   DEC   %esp   %esp减1   AF   OF   PF   SF   ZF   esp   
+  4D   DEC   %ebp   %ebp减1   AF   OF   PF   SF   ZF   ebp   
+  4E   DEC   %esi   %esi减1   AF   OF   PF   SF   ZF   esi   
+  4F   DEC   %edi   %edi减1   AF   OF   PF   SF   ZF   edi   
+  50   PUSHL   %eax   eax进栈   esp   
+  51   PUSHL   %ecx   ecx进栈   esp   
+  52   PUSHL   %edx   edx进栈   esp   
+  53   PUSHL   %ebx   ebx进栈   esp   
+  54   PUSHL   %esp   esp进栈   esp   
+  55   PUSHL   %ebp   ebp进栈   esp   
+  56   PUSHL   %esi   esi进栈   esp   
+  57   PUSHL   %edi   edi进栈   esp   
+  90   NOP   (NULL)   (NULL)   
+  91   XCHG   %ecx,%eax   交换寄存器内容   eax,ecx   
+  92   XCHG   %edx,%eax   交换寄存器内容   edx,eax   
+  93   XCHG   %ebx,%eax   交换寄存器内容   ebx,eax   
+  95   XCHG   %ebp,%eax   交换寄存器内容   ebp,eax   
+  96   XCHG   %esi,%eax   交换寄存器内容   esi,eax   
+  97   XCHG   %edi,%eax   交换寄存器内容   edi,eax   
+  98   CBW   将byte的AL转换成word的EAX   EAX   
+  9B   WAIT   等待CPU处理完数据   (NULL)   
+  D6   无效指令   (NULL)   (NULL)   
+  F5   CMC   转换CF标志位(开关)   CF   
+  F8   CLC   清CF位(CF=0)   CF   
+  F9   STC   设置CF位(CF=1)   CF   
+  FC   CLD   设置DF位(DF=1)   DF   
+  FD   STD   清理DF位(DF=0)   DF   
+  1.   上面利用XCHG/PUSHL/INC/DEC的方法程序应该不会出错,   可以正常到目的,   但寄存器内容被改变了.inc   eax就改变了eax的值,   
+  只能算无奈的办法.   
+  2.   利用改变标志寄存器位是个不错的想法,   基本上不会影响流程,   但看到还是改变了CPU的东西还是不满意.   
+  3.   \x90(NOP),\x9b(wait),\xd6(bad)   这三个指令不错,   都不会改变程序的流程,   又不会改变寄存器的东东.   
+  这里尤其指明的是\xd6指令,   在intel手册上没查到对应什么指令,   但在linux下和windows下发现系统对于这个是继续   
+  执行下一条指令,和NOP相似.   
+  在我看来,上面这些指令利用顺序优先级最好是:   
+  \x90(NOP)   >   \xd6   >   \x9b   >   改变标志寄存器的操作指令   >   INC/DEC/PUSHL/XCHG   
+  //thx   to   eyas  
+
+
+
+
+机器语言我们只要重点理解一下几个概念：
+1. 机器语言指令有操作码(OP)和地址码两部分组成
+机器语言我们只要重点理解一下几个概念：
+ 
+1. 机器语言指令有操作码(OP)和地址码两部分组成
+ 
+|_____________OP_______________|__d__|__w__|
+|_____________OP_______________|__s__|__w__| <--此格式用于立即寻址方式
+在多数操作码中，常使用某些位来指示某些信息：
+如图上结构里的： w＝1 时 对字来操作
+w＝0 时 对字节来操作
+d值在双操作数指令中才有效
+当 d＝1 时 有且只有一个寄存器用于目的操作数
+d＝0 时 有且只有一个寄存器用于源操作数
+s＝1 时 立即数为8位，但要求扩展成16位数
+s＝0 时 当指令作字节操作/有16位立即数
+由于汇编的指令格式很多，这里我只作一些基本情况介绍，必要时读者可以下载/查阅80x86汇编小站http://www.x86asm.com提供的OPCODES手册来查阅。
+2. 寻址方式的机器语言表示：
+| mod | reg | r/m |
+|_____|_____|_____|_____|_____|_____|_____|
+reg 表示寄存器方式，在不包括立即数的双操作数指令的情况下，规定必须有一个操作数在寄存器中，该寄存器由reg字段指定，并与操作码字节中的w位相组合确定的寄存器
+mod字段与r/m(register/memory)字段结合在一起确定另一个操作数的寻址方式现在你们下载了80x86汇编小站(http://www.x86asm.com)提供的OPCODES 手册了吗？
+下载好了，请解压后打开里面的：opcodes.html 文件，然后熟悉里面的表格：
+ 
+现在熟悉简单的：
+______________________________________________________________________________
+表1 <PS:部分资料> rrr : W=0 : W=1 : reg32
+000 : AL : AX : EAX
+001 : CL : CX : ECX
+010 : DL : DX : EDX
+011 : BL : BX : EBX
+100 : AH : SP : ESP
+101 : CH : BP : EBP
+110 : DH : SI : ESI
+111 : BH : DI : EDI
+______________________________________________________________________________
+表2 <PS:部分资料> rrr : Index Register
+000 : EAX
+001 : ECX
+010 : EDX
+011 : EBX
+100 : No Index
+101 : EBP
+110 : ESI
+111 : EDI
+______________________________________________________________________________
+表3 <PS:部分资料> mmm : Function 11
+w＝1
+000 : DS:[BX+SI]
+001 : DS:[BX+DI]
+010 : SS:[BP+SI]
+011 : SS:[BP+DI] BX
+100 : DS:[SI]
+101 : DS:[DI]
+110 : SS:[BP]
+111 : DS:[BX]
+______________________________________________________________________________
+表4 <PS:部分资料>
+oo : Function
+00 : If mmm = 110, then a displacement follows the operation; otherwise, no displacement is used
+01 : An 8-bit signed displacement follows the opcode
+10 : A 16-bit signed displacement follows the opcode
+11 : mmm specifies a register, instead of an addressing mode
+______________________________________________________________________________
+上面的表，你都看明白了吗？ 现在我就教你们如何利用这样的表格来把汇编指令翻译机器码
+3.指令格式简介
+8086所用的16位指令格式：
+________ _____________ ________ ________
+|操作码| + |mod-reg-r/m| + |位移量| + |立即数|
+1~2字节 0~1字节 0~2字节 0~2字节
+OK!以上就是基本知识，下面我们来实践吧：
+———————————————————————————————————————
+问题：
+MOV AX,1234H 对应的机器码为：B83412
+MOV EBX,0 对应的机器码为：66BB00000000
+MOV CL,55H 对应的机器码为: B155
+ 
+MOV AX,BX 对应的机器码为：8BC3
+我在问一下，机器码的数据格式是什么？ 好像是 机器指令+操作数(高位存放在地址高位，低位存放在地址低位)，但是前面MOV AX,怎么就变成了B8,弄不明白，请指教。
+PS: 上面的题目是一个网友问的，现在我来实践一遍给你们看。
+———————————————————————————————————————
+指令1 －> MOV AX,1234H 对应的机器码为：B83412
+解法： 判断－> 这个是8086汇编16位汇编指令格式，并且是立即寻址方式
+查表－> 打开opcodes.html文件，找到标题为“Main Instructions”，单击“M”字母，然后对应查看 “MOV Reg,Imm”格式的“OpCode”项为：1011wrrr
+再判断－> 由于寄存器是AX, 立即数是1234H，明显是“对字操作”，所以w＝1
+在查看本文章上面的“表1”，对应的查到rrr的值为000
+组合结果－> w＝1
+rrr＝000
+1011wrrr＝1011 1000B －>B8H
+根据“ 3.指令格式简介” －> B8H + |立即数(低位在前高位在后)|＝ B83412H
+PS: "+" 符号不为“加号”
+好了，已经解完第一题了，机器码为 B83412H
+———————————————————————————————————————
+指令4 －> MOV AX,BX 对应的机器码为：8BC3
+解法： 判断－> 这个是8086汇编16位汇编指令格式，并且是寄存器寻址方式
+查表－> 打开opcodes.html文件，找到标题为“Main Instructions”，单击“M
+”字母，然后对应查看 “MOV Reg,Reg”格式的“OpCode”项为：1000101woorrrmmm
+再判断－> 由于寄存器是AX, BX 明显是“对字操作”，所以w＝1
+在查看本文章上面的“表4”，对应查到oo＝11 因为是寄存器寻址方式
+在查看本文章上面的“表1”，对应查到rrr的值为000 ，因为当两个操
+作数都是寄存器，那么一般要以目的操作数为准
+在查看本文章上面的“表3”, 对应查到mmm的值为011 ，因为当两个操作数都是寄存器，那么一般要以源操作数为准
+组合结果－> w＝1
+oo＝11
+rrr＝000
+mmm＝011
+1000101woorrrmmm＝1000 1011 1100 0011B ->8BC3H
+好了，已经解完第二题了，机器码为8BC3H
+———————————————————————————————————————
+呵呵，不错吧，很简单吧，有了80X86 OPCODES 查询表一切都是那么简单，如果还有什么问题，大家都来这里提问！
+剩下的：
+指令2 －> MOV EBX,0 对应的机器码为：66BB00000000
+指令3 －> MOV CL,55H 对应的机器码为: B155
+
+

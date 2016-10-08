@@ -1,0 +1,353 @@
+使用BIOS 扩展 Int 13H 中断对硬盘进行读写
+2009-08-20 20:09
+要把操作系统等代码装载到内存中，就得读写硬盘。现在硬盘都很大了，所以就用扩展的INT 13H 来读写硬盘吧。
+
+下面使用NASM汇编语言、ALINK 链接器进行编译链接。在虚拟机的实模式DOS中测试。
+
+汇编程序：A.asm
+
+segment _TEXT;代码段
+
+..start:                  ;程序入口点
+mov ax,_DATA     
+mov ds,ax
+mov ax,stack
+mov ss,ax
+mov sp,stacktop
+
+call CheckInt13H ;调用该函数 检验扩展 13H 功能是否存在
+call ExInt13H       ;这个是进行读写功能的函数
+
+
+;在DOS中结束的系统调用
+programend:
+mov ax,0x4c00
+int 0x21
+
+CheckInt13H:             ;这个是检验扩展 13H 功能是否存在的函数。
+mov ah,0x41;           功能号是 41H
+mov bx,55aah;         入口参数之一
+mov dl,81H;             第二个参数表示要测试的 驱动器， 80H 是第一块硬盘，则81H是第二块……
+int 13H;
+
+cmp bx,0xAA55;        如果存在扩展 13H 功能，则bx==AA55H
+jnz NotSupport;       ;检测结果是不支持，跳到下面显示不支持的信息。
+push SupportEx13hMsg; 检测结果是支持，显示支持的信息。^_^
+call display
+add sp,2
+ret
+NotSupport:
+push NotSupportEx13hMsg
+call display
+add sp,2
+ret
+
+ExInt13H:;                     这个函数是对硬盘进行读（ah=42H）或写（ah=43H）的操作
+;下面是填写地址包
+mov byte [PacketSize],10h;           地址数据包的大小,规定是10h,也可能有其他版本
+mov byte [Reserved],0;                 这个是保留位=0
+mov word [BlockCount],1;              要传输的数据块数量(扇区数).这里测试1个扇区
+mov word [BufferOff], buf;              缓冲区的偏移值 2B
+mov word [BufferSeg],seg buf;       缓冲区的段:2B
+mov dword [BlockNum],00H;          磁盘起始绝对块地址(扇区) 8B,但这里只赋一部分,其余为0。读或写0扇区
+mov dword [BlockNum+4],00H;
+
+mov ah,0x43;                              操作模式,42H 是读，43H 是写
+mov al,0;                                     在写操作时有意义： 0 为无写校验，1为有 
+mov dl,81H;                                驱动器 80H 是第一块硬盘
+mov bx,seg DiskAddressPacket; 地址数据包的段值
+push ds
+mov ds,bx ;
+mov si,DiskAddressPacket;        总之磁盘地址数据包地址要这样表示：DS:SI,   
+int 13H;
+pop ds
+; 如果 ah ==0 则表示成功
+
+test ah,ah
+jnz faild
+push SuccessMsg
+call display;
+add sp,2
+ret
+
+faild:
+push NotSuccessMsg
+call display
+add sp,2
+ret
+
+;下面是显示字符串的函数。需要字符串地址参数.使用C风格
+_display:
+display:
+push bp
+mov bp,sp
+;sub sp,0x40 ; 64 bytes 局部变量空间
+mov bx,[bp+4] ; first parameter to function
+
+.loop:
+    mov al,[bx]             ; 装入一个字节到al
+    mov cx,bx
+    or al,al                 ; al=0则表明这个字符串结束
+    jz disend                ; 跳到最后返回
+    mov ah, 0eh              ; 0eh是显示功能号
+    mov bx, 7                ; 颜色
+    int 10h
+    mov bx,cx
+    inc bx
+    jmp .loop
+disend:
+mov sp,bp ; undo "sub sp,0x40" above
+pop bp
+    ret
+
+segment _DATA align=16 ;16位对齐
+
+SupportEx13hMsg db 'Support Ex13h.',13,10,0
+NotSupportEx13hMsg db 'Not Support Ex13h.',13,10,0
+SuccessMsg db 'Read success.',13,10,0
+NotSuccessMsg db 'Not Read.',13,10,0
+buf resb 1024
+
+;扩展 INT 13H 地址数据包
+DiskAddressPacket:; 0
+PacketSize db 10H;; +0
+Reserved db 0;+1 这个一定为0
+BlockCount dw 0;+2 要传输的扇区数
+BufferOff dw 0;+4     传输缓冲地址(segment:offset)
+BufferSeg dw 0;+6
+BlockNum dq 0;+8       磁盘起始绝对块地址
+
+
+segment stack stack
+resb 64
+stacktop:;栈顶在此
+
+磁盘地址数据包 Disk Address Packet (DAP)
+    DAP 是基于绝对扇区地址的, 因此利用 DAP, Int13H 可以轻松地逾
+越 1024 柱面的限制, 因为它根本就不需要 CHS 的概念.
+    DAP 的结构如下:
+
+    struct DiskAddressPacket
+    {
+        BYTE PacketSize;     // 数据包尺寸(16字节)
+        BYTE Reserved;       // ==0
+        WORD BlockCount;     // 要传输的数据块个数(以扇区为单位)
+        DWORD BufferAddr;    // 传输缓冲地址(segment:offset)
+        QWORD BlockNum;      // 磁盘起始绝对块地址
+    };
+
+    PacketSize 保存了 DAP 结构的尺寸, 以便将来对其进行扩充. 在目前使用的扩展 Int13H 版本中PacketSize 恒等于 16. 如果它小于16, 扩展 Int13H 将返回错误码( AH=01, CF=1 ).
+    BlockCount 对于输入来说是需要传输的数据块总数, 对于输出来说是实际传输的数据块个数. BlockCount = 0 表示不传输任何数据块.
+    BufferAddr 是传输数据缓冲区的 32 位地址 (段地址:偏移量). 数据缓冲区必须位于常规内存以内(1M).
+    BlockNum 表示的是从磁盘开始算起的绝对块地址(以扇区为单位),
+与分区无关. 第一个块地址为 0. 一般来说, BlockNum 与 CHS 地址的关系是:
+    BlockNum = cylinder * NumberOfHeads +
+               head * SectorsPerTrack +
+               sector - 1;
+
+    其中 cylinder, head, sector 是 CHS 地址, NumberOfHeads 是磁盘的磁头数, SectorsPerTrack 是磁盘每磁道的扇区数.
+    也就是说 BlockNum 是沿着 扇区->磁道->柱面 的顺序记数的. 这一顺序是由磁盘控制器虚拟的, 磁盘表面数据块的实际排列顺序可能与此不同(如为了提高磁盘速度而设置的间隔因子将会打乱扇区的排列顺序).
+
+C语言风格的汇编版本：
+
+;扩展 INT13H 
+函数声明形式：(返回0表示成功，其他表示错误代码）
+unsigned char ExInt13H(
+unsigned short cmd,//0x42 是读操作,0x43 是写操作.
+             unsigned short driveNum, //驱动器号,80H是第一块硬盘
+             unsigned long startSector,//开始读写的扇区(低32位)
+    long startSector2,//开始读写的扇区(高32位),一般为0，因为这么大的硬盘应该很少见
+             unsigned short sectorToDo,//要读写多少个扇区?
+             unsigned char far* buf,//数据缓冲区,数据缓冲区必须位于常规内存以内(1M).
+    short* BlockCount );       //该函数返回 传输的数据块数量即扇区数.
+
+_ExInt13H:
+push bp
+mov bp,sp
+mov byte [PacketSize],10h; 包的大小,规定是10h,也可能有其他版本
+mov byte [Reserved],0;   这个是保留位
+
+mov word bx,[bp+16];//要传输的数据块数量(扇区数)
+mov word [BlockCount],1;bx;
+
+mov word bx,[bp+18];//缓冲区 这个是偏移。在C代码中必须声明远指针如：char far* buffer
+mov word [BufferOff],bx; 
+mov bx, [bp+20]; 这个是段
+mov [BufferSeg],bx;
+
+mov bx,[bp+8];    磁盘起始绝对块地址(扇区) 8B
+mov [BlockNum],bx;
+mov bx,[bp+10];
+mov [BlockNum+2],bx;
+mov bx,[bp+12];
+mov [BlockNum+4],bx;
+mov bx,[bp+14];
+mov [BlockNum+6],bx;
+
+
+mov ah,[bp+4]; cmd //命令模式,42H 是读,43H 是写
+mov al,0;/* 0 为无写校验，1为有 */
+mov dl,[bp+6]; //第二个参数 驱动器 80H 是第一块硬盘
+mov bx,seg DiskAddressPacket    ;DS段
+push ds
+mov ds,bx
+mov si,DiskAddressPacke ;//磁盘地址数据包 的地址通过 DS:SI 传递,有些资料写成 ds:di 是错的.
+int 13H; 
+pop ds
+;如果 ah=0 则表示成功.
+mov al,ah
+mov bx,[BlockCount]
+mov [bp+22],bx;传输的数据数量(扇区数)
+mov sp,bp ; undo "sub sp,0x40" above
+pop bp
+ret
+
+在C代码中的用法，如：
+extern void display(char* );//这个函数是汇编代码中的一个显示字符串的函数，这样就不用C的库函数了。
+unsigned char ExInt13H(unsigned short cmd,//0x42 是读操作,0x43 是写操作.
+             unsigned short driveNum, //驱动器号,80H是第一块硬盘
+             unsigned long startSector,//开始读写的扇区(低32位)
+    long startSector2,//开始读写的扇区(高32位),一般为0
+             unsigned short sectorToDo,//要读写多少个扇区?
+             unsigned char far* buf,//数据缓冲区,数据缓冲区必须位于常规内存以内(1M).
+    short* BlockCount );       //传输的数据块数量即扇区数.
+
+unsigned char buf[1024]={0};//这个是要读写硬盘的缓冲区.写成局部变量可能链接时报错。
+
+int checkExtInt13(char driveNum)
+{//这个函数检查硬盘 是否支持 INT13H 扩展。返回1表示成功。
+        
+        unsigned short _BX=0;        
+        asm{
+    mov ah,0x41
+    mov dl,driveNum
+    mov bx,0x55aa;
+    int 0x13;
+    mov _BX,bx;
+   }        
+        if(_BX==0xAA55) return 1; 
+        else return 0;
+        //返回值在 ax 中.
+}
+
+void MAIN()
+{ 
+unsigned char statecode=0;//状态码，出错原因 
+short disk=0x81;//0x81 是第二块硬盘.这里是说"硬盘",不是说分区.
+short BlockCout=0;//传输的数据块数量
+//先检查是否支持扩展的 int13h 中断,这个可以操作大硬盘.
+if(checkExtInt13(disk)!=0) 
+{
+   display("OK,the disk support EX13H.\r\n");
+   //读读看
+   display("Test Read:");
+  
+   statecode=ExInt13H(0x42,disk,0,0,2, (char far *) buf,&BlockCout);//读操作、第二块硬盘、从第0个扇区开始读、读两个扇区的数据，存到buf
+   //statecode==0 表示成功，不为零则表示出错的代码
+   if(statecode==0) display("OK,Read Success!\r\n");  
+   else display(int13Error(statecode));
+}
+//不支持
+else display("bad luck,the disk NOT support EX13H.\r\n");
+}
+
+上面用到的一个出错代码函数如下：
+
+/* 13中断的出错提示 */
+char* msg0="OK,Success.\n";
+char* msg01="Bad command.\n";
+char* msg02 ="Address mark not found.\n";
+char* msg03 ="Attempt to write to write-protected disk.\n";
+char* msg04 ="Sector not found.\n";
+char* msg05 ="Reset failed (hard disk).\n";
+char* msg06 ="Disk changed since last operation.\n";
+char* msg07 ="Drive parameter activity failed.\n";
+char* msg08 ="Direct memory access (DMA) overrun.\n";
+char* msg09 ="Attempt to perform DMA across 64K boundary.\n";
+char* msg0A ="Bad sector detected.\n";
+char* msg0B ="Bad track detected.\n";
+char* msg0C ="Unsupported track.\n";
+char* msg10 ="Bad CRC/ECC on disk read.\n";
+char* msg11 ="CRC/ECC corrected data error.\n";
+char* msg20 ="Controller has failed.\n";
+char* msg40 ="Seek operation failed.\n";
+char* msg80 = "Attachment failed to respond.\n";
+char* msgAA = "Drive not ready (hard disk only).\n";
+char* msgBB = "Undefined error occurred (hard disk only).\n";
+char* msgCC = "Write fault occurred.\n";
+char* msgE0 = "Status error.\n";
+char* msgFF = "Sense operation failed.\n";
+char* msgB0 = "Media in drive not locked.\n";
+char* msgB1 = "Media in drive locked.\n";
+char* msgB2 = "Media portable.\n";
+char* msgB3 = "Media being in use.\n";
+char* msgB4 = "Count of lock overflow.\n";
+char* msgB5 = "legal request of ejection failed.\n";
+
+
+char* int13Error(unsigned char returnValue)
+{        
+        /* 基本13中断 */
+        switch(returnValue)
+        {
+        case 0x01 : return msg01;
+                
+        case 0x02 : return msg02;
+                
+        case 0x03 : return msg03;
+                
+        case 0x04 : return msg04;
+                
+        case 0x05 : return msg05;
+                
+        case 0x06 : return msg06;
+                
+        case 0x07 : return msg07;
+                
+        case 0x08 : return msg08;
+                
+        case 0x09 : return msg09;
+                
+        case 0x0A : return msg0A;
+                
+        case 0x0B : return msg0B;
+                
+        case 0x0C : return msg0C;
+                
+        case 0x10 : return msg10;
+                
+        case 0x11 : return msg11;
+                
+        case 0x20 : return msg20;
+                
+        case 0x40 : return msg40;
+
+        case 0x80 : return msg80;
+                
+        case 0xAA : return msgAA;
+                
+        case 0xBB : return msgBB;
+                
+        case 0xCC : return msgCC;
+                
+        case 0xE0 : return msgE0;
+                
+        case 0xFF : return msgFF;
+                
+                /* 扩展的13中断 */
+        case 0xB0 : return msgB0;
+                
+        case 0xB1 : return msgB1;
+                
+        case 0xB2 : return msgB2;
+                
+        case 0xB3 : return msgB3;
+                
+        case 0xB4 : return msgB4;
+                
+        case 0xB5 : return msgB5;
+        }
+        return msg0;
+}
+
+注意上面写的汇编程序是小模式内容。如果要在大模式内存中使用，要调整参数的偏移值，第一个参数是BP+6而不是BP+4，另外用 retf 返回。

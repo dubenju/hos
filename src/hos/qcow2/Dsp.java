@@ -5,6 +5,7 @@ import hos.fat.MasterBootSector;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 
 import javay.util.UBytes;
@@ -178,6 +179,7 @@ public class Dsp {
 	        readed += 512;
 	        mbs = new MasterBootSector(buf);
 	        System.out.println(mbs);
+	        writeToFile(".\\000.mbr\\mbs.bin", buf);
 //	        BootSector bs = new BootSector(buf);
 //	        System.out.println(bs);
         }
@@ -200,7 +202,7 @@ public class Dsp {
             	is = new FileInputStream(file);
             }
 
-	        buf = new byte[bsOffset - 1];
+	        buf = new byte[bsOffset];
 	        if ( (byteread = is.read(buf)) == -1) {
 	            System.out.println("read error bootsector");
 	            is.close();
@@ -218,10 +220,16 @@ public class Dsp {
 	        readed += 512;
 	        BootSector bs = new BootSector(buf);
 	        System.out.println(bs);
+	        writeToFile(".\\000.mbr\\boots.bin", buf);
 //	        BootSector bs = new BootSector(buf);
 //	        System.out.println(bs);
 
         }
         is.close();
+    }
+    public static void writeToFile(String fileName, byte[] in) throws Exception {
+    	FileOutputStream os = new FileOutputStream(fileName);
+    	os.write(in);
+    	os.close();
     }
 }

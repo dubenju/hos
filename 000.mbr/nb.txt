@@ -1,0 +1,178 @@
+用nasm汇编做引导程序。
+
+题目要求：做一个引导程序，开机后显示3个问题，并等待用户输入，输入完毕后关机。
+
+我用nasm汇编写了上述程序，并把它加入软盘的引导区。开机后计算机会自动加载这段程序并运行。
+
+引导区简介：
+
+操作系统的“开端”一般被认为是引导程序(Boot），它是操作系统程序中最早被计算机硬件系统加载入内存并执行的部分，引导程序一般规定长度为512个字节，就是从这512字节开始，操作系统被一步步装载入计算机内存，进而最终控制整台计算机。当计算机加电启后，首先转去执行BIOS中的程序进行硬件自检，如果自检成功，则开始尝试在可引导介质中依次寻找引导程序，可引导介质就是我们计算机的软盘驱动器，光盘驱动器以及硬盘等存储设备，搜索的顺序是按照BIOS里设置的引导顺序进行的。
+
+对于软盘来说，计算机会检查软盘的0面0磁道0扇区（被称为bootsector引导扇区），由于每个扇区512字节，因此刚好容纳下引导程序。如果该扇区最后两个字节依次是55H和AAH，那么就表明该扇区存储的是一段引导程序，进而由BIOS程序将这512个字节依次复制到0X7C00开始的内存单元，然后计算机会跳转到地址0X7C00处执行。
+
+ 
+
+源代码
+
+;----------------------------------------------------------------------
+
+org 0x7c00    
+
+;--------------------------------------------
+
+;启动程序代码开始
+
+;--------------------------------------------
+
+begin:
+
+xor ax, ax            
+
+mov ds, ax            ; set data segment to base of RAM
+
+mov ah,0FH  
+
+   int    10H  
+
+   mov   ah,0  
+
+   int    10H  
+
+ 
+
+mov si, msg1
+
+call putstr            
+
+call   getcmd  
+
+ 
+
+mov si, msg2
+
+call putstr           
+
+call   getcmd
+
+ 
+
+mov si, msg3
+
+call putstr            
+
+call   getcmd
+
+call   shutdown
+
+;--------------------------------------------
+
+ 
+
+msg1 db   10,13,'What is your name?', 10,13,0
+
+msg2 db   10,13,'Have you ever been to my hometown',10,13,0
+
+msg3 db   10,13,'Am I handsome?', 10,13,0
+
+;---------------------------------------------
+
+putstr:
+
+lodsb             ; AL = [DS:SI]
+
+or al, al  
+
+jz putstrd
+
+mov ah, 0eH  
+
+mov bx, 0007H     
+
+int 10H
+
+jmp putstr
+
+;---------------------------------------------
+
+putstrd:
+
+retn
+
+;---------------------------------------------
+
+getcmd:            ; 获取输入
+
+ 
+
+.getkey:
+
+mov ah,0H    
+
+int 16H
+
+.key_in_buffer:
+
+cmp al,13        ; 检查回车键
+
+je .execcmd     ; 跳至执行命令
+
+jmp echochar     ; 显示字符
+
+.execcmd:
+
+ret
+
+ 
+
+echochar:
+
+mov ah, 0EH     ; 显示字符
+
+mov bx, 0007H   
+
+int 10h
+
+jmp getcmd
+
+ 
+
+shutdown:
+
+mov  AX,  5307h  
+
+mov  BX,  1  
+
+mov  CX,  3  
+
+int  15h
+
+ 
+
+ 
+
+size   equ$ - begin
+
+%if size+2 >512
+
+%error "code is too large forboot sector"
+
+%endif
+
+times      (512 - size - 2) db 0
+
+ 
+
+db   0x55, 0xAA          ;2 byte boot signature
+
+把这段程序保存为.asm文件，如myboot.asm
+
+ 
+
+编译：
+
+我们使用nasm对这段代码进行编译。使用nasm需要配置系统环境变量。鼠标右键点击“我的电脑”->属性->高级选项->环境变量，在path中加入nasm.exe所在路径。这样我们就完成了环境变量的配置。打开cmd，进入源程序所在目录，输入nasmmyboot.asm，回车。然后，我们可以发现在源程序同目录出现了一个512字节的新文件myboot。
+
+ 
+
+我们用二进制编辑工具打开myboot文件（推荐使用ultraedit或winhex），并同时打开bochs虚拟机A盘的镜像文件（我的是boot.img）。把boot.img的前512字节删除，然后把myboot加入boot.img的前端。再次启动bochs。我们就大功告成了。
+
