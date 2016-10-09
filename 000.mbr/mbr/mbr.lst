@@ -171,21 +171,21 @@
    171                                  PRE_RUNVBR:
    172 0000010D EB74                                   JMP SHORT RUN_VBR
    173                                  
-   174 0000010F 496E76616C69642070-     MSG1 DB 'Invalid partition table', 0
+   174 0000010F 496E76616C69642070-     MSG1     DB 'Invalid partition table', 0
    175 00000118 6172746974696F6E20-
    176 00000121 7461626C6500       
-   177 00000127 4572726F72206C6F61-     MSG2 DB 'Error loading operating system', 0
+   177 00000127 4572726F72206C6F61-     MSG2     DB 'Error loading operating system', 0
    178 00000130 64696E67206F706572-
    179 00000139 6174696E6720737973-
    180 00000142 74656D00           
-   181 00000146 4D697373696E67206F-     MSG3 DB 'Missing operating system', 0
+   181 00000146 4D697373696E67206F-     MSG3     DB 'Missing operating system', 0
    182 0000014F 7065726174696E6720-
    183 00000158 73797374656D00     
    184                                  
    185 0000015F 00<rept>                TIMES 36 DB 0
    186                                  
-   187                                  RUN_VBR   :
-   188 00000183 89E7                                   MOV DI,SP
+   187                                  RUN_VBR   :                             ;
+   188 00000183 89E7                                   MOV DI,SP                ;
    189 00000185 1E                                     PUSH DS                  ; CS: DS
    190 00000186 57                                     PUSH DI                  ; IP: DI
    191 00000187 89EE                                   MOV SI,BP                ; SI: BP

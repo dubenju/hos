@@ -171,14 +171,14 @@ _LBL_00000105:
 PRE_RUNVBR:
                JMP SHORT RUN_VBR
 
-MSG1 DB 'Invalid partition table', 0
-MSG2 DB 'Error loading operating system', 0
-MSG3 DB 'Missing operating system', 0
+MSG1     DB 'Invalid partition table', 0
+MSG2     DB 'Error loading operating system', 0
+MSG3     DB 'Missing operating system', 0
 
 TIMES 36 DB 0
 
-RUN_VBR   :
-               MOV DI,SP
+RUN_VBR   :                             ;
+               MOV DI,SP                ;
                PUSH DS                  ; CS: DS
                PUSH DI                  ; IP: DI
                MOV SI,BP                ; SI: BP
