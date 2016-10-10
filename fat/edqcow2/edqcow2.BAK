@@ -13,7 +13,7 @@
     ( ( x & 0x00FF ) << 8 ) | \
     ( ( x & 0xFF00 ) >> 8 ) \
 
-#define cpu_to_be16(x) \
+#define be16_to_cpu(x) \
     ( ( x & 0x00FF ) << 8 ) | \
     ( ( x & 0xFF00 ) >> 8 ) \
 
@@ -23,7 +23,24 @@
     ( ( x & 0x00FF0000 ) >>  8 ) | \
     ( ( x & 0xFF000000 ) >> 24 )
 
+#define be32_to_cpu(x) \
+    ( ( x & 0x000000FF ) << 24 ) | \
+    ( ( x & 0x0000FF00 ) <<  8 ) | \
+    ( ( x & 0x00FF0000 ) >>  8 ) | \
+    ( ( x & 0xFF000000 ) >> 24 )
+
 #define cpu_to_be64(x) \
+    ( ( x & 0x00000000000000FF) << 56) | \
+    ( ( x & 0x000000000000FF00) << 40) | \
+    ( ( x & 0x0000000000FF0000) << 24) | \
+    ( ( x & 0x00000000FF000000) <<  8) | \
+    ( ( x & 0x000000FF00000000) >>  8) | \
+    ( ( x & 0x0000FF0000000000) >> 24) | \
+    ( ( x & 0x00FF000000000000) >> 40) | \
+    ( ( x & 0xFF00000000000000) >> 56)
+
+
+#define be64_to_cpu(x) \
     ( ( x & 0x00000000000000FF) << 56) | \
     ( ( x & 0x000000000000FF00) << 40) | \
     ( ( x & 0x0000000000FF0000) << 24) | \
@@ -51,6 +68,8 @@
 
 int show_usage(void) {
   printf("edqcow2 <qcow2 img file> create [size]\n");
+  printf("edqcow2 <qcow2 img file> fdisk <num> [size1, size2]\n");
+  printf("edqcow2 <qcow2 img file> format <filesystem fat etc.>\n");
   printf("edqcow2 <qcow2 img file> init fat12 1474560.\n");
   printf("edqcow2 <qcow2 img file> write file <file> to disk H-C-S\n");
   printf("edqcow2 <qcow2 img file> write file <file> to dir <file>\n");
@@ -118,13 +137,14 @@ int create() {
     int ref_clusters;
     int old_ref_clusters;
     int i;
-    int fd;
+    FILE* fd = NULL;
     const char * filename;
     uint64_t refcount_table_offset;
     uint64_t refcount_block_offset;
     uint16_t * refcount_block;
     uint64_t * refcount_table;
     uint64_t tmp;
+    size_t wrotencnt;
 
     total_size = (2 * 1024 * 1024) / 512; // 2M
 
@@ -225,19 +245,20 @@ int create() {
 
 
 
-    fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC | O_BINARY, 0644);
-    if (fd < 0) {
+    fd = fopen(filename, "rw+");
+    if (fd == NULL) {
+        fprintf(stderr, "file open error.\n");
         return -1;
     }
-    write(fd, &header, sizeof(header));
+    wrotencnt = fwrite(&header, 1, sizeof(header), fd);
 
     lseek(fd, l1_table_offset, SEEK_SET);
     tmp = 0;
     for(i = 0;i < l1_size; i++) {
-        write(fd, &tmp, sizeof(tmp));
+        fwrite(&tmp, 1, sizeof(tmp), fd);
     }
 
-    lseek(fd, refcount_table_offset, SEEK_SET);
+    fseek(fd, refcount_table_offset, SEEK_SET);
     write(fd, refcount_table, reftable_clusters * cluster_size);
 
 
@@ -254,8 +275,127 @@ int create() {
     return 0;
 }
 
+/*
+ * 获取qcow2文件的信息
+ * 在此基础上创建分区。
+ */
+int fdisk() {
+    QCowHeader header;
+    char * filename = ".\\test_fdisk";
+    FILE* pFile = NULL;
+    uint64_t offset;
+    size_t readedcnt = 0;
+
+    printf("this option will create partition on qcow2.\n");
+    pFile = fopen(filename, "rw+");
+    if (pFile == NULL) {
+        fprintf(stderr, "file error(1).");
+        return 1;
+    }
+
+    fseek(pFile, 0, SEEK_END);   // non-portable
+    long file_size = ftell(pFile);
+    printf("file's size=%ld.\n", file_size);
+    rewind (pFile);
+
+    memset(&header, 0, sizeof(header));
+    printf("sizeof(header)=%d\n", sizeof(header));
+    offset = 0;
+    readedcnt = fread(&header, 1, sizeof(header), pFile);
+    printf("readed count=%d\n", readedcnt);
+    if (readedcnt != sizeof(header)) {
+        fprintf(stderr, "qcow_handle_extension: ERROR: pread fail from offset %llu\n", (unsigned long long)offset);
+        if (pFile != NULL) { fclose(pFile); pFile = NULL; }
+        return 1;
+    }
+    printf("QCOW2_MAGIC = %X\n", be32_to_cpu(header.magic));
+    printf("QCOW2_version = %X\n", be32_to_cpu(header.version));
+    printf("QCOW2_backing_file_offset = %X\n", be64_to_cpu(header.backing_file_offset));
+    printf("QCOW2_backing_file_size = %X\n", be64_to_cpu(header.backing_file_size));
+    uint32_t cluster_bits = be32_to_cpu(header.cluster_bits);
+    printf("QCOW2_cluster_bits = %X\n", cluster_bits);
+    uint32_t cluster_size = 1 << cluster_bits;
+    printf("cluster_size = %ld\n", cluster_size);
+    printf("QCOW2_size = %X\n", be64_to_cpu(header.size));
+    printf("QCOW2_crypt_method = %X\n", be32_to_cpu(header.crypt_method));
+    uint32_t l1_size = be32_to_cpu(header.l1_size);
+    printf("QCOW2_l1_size = %X\n", l1_size);
+    uint64_t l1_table_offset = be64_to_cpu(header.l1_table_offset);
+    printf("*QCOW2_l1_table_offset = %X\n", l1_table_offset);
+    uint64_t refcount_table_offset = be64_to_cpu(header.refcount_table_offset);
+    printf("*QCOW2_refcount_table_offset = %X\n", refcount_table_offset);
+    printf("QCOW2_refcount_table_clusters = %X\n", be32_to_cpu(header.refcount_table_clusters));
+    printf("QCOW2_nb_snapshots = %X\n", be32_to_cpu(header.nb_snapshots));
+    printf("QCOW2_snapshots_offset = %X\n", be64_to_cpu(header.snapshots_offset));
+
+
+
+
+
+
+
+    /* L1 */
+    uint64_t idx = 0;
+    uint64_t l1_item = 0;
+    fseek(pFile, l1_table_offset, SEEK_SET);
+    for (idx = 0; idx < l1_size; idx ++) {
+        readedcnt = fread(&l1_item, 1, sizeof(uint64_t), pFile);
+        if (readedcnt != sizeof(uint64_t)) {
+            fprintf(stderr, "read l1 table error.\n");
+            if (pFile != NULL) { fclose(pFile); pFile = NULL; }
+            return 1;
+        }
+        printf("l1[%lld]=%ld.\n", idx, l1_item);
+    }
+
+    /* refcount table */
+    uint32_t refcount_table_cnt = cluster_bits >> 3;
+    printf("refcount_table_cnt=%ld.\n", refcount_table_cnt);
+    uint64_t ref_table_item = 0;
+    uint64_t ref_count_offset = -1;
+    fseek(pFile, refcount_table_offset, SEEK_SET);
+    for (idx = 0; idx < refcount_table_cnt; idx ++) {
+        readedcnt = fread(&ref_table_item, 1, sizeof(uint64_t), pFile);
+        if (readedcnt != sizeof(uint64_t)) {
+            fprintf(stderr, "read refcount table error.\n");
+            if (pFile != NULL) { fclose(pFile); pFile = NULL; }
+            return 1;
+        }
+        ref_count_offset = be64_to_cpu(ref_table_item);
+        printf("refcount[%lld]=%X.\n", idx, ref_count_offset);
+    }
+
+    /* refcount */
+    uint32_t refcount_cnt = (uint32_t) ((ref_count_offset - l1_item) / 8);
+    printf("refcount_cnt1=%ld.\n", (refcount_cnt));
+    if (l1_item == 0) {
+        refcount_cnt = ((file_size - (uint32_t) l1_item) / 8);
+            printf("refcount_cnt2=%ld.\n", (refcount_cnt));
+    }
+    printf("refcount_cnt=%ld.\n", (refcount_cnt));
+    //uint16_t ref_item = -1;
+    short ref_item = -1;
+    if (fseek(pFile, ref_count_offset, SEEK_SET)) {printf("fseek error(%ld).\n", ref_count_offset);}
+    // fseek(pFile, 0, SEEK_CUR);
+    printf("offset=%lld, of=%ld, count=%ld.\n", ref_count_offset, ftell(pFile), refcount_cnt);
+    for (idx = 0; idx < refcount_cnt; idx ++) {
+        readedcnt = fread(&ref_item, 1, sizeof(short), pFile);
+        if (readedcnt != sizeof(short)) {
+            fprintf(stderr, "read refcount error(%d).\n", readedcnt);
+            if (pFile != NULL) { fclose(pFile); pFile = NULL; }
+            return 1;
+        }
+        printf("refcount[%ld]=%X.%X,\n", idx, be16_to_cpu(ref_item), ref_item);
+        if (idx > 10) { break; }
+    }
+
+    if (pFile != NULL) { fclose(pFile); pFile = NULL; }
+    return 0;
+}
+
 int main() {
     printf("test.sizeof(QCowHeader)=%d.\n", sizeof(QCowHeader));
-    create();
+    // create();
+    fdisk();
     return 0;
 }
