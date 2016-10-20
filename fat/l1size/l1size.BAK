@@ -1,0 +1,54 @@
+/*
+ * 
+ */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+
+int main() {
+    uint64_t total_size;
+    int cluster_bits;
+    int32_t l1_size;
+    int l2_bits;
+    int shift;
+
+    cluster_bits = 12;
+
+    /* l1_table_offset */
+    l2_bits = cluster_bits - 3; // 2 ^ 3 = 8
+    shift   = cluster_bits + l2_bits;
+    printf("shift=%d.cluster_bits=%d.l2_bits=%d.\n", shift, cluster_bits, l2_bits);
+
+    // 2MB
+    total_size = 2LL * 1024 * 1024;
+    l1_size = ((total_size + (1LL << shift) - 1) >> shift);
+    printf("size:%lldMB=%ld,%X.\n", total_size / (1024LL * 1024LL), l1_size, l1_size);
+
+    // 10MB
+    total_size = 10LL * 1024 * 1024;
+    l1_size = ((total_size + (1LL << shift) - 1) >> shift);
+    printf("size:%lldMB=%ld,%X.\n", total_size / (1024LL * 1024LL), l1_size, l1_size);
+
+    // 600MB
+    total_size = 600LL * 1024 * 1024;
+    l1_size = ((total_size + (1LL << shift) - 1) >> shift);
+    printf("size:%lldMB=%ld,%X.\n", total_size / (1024LL * 1024LL), l1_size, l1_size);
+
+    // 4GB
+    total_size = 4LL * 1024 * 1024 * 1024;
+    l1_size = ((total_size + (1LL << shift) - 1) >> shift);
+    printf("size:%lldMB=%ld,%X.\n", total_size / (1024LL * 1024LL), l1_size, l1_size);
+
+    // 1TB
+    total_size = 1LL * 1024 * 1024 * 1024 * 1024;
+    l1_size = ((total_size + (1LL << shift) - 1) >> shift);
+    printf("size:%lldMB=%ld,%X.\n", total_size / (1024LL * 1024LL), l1_size, l1_size);
+
+    // 2TB
+    total_size = 2LL * 1024 * 1024 * 1024 * 1024;
+    l1_size = ((total_size + (1LL << shift) - 1) >> shift);
+    printf("size:%lldMB=%ld,%X.\n", total_size / (1024LL * 1024LL), l1_size, l1_size);
+
+    return 0;
+}

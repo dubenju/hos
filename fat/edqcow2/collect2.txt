@@ -1,0 +1,383 @@
+Usage: collect2 [options]
+ Wrap linker and generate constructor code if needed.
+ Options:
+  -debug          Enable debug output
+  --help          Display this information
+  -v, --version   Display this program's version number
+
+Overview: http://gcc.gnu.org/onlinedocs/gccint/Collect2.html
+Report bugs: <http://gcc.gnu.org/bugs.html>
+
+使用法: C:\MinGW\bin/ld.exe [options] file...
+オプション:
+  -a KEYWORD                  HP/UX 互換性のための共有ライブラリ制御
+  -A ARCH, --architecture ARCH
+                              アーキテクチャを設定する
+  -b TARGET, --format TARGET  以降の入力ファイルのターゲットを指定する
+  -c FILE, --mri-script FILE  MRI 形式のリンカスクリプトを読み込む
+  -d, -dc, -dp                共通シンボルの定義を強制する
+  -e ADDRESS, --entry ADDRESS 開始アドレスを設定する
+  -E, --export-dynamic        全ての動的シンボルをエクスポートする
+  --no-export-dynamic         --export-dynamic の効果を取りやめる
+  -EB                         ビッグエンディアンオブジェクトとリンクする
+  -EL                         リトルエンディアンオブジェクトとリンクする
+  -f SHLIB, --auxiliary SHLIB 共有オブジェクトシンボル表用の補助フィルタ
+  -F SHLIB, --filter SHLIB    共有オブジェクトシンボル表用のフィルタ
+  -g                          無視される
+  -G SIZE, --gpsize SIZE      データサイズを小さくする (SIZE が無い場合は --shared と同様)
+  -h FILENAME, -soname FILENAME
+                              共有ライブラリの内部名を設定する
+  -I PROGRAM, --dynamic-linker PROGRAM
+                              使用する動的リンカを PROGRAM に設定する
+  -l LIBNAME, --library LIBNAME
+                              ライブラリ LIBNAME を探索する
+  -L DIRECTORY, --library-path DIRECTORY
+                              ライブラリ探査パスに DIRECTORY を加える
+  --sysroot=<DIRECTORY>       デフォルトの sysroot 位置を上書きする
+  -m EMULATION                エミュレーションを設定する
+  -M, --print-map             標準出力にマップファイルを表示する
+  -n, --nmagic                データをページ整列しない
+  -N, --omagic                データをページ整列せず、テキストを読み取り専用にしない
+  --no-omagic                 データをページ整列し、テキストを読み取り専用にする
+  -o FILE, --output FILE      出力ファイル名を設定する
+  -O                          出力ファイルを最適化する
+  -plugin PLUGIN              PLUGIN という名前のプラグインをロードする
+  -plugin-opt ARG             最後にロードしたプラグインに引数 ARG を渡す
+  -flto                       GCC LTO オプション互換性を無視する
+  -flto-partition=            GCC LTO オプション互換性を無視する
+  -fuse-ld=                   Ignored for GCC linker option compatibility
+  -Qy                         SVR4 互換性のため無視する
+  -q, --emit-relocs           Generate relocations in final output
+  -r, -i, --relocatable       再配置可能出力を生成する
+  -R FILE, --just-symbols FILE
+                              シンボルのリンクのみ行う (ディレクトリの場合は --rpath と同様)
+  -s, --strip-all             全てのシンボルを取り除く
+  -S, --strip-debug           デバッグシンボルを取り除く
+  --strip-discarded           破棄されたセクションのシンボルを取り除く
+  --no-strip-discarded        破棄されたセクションのシンボルを取り除かない
+  -t, --trace                 トレースファイルを開く
+  -T FILE, --script FILE      リンカスクリプトを読み込む
+  --default-script FILE, -dT  デフォルトのリンカスクリプトを読み込む
+  -u SYMBOL, --undefined SYMBOL
+                              SYMBOL への未定義参照から開始する
+  --unique [=SECTION]         入力の [SECTION | orphan] セクションを併合しない
+  -Ur                         大域コンストラクタ/デストラクタ表を構築する
+  -v, --version               バージョン情報を表示する
+  -V                          バージョンとエミュレーション情報を表示する
+  -x, --discard-all           すべての局所シンボルを破棄する
+  -X, --discard-locals        一時的な局所シンボルを破棄する (デフォルト)
+  --discard-none              局所シンボルを全く破棄しない
+  -y SYMBOL, --trace-symbol SYMBOL
+                              SYMBOL の使用を追跡する
+  -Y PATH                     Solaris 互換性のためのデフォルト探索パス
+  -(, --start-group           グループ開始
+  -), --end-group             グループ終了
+  --accept-unknown-input-arch アーキテクチャが決定できないファイルを受け付ける
+  --no-accept-unknown-input-arch
+                              アーキテクチャが不明な入力ファイルを拒否する
+  --as-needed                 これ以降に動的ライブラリが使用された場合のみ DT_NEEDED を設定する
+  --no-as-needed              コマンドラインで指定された動的ライブラリに対し常に DT_NEEDED 
+                                を設定する
+  -assert KEYWORD             SunOS 互換性のため無視する
+  -Bdynamic, -dy, -call_shared
+                              共有ライブラリに対してリンクする
+  -Bstatic, -dn, -non_shared, -static
+                              共有ライブラリに対してリンクしない
+  -Bsymbolic                  大域参照を局所的にバインドする
+  -Bsymbolic-functions        大域関数参照を局所的にバインドする
+  --check-sections            セクションアドレスの重なり合いを確認する (デフォルト)
+  --no-check-sections         セクションアドレスの重なり合いを確認しない
+  --copy-dt-needed-entries    後に続く DSO の内部で指定された DT_NEEDED リンクをコピーする
+  --no-copy-dt-needed-entries 後に続く DSO の内部で指定された DT_NEEDED リンクをコピーしない
+  --cref                      相互参照表を出力する
+  --defsym SYMBOL=EXPRESSION  シンボルを定義する
+  --demangle [=STYLE]         シンボル名の名前復元 (demangle) を行う [STYLE を使用]
+  --embedded-relocs           組み込み再配置を生成する
+  --fatal-warnings            警告をエラーとして扱う
+  --no-fatal-warnings         警告をエラーとして扱わない (デフォルト)
+  -fini SYMBOL                アンロード時に SYMBOL を呼び出す
+  --force-exe-suffix          接尾辞 .exe を付けたファイル生成を強制する
+  --gc-sections               使用されていないセクションを削除する (いくつかのターゲット上)
+  --no-gc-sections            使用されていないセクションを削除しない (デフォルト)
+  --print-gc-sections         削除された使用されていないセクションを標準エラー出力に一覧表示する
+  --no-print-gc-sections      削除された使用されていないセクションを一覧表示しない
+  --hash-size=<NUMBER>        デフォルトのハッシュ表サイズを <NUMBER> ぐらいに設定する
+  --help                      オプションのヘルプを表示する
+  -init SYMBOL                ロード時に SYMBOL を呼び出す
+  -Map FILE                   マップファイルを書き込む
+  --no-define-common          共通記憶域を定義しない
+  --no-demangle               シンボル名の名前復元 (demangle) を行わない
+  --no-keep-memory            メモリ使用量を減らしてディスク I/O を増やす
+  --no-undefined              オブジェクトファイル内の解決できない参照を許可しない
+  --allow-shlib-undefined     共有ライブラリ内の解決できない参照を許可する
+  --no-allow-shlib-undefined  共有ライブラリ内の解決できない参照を許可しない
+  --allow-multiple-definition 重複した定義を許可する
+  --no-undefined-version      未定義バージョンを許可しない
+  --default-symver            デフォルトのシンボルバージョンを作成する
+  --default-imported-symver   インポートしたシンボルに対するデフォルトのシンボルバージョンを作成する
+  --no-warn-mismatch          適合しない入力ファイルがある場合でも警告しない
+  --no-warn-search-mismatch   互換性がないライブラリが見つかった場合でも警告しない
+  --no-whole-archive          --whole-archive を無効にする
+  --noinhibit-exec            エラーが発生した場合でも出力ファイルを作成する
+  -nostdlib                   コマンドラインで指定されたライブラリディレクトリ
+                                のみ使用する
+  --oformat TARGET            出力ファイルのターゲットを指定する
+  --print-output-format       デフォルトの出力形式を表示する
+  --print-sysroot             Print current sysroot
+  -qmagic                     Linux 互換性のため無視する
+  --reduce-memory-overheads   メモリのオーバーヘッドを減らす。実行時間が長くなる可能性がある
+  --relax                     ターゲット固有の最適化を使用してコードサイズを減らす
+  --no-relax                  コードサイズを減らすために緩和技術を使用しない
+  --retain-symbols-file FILE  FILE 内に含まれているシンボルのみ保持する
+  -rpath PATH                 実行時共有ライブラリ探索パスを設定する
+  -rpath-link PATH            リンク時共有ライブラリ探索パスを設定する
+  -shared, -Bshareable        共有ライブラリを作成する
+  -pie, --pic-executable      位置非依存実行ファイルを作成する
+  --sort-common [=ascending|descending]
+                              共通シンボルを整列の大きさ順にソートする [指定する順序]
+  --sort-section name|alignment
+                              セクションを名前または整列の大きさ順にソートする
+  --spare-dynamic-tags COUNT  .dynamic セクション内に予約するタグの数
+  --split-by-file [=SIZE]     SIZE オクテットごとに出力セクションを分割する
+  --split-by-reloc [=COUNT]   再配置数 COUNT ごとに出力セクションを分割する
+  --stats                     メモリ使用量統計を表示する
+  --target-help               ターゲット固有のオプションを表示する
+  --task-link SYMBOL          タスクレベルリンクを行う
+  --traditional-format        ネイティブリンカと同じ形式を使用する
+  --section-start SECTION=ADDRESS
+                              named セクションのアドレスを設定する
+  -Tbss ADDRESS               .bss セクションのアドレスを設定する
+  -Tdata ADDRESS              .data セクションのアドレスを設定する
+  -Ttext ADDRESS              .text セクションのアドレスを設定する
+  -Ttext-segment ADDRESS      text セグメントのアドレスを設定する
+  -Trodata-segment ADDRESS    Set address of rodata segment
+  -Tldata-segment ADDRESS     Set address of ldata segment
+  --unresolved-symbols=<method>
+                              解決されなかったシンボルをどのように扱うかを指定する。 <method> は次の通り:
+                                ignore-all, report-all, ignore-in-object-files,
+                                ignore-in-shared-libs
+  --verbose [=NUMBER]         リンク中に多数の情報を表示する
+  --version-script FILE       バージョン情報スクリプトを読み込む
+  --version-exports-section SYMBOL
+                              SYMBOL をバージョンとして使用し、エクスポートするシンボルリストを
+                                 .exports から取り出す
+  --dynamic-list-data         データシンボルを動的リストに加える
+  --dynamic-list-cpp-new      C++ 演算子 new/delete 動的リストを使用する
+  --dynamic-list-cpp-typeinfo C++ typeinfo 動的リストを使用する
+  --dynamic-list FILE         動的リストを読み込む
+  --warn-common               重複共通シンボルに関して警告する
+  --warn-constructors         大域コンストラクタ/デストラクタが見つかったときに警告する
+  --warn-multiple-gp          複数の GP 値が使用されているときに警告する
+  --warn-once                 定義されていないシンボルがあるごとに一回のみ警告する
+  --warn-section-align        整列によりセクションの開始が変更されたときに警告する
+  --warn-shared-textrel       共有オブジェクトに DT_TEXTREL が含まれるときに警告する
+  --warn-alternate-em         オブジェクトが代替 ELF マシンコードを持つときに警告する
+  --warn-unresolved-symbols   解決できないシンボルを警告として報告する
+  --error-unresolved-symbols  解決できないシンボルをエラーとして報告する
+  --whole-archive             これ以降の書庫からは全てのオブジェクトを含める
+  --wrap SYMBOL               SYMBOL に対してラッパー関数を使用する
+  --ignore-unresolved-symbol SYMBOL
+                              Unresolved SYMBOL will not cause an error or warning
+  --push-state                Push state of flags governing input file handling
+  --pop-state                 Pop state of flags governing input file handling
+  @FILE                       オプションを FILE から読み込む
+C:\MinGW\bin/ld.exe: supported targets: pe-i386 pei-i386 elf32-i386 elf32-little elf32-big plugin srec symbolsrec verilog tekhex binary ihex
+C:\MinGW\bin/ld.exe: supported emulations: i386pe
+C:\MinGW\bin/ld.exe: emulation specific options:
+i386pe: 
+  --base_file <basefile>             再配置可能 DLL のベースファイルを生成する
+  --dll                              イメージのベースを DLL のデフォルトに設定する
+  --file-alignment <size>            ファイル整列を設定する
+  --heap <size>                      ヒープの初期サイズを設定する
+  --image-base <address>             実行ファイルの開始アドレスを設定する
+  --major-image-version <number>     実行ファイルのバージョン番号を設定する
+  --major-os-version <number>        最小の要求される OS バージョンを設定する
+  --major-subsystem-version <number> 最小の要求される OS サブシステムバージョンを設定する
+  --minor-image-version <number>     実行ファイルのリビジョン番号を設定する
+  --minor-os-version <number>        最小の要求される OS リビジョンを設定する
+  --minor-subsystem-version <number> 最小の要求される OS 子サブシステムリビジョンを設定する
+  --section-alignment <size>         セクション整列を設定する
+  --stack <size>                     インラインスタックの大きさを設定する
+  --subsystem <name>[:<version>]     要求される OS のサブシステム [およびバージョン] を設定する
+  --support-old-code                 古いコードの相互利用をサポートする
+  --[no-]leading-underscore          シンボルの下線 (_) 接頭辞モードを明示的に設定する
+  --thumb-entry=<symbol>             エントリポイントを Thumb の <symbol> に設定する
+  --[no-]insert-timestamp            Use a real timestamp rather than zero (default).
+                                     This makes binaries non-deterministic
+  --add-stdcall-alias                シンボルを @nn 付きと @nn 無しとでエクスポートする
+  --disable-stdcall-fixup            _sym から _sym@nn へのリンクを行わない
+  --enable-stdcall-fixup             _sym を _sym@nn へ警告なしにリンクする
+  --exclude-symbols sym,sym,...      シンボルを自動エクスポートから除外する
+  --exclude-all-symbols              全てのシンボルを自動エクスポートから除外する
+  --exclude-libs lib,lib,...         ライブラリを自動エクスポートから除外する
+  --exclude-modules-for-implib mod,mod,...
+                                     オブジェクトおよび書庫のメンバを自動エクスポート
+                                     から除外し、代わりにインポートライブラリを配置する
+  --export-all-symbols               全てのグローバルシンボルを DLL に対して自動的にエクスポートする
+  --kill-at                          エクスポートされたシンボルから @nn を削除する
+  --out-implib <file>                インポートライブラリを生成する
+  --output-def <file>                構築した DLL から .DEF ファイルを生成する
+  --warn-duplicate-exports           Warn about duplicate exports
+  --compat-implib                    後方互換性のためのインポートライブラリを作成し、
+                                       __imp_<SYMBOL> も作成する
+  --enable-auto-image-base[=<address>] Automatically choose image base for DLLs
+                                       (optionally starting with address) unless
+                                       specifically set with --image-base
+  --disable-auto-image-base          イメージベースを自動選択しない (デフォルト)
+  --dll-search-prefix=<string>       インポートライブラリが無い dll を動的にリンクする時、
+                                       lib<basename>.dll の代わりに <string><basename>.dll
+                                       を使用する
+  --enable-auto-import               DATA 参照時に _sym を __imp_sym にリンクする
+  --disable-auto-import              DLL から DATA 項目を自動インポートしない
+  --enable-runtime-pseudo-reloc      実行時に疑似再配置による名前解決を行うことで
+                                       自動インポートの制限を回避をする
+  --disable-runtime-pseudo-reloc     DATA の自動インポートに対する実行時疑似再配置
+                                       を行わない
+  --enable-extra-pe-debug            DLL のビルドまたはリンク時に冗長なデバッグ出力
+                                       を行う (特に自動インポート)
+  --large-address-aware              実行ファイルが 2GB 以上の仮想アドレスを
+                                       サポートするようにする
+  --disable-large-address-aware      Executable does not support virtual
+                                       addresses greater than 2 gigabytes
+  --enable-long-section-names        実行可能なイメージファイルの中でも長い COFF
+                                       セクション名を使用する
+  --disable-long-section-names       オブジェクトファイル内でも長い COFF セクション
+                                       名を使用しない
+  --dynamicbase			 アドレス空間配置ランダム化 (ASLR) を使用して
+				       イメージのベースアドレスが再配置できるようにする
+  --forceinteg		 コードの完全性チェックを強制する
+  --nxcompat		 イメージをデータ実行防止と互換性を保つようにする
+  --no-isolation		 イメージは分離を理解するが、このイメージは分離しない
+  --no-seh			 イメージで SEH を使用しない。このイメージ
+				       からは SE ハンドラは呼び出されない
+  --no-bind			 このイメージをバインドしない
+  --wdmdriver		 WDM モデルを使用するドライバにする
+  --tsaware                  ターミナルサーバで使用できるイメージにする
+  --build-id[=STYLE]         Generate build ID
+
+バグを発見したら <<http://www.sourceware.org/bugzilla/>> に報告して下さい。
+翻訳に関するバグは<translation-team-ja@lists.sourceforge.net>に報告してください。
+GNU ld (GNU Binutils) 2.25.1
+
+
+
+C:\Users\DBJ\git\hos\fat\edqcow2>c:\mingw\libexec\gcc\mingw32\5.3.0\collect2.exe
+ -debug -v -plugin c:/mingw/bin/../libexec/gcc/mingw32/5.3.0/liblto_plugin-0.dll
+ -plugin-opt=c:/mingw/bin/../libexec/gcc/mingw32/5.3.0/lto-wrapper.exe -plugin-o
+pt=-fresolution=C:\Users\DBJ\AppData\Local\Temp\cceCE83a.res -plugin-opt=-pass-t
+hrough=-lmingw32 -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc
+_eh -plugin-opt=-pass-through=-lmoldname -plugin-opt=-pass-through=-lmingwex -pl
+ugin-opt=-pass-through=-lmsvcrt -plugin-opt=-pass-through=-lpthread -plugin-opt=
+-pass-through=-ladvapi32 -plugin-opt=-pass-through=-lshell32 -plugin-opt=-pass-t
+hrough=-luser32 -plugin-opt=-pass-through=-lkernel32 -plugin-opt=-pass-through=-
+lmingw32 -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_eh -plu
+gin-opt=-pass-through=-lmoldname -plugin-opt=-pass-through=-lmingwex -plugin-opt
+=-pass-through=-lmsvcrt -Bdynamic -o edqcow2.exe c:/mingw/bin/../lib/gcc/mingw32
+/5.3.0/../../../../mingw32/lib/crt2.o c:/mingw/bin/../lib/gcc/mingw32/5.3.0/crtb
+egin.o -Lc:/mingw/bin/../lib/gcc/mingw32/5.3.0 -Lc:/mingw/bin/../lib/gcc -Lc:/mi
+ngw/bin/../lib/gcc/mingw32/5.3.0/../../../../mingw32/lib -Lc:/mingw/bin/../lib/g
+cc/mingw32/5.3.0/../../.. .\edqcow2.obj -lmingw32 -lgcc -lgcc_eh -lmoldname -lmi
+ngwex -lmsvcrt -lpthread -ladvapi32 -lshell32 -luser32 -lkernel32 -lmingw32 -lgc
+c -lgcc_eh -lmoldname -lmingwex -lmsvcrt c:/mingw/bin/../lib/gcc/mingw32/5.3.0/c
+rtend.o  >> collect2.txt
+
+Convert string 'C:\MinGW\libexec\gcc\mingw32\5.3.0;C:\MinGW\GTK+\bin;C:\Program Files\7-Zip;C:\Program Files (x86)\Git\bin;C:\ProgramData\Oracle\Java\javapath;C
+:\Go\bin:C:\Python27\;C:\Python27\Scripts;C:\Python27;C:\mysql\mysql-5.6.24-winx64\bin;C:\prj\vc6\bin;C:\masm32;C:\masm32\bin;C:\Program Files\WinRAR;C:\checkst
+yle-5.5\;C:\microtools\bin;C:\sonar-runner-2.3\bin\;C:\findbugs-2.0.2\bin;C:\Perl64\site\bin;C:\Perl64\bin;C:\Python34;C:\Vim\vim73;C:\nasm;C:\MinGW\bin;C:\prj\
+tools;C:\apache-ant-1.9.4\bin\;C:\jdk1.8.0_20\bin\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Program Files\WIDCOMM\Bluetooth Software\;C:\Progr
+am Files\WIDCOMM\Bluetooth Software\syswow64;C:\Program Files\Edy\Edy Library;C:\Program Files (x86)\Common Files\Sony Shared\FeliCaLibrary;C:\Program Files\Com
+mon Files\Sony Shared\FeliCaLibrary;C:\Program Files (x86)\Common Files\Sony Shared\FeliCaNFCLibrary;C:\Program Files\Common Files\Sony Shared\FeliCaNFCLibrary;
+C:\Program Files (x86)\Common Files\Roxio Shared\10.0\DLLShared\;C:\Program Files (x86)\Common Files\Roxio Shared\DLLShared\;C:\Program Files (x86)\Justsystems\
+JSLIB32\;C:\Program Files (x86)\Sony\VAIO One Touch Startup Tool;C:\Program Files (x86)\Common Files\Thunder Network\KanKan\Codecs;C:\Program Files\Intel\WiFi\b
+in\;C:\Program Files\MySQL\MySQL Server 5.1\bin;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Tesseract-OCR;C:\node\nodejs\;C:\Go\bin;C:\Program Files (x86)\Gi
+tExtensions\;C:\Program Files (x86)\Git\cmd;C:\Program Files (x86)\Git\bin;C:\Users\DBJ\AppData\Roaming\npm' into prefixes, separator = ';'
+
+  - add prefix: C:\MinGW\libexec\gcc\mingw32\5.3.0/
+  - add prefix: C:\MinGW\GTK+\bin/
+  - add prefix: C:\Program Files\7-Zip/
+  - add prefix: C:\Program Files (x86)\Git\bin/
+  - add prefix: C:\ProgramData\Oracle\Java\javapath/
+  - add prefix: C:\Go\bin:C:\Python27\
+  - add prefix: C:\Python27\Scripts/
+  - add prefix: C:\Python27/
+  - add prefix: C:\mysql\mysql-5.6.24-winx64\bin/
+  - add prefix: C:\prj\vc6\bin/
+  - add prefix: C:\masm32/
+  - add prefix: C:\masm32\bin/
+  - add prefix: C:\Program Files\WinRAR/
+  - add prefix: C:\checkstyle-5.5\
+  - add prefix: C:\microtools\bin/
+  - add prefix: C:\sonar-runner-2.3\bin\
+  - add prefix: C:\findbugs-2.0.2\bin/
+  - add prefix: C:\Perl64\site\bin/
+  - add prefix: C:\Perl64\bin/
+  - add prefix: C:\Python34/
+  - add prefix: C:\Vim\vim73/
+  - add prefix: C:\nasm/
+  - add prefix: C:\MinGW\bin/
+  - add prefix: C:\prj\tools/
+  - add prefix: C:\apache-ant-1.9.4\bin\
+  - add prefix: C:\jdk1.8.0_20\bin\
+  - add prefix: C:\Windows\system32/
+  - add prefix: C:\Windows/
+  - add prefix: C:\Windows\System32\Wbem/
+  - add prefix: C:\Program Files\WIDCOMM\Bluetooth Software\
+  - add prefix: C:\Program Files\WIDCOMM\Bluetooth Software\syswow64/
+  - add prefix: C:\Program Files\Edy\Edy Library/
+  - add prefix: C:\Program Files (x86)\Common Files\Sony Shared\FeliCaLibrary/
+  - add prefix: C:\Program Files\Common Files\Sony Shared\FeliCaLibrary/
+  - add prefix: C:\Program Files (x86)\Common Files\Sony Shared\FeliCaNFCLibrary/
+  - add prefix: C:\Program Files\Common Files\Sony Shared\FeliCaNFCLibrary/
+  - add prefix: C:\Program Files (x86)\Common Files\Roxio Shared\10.0\DLLShared\
+  - add prefix: C:\Program Files (x86)\Common Files\Roxio Shared\DLLShared\
+  - add prefix: C:\Program Files (x86)\Justsystems\JSLIB32\
+  - add prefix: C:\Program Files (x86)\Sony\VAIO One Touch Startup Tool/
+  - add prefix: C:\Program Files (x86)\Common Files\Thunder Network\KanKan\Codecs/
+  - add prefix: C:\Program Files\Intel\WiFi\bin\
+  - add prefix: C:\Program Files\MySQL\MySQL Server 5.1\bin/
+  - add prefix: C:\Windows\System32\WindowsPowerShell\v1.0\
+  - add prefix: C:\Tesseract-OCR/
+  - add prefix: C:\node\nodejs\
+  - add prefix: C:\Go\bin/
+  - add prefix: C:\Program Files (x86)\GitExtensions\
+  - add prefix: C:\Program Files (x86)\Git\cmd/
+  - add prefix: C:\Program Files (x86)\Git\bin/
+  - add prefix: C:\Users\DBJ\AppData\Roaming\npm/
+Looking for 'real-ld'
+  - failed: no entries in prefix list
+Looking for 'collect-ld'
+  - failed: no entries in prefix list
+Looking for 'ld'
+  - failed: no entries in prefix list
+Looking for 'ld'
+Looking for 'gnm'
+  - failed: no entries in prefix list
+Looking for 'gnm'
+Looking for 'nm'
+  - failed: no entries in prefix list
+Looking for 'nm'
+Looking for 'gstrip'
+  - failed: no entries in prefix list
+Looking for 'gstrip'
+Looking for 'strip'
+  - failed: no entries in prefix list
+Looking for 'strip'
+Looking for 'gcc'
+  - failed: no entries in prefix list
+Looking for 'gcc'
+collect2 version 5.3.0
+ld_file_name        = C:\MinGW\bin/ld.exe
+c_file_name         = C:\MinGW\bin/gcc.exe
+nm_file_name        = C:\MinGW\bin/nm.exe
+strip_file_name     = C:\MinGW\bin/strip.exe
+c_file              = C:\Users\DBJ\AppData\Local\Temp\cc1O93M0.c
+o_file              = C:\Users\DBJ\AppData\Local\Temp\cc8n8ouR.o
+
+C:\MinGW\bin/ld.exe -v -plugin c:/mingw/bin/../libexec/gcc/mingw32/5.3.0/liblto_plugin-0.dll -plugin-opt=c:/mingw/bin/../libexec/gcc/mingw32/5.3.0/lto-wrapper.exe -plugin-opt=-fresolution=C:\Users\DBJ\AppData\Local\Temp\cceCE83a.res -plugin-opt=-pass-through=-lmingw32 -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_eh -plugin-opt=-pass-through=-lmoldname -plugin-opt=-pass-through=-lmingwex -plugin-opt=-pass-through=-lmsvcrt -plugin-opt=-pass-through=-lpthread-plugin-opt=-pass-through=-ladvapi32 -plugin-opt=-pass-through=-lshell32 -plugin-opt=-pass-through=-luser32 -plugin-opt=-pass-through=-lkernel32 -plugin-opt=-pass-through=-lmingw32 -plugin-opt=-pass-through=-lgcc -plugin-opt=-pass-through=-lgcc_eh -plugin-opt=-pass-through=-lmoldname -plugin-opt=-pass-through=-lmingwex -plugin-opt=-pass-through=-lmsvcrt -Bdynamic -o edqcow2.exe c:/mingw/bin/../lib/gcc/mingw32/5.3.0/../../../../mingw32/lib/crt2.o c:/mingw/bin/../lib/gcc/mingw32/5.3.0/crtbegin.o -Lc:/mingw/bin/../lib/gcc/mingw32/5.3.0 -Lc:/mingw/bin/../lib/gcc -Lc:/mingw/bin/../lib/gcc/mingw32/5.3.0/../../../../mingw32/lib -Lc:/mingw/bin/../lib/gcc/mingw32/5.3.0/../../.. .\edqcow2.obj -lmingw32 -lgcc -lgcc_eh -lmoldname -lmingwex -lmsvcrt -lpthread -ladvapi32 -lshell32 -luser32 -lkernel32 -lmingw32 -lgcc -lgcc_eh -lmoldname -lmingwex -lmsvcrt c:/mingw/bin/../lib/gcc/mingw32/5.3.0/crtend.o
+
+[C:\Users\DBJ\AppData\Local\Temp\cc1O93M0.c ｣ﾜｷ]
+[C:\Users\DBJ\AppData\Local\Temp\cc8n8ouR.o ｣ﾜｷ]
+[C:\Users\DBJ\AppData\Local\Temp\cc1O93M0.c ｣ﾜｷ]
+[C:\Users\DBJ\AppData\Local\Temp\cc8n8ouR.o ｣ﾜｷ]
+
+C:\Users\DBJ\git\hos\fat\edqcow2>

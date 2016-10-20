@@ -1,0 +1,40 @@
+image file's size:1474560
+/512:2880(=2880)
+sizeof(BOOTS)=512
+sizeof(BPB)=25
+          OEMName=[)TNQ9IHC]
+   BytesPerSector=512
+SectorsPerCluster=1
+ ReservedSectorst=1
+        FatCopies=2
+   RootDirEntries=224
+       NumSectors=2880
+        MediaType=240
+    SectorsPerFAT=9
+    NumberOfHeads=2
+    HiddenSectors=0
+       SectorsBig=0
+           DrvNum=0
+       Reaserved1=0
+          Bootsig=41
+           VolID=889526499
+           VolLab=[BOOT622    ]
+      FileSysType=[FAT12   ]
+      EndFlag=0X55AA
+sizeof(DIRENT)=32
+[IO      ][SYS][7][000] SHR [2][40774]
+[MSDOS   ][SYS][7][000] SHR [2544][38138]
+[SYS     ][COM][32][000]A    [158][9432]
+[COMMAND ][COM][32][000]A    [177][54645]
+[ATTRIB  ][EXE][32][000]A    [284][11208]
+[CHKDSK  ][EXE][32][000]A    [306][12241]
+[DELTREE ][EXE][32][000]A    [330][11111]
+[EMM386  ][EXE][32][000]A    [352][120926]
+[FDISK   ][EXE][32][000]A    [589][29336]
+[LABEL   ][EXE][32][000]A    [647][9390]
+[MEM     ][EXE][32][000]A    [666][32502]
+[MSCDEX  ][EXE][32][000]A    [730][25361]
+[QBASIC  ][EXE][32][000]A    [780][194309]
+[UNDELETE][EXE][32][000]A    [1160][26416]
+[CD2     ][SYS][32][000]A    [1212][16504]
+[EDIT    ][HLP][32][000]A    [1245][17898]

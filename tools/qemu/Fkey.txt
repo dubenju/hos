@@ -1,0 +1,13 @@
+ctrl+alt+1
+ctrl+alt+2
+
+[按Ctrl] + [Alt]键 释放鼠标和键盘
+[按Ctrl] + [Alt]键 + [1]更改显示Guest操作系统
+[按Ctrl] + [Alt]键 + [2]切换到控制台2：QEMU监控
+[按Ctrl] + [Alt]键 + [3]切换到控制台3：串行输出
+[按Ctrl] + [Alt]键 + [4]切换到控制台4：并行输出
+[按Ctrl] + [Alt]键 + [H]给出选项援助-nographic
+[按Ctrl] + [Alt]键 + [F]全屏和窗口模式之间进行切换
+[按Ctrl] + [Alt]键 + [+]放大屏幕输出
+[按Ctrl] + [ALT]键 + [-]降低屏幕输出
+[按Ctrl] + [Alt]键 + [U]设置初始窗口大小恢复
