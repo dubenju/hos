@@ -12,7 +12,8 @@ int main() {
   printf("sizeof(int)   =%d\r\n", sizeof(int)); /* 4 */
   printf("sizeof(long)  =%d\r\n", sizeof(long)); /* 4 */
   printf("sizeof(long long)  =%d\r\n", sizeof(long long)); /* 8 */
-  printf("sizeof(uint32_t)  =%d\r\n", sizeof(uint32_t)); /* 4 */
+  printf("sizeof(uint8_t)  =%d\r\n", sizeof(uint8_t)); /* 1 */
+  printf("sizeof(uint16_t)  =%d\r\n", sizeof(uint16_t)); /* 2 */
   printf("sizeof(uint32_t)  =%d\r\n", sizeof(uint32_t)); /* 4 */
   printf("sizeof(uint64_t)  =%d\r\n", sizeof(uint64_t)); /* 8 */
   printf("sizeof(float) =%d\r\n", sizeof(float)); /* 4 */
@@ -26,6 +27,19 @@ int main() {
   printf("sizeof(float*) =%d\r\n", sizeof(float *)); /* 4 */
   printf("sizeof(double*)=%d\r\n", sizeof(double *)); /* 4 */
   printf("sizeof(long double*)=%d\r\n", sizeof(long double *)); /* 4 */
+  
+  char c; /* -128 - 127 */
+  c = 128;
+  unsigned char uc;
+  uc = 128;
+  printf("%d %d %u %u\n", c, c, uc, uc);
+  c = 255;
+  uc = 255;
+  printf("%d %d %u %u\n", c, c, uc, uc);
+
+  c = 256;
+  uc = 257;
+  printf("%d %d %u %u\n", c, c, uc, uc);
 
   return 0;
 }

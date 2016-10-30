@@ -1,0 +1,40 @@
+image file's size:1474560
+/512:2880(=2880)
+sizeof(BOOTS)=512
+sizeof(BPB)=25
+          OEMName=[+C<jjIHC]
+   BytesPerSector=512
+SectorsPerCluster=1
+ ReservedSectorst=1
+        FatCopies=2
+   RootDirEntries=224
+       NumSectors=2880
+        MediaType=240
+    SectorsPerFAT=9
+    NumberOfHeads=2
+    HiddenSectors=0
+       SectorsBig=0
+           DrvNum=0
+       Reaserved1=0
+          Bootsig=41
+           VolID=809461825
+           VolLab=[           ]
+      FileSysType=[FAT12   ]
+      EndFlag=0X55AA
+sizeof(DIRENT)=32
+[IO      ][SYS][39][017]ASHR [2][224150]
+[AUTOEXEC][BAT][32][167]A    [440][1103]
+[CONFIG  ][SYS][32][074]A    [443][629]
+[SETRAMD ][BAT][32][173]A    [445][1416]
+[README  ][TXT][32][093]A    [448][14764]
+[FINDRAMD][EXE][32][045]A    [477][6855]
+[RAMDRIVE][SYS][32][163]A    [491][12663]
+[ASPI4DOS][SYS][32][112]A    [516][14386]
+[BTCDROM ][SYS][32][043]A    [545][21971]
+[ASPICD  ][SYS][32][010]A    [588][29620]
+[BTDOSM  ][SYS][32][199]A    [646][30955]
+[ASPI2DOS][SYS][32][025]A    [707][35330]
+[ASPI8DOS][SYS][32][077]A    [777][37564]
+[ASPI8U2 ][SYS][32][118]A    [851][40792]
+[FLASHPT ][SYS][32][190]A    [931][64425]
+[EXTRACT ][EXE][32][149]A    [1057][93242]

@@ -1,0 +1,56 @@
+/*
+ * 
+ *//*
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <stdio.h>
+
+
+int main()
+{
+  struct stat fi;
+  stat("/", &fi);
+  printf("%d\n", fi.st_size);
+  return 0;
+}
+*/
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <sys/stat.h>
+
+int main(int argc, char **argv)
+{
+    int osize = 0x500000;
+    FILE * pFile = fopen("C:\\pho\\1025.z", "rw+b");
+     char outfilename[256];
+     int idx = 0;
+     // char buf[0x500000];
+     fseek(pFile, 0, SEEK_END);
+     int pos = ftell(pFile);
+      fseek(pFile, 0, SEEK_SET);
+      printf("size:%d.\n", pos);
+     int cnt = pos / osize;
+ 
+    if (pos % osize != 0) {
+        cnt ++;
+    }
+    printf("cnt:%d.\n", cnt);
+    int readed,write;
+    char * buf = (char * ) malloc(osize);
+    for (idx = 0; idx < cnt; idx ++) {
+        sprintf(outfilename, "C:\\pho\\1025.z%d", idx);
+        printf("idx:%d.%s\n", idx, outfilename);
+         FILE * pOut = fopen(outfilename, "rw+b");
+         memset(buf, 0, osize);
+         readed = fread(buf, 1, osize, pFile);
+         write = fwrite(buf, 1, readed, pOut);
+         printf("read:%d.write:%d.\n", readed, write);
+         fclose(pOut);
+    }
+    free(buf);
+     fclose(pFile);
+
+  return 0;
+}

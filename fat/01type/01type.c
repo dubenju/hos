@@ -27,6 +27,19 @@ int main() {
   printf("sizeof(float*) =%d\r\n", sizeof(float *)); /* 4 */
   printf("sizeof(double*)=%d\r\n", sizeof(double *)); /* 4 */
   printf("sizeof(long double*)=%d\r\n", sizeof(long double *)); /* 4 */
+  
+  char c; /* -128 - 127 */
+  c = 128;
+  unsigned char uc; /* 0 - 255 */
+  uc = 128;
+  printf("%d %d %u %u\n", c, c, uc, uc);
+  c = 255;
+  uc = 255;
+  printf("%d %d %u %u\n", c, c, uc, uc);
+
+  c = 256;
+  uc = 257;
+  printf("%d %d %u %u\n", c, c, uc, uc);
 
   return 0;
 }

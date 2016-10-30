@@ -1,0 +1,157 @@
+参数[0]=C:\Users\DBJ\git\hos\fat\edqcow2\edqcow2.
+参数[1]=C:\Users\DBJ\git\hos\tools\qemu\qemu_img\format\qcow2m_fmt.qcow2.
+参数[2]=format.
+参数[3]=drv1.
+format.
+param=drv1.
+partition no=1.
+>>----- format_partition begin -----
+file:C:\Users\DBJ\git\hos\tools\qemu\qemu_img\format\qcow2m_fmt.qcow2.
+parttion_no:1.
+filesystem:auto_.
+>>----- read_qcow2 begin -----
+sizeof(header)=72
+readed count=72
+
+>>----- Level 1 Table -----
+表1在镜像文件中的位置[(4096, 0X1000)-(8192, 0X2000))
+l1_table_offset=4096,0X1000.
+l1_table_size=1,0X1.
+l1[0]=16384. 0X4000.
+table[00000]=0000016384, 0X0000004000 
+----- Level 1 Table -----<<
+
+>>----- Refcount Table -----
+refcount_table_cnt=1.
+refcount table offset=8192, 0X2000.
+refcount[0]=0X0.
+引用计数表在镜像文件中的位置[(8192, 0X2000)-(12288, 0X3000))
+table[00000]=0000012288, 0X0000003000 
+----- Refcount Table -----<<
+
+>>----- Refcount Block -----
+!!!引用计数块在镜像文件中似乎不是连续存储的，那么1个引用计数块的大小应该是1个簇。
+引用计数块在镜像文件中的位置[(12288, 0X3000)-(16384, 0X4000))
+refcount_cnt=2048.
+refcount block offset=12288, 0X3000, count=0.
+table[00000]=1. table[00001]=1. table[00002]=1. table[00003]=1. table[00004]=1. table[00005]=1. table[00006]=1. table[00007]=1. 
+table[00008]=1. table[00009]=1. table[00010]=1. table[00011]=1. table[00012]=1. table[00013]=1. table[00014]=1. 
+----- Refcount Block -----<<
+
+>>----- Level 2 Table -----
+L2 Table offset=16384, 0X4000.
+
+表2在镜像文件中的最初位置[(16384, 0X4000)-(20480, 0X5000)).
+offset[00000]=16384, 0X4000 
+l2[000]=0000000057344. 0X000000E000.l2[007]=0000000020480. 0X0000005000.l2[015]=0000000024576. 0X0000006000.l2[023]=0000000028672. 0X0000007000.l2[031]=0000000032768. 0X0000008000.l2[039]=0000000036864. 0X0000009000.l2[047]=0000000040960. 0X000000A000.l2[055]=0000000045056. 0X000000B000.
+l2[063]=0000000049152. 0X000000C000.l2[070]=0000000053248. 0X000000D000.
+
+l2 table's size:512.
+table[00000]=0000057344, 0X000000E000 table[00007]=0000020480, 0X0000005000 table[00015]=0000024576, 0X0000006000 table[00023]=0000028672, 0X0000007000 table[00031]=0000032768, 0X0000008000 table[00039]=0000036864, 0X0000009000 table[00047]=0000040960, 0X000000A000 table[00055]=0000045056, 0X000000B000 
+table[00063]=0000049152, 0X000000C000 table[00070]=0000053248, 0X000000D000 
+----- Level 2 Table -----<<
+
+----- read_qcow2 begin -----<<
+HEADER:00A81840.
+L1    :00A81890.
+RFT   :00A818A8.
+RFB   :00A88D28.
+L2    :009007C8.
+>>----- QCOW2 HEADER -----.
+头信息在镜像文件中的位置[(0, 0X0000)-(4096, 0X1000))
+QCOW2_MAGIC                  (4) = 0X514649FB,QCOW magic string.
+QCOW2_version                (4) = 0X2,Version number (valid values are 2 and 3).
+QCOW2_backing_file_offset    (8) = 0X0,Offset into the image file at which the backing file name is stored (NB: The string is not null terminated). 0 if the image doesn't have a backing file.
+QCOW2_backing_file_size      (4) = 0X0,Length of the backing file name in bytes. Must not be longer than 1023 bytes. Undefined if the image doesn't have a backing file.
+QCOW2_cluster_bits           (4) = 0XC,Number of bits that are used for addressing an offset within a cluster (1 << cluster_bits is the cluster size). Must not be less than 9 (i.e. 512 byte clusters).
+QCOW2_size                   (8) = 2097152,0X0000200000,Virtual disk size in bytes.
+                                        十六进制的值有不正确的可能。
+QCOW2_crypt_method           (4) = 0X0,0 for no encryption;1 for AES encryption.
+QCOW2_l1_size                (4) = 0X1 1,Number of entries in the active L1 table(MAX).
+*QCOW2_l1_table_offset       (8) = 0X1000,Offset into the image file at which the active L1 table starts. Must be aligned to a cluster boundary.
+*QCOW2_refcount_table_offset (8) = 0X2000,Offset into the image file at which the refcount table starts. Must be aligned to a cluster boundary.
+QCOW2_refcount_table_clusters(4) = 0X1,Number of clusters that the refcount table occupies.
+QCOW2_nb_snapshots           (4) = 0X0,Number of snapshots contained in the image.
+QCOW2_snapshots_offset       (8) = 0X0,Offset into the image file at which the snapshot table starts. Must be aligned to a cluster boundary.
+12.
+cluster_size = 4096
+----- QCOW2 HEADER -----<<.
+>>----- Level 1 Table -----
+表1在镜像文件中的位置[(4096, 0X1000)-(8192, 0X2000))
+table[00000]=0000016384, 0X0000004000 
+----- Level 1 Table -----<<
+
+>>----- Refcount Table -----
+引用计数表在镜像文件中的位置[(8192, 0X2000)-(12288, 0X3000))
+table[00000]=0000012288, 0X0000003000 
+----- Refcount Table -----<<
+
+>>----- Refcount Block -----
+!!!引用计数块在镜像文件中似乎不是连续存储的，那么1个引用计数块的大小应该是1个簇。
+引用计数块在镜像文件中的位置[(12288, 0X3000)-(16384, 0X4000))
+table[00000]=1. table[00001]=1. table[00002]=1. table[00003]=1. table[00004]=1. table[00005]=1. table[00006]=1. table[00007]=1. 
+table[00008]=1. table[00009]=1. table[00010]=1. table[00011]=1. table[00012]=1. table[00013]=1. table[00014]=1. 
+----- Refcount Block -----<<
+
+>>----- Level 2 Table -----
+表2在镜像文件中的最初位置[(57344, 0XE000)-(61440, 0XF000)).
+table[00000]=0000057344, 0X000000E000 table[00007]=0000020480, 0X0000005000 table[00015]=0000024576, 0X0000006000 table[00023]=0000028672, 0X0000007000 table[00031]=0000032768, 0X0000008000 table[00039]=0000036864, 0X0000009000 table[00047]=0000040960, 0X000000A000 table[00055]=0000045056, 0X000000B000 
+table[00063]=0000049152, 0X000000C000 table[00070]=0000053248, 0X000000D000 
+----- Level 2 Table -----<<
+
+>>----- Partition Table -----
+L2 Table offset=0, 0X0.
+----- drv1 mbr info -----
+0 = l1 =0.l2=0, cluster=0, 57344. 0XE000.
+0X55, 0XAA.
+WIN95 FAT16 LBA.
+80 01 00 01 0e 0f 03 3f 63 3969 1.97MB 
+   01 00 01 0f 03 3f 
+Empty.
+00 00 00 00 00 00 00 00 0 0 0.00MB 
+   00 00 00 00 00 00 
+Empty.
+00 00 00 00 00 00 00 00 0 0 0.00MB 
+   00 00 00 00 00 00 
+Empty.
+00 00 00 00 00 00 00 00 0 0 0.00MB 
+   00 00 00 00 00 00 
+
+
+========= this is a test for list.
+flag=1 sector_index=0 WIN95 FAT16 LBA.
+80 01 00 01 0e 0f 03 3f 63 3969 1.97MB 
+   01 00 01 0f 03 3f 
+========= this is a test for list.
+----- Partition Table -----<<
+
+WIN95 FAT16 LBA.
+80 01 00 01 0e 0f 03 3f 63 3969 1.97MB 
+   01 00 01 0f 03 3f 
+>>----- get_partition_size begin -----
+----- get_partition_size end -----<<
+>>----- get_sector_per_cluster begin -----
+----- get_sector_per_cluster end -----<<
+sector_per_cluster=8.
+bs_OEMName=.
+bpb_BytesPerSector=1.
+bpb_SectorsPerCluster=8.
+bpb_ReservedSectorst=0.
+bpb_FatCopies=2.
+bpb_RootDirEntries=2.
+bpb_NumSectors=0.
+bpb_MediaType=2.
+bpb_SectorsPerFAT=2.
+bpb_SectorsPerTrack=63.
+bpb_NumberOfHeads=2.
+bpb_HiddenSectors=63.
+bpb_SectorsBig=63.
+bs_DrvNum=0.
+bs_Reaserved1=0.
+bs_Bootsig=0.
+bs_VolID=0000-0000.
+bs_VolLab=.
+bs_FileSysType=FAT12.
+bs_EndFlag=0.
+format_partition is normal end.
+----- format_partition end -----<<

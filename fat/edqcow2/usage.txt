@@ -13,28 +13,43 @@ cluster_size
 
 创建引用块表的大小计算
 
-edqcow2 image_file fdisk create PrimaryPartition [-f format] size
+edqcow2 image_file fdisk create PrimaryPartition [-f format] size [-m mbr.bin]
 创建表2，更新表1.
 更新引用计数块
 创建指定大小的主分区
 创建这个分区的VBR，值为F6
 创建MBR的分区表
+format:fat12,fat16,fat32
+format 主要是在512MB<=分区大小<=2047MB时，也可以使用FAT16需要用户指定。
+MS-DOS的fdisk也是这样做的。
 
 edqcow2 image_file fdisk create ExtendedPartition [-f format] size
 创建指定大小的主分区
 更新前一个MBR的分区表
 创建这个分区的EBR
 -- 创建这个分区的VBR，值为F6
+Xformat:fat12,fat16,fat32
 
 edqcow2 image_file fdisk create LogicalPartition [-f format] size
 更新这个分区的EBR
 创建这个分区的VBR，值为F6
+format:fat12,fat16,fat32
 
 edqcow2 image_file fdisk delete PartitionNo
 
 edqcow2 image_file info
 
-edqcow3 image_file copy /dev1/path/file -> c:/path/file
-edqcow3 image_file copy c:/path/file -> /dev1/path/file 
+edqcow2 image_file format [-f format] drv1 [-v vbr.bin]
+从分区表中获取分区信息。
+创建引导扇区
+FAT表1
+FAT表2
+根目录
 
-edqcow3 image_file delete /dev1/path/file
+format:fat12,fat16,fat32
+
+edqcow3 image_file copy /drv1/path/file to c:/path/file
+edqcow3 image_file copy c:/path/file to /drv1/path/file 
+edqcow3 image_file copy /drv1/path/file from c:/path/file
+
+edqcow3 image_file delete /drv1/path/file or folder and subs

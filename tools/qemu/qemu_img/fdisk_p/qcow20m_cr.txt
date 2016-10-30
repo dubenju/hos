@@ -1,0 +1,279 @@
+参数[0]=edqcow2.
+参数[1]=C:\Users\DBJ\git\hos\tools\qemu\qemu_img\fdisk_p\qcow20m_cr.qcorw2.
+参数[2]=fdisk.
+参数[3]=create.
+参数[4]=PrimaryPartition.
+参数[5]=20611584.
+参数[6]=-cs.
+参数[7]=4K.
+参数[8]=-m.
+参数[9]=C:\Users\DBJ\git\hos\fat\edqcow2\mbr.bin.
+fdisk create PrimaryPartition 8:20611584.
+a=1.
+pos=7.
+[20611584].
+size=20611584.
+2:4K.
+a=1024.
+pos=0.
+[4].
+size=4096.
+sizeof(header)=72
+readed count=72
+
+>>----- Header -----
+头信息在镜像文件中的位置[(0, 0X0000)-(4096, 0X1000))
+QCOW2_MAGIC                  (4) = 0X514649FB,QCOW magic string.
+QCOW2_version                (4) = 0X2,Version number (valid values are 2 and 3).
+QCOW2_backing_file_offset    (8) = 0X0,Offset into the image file at which the backing file name is stored (NB: The string is not null terminated). 0 if the image doesn't have a backing file.
+QCOW2_backing_file_size      (4) = 0X0,Length of the backing file name in bytes. Must not be longer than 1023 bytes. Undefined if the image doesn't have a backing file.
+QCOW2_cluster_bits           (4) = 0XC,Number of bits that are used for addressing an offset within a cluster (1 << cluster_bits is the cluster size). Must not be less than 9 (i.e. 512 byte clusters).
+QCOW2_size                   (8) = 20971520,0X0001400000,Virtual disk size in bytes.
+                                        十六进制的值有不正确的可能。
+QCOW2_crypt_method           (4) = 0X0,0 for no encryption;1 for AES encryption.
+QCOW2_l1_size                (4) = 0XA 10,Number of entries in the active L1 table(MAX).
+*QCOW2_l1_table_offset       (8) = 0X1000,Offset into the image file at which the active L1 table starts. Must be aligned to a cluster boundary.
+*QCOW2_refcount_table_offset (8) = 0X2000,Offset into the image file at which the refcount table starts. Must be aligned to a cluster boundary.
+QCOW2_refcount_table_clusters(4) = 0X1,Number of clusters that the refcount table occupies.
+QCOW2_nb_snapshots           (4) = 0X0,Number of snapshots contained in the image.
+QCOW2_snapshots_offset       (8) = 0X0,Offset into the image file at which the snapshot table starts. Must be aligned to a cluster boundary.
+----- Header -----<<
+
+----- QCOW2 HEADER -----.
+QCOW2_MAGIC                  (4) = 0X514649FB,QCOW magic string.
+QCOW2_version                (4) = 0X2,Version number (valid values are 2 and 3).
+QCOW2_backing_file_offset    (8) = 0X0,Offset into the image file at which the backing file name is stored (NB: The string is not null terminated). 0 if the image doesn't have a backing file.
+QCOW2_backing_file_size      (4) = 0X0,Length of the backing file name in bytes. Must not be longer than 1023 bytes. Undefined if the image doesn't have a backing file.
+QCOW2_cluster_bits           (4) = 0XC,Number of bits that are used for addressing an offset within a cluster (1 << cluster_bits is the cluster size). Must not be less than 9 (i.e. 512 byte clusters).
+QCOW2_size                   (8) = 20971520,0X0001400000,Virtual disk size in bytes.
+                                        十六进制的值有不正确的可能。
+QCOW2_crypt_method           (4) = 0X0,0 for no encryption;1 for AES encryption.
+QCOW2_l1_size                (4) = 0XA 10,Number of entries in the active L1 table(MAX).
+*QCOW2_l1_table_offset       (8) = 0X1000,Offset into the image file at which the active L1 table starts. Must be aligned to a cluster boundary.
+*QCOW2_refcount_table_offset (8) = 0X2000,Offset into the image file at which the refcount table starts. Must be aligned to a cluster boundary.
+QCOW2_refcount_table_clusters(4) = 0X1,Number of clusters that the refcount table occupies.
+QCOW2_nb_snapshots           (4) = 0X0,Number of snapshots contained in the image.
+QCOW2_snapshots_offset       (8) = 0X0,Offset into the image file at which the snapshot table starts. Must be aligned to a cluster boundary.
+C000000.
+12.
+cluster_size = 4096
+----- QCOW2 HEADER -----.
+>>----- Level 1 Table -----
+表1在镜像文件中的位置[(4096, 0X1000)-(8192, 0X2000))
+l1_table_offset=4096,0X1000.
+l1_table_size=10,0XA.
+l1[0]=0. 0X0.
+
+----- Level 1 Table -----<<
+
+>>----- Refcount Table -----
+refcount_table_cnt=1.
+refcount table offset=8192, 0X2000.
+refcount[0]=0X3000.
+引用计数表在镜像文件中的位置[(8192, 0X2000)-(12288, 0X3000))
+table[00000]=0000012288, 0X0000003000 
+----- Refcount Table -----<<
+
+>>----- Refcount Block -----
+!!!引用计数块在镜像文件中似乎不是连续存储的，那么1个引用计数块的大小应该是1个簇。
+引用计数块在镜像文件中的位置[(12288, 0X3000)-(16384, 0X4000))
+refcount_cnt=2048.
+refcount block offset=12288, 0X3000, count=0.
+table[00000]=1. table[00001]=1. table[00002]=1. table[00003]=1. 
+----- Refcount Block -----<<
+
+HEADER:00B21C50.
+L1    :00B27910.
+RFT   :00B27A98.
+RFB   :00B28E88.
+L2    :00000000.
+sector_no=0.l1_idx=0.l2_idx=0.
+l1 offset:4096. 1000.
+size:10.
+0 0.
+1 0.
+2 0.
+3 0.
+4 0.
+5 0.
+6 0.
+7 0.
+8 0.
+9 0.
+00.a=1.1.
+01.a=2.2.
+02.a=4.4.
+03.a=8.8.
+04.a=16.10.
+05.a=32.20.
+06.a=64.40.
+07.a=128.80.
+08.a=256.100.
+09.a=512.200.
+10.a=1024.400.
+11.a=2048.800.
+12.a=4096.1000.
+13.a=8192.2000.
+14.a=16384.4000.
+15.a=32768.8000.
+16.a=65536.10000.
+17.a=131072.20000.
+18.a=262144.40000.
+19.a=524288.80000.
+20.a=1048576.100000.
+21.a=2097152.200000.
+22.a=4194304.400000.
+23.a=8388608.800000.
+24.a=16777216.1000000.
+25.a=33554432.2000000.
+26.a=67108864.4000000.
+27.a=134217728.8000000.
+28.a=268435456.10000000.
+29.a=536870912.20000000.
+30.a=1073741824.40000000.
+31.a=2147483648.80000000.
+32.a=4294967296.0.
+33.a=8589934592.0.
+34.a=17179869184.0.
+35.a=34359738368.0.
+36.a=68719476736.0.
+37.a=137438953472.0.
+38.a=274877906944.0.
+39.a=549755813888.0.
+40.a=1099511627776.0.
+41.a=2199023255552.0.
+42.a=4398046511104.0.
+43.a=8796093022208.0.
+44.a=17592186044416.0.
+45.a=35184372088832.0.
+46.a=70368744177664.0.
+47.a=140737488355328.0.
+48.a=281474976710656.0.
+49.a=562949953421312.0.
+50.a=1125899906842624.0.
+51.a=2251799813685248.0.
+52.a=4503599627370496.0.
+53.a=9007199254740992.0.
+54.a=18014398509481984.0.
+55.a=36028797018963968.0.
+56.a=72057594037927936.0.
+57.a=144115188075855872.0.
+58.a=288230376151711744.0.
+59.a=576460752303423488.0.
+60.a=1152921504606846976.0.
+61.a=2305843009213693952.0.
+62.a=4611686018427387904.0.
+63.a=9223372036854775808.0.
+64.a=9223372036854792192.4000.
+L2 TABLE=0.
+max_sector_cnt = 40257.
+ 000  5000 sector no = 63.clustor7, 7.E00  out=5E00.
+sector_no=63.
+write_offset=24064.5E00.
+l1=0.l2=7.
+簇地址:20480.5000
+引用计数表大小:1
+引用计数块大小:2048
+ 001  6000 sector no = 126.clustor15, 6.C00  out=6C00.
+sector_no=126.
+write_offset=27648.6C00.
+l1=0.l2=15.
+簇地址:24576.6000
+引用计数表大小:1
+引用计数块大小:2048
+ 002  7000 sector no = 189.clustor23, 5.A00  out=7A00.
+sector_no=189.
+write_offset=31232.7A00.
+l1=0.l2=23.
+簇地址:28672.7000
+引用计数表大小:1
+引用计数块大小:2048
+ 003  8000 sector no = 252.clustor31, 4.800  out=8800.
+sector_no=252.
+write_offset=34816.8800.
+l1=0.l2=31.
+簇地址:32768.8000
+引用计数表大小:1
+引用计数块大小:2048
+ 004  9000 sector no = 315.clustor39, 3.600  out=9600.
+sector_no=315.
+write_offset=38400.9600.
+l1=0.l2=39.
+簇地址:36864.9000
+引用计数表大小:1
+引用计数块大小:2048
+ 005  A000 sector no = 378.clustor47, 2.400  out=A400.
+sector_no=378.
+write_offset=41984.A400.
+l1=0.l2=47.
+簇地址:40960.A000
+引用计数表大小:1
+引用计数块大小:2048
+ 006  B000 sector no = 441.clustor55, 1.200  out=B200.
+sector_no=441.
+write_offset=45568.B200.
+l1=0.l2=55.
+簇地址:45056.B000
+引用计数表大小:1
+引用计数块大小:2048
+ 007  C000 sector no = 504.clustor63, 0.0  out=C000.
+sector_no=504.
+write_offset=49152.C000.
+l1=0.l2=63.
+簇地址:49152.C000
+引用计数表大小:1
+引用计数块大小:2048
+ 008  D000 sector no = 567.clustor70, 7.E00  out=DE00.
+sector_no=567.
+write_offset=56832.DE00.
+l1=0.l2=70.
+簇地址:53248.D000
+引用计数表大小:1
+引用计数块大小:2048
+ 009  E000 sector no = 630.
+file=C:\Users\DBJ\git\hos\tools\qemu\qemu_img\fdisk_p\qcow20m_cr.qcorw2.
+partition_type=1.
+total_size=20611584.
+80 01 00 01 0e 0f 23 3f 63 40257 
+   01 00 01 0f 23 3f 
+mbr:C:\Users\DBJ\git\hos\fat\edqcow2\mbr.bin.
+E000.
+sector_no=1.
+write_offset=57344.E000.
+l1=0.l2=0.
+簇地址:57344.E000
+引用计数表大小:1
+引用计数块大小:2048
+HEADER:00B21C50.
+L1    :00B27910.
+RFT   :00B27A98.
+RFB   :00B28E88.
+L2    :00B29E98.
+0.
+QCOW2_MAGIC                  (4) = 0X514649FB,QCOW magic string.
+QCOW2_version                (4) = 0X2,Version number (valid values are 2 and 3).
+QCOW2_backing_file_offset    (8) = 0X0,Offset into the image file at which the backing file name is stored (NB: The string is not null terminated). 0 if the image doesn't have a backing file.
+QCOW2_backing_file_size      (4) = 0X0,Length of the backing file name in bytes. Must not be longer than 1023 bytes. Undefined if the image doesn't have a backing file.
+QCOW2_cluster_bits           (4) = 0XC,Number of bits that are used for addressing an offset within a cluster (1 << cluster_bits is the cluster size). Must not be less than 9 (i.e. 512 byte clusters).
+QCOW2_size                   (8) = 20971520,0X0001400000,Virtual disk size in bytes.
+                                        十六进制的值有不正确的可能。
+QCOW2_crypt_method           (4) = 0X0,0 for no encryption;1 for AES encryption.
+QCOW2_l1_size                (4) = 0XA 10,Number of entries in the active L1 table(MAX).
+*QCOW2_l1_table_offset       (8) = 0X1000,Offset into the image file at which the active L1 table starts. Must be aligned to a cluster boundary.
+*QCOW2_refcount_table_offset (8) = 0X2000,Offset into the image file at which the refcount table starts. Must be aligned to a cluster boundary.
+QCOW2_refcount_table_clusters(4) = 0X1,Number of clusters that the refcount table occupies.
+QCOW2_nb_snapshots           (4) = 0X0,Number of snapshots contained in the image.
+QCOW2_snapshots_offset       (8) = 0X0,Offset into the image file at which the snapshot table starts. Must be aligned to a cluster boundary.
+table[00000]=18014398509482112, 0X0000000080 
+L2 OFFSET:18014398509482112,80.
+L2 OFFSET:16384,4000.
+L2 size:512.
+table[00000]=0000057344, 0X000000E000 table[00007]=0000020480, 0X0000005000 table[00015]=0000024576, 0X0000006000 table[00023]=0000028672, 0X0000007000 table[00031]=0000032768, 0X0000008000 table[00039]=0000036864, 0X0000009000 table[00047]=0000040960, 0X000000A000 table[00055]=0000045056, 0X000000B000 
+table[00063]=0000049152, 0X000000C000 table[00070]=0000053248, 0X000000D000 
+table[00000]=63050394783187072, 0X0000000080 table[00007]=22517998136852608, 0X0000000080 table[00015]=27021597764223104, 0X0000000080 table[00023]=31525197391593600, 0X0000000080 table[00031]=36028797018964096, 0X0000000080 table[00039]=40532396646334592, 0X0000000080 table[00047]=45035996273705088, 0X0000000080 table[00055]=49539595901075584, 0X0000000080 
+table[00063]=54043195528446080, 0X0000000080 table[00070]=58546795155816576, 0X0000000080 
+引用计数块大小:2048.
+pos=57856.
+size=3584.
+create_partition is normal end.
+

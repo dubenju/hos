@@ -1,70 +1,203 @@
 #ifndef _BPB_H_
 #define _BPB_H_
 
+// typedef struct _BIOSParameterBlock1216 {
+//   unsigned char bpb_BytesPerSector[2];    /* Bytes Per Sector    每扇区字节数 */
+//   unsigned char bpb_SectorsPerCluster[1]; /* Sectors Per Cluster 每簇扇区数 */
+//   unsigned char bpb_ReservedSectorst[2];  /* Reserved Sectors    保留扇区数 */
+//   unsigned char bpb_FatCopies[1];         /* Number of FATs      备份数 */
+//   unsigned char bpb_RootDirEntries[2];    /* Root Entries        根目录项数 */
+//   unsigned char bpb_NumSectors[2];        /* Small Sectors       磁盘总扇区数 */
+//   unsigned char bpb_MediaType[1];         /* Media Descriptor    描述介质 */
+//   unsigned char bpb_SectorsPerFAT[2];     /* Sectors Per FAT     每FAT扇区数 */
+//   unsigned char bpb_SectorsPerTrack[2];   /* Sectors Per Track   每磁道扇区数 */
+//   unsigned char bpb_NumberOfHeads[2];     /* Number of Heads     磁头数 */
+//   unsigned char bpb_HiddenSectors[4];     /* Hidden Sectors      特殊隐含扇区数 */
+//   unsigned char bpb_SectorsBig[4];        /* Large Sectors       总扇区数 */
+// } BPB1216, *PBPB12126;
+
 typedef struct _BIOSParameterBlock1216 {
-  unsigned char bpb_BytesPerSector[2];    /* Bytes Per Sector    每扇区字节数 */
-  unsigned char bpb_SectorsPerCluster[1]; /* Sectors Per Cluster 每簇扇区数 */
-  unsigned char bpb_ReservedSectorst[2];  /* Reserved Sectors    保留扇区数 */
-  unsigned char bpb_FatCopies[1];         /* Number of FATs      备份数 */
-  unsigned char bpb_RootDirEntries[2];    /* Root Entries        根目录项数 */
-  unsigned char bpb_NumSectors[2];        /* Small Sectors       磁盘总扇区数 */
-  unsigned char bpb_MediaType[1];         /* Media Descriptor    描述介质 */
-  unsigned char bpb_SectorsPerFAT[2];     /* Sectors Per FAT     每FAT扇区数 */
-  unsigned char bpb_SectorsPerTrack[2];   /* Sectors Per Track   每磁道扇区数 */
-  unsigned char bpb_NumberOfHeads[2];     /* Number of Heads     磁头数 */
-  unsigned char bpb_HiddenSectors[4];     /* Hidden Sectors      特殊隐含扇区数 */
-  unsigned char bpb_SectorsBig[4];        /* Large Sectors       总扇区数 */
+  uint16_t bpb_BytesPerSector;    /* Bytes Per Sector    每扇区字节数 */
+  uint8_t  bpb_SectorsPerCluster; /* Sectors Per Cluster 每簇扇区数 */
+  uint16_t bpb_ReservedSectorst;  /* Reserved Sectors    保留扇区数 */
+  uint8_t  bpb_FatCopies;         /* Number of FATs      备份数 */
+  uint16_t bpb_RootDirEntries;    /* Root Entries        根目录项数 */
+  uint16_t bpb_NumSectors;        /* Small Sectors       磁盘总扇区数 */
+  uint8_t  bpb_MediaType;         /* Media Descriptor    描述介质 */
+  uint16_t bpb_SectorsPerFAT;     /* Sectors Per FAT     每FAT扇区数 */
+  uint16_t bpb_SectorsPerTrack;   /* Sectors Per Track   每磁道扇区数 */
+  uint16_t bpb_NumberOfHeads;     /* Number of Heads     磁头数 */
+  uint32_t bpb_HiddenSectors;     /* Hidden Sectors      特殊隐含扇区数 */
+  uint32_t bpb_SectorsBig;        /* Large Sectors       总扇区数 */
 } BPB1216, *PBPB12126;
 
+
+// typedef struct _BIOSParameterBlock32 {
+//   unsigned char bpb_BytesPerSector[2];    /* Bytes Per Sector    每扇区字节数 */
+//   unsigned char bpb_SectorsPerCluster[1]; /* Sectors Per Cluster 每簇扇区数 */
+//   unsigned char bpb_ReservedSectorst[2];  /* Reserved Sectors    保留扇区数 */
+//   unsigned char bpb_FatCopies[1];         /* Number of FATs      备份数 */
+//   unsigned char bpb_RootDirEntries[2];    /* Root Entries        根目录项数 */
+//   unsigned char bpb_NumSectors[2];        /* Small Sectors       磁盘总扇区数 */
+//   unsigned char bpb_MediaType[1];         /* Media Descriptor    描述介质 */
+//   unsigned char bpb_SectorsPerFAT[2];     /* Sectors Per FAT     每FAT扇区数 */
+//   unsigned char bpb_SectorsPerTrack[2];   /* Sectors Per Track   每磁道扇区数 */
+//   unsigned char bpb_NumberOfHeads[2];     /* Number of Heads     磁头数 */
+//   unsigned char bpb_HiddenSectors[4];     /* Hidden Sectors      特殊隐含扇区数 */
+//   unsigned char bpb_SectorsBig[4];        /* Large Sectors       总扇区数 */
+//   unsigned char bpb_SectorsPerFAT32[4];
+//   unsigned char bpb_Flags[2];
+//   unsigned char bpb_FSVersion[2];
+//   unsigned char bpb_RootClusterNo[4];
+//   unsigned char bpb_FSInfo[2];
+//   unsigned char bpb_BakBootSec[2];
+//   unsigned char bpb_Reserved[12];
+// } BPB32, *PBPB32;
+
 typedef struct _BIOSParameterBlock32 {
-  unsigned char bpb_BytesPerSector[2];    /* Bytes Per Sector    每扇区字节数 */
-  unsigned char bpb_SectorsPerCluster[1]; /* Sectors Per Cluster 每簇扇区数 */
-  unsigned char bpb_ReservedSectorst[2];  /* Reserved Sectors    保留扇区数 */
-  unsigned char bpb_FatCopies[1];         /* Number of FATs      备份数 */
-  unsigned char bpb_RootDirEntries[2];    /* Root Entries        根目录项数 */
-  unsigned char bpb_NumSectors[2];        /* Small Sectors       磁盘总扇区数 */
-  unsigned char bpb_MediaType[1];         /* Media Descriptor    描述介质 */
-  unsigned char bpb_SectorsPerFAT[2];     /* Sectors Per FAT     每FAT扇区数 */
-  unsigned char bpb_SectorsPerTrack[2];   /* Sectors Per Track   每磁道扇区数 */
-  unsigned char bpb_NumberOfHeads[2];     /* Number of Heads     磁头数 */
-  unsigned char bpb_HiddenSectors[4];     /* Hidden Sectors      特殊隐含扇区数 */
-  unsigned char bpb_SectorsBig[4];        /* Large Sectors       总扇区数 */
-  unsigned char bpb_SectorsPerFAT32[4];
-  unsigned char bpb_Flags[2];
-  unsigned char bpb_FSVersion[2];
-  unsigned char bpb_RootClusterNo[4];
-  unsigned char bpb_FSInfo[2];
-  unsigned char bpb_BakBootSec[2];
+  uint16_t bpb_BytesPerSector;    /* Bytes Per Sector    每扇区字节数 */
+  uint8_t  bpb_SectorsPerCluster; /* Sectors Per Cluster 每簇扇区数 */
+  uint16_t bpb_ReservedSectorst;  /* Reserved Sectors    保留扇区数 */
+  uint8_t  bpb_FatCopies;         /* Number of FATs      备份数 */
+  uint16_t bpb_RootDirEntries;    /* Root Entries        根目录项数 */
+  uint16_t bpb_NumSectors;        /* Small Sectors       磁盘总扇区数 */
+  uint8_t  bpb_MediaType;         /* Media Descriptor    描述介质 */
+  uint16_t bpb_SectorsPerFAT;     /* Sectors Per FAT     每FAT扇区数 */
+  uint16_t bpb_SectorsPerTrack;   /* Sectors Per Track   每磁道扇区数 */
+  uint16_t bpb_NumberOfHeads;     /* Number of Heads     磁头数 */
+  uint32_t bpb_HiddenSectors;     /* Hidden Sectors      特殊隐含扇区数 */
+  uint32_t bpb_SectorsBig;        /* Large Sectors       总扇区数 */
+  uint32_t bpb_SectorsPerFAT32;
+  uint16_t bpb_Flags;
+  uint16_t bpb_FSVersion;
+  uint32_t bpb_RootClusterNo;
+  uint16_t bpb_FSInfo;
+  uint16_t bpb_BakBootSec;
   unsigned char bpb_Reserved[12];
 } BPB32, *PBPB32;
 
+
+
+// typedef struct _VBRFAT1216 {
+//   unsigned char bs_jmpBoot[3];
+//   unsigned char bs_OEMName[8];            // OEM号
+//   BPB1216 bpb;
+//   unsigned char bs_DrvNum[1];             // 物理驱动器数
+//   unsigned char bs_Reaserved1[1];
+//   unsigned char bs_Bootsig[1];            // 扩展引导签证
+//   unsigned char bs_VolID[4];              // 卷系列号
+//   unsigned char bs_VolLab[11];            // 卷标号
+//   unsigned char bs_FileSysType[8];        // 文件系统号
+//   unsigned char bs_Code[448];
+//   unsigned char bs_EndFlag[2];
+// } VBRFAT1216, *PVBRFAT1216;
 
 typedef struct _VBRFAT1216 {
   unsigned char bs_jmpBoot[3];
   unsigned char bs_OEMName[8];            // OEM号
   BPB1216 bpb;
-  unsigned char bs_DrvNum[1];             // 物理驱动器数
-  unsigned char bs_Reaserved1[1];
-  unsigned char bs_Bootsig[1];            // 扩展引导签证
-  unsigned char bs_VolID[4];              // 卷系列号
+  uint8_t bs_DrvNum;             // 物理驱动器数
+  uint8_t bs_Reaserved1;
+  uint8_t bs_Bootsig;            // 扩展引导签证
+  uint16_t bs_VolID[2];              // 卷系列号
   unsigned char bs_VolLab[11];            // 卷标号
   unsigned char bs_FileSysType[8];        // 文件系统号
   unsigned char bs_Code[448];
   unsigned char bs_EndFlag[2];
 } VBRFAT1216, *PVBRFAT1216;
 
+
+// typedef struct _VBRFAT32 {
+//   unsigned char bs_jmpBoot[3];
+//   unsigned char bs_OEMName[8];            // OEM号
+//   BPB32 bpb;
+//   unsigned char bs_DrvNum[1];             // 物理驱动器数
+//   unsigned char bs_Reaserved1[1];
+//   unsigned char bs_Bootsig[1];            // 扩展引导签证
+//   unsigned char bs_VolID[4];              // 卷系列号
+//   unsigned char bs_VolLab[11];            // 卷标号
+//   unsigned char bs_FileSysType[8];        // 文件系统号
+//   unsigned char bs_Code[420];
+//   unsigned char bs_EndFlag[2];
+// } VBRFAT32, *PVBRFAT32;
+// 
 typedef struct _VBRFAT32 {
   unsigned char bs_jmpBoot[3];
   unsigned char bs_OEMName[8];            // OEM号
   BPB32 bpb;
-  unsigned char bs_DrvNum[1];             // 物理驱动器数
-  unsigned char bs_Reaserved1[1];
-  unsigned char bs_Bootsig[1];            // 扩展引导签证
-  unsigned char bs_VolID[4];              // 卷系列号
+  uint8_t bs_DrvNum;             // 物理驱动器数
+  uint8_t bs_Reaserved1;
+  uint8_t bs_Bootsig;            // 扩展引导签证
+  uint16_t bs_VolID[2];              // 卷系列号
   unsigned char bs_VolLab[11];            // 卷标号
   unsigned char bs_FileSysType[8];        // 文件系统号
   unsigned char bs_Code[420];
   unsigned char bs_EndFlag[2];
 } VBRFAT32, *PVBRFAT32;
+
+typedef struct _DirectoryEntry {
+  /* DOS file name (padded with spaces) */
+  unsigned char fileName[8];
+/*
+ * 0x00 Entry is available and no subsequent entry is in use 
+ * 0x05 Initial character is actually 0xE5. 
+ * 0x2E 'Dot' entry; either '.' or '..' 
+ * 0xE5 Entry has been previously erased and is available. 
+ *      File undelete utilities must replace this character with a regular character as part of the undeletion process. 
+ */
+
+  /* DOS file extension (padded with spaces) */
+  unsigned char fileExtension[3];
+
+  /* File Attributes */
+  unsigned char fileAttrube[1];
+  /*
+   * A SHR I
+   * 0 0x01 Read Only R
+   * 1 0x02 Hidden 
+   * 2 0x04 System 
+   * 3 0x08 Volume Label 
+   * 4 0x10 Subdirectory 
+   * 5 0x20 Archive 
+   * 6 0x40 Device (internal use only, never found on disk) 
+   * 7 0x80 Unused 
+   */
+
+  /* Reserved */
+  unsigned char Reserved[1];
+
+  /* Create time */
+  unsigned char createTime[1];
+
+  /* Create time 15-11Hours (0-23) 10-5Minutes (0-59) 4-0 Seconds/2 (0-29) */
+  unsigned char createTimeHMS[2];
+
+  /* Create date. 15-9Year (0 = 1980, 127 = 2107) 8-5Month (1 = January, 12 = December)4-0Day (1 - 31) */
+  unsigned char createDateYMD[2];
+
+  /* Last access date;  */
+  unsigned char lastAcDateYMD[2];
+
+  /* EA-Index (used by OS/2 and NT) in FAT12 and FAT16, High 2 bytes of first cluster number in FAT32 */
+  unsigned char eaIndex[2];
+
+  /* Last modified time; */
+  unsigned char lastModifyTime[2];
+
+  /* Last modified date; */
+  unsigned char lastModifyDate[2];
+
+  /* Start of file in clusters in FAT12 and FAT16. 
+   * Low 2 bytes of first cluster in FAT32. Entries with the Volume Label flag, 
+   * subdirectory ".." pointing to root, 
+   * and empty files with size 0 should have first cluster 0. 
+   */
+  unsigned char startClusters[2];
+
+  /* File size in bytes. Entries with the Volume Label or Subdirectory flag set should have a size of 0. */
+  unsigned char fileSize[4];
+
+} DIRENT, *PDIRENT;
+
 
 #endif // _BPB_H_

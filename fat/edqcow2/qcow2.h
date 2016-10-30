@@ -39,5 +39,17 @@ typedef struct QCowHeader {
     uint64_t snapshots_offset;
 } QCowHeader;
 
+typedef struct _QCOW2_FILE {
+    QCowHeader * pHeader;
+    uint32_t     clustor_size;
+    uint64_t *   pL1Table;
+    uint32_t     l1_size;
+    uint64_t *   pRefcountTable;
+    uint32_t     refcount_table_cnt;
+    uint16_t *   pRefcountBlock;
+    uint32_t     refcount_cnt;
+    uint64_t *   pL2Table;
+    uint32_t     l2_size;
+} QCOW2_FILE;
 
 #endif // _QCOW2_H_

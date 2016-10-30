@@ -1,0 +1,58 @@
+参数[0]=C:\Users\DBJ\git\hos\fat\edqcow2\edqcow2.
+参数[1]=C:\Users\DBJ\git\hos\tools\qemu\qemu_img\create\qcow2_16128K_create.qcow2.
+参数[2]=info.
+info.
+this option will display the information of the partition on qcow2(C:\Users\DBJ\git\hos\tools\qemu\qemu_img\create\qcow2_16128K_create.qcow2).
+
+!!!WARNING!!! 现在的代码是不支持超过2GB的文件的!!!
+
+__STRICT_ANSI__ undefined.
+sizeof(size_t) 4, sizeof(off_t) 4, sizeof(off64_t) 8
+file's size=16384.
+sizeof(header)=72
+readed count=72
+
+>>----- Header -----
+头信息在镜像文件中的位置[(0, 0X0000)-(4096, 0X1000))
+QCOW2_MAGIC                  (4) = 0XFB494651,QCOW magic string.
+QCOW2_version                (4) = 0X2000000,Version number (valid values are 2 and 3).
+QCOW2_backing_file_offset    (8) = 0X0,Offset into the image file at which the backing file name is stored (NB: The string is not null terminated). 0 if the image doesn't have a backing file.
+QCOW2_backing_file_size      (4) = 0X0,Length of the backing file name in bytes. Must not be longer than 1023 bytes. Undefined if the image doesn't have a backing file.
+QCOW2_cluster_bits           (4) = 0XC000000,Number of bits that are used for addressing an offset within a cluster (1 << cluster_bits is the cluster size). Must not be less than 9 (i.e. 512 byte clusters).
+QCOW2_size                   (8) = 277076930199552,0X0000000000,Virtual disk size in bytes.
+                                        十六进制的值有不正确的可能。
+QCOW2_crypt_method           (4) = 0X0,0 for no encryption;1 for AES encryption.
+QCOW2_l1_size                (4) = 0X8000000 134217728,Number of entries in the active L1 table(MAX).
+*QCOW2_l1_table_offset       (8) = 0X0,Offset into the image file at which the active L1 table starts. Must be aligned to a cluster boundary.
+*QCOW2_refcount_table_offset (8) = 0X0,Offset into the image file at which the refcount table starts. Must be aligned to a cluster boundary.
+QCOW2_refcount_table_clusters(4) = 0X1000000,Number of clusters that the refcount table occupies.
+QCOW2_nb_snapshots           (4) = 0X0,Number of snapshots contained in the image.
+QCOW2_snapshots_offset       (8) = 0X0,Offset into the image file at which the snapshot table starts. Must be aligned to a cluster boundary.
+cluster_size = 4096
+----- Header -----<<
+
+>>----- Level 1 Table -----
+表1在镜像文件中的位置[(4096, 0X1000)-(8192, 0X2000))
+l1_table_offset=4096,0X1000.
+l1_table_size=8,0X8.
+l1[0]=0. 0X0.
+
+----- Level 1 Table -----<<
+
+>>----- Refcount Table -----
+refcount_table_cnt=1.
+refcount table offset=8192, 0X2000.
+refcount[0]=0X3000.
+引用计数表在镜像文件中的位置[(8192, 0X2000)-(12288, 0X3000))
+table[00000]=0000012288, 0X0000003000 
+----- Refcount Table -----<<
+
+>>----- Refcount Block -----
+!!!引用计数块在镜像文件中似乎不是连续存储的，那么1个引用计数块的大小应该是1个簇。
+引用计数块在镜像文件中的位置[(12288, 0X3000)-(16384, 0X4000))
+refcount_cnt=2048.
+refcount block offset=12288, 0X3000, count=0.
+table[00000]=1. table[00001]=1. table[00002]=1. table[00003]=1. 
+----- Refcount Block -----<<
+
+clearList函数执行，链表为空
