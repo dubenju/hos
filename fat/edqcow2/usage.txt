@@ -42,14 +42,15 @@ edqcow2 image_file info
 edqcow2 image_file format [-f format] drv1 [-v vbr.bin]
 从分区表中获取分区信息。
 创建引导扇区
+根目录
 FAT表1
 FAT表2
-根目录
+
 
 format:fat12,fat16,fat32
 
-edqcow3 image_file copy /drv1/path/file to c:/path/file
 edqcow3 image_file copy c:/path/file to /drv1/path/file 
+edqcow3 image_file copy /drv1/path/file to c:/path/file
 edqcow3 image_file copy /drv1/path/file from c:/path/file
 
 edqcow3 image_file delete /drv1/path/file or folder and subs

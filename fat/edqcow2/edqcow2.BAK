@@ -624,6 +624,60 @@ void print_vbr_fat_32(VBRFAT32 * v) {
     /* 处理结束 */
 }
 
+int print_dirt(const DIRENT * dir_ent) {
+    /* 变量定义 */
+    int returnCode;
+//     DIRENT dir_ent;
+    int idx = 0;
+    char file_name[9];
+    char file_name_ex[4];
+    uint16_t start_cluster;
+    uint32_t file_size;
+    uint16_t createTimeHMS;
+    uint16_t createDateYMD;
+    uint16_t lastAcDateYMD;
+    uint16_t lastModifyDate;
+    uint16_t lastModifyTime;
+
+    /* 变量初始化 */
+    returnCode = 0;
+
+    /* 处理开始 */
+    printf(">>----- print_dirt -----.\n");
+
+        memset(file_name, 0, sizeof(file_name));
+        memset(file_name_ex, 0, sizeof(file_name_ex));
+
+        memcpy(file_name, dir_ent->fileName, sizeof(dir_ent->fileName));
+        memcpy(file_name_ex, dir_ent->fileExtension, sizeof(dir_ent->fileExtension));
+        memcpy(&createTimeHMS, dir_ent->createTimeHMS, sizeof(uint16_t));
+        memcpy(&createDateYMD, dir_ent->createDateYMD, sizeof(uint16_t));
+        memcpy(&lastAcDateYMD, dir_ent->lastAcDateYMD, sizeof(uint16_t));
+        memcpy(&lastModifyDate, dir_ent->lastModifyDate, sizeof(uint16_t));
+        memcpy(&lastModifyTime, dir_ent->lastModifyTime, sizeof(uint16_t));
+        memcpy(&start_cluster, dir_ent->startClusters, sizeof(uint16_t));
+        memcpy(&file_size, dir_ent->fileSize, sizeof(uint32_t));
+
+        printf("%s.%s  %02X %d ",  file_name, file_name_ex, dir_ent->fileAttrube[0], dir_ent->createTime[0]);
+        printf("%04d/%02d/%02d ", (((createDateYMD & 0xFE00) >>  9) > 0 ? 1980 + ((createDateYMD & 0xFE00) >>  9) : 0), ((createDateYMD & 0x1E0) >> 5), (createDateYMD & 0x1F));
+        printf("%02d:%02d:%02d ", ((createTimeHMS & 0xF800) >> 11), ((createTimeHMS & 0x7E0) >> 5), (createTimeHMS & 0x1F));
+        printf("%04d/%02d/%02d ", (((lastAcDateYMD & 0xFE00) >>  9) > 0 ? 1980 + ((lastAcDateYMD & 0xFE00) >>  9) : 0), ((lastAcDateYMD & 0x1E0) >> 5), (lastAcDateYMD & 0x1F));
+        printf("%04d/%02d/%02d ", (((lastModifyDate & 0xFE00) >>  9) > 0 ? 1980 + ((lastModifyDate & 0xFE00) >>  9) : 0), ((lastModifyDate & 0x1E0) >> 5), (lastModifyDate & 0x1F));
+        printf("%02d:%02d:%02d ", ((lastModifyTime & 0xF800) >> 11), ((lastModifyTime & 0x7E0) >> 5), (lastModifyTime & 0x1F));
+        printf("%d %X %d ", start_cluster, start_cluster, file_size);
+        printf("\n");
+
+
+    goto end_print_dirt;
+err_print_dirt:
+end_print_dirt:
+    /* 处理结束 */
+    printf("----- print_dirt -----<<.\n");
+    return returnCode;
+}
+
+
+
 int print_qcow2(QCOW2_FILE * qcow2File) {
     /* 变量定义 */
     int returnCode;
@@ -791,7 +845,10 @@ int write_l2(QCOW2_FILE * qcow2File, uint32_t l1_idx, FILE * pFile, uint64_t l2_
     }
     memset(l2_buf, 0, qcow2File->clustor_size);
     memcpy(l2_buf, qcow2File->pL2Table + l1_idx * (qcow2File->clustor_size / 512), qcow2File->clustor_size);
+    printf("变换前.\n");
     debug_print_table_64(l2_buf, l2_size);
+    printf("\n");
+
     for (idx = 0; idx < l2_size; idx ++) {
         value = *(l2_buf + idx);
         if (value == 0) { continue; }
@@ -801,7 +858,9 @@ int write_l2(QCOW2_FILE * qcow2File, uint32_t l1_idx, FILE * pFile, uint64_t l2_
         value += (1LL << 63);
         *(l2_buf + idx) = cpu_to_be64(value);
     }
+    printf("\n变换后.\n");
     debug_print_table_64(l2_buf, l2_size);
+    printf("\n");
 
     if (fseek(pFile, l2_offset, SEEK_SET)) {
         printf("fseek error(%lld).\n", l2_offset);
@@ -865,7 +924,6 @@ int write_qcow2(QCOW2_FILE * qcow2File, FILE * pFile, uint64_t sector_no, void *
         if (buf_size > (qcow2File->clustor_size - cl_idx)) {
             out_size = qcow2File->clustor_size - cl_idx;
         }
-        write_size += out_size;
         total_size -= out_size;
         sec_idx += (out_size / 512);
 
@@ -910,11 +968,12 @@ int write_qcow2(QCOW2_FILE * qcow2File, FILE * pFile, uint64_t sector_no, void *
             printf("fseek error(%lld).\n", write_offset);
             goto err_write_qcow2;
         }
-        int writecnt = fwrite(buf, 1, out_size, pFile);
+        int writecnt = fwrite(buf + write_size, 1, out_size, pFile);
         if (writecnt != out_size) {
             printf("file write error(%d != %d).\n", writecnt, out_size);
             goto err_write_qcow2;
         }
+        write_size += out_size;
         printf("%d◆成功写入区域大小%d.\n",write_cnt,  out_size);
         printf("%d◆累计成功写入区域大小%d.\n",write_cnt,  write_size);
         printf("%d◆成功写入区域大小%d.\n", write_cnt, out_size);
@@ -1937,6 +1996,7 @@ int format_partition(const char * filename, int parttion_no, const char * fmt, c
         /* error*/
         goto err_format_partition;
     }
+
     /* 计算FAT的大小 */
     printf("分区大小：%d.\n", cur_pe.pe.sector_total);
     printf("  簇大小：%d扇区/簇.\n", bpb_SectorsPerCluster);
@@ -1945,9 +2005,24 @@ int format_partition(const char * filename, int parttion_no, const char * fmt, c
         fat_size ++;
     }
     printf("FAT 大小%d.\n", fat_size);
-    uint16_t bpb_SectorsPerFAT = fat_size / 512;
-    if (fat_size % 512 != 0) {
-        bpb_SectorsPerFAT ++;
+    uint16_t bpb_SectorsPerFAT = 0;
+    if (file_system_index == 12) {
+        bpb_SectorsPerFAT = (fat_size * 3) / 1024;
+        if ((fat_size * 3) % 1024 != 0) {
+            bpb_SectorsPerFAT ++;
+        }
+    }
+    if (file_system_index == 16) {
+        bpb_SectorsPerFAT = (fat_size * 2) / 512;
+        if ((fat_size * 2) % 512 != 0) {
+            bpb_SectorsPerFAT ++;
+        }
+    }
+    if (file_system_index == 32) {
+        bpb_SectorsPerFAT = (fat_size * 4) / 512;
+        if ((fat_size * 4) % 512 != 0) {
+            bpb_SectorsPerFAT ++;
+        }
     }
     printf("每个FAT的扇区数量%d.\n", bpb_SectorsPerFAT);
 
@@ -1973,7 +2048,7 @@ int format_partition(const char * filename, int parttion_no, const char * fmt, c
         vbrfat1216.bpb.bpb_FatCopies = 2;
         vbrfat1216.bpb.bpb_RootDirEntries = 512; // TODO:
         vbrfat1216.bpb.bpb_NumSectors = (uint16_t) cur_pe.pe.sector_total;
-        vbrfat1216.bpb.bpb_MediaType = 2; // TODO:
+        vbrfat1216.bpb.bpb_MediaType = (uint8_t) *(pfat);
         vbrfat1216.bpb.bpb_SectorsPerFAT = bpb_SectorsPerFAT;
         vbrfat1216.bpb.bpb_SectorsPerTrack = 63;
         vbrfat1216.bpb.bpb_NumberOfHeads = 16; // TODO:
@@ -1990,17 +2065,29 @@ int format_partition(const char * filename, int parttion_no, const char * fmt, c
             returnCode = 1; goto err_format_partition; }
         printf("写入引导扇区结束。\n");
 
+        /* 根目录 */
+        printf("写入根目录开始。\n");
+        root_dir_size = sizeof(DIRENT) * vbrfat1216.bpb.bpb_RootDirEntries;
+        root_dir = (char *) malloc(root_dir_size);
+        if (root_dir == NULL) { printf("mempry alloc erro for root dir.\n"); returnCode = 1; goto end_format_partition;}
+        memset(root_dir, 0, root_dir_size);
+        if (write_qcow2(qcow2File, pFile, cur_pe.sector_index + 64 + bpb_SectorsPerFAT + bpb_SectorsPerFAT, root_dir, root_dir_size) != 0) {
+            returnCode = 1; goto err_format_partition; }
+        free(root_dir);
+        root_dir = NULL;
+        printf("写入根目录结束。\n");
+
         /* FAT表1 */
         printf("写入FAT1开始。\n");
         printf("pfat=%X.\n", pfat);
         printf("fat_size=%d.\n", fat_size);
         printf("bpb_SectorsPerFAT=%d.\n", bpb_SectorsPerFAT);
         printf("file_system_index=%d.\n", file_system_index);
-        fat_buf = (char *) malloc(bpb_SectorsPerFAT * 512);
-        memset(fat_buf, 0, bpb_SectorsPerFAT * 512);
-        // fat_buf = make_fat(pfat, fat_size, bpb_SectorsPerFAT, file_system_index, fat_buf);
-        make_fat(pfat, fat_size, bpb_SectorsPerFAT, file_system_index, fat_buf);
-        // if (fat_buf == NULL) { printf("make_fat error.\n"); returnCode = 1; goto end_format_partition;}
+        //fat_buf = (char *) malloc(bpb_SectorsPerFAT * 512);
+        //memset(fat_buf, 0, bpb_SectorsPerFAT * 512);
+        // make_fat(pfat, fat_size, bpb_SectorsPerFAT, file_system_index, fat_buf);
+        fat_buf = make_fat(pfat, fat_size, bpb_SectorsPerFAT, file_system_index, fat_buf);
+        if (fat_buf == NULL) { printf("make_fat error.\n"); returnCode = 1; goto end_format_partition;}
         if (write_qcow2(qcow2File, pFile, cur_pe.sector_index + 64, fat_buf, bpb_SectorsPerFAT * 512) != 0) {
             returnCode = 1; goto err_format_partition; }
         printf("写入FAT1结束。\n");
@@ -2011,15 +2098,6 @@ int format_partition(const char * filename, int parttion_no, const char * fmt, c
             returnCode = 1; goto err_format_partition; }
         printf("写入FAT2结束。\n");
 
-        /* 根目录 */
-        printf("写入根目录开始。\n");
-        root_dir_size = sizeof(DIRENT) * vbrfat1216.bpb.bpb_RootDirEntries;
-        root_dir = (char *) malloc(root_dir_size);
-        if (root_dir == NULL) { printf("mempry alloc erro for root dir.\n"); returnCode = 1; goto end_format_partition;}
-        memset(root_dir, 0, root_dir_size);
-        if (write_qcow2(qcow2File, pFile, cur_pe.sector_index + 64 + bpb_SectorsPerFAT + bpb_SectorsPerFAT, root_dir, root_dir_size) != 0) {
-            returnCode = 1; goto err_format_partition; }
-        printf("写入根目录结束。\n");
     }
     if (file_system_index == 32) {
         memset(&vbrfat32, 0, sizeof(vbrfat32));
@@ -2121,21 +2199,938 @@ end_format_partition:
     return returnCode;
 }
 
-int copy_file_or_folder(const char * filename) {
+int copy_file_or_folder(const char * filename, char * dst, char * src) {
     /* 变量定义 */
     int returnCode;
+    FILE * pFile;
+    QCOW2_FILE * qcow2File;
+    uint64_t l1_item;
+    PartitionEntryItem * pe_table = NULL;
+    PartitionEntryItem cur_pe;
+    int parttion_no;
+    DIRENT * pdirtable;
+    FILE * pFileIn;
+    char * fat_buf;
 
     /* 变量初始化 */
     returnCode = 0;
+    pFileIn = NULL;
+    fat_buf = NULL;
+
     /* 处理开始 */
+    printf("filename=%s.\n", filename);
+    printf("dst=%s.\n", dst);
+    printf("src=%s.\n", src);
+
+    /* get partition no */
+    parttion_no = 1;
+
+    /* 从分区表中获取分区信息。 */
+    pFile = fopen(filename, "rw+b");
+    if (pFile == NULL) {
+        fprintf(stderr, "file(%s) open error(1).", filename);
+        returnCode = 1; goto err_copy_file_or_folder;
+    }
+    qcow2File = (QCOW2_FILE *) malloc(sizeof(QCOW2_FILE));
+    if (qcow2File == NULL) {
+        fprintf(stderr, "QCOW2 file alloc error.\n");
+        returnCode = 1; goto err_copy_file_or_folder;
+    }
+    memset(qcow2File, 0, sizeof(QCOW2_FILE));
+    if (read_qcow2(pFile, qcow2File) < 0) {
+        printf("format_partition:qcow2 image file read error.\n");
+         returnCode = 1; goto err_copy_file_or_folder;
+    }
+    print_qcow2_file(qcow2File);
+    print_qcow2(qcow2File);
+
+    /* Partition */
+    printf(">>----- Partition Table -----\n");
+    printf("L2 Table offset=%lld, 0X%X.\n", l1_item, l1_item);
+    pe_table = print_partition_table_64(qcow2File->pL1Table, qcow2File->l1_size, qcow2File->pL2Table, qcow2File->l2_size, pFile, qcow2File->clustor_size);
+    print_list(pe_table);
+    printf("----- Partition Table -----<<\n");
+    printf("\n");
+
+    /* TODO: check partition_no in range */
+    memcpy(&cur_pe, pe_table + parttion_no - 1, sizeof(cur_pe));
+    print_partition_entry(&(cur_pe.pe));
+    printf("分区的起始扇区LBA号%d.\n", cur_pe.sector_index);
+
+
+    /* 读取BPB */
+    printf("flag=%d sector_index=%d start_sector_no=%d ", cur_pe.flag, cur_pe.sector_index, cur_pe.pe.start_sector_no);
+    uint32_t sector_no = cur_pe.sector_index + cur_pe.pe.start_sector_no;
+    uint32_t fat1 = sector_no;
+    uint32_t fat2 = sector_no;
+    uint32_t root = sector_no;
+    uint32_t file = sector_no;
+
+    printf("起始扇区号：%d (l1 =%d, l2=%d, cluster=%d), \n", sector_no, 
+        get_l1_index(sector_no, 4096, 512), get_l2_index(sector_no), get_cluster_index(sector_no));
+    uint64_t offset = -1;
+    offset = *(qcow2File->pL2Table + get_l1_index(sector_no, 4096, 512) * 512 + get_l2_index(sector_no));
+    offset += get_cluster_index(sector_no);
+    printf("在镜像文件中的位置[(%lld 0X%X)-", offset, offset);
+    printf("(%lld 0X%X)).\n", offset + 512, offset + 512);
+    if (fseek(pFile, offset, SEEK_SET) != 0) {
+        printf("fseek error.%d.\n", ferror(pFile)); goto err_copy_file_or_folder;}
+    unsigned char buf[512];
+    memset(buf, 0, sizeof(buf));
+    int readedcnt = fread(&buf, 1, sizeof(buf), pFile);
+    if (readedcnt != sizeof(buf)) {
+        fprintf(stderr, "read MBR error[%d][%X].\n", ftell(pFile), ftell(pFile));
+        printf("[%d][%d][%X].\n", ferror(pFile), ftell(pFile), ftell(pFile));
+        goto err_copy_file_or_folder;
+    }
+    int cluster_size = 512;
+    int dir_cnt = -1;
+    int fat_sector_cnt = -1;
+    int fat_size = 512;
+    int system_idx = 12;
+    printf("启动扇区:%X, %X type:%X.\n", buf[510], buf[511], cur_pe.pe.type);
+    if (cur_pe.pe.type == 0x01 || cur_pe.pe.type == 0x06 || cur_pe.pe.type == 0x0E) {
+        /* FAT16 */
+        /*
+         06 DOS 3.31+: 16-bit FAT (over 32M)
+         0E WIN95: DOS 16-bit FAT, LBA-mapped
+         */
+        if( buf[510] == 0x55 && buf[511] == 0xAA) {
+            print_ary(buf, sizeof(buf));
+            VBRFAT1216 vbr;
+            printf("size=%d.BPB:%d.uint8_t=%d.%d.%d.\n", sizeof(vbr), sizeof(BPB1216), sizeof(uint8_t), sizeof(uint16_t), sizeof(uint32_t));
+            memcpy(&vbr, buf, 512);
+            print_vbr_fat_1216(&vbr);
+
+            uint16_t bpb_ReservedSectorst = vbr.bpb.bpb_ReservedSectorst;
+            fat1 += bpb_ReservedSectorst;
+            fat2 += bpb_ReservedSectorst;
+            root += bpb_ReservedSectorst;
+            file += bpb_ReservedSectorst;
+
+            uint16_t bpb_SectorsPerFAT = vbr.bpb.bpb_SectorsPerFAT;
+            fat2 += bpb_SectorsPerFAT;
+            root += 2 * bpb_SectorsPerFAT;
+            file += 2 * bpb_SectorsPerFAT;
+            uint16_t bpb_RootDirEntries = vbr.bpb.bpb_RootDirEntries;
+            dir_cnt = vbr.bpb.bpb_RootDirEntries;
+            uint16_t bpb_BytesPerSector = vbr.bpb.bpb_BytesPerSector;
+            file += (32 * bpb_RootDirEntries) / bpb_BytesPerSector;
+
+            cluster_size *= vbr.bpb.bpb_SectorsPerCluster;
+            fat_sector_cnt = vbr.bpb.bpb_SectorsPerFAT;
+            fat_size *= vbr.bpb.bpb_SectorsPerFAT;
+            if (memcmp(vbr.bs_FileSysType, "FAT12", 5) == 0 ) {
+                system_idx = 12;
+            }
+            if (memcmp(vbr.bs_FileSysType, "FAT16", 5) == 0 ) {
+                system_idx = 16;
+            }
+            if (memcmp(vbr.bs_FileSysType, "FAT32", 5) == 0 ) {
+                system_idx = 32;
+            }
+        }
+    }
+    printf("\n");
+    printf("该分区的根目录表项个数为%d.\n", dir_cnt);
+    printf("该分区的文件系统为FAT%d\n", system_idx);
+    printf("该分区的簇大小为%d字节\n", cluster_size);
+    printf("该分区的FAT表大小为%d字节\n", fat_size);
+    uint32_t * pfat = NULL;
+    int pfat_cnt = -1;
+    if (system_idx == 12) {
+        pfat_cnt = fat_size / 2 * 3;
+        pfat = (uint32_t *) malloc(pfat_cnt * sizeof(uint32_t));
+    }
+    if (system_idx == 16) {
+        pfat_cnt = fat_size / 2;
+        pfat = (uint32_t *) malloc(pfat_cnt * sizeof(uint32_t));
+    }
+    if (system_idx == 32) {
+        pfat_cnt = fat_size / 4;
+        pfat = (uint32_t *) malloc(pfat_cnt * sizeof(uint32_t));
+    }
+    if (pfat == NULL) {
+        printf("FAT alloc error.\n");
+        returnCode = 1;
+        goto err_copy_file_or_folder;
+    }
+    memset(pfat, 0, pfat_cnt * sizeof(uint32_t));
+
+    if( buf[510] == 0x55 && buf[511] == 0xAA) {
+        /* 读取FAT1 */
+        /* fat1 */
+        printf("fat1=%d.(L1:%d L2:%d OFF:%d) \n", fat1, get_l1_index(fat1, 4096, 512), get_l2_index(fat1), get_cluster_index(fat1));
+        offset = *(qcow2File->pL2Table + get_l1_index(fat1, 4096, 512) * 512 + get_l2_index(fat1));
+        offset += get_cluster_index(fat1);
+        printf("offset=%lld %X.\n", offset, offset);
+        if (fseek(pFile, offset, SEEK_SET) != 0) {
+            printf("fseek error.%d.\n", ferror(pFile)); goto err_copy_file_or_folder;
+        }
+
+        // fat_size;
+        int idx = 0;
+        int idx_pfat = 0;
+        for (idx = 0; idx < fat_sector_cnt; idx ++) {
+            memset(buf, 0, sizeof(buf));
+            readedcnt = fread(&buf, 1, sizeof(buf), pFile);
+            if (readedcnt != sizeof(buf)) {
+                fprintf(stderr, "read MBR error[%d][%X].\n", ftell(pFile), ftell(pFile));
+                printf("[%d][%d][%X].\n", ferror(pFile), ftell(pFile), ftell(pFile));
+                goto err_copy_file_or_folder;
+            }
+            int idy = 0;
+            if (system_idx == 12) {
+                for (idy = 0; idy < 512; idy ++) {
+                    if (idy % 3 == 0) {
+                        *(pfat + idx_pfat) = buf[idy];
+                    } else if (idy % 3 == 1) {
+                        *(pfat + idx_pfat) = ((buf[idy] & 0x000F) << 8) | *(pfat + idx_pfat);
+                        idx_pfat ++;
+                        if (idx_pfat >= pfat_cnt) {
+                            break;
+                        }
+                        *(pfat + idx_pfat) = ((buf[idy] & 0x00F0) >> 4);
+                    } else if (idy % 3 == 2) {
+                        *(pfat + idx_pfat) = ((buf[idy] & 0x00FF) << 4) | *(pfat + idx_pfat);
+                        idx_pfat ++;
+                        if (idx_pfat >= pfat_cnt) {
+                            break;
+                        }
+                    }
+                }
+            }
+            if (system_idx == 16) {
+                memcpy(pfat + idx_pfat, buf, readedcnt);
+                idx_pfat += 512 / 2;
+            }
+            if (system_idx == 32) {
+                memcpy(pfat + idx_pfat, buf, readedcnt);
+                idx_pfat += 512 / 4;
+            }
+        }
+        // print_ary(buf, sizeof(buf));
+        printf("\n");
+        for (idx = 0; idx < pfat_cnt; idx ++) {
+            printf("%X ", *(pfat + idx));
+            if ((idx + 1) % 16 == 0) {
+                printf("\n");
+            }
+        }
+        printf("\n");
+
+
+
+
+        /* fat2 */
+        printf("fat2=%d.(L1:%d L2:%d OFF:%d) \n", fat2, get_l1_index(fat2, 4096, 512), get_l2_index(fat2), get_cluster_index(fat2));
+        offset = *(qcow2File->pL2Table + get_l1_index(fat2, 4096, 512) * 512 + get_l2_index(fat2));
+        offset += get_cluster_index(fat2);
+        printf("offset=%lld %X.\n", offset, offset);
+        if (fseek(pFile, offset, SEEK_SET) != 0) {
+            printf("fseek error.%d.\n", ferror(pFile)); goto err_copy_file_or_folder;}
+        memset(buf, 0, sizeof(buf));
+        readedcnt = fread(&buf, 1, sizeof(buf), pFile);
+        if (readedcnt != sizeof(buf)) {
+            fprintf(stderr, "read MBR error[%d][%X].\n", ftell(pFile), ftell(pFile));
+            printf("[%d][%d][%X].\n", ferror(pFile), ftell(pFile), ftell(pFile));
+            goto err_copy_file_or_folder;
+        }
+        print_ary(buf, sizeof(buf));
+        printf("\n");
+
+        /* 获取RootDir */
+        /* Rootdir */
+        printf("root dir's 1 setcot.\n");
+        printf("root=%d.(L1:%d L2:%d OFF:%d) \n", root, get_l1_index(root, 4096, 512), get_l2_index(root), get_cluster_index(root));
+        offset = *(qcow2File->pL2Table + get_l1_index(root, 4096, 512) * 512 + get_l2_index(root));
+        offset += get_cluster_index(root);
+        printf("offset=%lld %X.\n", offset, offset);
+        if (fseek(pFile, offset, SEEK_SET) != 0) {
+            printf("fseek error.%d.\n", ferror(pFile)); goto err_copy_file_or_folder;
+        }
+
+        pdirtable = NULL;
+        pdirtable = (DIRENT *) malloc(sizeof(DIRENT) * dir_cnt);
+        if (pdirtable == NULL) {
+            printf("Rootdir alloc error.\n");
+            returnCode = 1;
+            goto err_copy_file_or_folder;
+        }
+        memset(pdirtable, 0, sizeof(DIRENT) * dir_cnt);
+
+        int dir_idx = 0;
+        while(dir_idx < dir_cnt) {
+            memset(buf, 0, sizeof(buf));
+            readedcnt = fread(&buf, 1, sizeof(buf), pFile);
+            if (readedcnt != sizeof(buf)) {
+                fprintf(stderr, "read MBR error[%d][%X].\n", ftell(pFile), ftell(pFile));
+                printf("[%d][%d][%X].\n", ferror(pFile), ftell(pFile), ftell(pFile));
+                goto err_copy_file_or_folder;
+            }
+            // print_ary(buf, sizeof(buf));
+            print_fdt(buf, sizeof(buf));
+            memcpy(pdirtable + dir_idx, buf, readedcnt);
+            dir_idx = dir_idx + readedcnt / sizeof(DIRENT);
+        }
+        printf("\n");
+
+        /* 创建RootDir */
+        printf("dir_cnt=%d.\n", dir_cnt);
+        for (dir_idx = 0; dir_idx < dir_cnt; dir_cnt += sizeof(DIRENT)) {
+            if (strlen((pdirtable + dir_idx)->fileName) == 0){
+                printf("dir_idx=%d.@break\n", dir_idx);
+                break;
+            }
+        }
+        printf("dir_idx=%d.\n", dir_idx);
+        DIRENT cur_file;
+        memset(&cur_file, 0, sizeof(DIRENT));
+
+        /* 向目录项中写入文件名和扩展名 */
+        int ilen = strlen(src);
+        int ipos = ilen - 1;
+        int iend = ilen;
+        printf("src=%s.\n", src);
+        printf("len=%d.\n", ilen);
+        printf("end=%d.\n", iend);
+        printf("pos=%d.\n", ipos);
+        while (ipos >= 0) {
+            if (*(src + ipos) == '.') {
+                printf("%d.\n", ilen - ipos);
+                memcpy(cur_file.fileExtension, src + ipos + 1, 3);
+                iend = ipos;
+            }
+            if (*(src + ipos) == '\\') {
+                printf("%d.\n", iend - ipos);
+                memset(cur_file.fileName, 0x20, 8);
+                memcpy(cur_file.fileName, src + ipos + 1, iend - ipos - 1);
+                break;
+            }
+            if (ilen - ipos > 12) {
+                break;
+            }
+            ipos --;
+        }
+        /* 向目录项中写入属性字节 */
+        cur_file.fileAttrube[0] = 0x20;
+
+
+        /* 向目录项中写入文件的起始簇号 */
+        /* search fat*/
+        for (idx_pfat = 0; idx_pfat < pfat_cnt; idx_pfat ++) {
+            if (*(pfat + idx_pfat) == 0x00) {
+                break ;
+            }
+        }
+        if (idx_pfat == pfat_cnt) {
+            printf("没有空间了.n");
+            returnCode = 1;
+            goto err_copy_file_or_folder;
+        }
+        uint16_t startcluster = (uint16_t) idx_pfat;
+        memcpy(cur_file.startClusters, &startcluster, sizeof(uint16_t));
+
+        /* 向目录项中写入文件大小 */
+        pFileIn = fopen(src, "rb");
+        if (pFileIn == NULL) {
+            printf("copy src open error.\n");
+            returnCode = 1;
+            goto err_copy_file_or_folder;
+        }
+        if (fseek(pFileIn, 0, SEEK_END) != 0) {
+            printf("copy src seek error.\n");
+            returnCode = 1;
+            goto err_copy_file_or_folder;
+        }
+        int src_file_size = ftell(pFileIn);
+        rewind(pFileIn);
+        memcpy(cur_file.fileSize, &src_file_size, sizeof(uint32_t));
+
+        print_dirt(&cur_file);
+        memcpy(pdirtable + dir_idx, &cur_file ,sizeof(DIRENT));
+
+        /* 写入目录表 */
+        write_qcow2(qcow2File, pFile, root, pdirtable, sizeof(DIRENT) * dir_cnt);
+
+        /* 按照簇  扇区单位写入文件 */
+        int cluster_cnt = src_file_size / cluster_size;
+        if (src_file_size % cluster_size != 0) {
+            cluster_cnt ++;
+        }
+        int cluster_idx = 1;
+        for (idx_pfat = 0; idx_pfat < pfat_cnt && cluster_idx <= cluster_cnt; idx_pfat ++) {
+            if (*(pfat + idx_pfat) == 0x00) {
+                cluster_idx ++;
+                continue ;
+            }
+        }
+        if (cluster_idx < cluster_cnt) {
+            printf("没有空间了.n");
+            returnCode = 1;
+            goto err_copy_file_or_folder;
+        }
+
+        sector_no = root + 32;
+        printf("扇区编号为:%d,%d.\n", sector_no, file);
+        int sector_cluster = cluster_size / 512;
+        sector_no = file + (startcluster - 2) * sector_cluster;
+        printf("文件的起始扇区编号为:%d,%d,共占用%d个簇.\n", sector_no, file, cluster_cnt);
+
+        int write_count = 0;
+        uint16_t cur_cluster_no = startcluster;
+        while(!feof(pFileIn)) {
+            memset(buf, 0, sizeof(buf));
+            readedcnt = fread(&buf, 1, sizeof(buf), pFileIn);
+            // if (readedcnt != sizeof(buf)) {
+            //     fprintf(stderr, "read src file error[%d][%X].\n", ftell(pFileIn), ftell(pFileIn));
+            //     printf("[%d][%d][%X].\n", ferror(pFileIn), ftell(pFileIn), ftell(pFileIn));
+            //     returnCode = 1;
+            //     goto err_copy_file_or_folder;
+            // }
+            write_qcow2(qcow2File, pFile, sector_no, buf, sizeof(buf));
+            if ((write_count > 0) && (write_count % sector_cluster == 0) ) {
+                for (idx_pfat = cur_cluster_no + 1; idx_pfat < pfat_cnt; idx_pfat ++) {
+                    if (*(pfat + idx_pfat) == 0x00) {
+                        /* 更新FAT表 */
+                        *(pfat + cur_cluster_no) = idx_pfat;
+                        cur_cluster_no = (uint16_t) idx_pfat;
+                        break ;
+                    }
+                }
+            }
+            sector_no ++;
+            write_count ++;
+        }
+        *(pfat + cur_cluster_no) = 0xFFFFFFFF;
+        /* 写入FAT1,FAT2 */
+        printf("文件系统FAT%d.扇区数量%d.\n", system_idx, fat_sector_cnt);
+        fat_buf = make_fat(pfat, fat_size, fat_sector_cnt, system_idx, fat_buf);
+        if (fat_buf == NULL) { printf("make_fat error.\n"); returnCode = 1; goto err_copy_file_or_folder;}
+        write_qcow2(qcow2File, pFile, fat1, fat_buf, fat_sector_cnt * 512);
+        write_qcow2(qcow2File, pFile, fat2, fat_buf, fat_sector_cnt * 512);
+
+
+        /* File */
+        printf("first file's 1 sector.\n");
+        printf("file=%d.(L1:%d L2:%d OFF:%d) \n", file, get_l1_index(file, 4096, 512), get_l2_index(file), get_cluster_index(file));
+        offset = *(qcow2File->pL2Table + get_l1_index(file, 4096, 512) * 512 + get_l2_index(file));
+        offset += get_cluster_index(file);
+        printf("offset=%lld %X.\n", offset, offset);
+        if (fseek(pFile, offset, SEEK_SET) != 0) {
+            printf("fseek error.%d.\n", ferror(pFile)); goto err_copy_file_or_folder;}
+        memset(buf, 0, sizeof(buf));
+        readedcnt = fread(&buf, 1, sizeof(buf), pFile);
+        if (readedcnt != sizeof(buf)) {
+            fprintf(stderr, "read MBR error[%d][%X].\n", ftell(pFile), ftell(pFile));
+            printf("[%d][%d][%X].\n", ferror(pFile), ftell(pFile), ftell(pFile));
+            goto err_copy_file_or_folder;
+        }
+        print_ary(buf, sizeof(buf));
+        printf("\n");
+    }
+
+
+    /* 更新QCOW2文件 */
+    /* Write Header */
+    printf("输出头 begin.\n");
+    write_header(qcow2File, pFile);
+    printf("输出头 end.\n");
+
+    /* 输出表1 */
+    printf("输出表1 begin.\n");
+    write_l1(qcow2File, pFile);
+    printf("输出表1 end.\n");
+
+    /* 引用计数表 */
+    printf("输出计数表 begin.\n");
+    uint64_t ref_count_offset = *(qcow2File->pRefcountTable);
+    if (fseek(pFile, qcow2File->pHeader->refcount_table_offset, SEEK_SET)) {
+        printf("fseek error(%lld).\n",qcow2File->pHeader->refcount_table_offset);
+        goto err_copy_file_or_folder;
+    }
+    int idx = 0;
+    for(idx = 0; idx < qcow2File->refcount_table_cnt; idx ++) {
+        *(qcow2File->pRefcountTable + idx) = cpu_to_be64(*(qcow2File->pRefcountTable + idx));
+    }
+    int writecnt = fwrite(qcow2File->pRefcountTable, sizeof(uint64_t), qcow2File->refcount_table_cnt, pFile);
+    if (writecnt != qcow2File->refcount_table_cnt) {
+        printf("file write error(%d != %d).\n", writecnt, qcow2File->refcount_table_cnt);
+        goto err_copy_file_or_folder;
+    }
+    printf("输出计数表 end.\n");
+
+    /* 引用计数块 */
+    printf("输出计数块 begin.\n");
+    printf("%lld.%X.\n", ref_count_offset, ref_count_offset);
+    if (fseek(pFile, ref_count_offset, SEEK_SET)) {
+        printf("fseek error(%lld).\n", ref_count_offset);
+        goto err_copy_file_or_folder;
+    }
+    for(idx = 0; idx < qcow2File->refcount_cnt; idx ++) {
+        *(qcow2File->pRefcountBlock + idx) = cpu_to_be16(*(qcow2File->pRefcountBlock + idx));
+    }
+    writecnt = fwrite(qcow2File->pRefcountBlock, sizeof(uint16_t), qcow2File->refcount_cnt, pFile);
+    if (writecnt != qcow2File->refcount_cnt) {
+        printf("file write error(%d != %d).\n", writecnt, qcow2File->refcount_cnt);
+        goto err_copy_file_or_folder;
+    }
+    printf("输出计数块 end.\n");
+
+    fseek(pFile, 0, SEEK_END);
+    int pos = ftell(pFile);
+    printf("pos=%d.\n", pos);
+    int size = pos % 4096;
+    size = 4096 - size;
+    printf("size=%d.\n", size);
+    char dummy[4096];
+    //dummy[0] = 0;
+    memset(dummy, 0, sizeof(dummy));
+    fwrite(dummy, sizeof(char), size, pFile);
 
     goto end_copy_file_or_folder;
 err_copy_file_or_folder:
 end_copy_file_or_folder:
     /* 处理结束 */
-
+    if (fat_buf != NULL) { free(fat_buf); fat_buf = NULL; }
+    if (pFileIn != NULL) { fclose(pFileIn); pFileIn = NULL; }
+    if (pdirtable != NULL) { free(pdirtable); pdirtable = NULL; }
+    if (pfat != NULL) { free(pfat); pfat = NULL; }
     return returnCode;
 }
+
+int read_file_or_folder(const char * filename, char * dst, char * src) {
+    /* 变量定义 */
+    int returnCode;
+    FILE * pFile;
+    QCOW2_FILE * qcow2File;
+    uint64_t l1_item;
+    PartitionEntryItem * pe_table = NULL;
+    PartitionEntryItem cur_pe;
+    int parttion_no;
+    DIRENT * pdirtable;
+    FILE * pFileIn;
+
+    /* 变量初始化 */
+    returnCode = 0;
+    pFileIn = NULL;
+
+    /* 处理开始 */
+    printf("read img to local.\n");
+    printf("filename=%s.\n", filename);
+    printf("dst=%s.\n", dst);
+    printf("src=%s.\n", src);
+
+    /* get partition no */
+    parttion_no = 1;
+
+    /* 从分区表中获取分区信息。 */
+    pFile = fopen(filename, "rw+b");
+    if (pFile == NULL) {
+        fprintf(stderr, "file(%s) open error(1).", filename);
+        returnCode = 1; goto err_read_file_or_folder;
+    }
+    qcow2File = (QCOW2_FILE *) malloc(sizeof(QCOW2_FILE));
+    if (qcow2File == NULL) {
+        fprintf(stderr, "QCOW2 file alloc error.\n");
+        returnCode = 1; goto err_read_file_or_folder;
+    }
+    memset(qcow2File, 0, sizeof(QCOW2_FILE));
+    if (read_qcow2(pFile, qcow2File) < 0) {
+        printf("format_partition:qcow2 image file read error.\n");
+         returnCode = 1; goto err_read_file_or_folder;
+    }
+    print_qcow2_file(qcow2File);
+    print_qcow2(qcow2File);
+
+    /* Partition */
+    printf(">>----- Partition Table -----\n");
+    printf("L2 Table offset=%lld, 0X%X.\n", l1_item, l1_item);
+    pe_table = print_partition_table_64(qcow2File->pL1Table, qcow2File->l1_size, qcow2File->pL2Table, qcow2File->l2_size, pFile, qcow2File->clustor_size);
+    print_list(pe_table);
+    printf("----- Partition Table -----<<\n");
+    printf("\n");
+
+    /* TODO: check partition_no in range */
+    memcpy(&cur_pe, pe_table + parttion_no - 1, sizeof(cur_pe));
+    print_partition_entry(&(cur_pe.pe));
+    printf("分区的起始扇区LBA号%d.\n", cur_pe.sector_index);
+
+
+    /* 读取BPB */
+    printf("flag=%d sector_index=%d start_sector_no=%d ", cur_pe.flag, cur_pe.sector_index, cur_pe.pe.start_sector_no);
+    uint32_t sector_no = cur_pe.sector_index + cur_pe.pe.start_sector_no;
+    uint32_t fat1 = sector_no;
+    uint32_t fat2 = sector_no;
+    uint32_t root = sector_no;
+    uint32_t file = sector_no;
+
+    printf("起始扇区号：%d (l1 =%d, l2=%d, cluster=%d), \n", sector_no, 
+        get_l1_index(sector_no, 4096, 512), get_l2_index(sector_no), get_cluster_index(sector_no));
+    uint64_t offset = -1;
+    offset = *(qcow2File->pL2Table + get_l1_index(sector_no, 4096, 512) * 512 + get_l2_index(sector_no));
+    offset += get_cluster_index(sector_no);
+    printf("在镜像文件中的位置[(%lld 0X%X)-", offset, offset);
+    printf("(%lld 0X%X)).\n", offset + 512, offset + 512);
+    if (fseek(pFile, offset, SEEK_SET) != 0) {
+        printf("fseek error.%d.\n", ferror(pFile)); goto err_read_file_or_folder;}
+    unsigned char buf[512];
+    memset(buf, 0, sizeof(buf));
+    int readedcnt = fread(&buf, 1, sizeof(buf), pFile);
+    if (readedcnt != sizeof(buf)) {
+        fprintf(stderr, "read MBR error[%d][%X].\n", ftell(pFile), ftell(pFile));
+        printf("[%d][%d][%X].\n", ferror(pFile), ftell(pFile), ftell(pFile));
+        goto err_read_file_or_folder;
+    }
+    int cluster_size = 512;
+    int dir_cnt = -1;
+    int fat_sector_cnt = -1;
+    int fat_size = 512;
+    int system_idx = 12;
+    printf("启动扇区:%X, %X type:%X.\n", buf[510], buf[511], cur_pe.pe.type);
+    if (cur_pe.pe.type == 0x01 || cur_pe.pe.type == 0x06 || cur_pe.pe.type == 0x0E) {
+        /* FAT16 */
+        /*
+         06 DOS 3.31+: 16-bit FAT (over 32M)
+         0E WIN95: DOS 16-bit FAT, LBA-mapped
+         */
+        if( buf[510] == 0x55 && buf[511] == 0xAA) {
+            print_ary(buf, sizeof(buf));
+            VBRFAT1216 vbr;
+            printf("size=%d.BPB:%d.uint8_t=%d.%d.%d.\n", sizeof(vbr), sizeof(BPB1216), sizeof(uint8_t), sizeof(uint16_t), sizeof(uint32_t));
+            memcpy(&vbr, buf, 512);
+            print_vbr_fat_1216(&vbr);
+
+            uint16_t bpb_ReservedSectorst = vbr.bpb.bpb_ReservedSectorst;
+            fat1 += bpb_ReservedSectorst;
+            fat2 += bpb_ReservedSectorst;
+            root += bpb_ReservedSectorst;
+            file += bpb_ReservedSectorst;
+
+            uint16_t bpb_SectorsPerFAT = vbr.bpb.bpb_SectorsPerFAT;
+            fat2 += bpb_SectorsPerFAT;
+            root += 2 * bpb_SectorsPerFAT;
+            file += 2 * bpb_SectorsPerFAT;
+            uint16_t bpb_RootDirEntries = vbr.bpb.bpb_RootDirEntries;
+            dir_cnt = vbr.bpb.bpb_RootDirEntries;
+            uint16_t bpb_BytesPerSector = vbr.bpb.bpb_BytesPerSector;
+            file += (32 * bpb_RootDirEntries) / bpb_BytesPerSector;
+
+            cluster_size *= vbr.bpb.bpb_SectorsPerCluster;
+            fat_sector_cnt = vbr.bpb.bpb_SectorsPerFAT;
+            fat_size *= vbr.bpb.bpb_SectorsPerFAT;
+            if (memcmp(vbr.bs_FileSysType, "FAT12", 5) == 0 ) {
+                system_idx = 12;
+            }
+            if (memcmp(vbr.bs_FileSysType, "FAT16", 5) == 0 ) {
+                system_idx = 16;
+            }
+            if (memcmp(vbr.bs_FileSysType, "FAT32", 5) == 0 ) {
+                system_idx = 32;
+            }
+        } /* if */
+    } /* type */
+    printf("\n");
+
+    printf("该分区的根目录表项个数为%d.\n", dir_cnt);
+    printf("该分区的文件系统为FAT%d\n", system_idx);
+    printf("该分区的簇大小为%d字节\n", cluster_size);
+    printf("该分区的FAT表大小为%d字节\n", fat_size);
+    uint32_t * pfat = NULL;
+    int pfat_cnt = -1;
+    if (system_idx == 12) {
+        pfat_cnt = fat_size / 2 * 3;
+        pfat = (uint32_t *) malloc(pfat_cnt * sizeof(uint32_t));
+    }
+    if (system_idx == 16) {
+        pfat_cnt = fat_size / 2;
+        pfat = (uint32_t *) malloc(pfat_cnt * sizeof(uint32_t));
+    }
+    if (system_idx == 32) {
+        pfat_cnt = fat_size / 4;
+        pfat = (uint32_t *) malloc(pfat_cnt * sizeof(uint32_t));
+    }
+    if (pfat == NULL) {
+        printf("FAT alloc error.\n");
+        returnCode = 1;
+        goto err_read_file_or_folder;
+    }
+    memset(pfat, 0, pfat_cnt * sizeof(uint32_t));
+
+    if( buf[510] == 0x55 && buf[511] == 0xAA) {
+        /* 读取FAT1 */
+        /* fat1 */
+        printf("fat1=%d.(L1:%d L2:%d OFF:%d) \n", fat1, get_l1_index(fat1, 4096, 512), get_l2_index(fat1), get_cluster_index(fat1));
+        offset = *(qcow2File->pL2Table + get_l1_index(fat1, 4096, 512) * 512 + get_l2_index(fat1));
+        offset += get_cluster_index(fat1);
+        printf("offset=%lld %X.\n", offset, offset);
+        if (fseek(pFile, offset, SEEK_SET) != 0) {
+            printf("fseek error.%d.\n", ferror(pFile)); goto err_read_file_or_folder;
+        }
+
+        // fat_size;
+        int idx = 0;
+        int idx_pfat = 0;
+        for (idx = 0; idx < fat_sector_cnt; idx ++) {
+            memset(buf, 0, sizeof(buf));
+            readedcnt = fread(&buf, 1, sizeof(buf), pFile);
+            if (readedcnt != sizeof(buf)) {
+                fprintf(stderr, "read MBR error[%d][%X].\n", ftell(pFile), ftell(pFile));
+                printf("[%d][%d][%X].\n", ferror(pFile), ftell(pFile), ftell(pFile));
+                goto err_read_file_or_folder;
+            }
+            int idy = 0;
+            if (system_idx == 12) {
+                for (idy = 0; idy < 512; idy ++) {
+                    if (idy % 3 == 0) {
+                        *(pfat + idx_pfat) = buf[idy];
+                    } else if (idy % 3 == 1) {
+                        *(pfat + idx_pfat) = ((buf[idy] & 0x000F) << 8) | *(pfat + idx_pfat);
+                        idx_pfat ++;
+                        if (idx_pfat >= pfat_cnt) {
+                            break;
+                        }
+                        *(pfat + idx_pfat) = ((buf[idy] & 0x00F0) >> 4);
+                    } else if (idy % 3 == 2) {
+                        *(pfat + idx_pfat) = ((buf[idy] & 0x00FF) << 4) | *(pfat + idx_pfat);
+                        idx_pfat ++;
+                        if (idx_pfat >= pfat_cnt) {
+                            break;
+                        }
+                    }
+                }
+            } /* fat12 */
+            if (system_idx == 16) {
+                memcpy(pfat + idx_pfat, buf, readedcnt);
+                idx_pfat += 512 / 2;
+            }
+            if (system_idx == 32) {
+                memcpy(pfat + idx_pfat, buf, readedcnt);
+                idx_pfat += 512 / 4;
+            }
+        } /* for */
+        // print_ary(buf, sizeof(buf));
+        printf("\n");
+        for (idx = 0; idx < pfat_cnt; idx ++) {
+            printf("%X ", *(pfat + idx));
+            if ((idx + 1) % 16 == 0) {
+                printf("\n");
+            }
+        }
+        printf("\n");
+
+        /* fat2 */
+        printf("fat2=%d.(L1:%d L2:%d OFF:%d) \n", fat2, get_l1_index(fat2, 4096, 512), get_l2_index(fat2), get_cluster_index(fat2));
+        offset = *(qcow2File->pL2Table + get_l1_index(fat2, 4096, 512) * 512 + get_l2_index(fat2));
+        offset += get_cluster_index(fat2);
+        printf("offset=%lld %X.\n", offset, offset);
+        if (fseek(pFile, offset, SEEK_SET) != 0) {
+            printf("fseek error.%d.\n", ferror(pFile)); goto err_read_file_or_folder;}
+        memset(buf, 0, sizeof(buf));
+        readedcnt = fread(&buf, 1, sizeof(buf), pFile);
+        if (readedcnt != sizeof(buf)) {
+            fprintf(stderr, "read MBR error[%d][%X].\n", ftell(pFile), ftell(pFile));
+            printf("[%d][%d][%X].\n", ferror(pFile), ftell(pFile), ftell(pFile));
+            goto err_read_file_or_folder;
+        }
+        print_ary(buf, sizeof(buf));
+        printf("\n");
+
+        /* 获取RootDir */
+        /* Rootdir */
+        printf("root dir's 1 setcot.\n");
+        printf("root=%d.(L1:%d L2:%d OFF:%d) \n", root, get_l1_index(root, 4096, 512), get_l2_index(root), get_cluster_index(root));
+        offset = *(qcow2File->pL2Table + get_l1_index(root, 4096, 512) * 512 + get_l2_index(root));
+        offset += get_cluster_index(root);
+        printf("offset=%lld %X.\n", offset, offset);
+        if (fseek(pFile, offset, SEEK_SET) != 0) {
+            printf("fseek error.%d.\n", ferror(pFile)); goto err_read_file_or_folder;
+        }
+
+        pdirtable = NULL;
+        pdirtable = (DIRENT *) malloc(sizeof(DIRENT) * dir_cnt);
+        if (pdirtable == NULL) {
+            printf("Rootdir alloc error.\n");
+            returnCode = 1;
+            goto err_read_file_or_folder;
+        }
+        memset(pdirtable, 0, sizeof(DIRENT) * dir_cnt);
+
+        int dir_idx = 0;
+        while(dir_idx < dir_cnt) {
+            memset(buf, 0, sizeof(buf));
+            readedcnt = fread(&buf, 1, sizeof(buf), pFile);
+            if (readedcnt != sizeof(buf)) {
+                fprintf(stderr, "read MBR error[%d][%X].\n", ftell(pFile), ftell(pFile));
+                printf("[%d][%d][%X].\n", ferror(pFile), ftell(pFile), ftell(pFile));
+                goto err_read_file_or_folder;
+            }
+            // print_ary(buf, sizeof(buf));
+            print_fdt(buf, sizeof(buf));
+            memcpy(pdirtable + dir_idx, buf, readedcnt);
+            dir_idx = dir_idx + readedcnt / sizeof(DIRENT);
+        } /* while */
+        printf("\n");
+
+
+        int ilen = strlen(src);
+        int ipos = ilen - 1;
+        int iend = ilen;
+        printf("src=%s.\n", src);
+        printf("len=%d.\n", ilen);
+        printf("end=%d.\n", iend);
+        printf("pos=%d.\n", ipos);
+        char src_file_name[9];
+        char src_file_name_ex[4];
+        memset(src_file_name, 0, sizeof(src_file_name));
+        memset(src_file_name_ex, 0, sizeof(src_file_name_ex));
+        while (ipos >= 0) {
+            if (*(src + ipos) == '.') {
+                printf("%d.\n", ilen - ipos);
+                memcpy(src_file_name_ex, src + ipos + 1, 3);
+                iend = ipos;
+            }
+            if (*(src + ipos) == '\\' || *(src + ipos) == '/' ) {
+                printf("%d.\n", iend - ipos);
+                memcpy(src_file_name, src + ipos + 1, iend - ipos - 1);
+                break;;
+            }
+            if (ilen - ipos > 12) {
+                break;
+            }
+            ipos --;
+        }
+        printf("%s.%s.\n", src_file_name, src_file_name_ex);
+
+        /* 查找RootDir */
+        printf("dir_cnt=%d.\n", dir_cnt);
+        for (dir_idx = 0; dir_idx < dir_cnt; dir_cnt += sizeof(DIRENT)) {
+            // if (strlen((pdirtable + dir_idx)->fileName) == 0) {
+            //     continue;
+            // }
+            // printf("%s\n", (pdirtable + dir_idx)->fileName);
+            if (strlen((pdirtable + dir_idx)->fileName) != 0
+            && memcmp((pdirtable + dir_idx)->fileName, src_file_name, strlen(src_file_name)) == 0
+            && memcmp((pdirtable + dir_idx)->fileExtension, src_file_name_ex, strlen(src_file_name_ex)) == 0){
+                printf("dir_idx=%d.@break\n", dir_idx);
+                break;
+            }
+        }
+        printf("dir_idx=%d.\n", dir_idx);
+        if (dir_idx >= dir_cnt) {
+            printf("%s不存在。\n", src);
+            returnCode = 1;
+            goto err_read_file_or_folder;
+        }
+        DIRENT cur_file;
+        memset(&cur_file, 0, sizeof(DIRENT));
+        memcpy(&cur_file, pdirtable + dir_idx, sizeof(DIRENT));
+        print_dirt(&cur_file);
+        uint32_t src_file_size = 0;
+        memcpy(&src_file_size, cur_file.fileSize, sizeof(uint32_t));
+
+        /* */
+        pFileIn = fopen(dst, "w+b");
+        if (pFileIn == NULL) {
+            printf("copy dst open error.\n");
+            returnCode = 1;
+            goto err_read_file_or_folder;
+        }
+
+
+        /* 按照簇  扇区单位读取文件 */
+        int cluster_cnt = src_file_size / cluster_size;
+        if (src_file_size % cluster_size != 0) {
+            cluster_cnt ++;
+        }
+        uint32_t fat_idx = 0;
+        memcpy(&fat_idx, cur_file.startClusters, sizeof(uint16_t));
+        printf("%d.\n", fat_idx);
+        uint16_t startcluster = (uint16_t) fat_idx;
+
+        sector_no = root + 32;
+        printf("扇区编号为:%d,%d.\n", sector_no, file);
+        int sector_cluster = cluster_size / 512;
+        sector_no = file + (startcluster - 2) * sector_cluster;
+        printf("文件的起始扇区编号为:%d,%d,共占用%d个簇.\n", sector_no, file, cluster_cnt);
+        printf("文件的大小%d.\n", src_file_size);
+
+        uint32_t cluster_idx = 0;
+        idx_pfat = startcluster;
+        int write_cnt = 0;
+        int write_size = src_file_size;
+        while(cluster_idx < cluster_cnt) {
+            printf("idx_pfat=%d.\n", idx_pfat);
+            printf("cluster_idx=%d.\n", cluster_idx);
+            printf("cluster_cnt=%d.\n", cluster_cnt);
+
+            for (idx = 0; idx < sector_cluster; idx ++) {
+                sector_no = file + ( idx_pfat - 2 ) * sector_cluster + idx;
+                /* read file */
+                printf("file=%d.(L1:%d L2:%d OFF:%d) \n", file, get_l1_index(sector_no, 4096, 512), get_l2_index(sector_no), get_cluster_index(sector_no));
+                offset = *(qcow2File->pL2Table + get_l1_index(sector_no, 4096, 512) * 512 + get_l2_index(sector_no));
+                offset += get_cluster_index(sector_no);
+                printf("offset=%lld %X.\n", offset, offset);
+
+                if (fseek(pFile, offset, SEEK_SET) != 0) {
+                    printf("fseek error.%d.\n", ferror(pFile)); goto err_read_file_or_folder;}
+
+                memset(buf, 0, sizeof(buf));
+                readedcnt = fread(&buf, 1, sizeof(buf), pFile);
+                if (readedcnt != sizeof(buf)) {
+                    fprintf(stderr, "read MBR error[%d][%X].\n", ftell(pFile), ftell(pFile));
+                    printf("[%d][%d][%X].\n", ferror(pFile), ftell(pFile), ftell(pFile));
+                    goto err_read_file_or_folder;
+                }
+                if (write_size >= readedcnt) {
+                    write_size -= readedcnt;
+                    write_cnt = fwrite(&buf, 1, readedcnt, pFileIn);
+                } else {
+                    write_cnt = fwrite(&buf, 1, write_size, pFileIn);
+                    write_size = 0;
+                }
+                printf("写入%d.\n", write_cnt);
+            }
+
+            if ((idx_pfat & 0x0F0) == 0x0F0) {
+                break;
+            }
+
+            /* 下一个簇 */
+            idx_pfat = *(pfat + idx_pfat);
+            cluster_idx ++;
+        } /* while*/
+
+        /* File */
+        printf("first file's 1 sector.\n");
+        printf("file=%d.(L1:%d L2:%d OFF:%d) \n", file, get_l1_index(file, 4096, 512), get_l2_index(file), get_cluster_index(file));
+        offset = *(qcow2File->pL2Table + get_l1_index(file, 4096, 512) * 512 + get_l2_index(file));
+        offset += get_cluster_index(file);
+        printf("offset=%lld %X.\n", offset, offset);
+        if (fseek(pFile, offset, SEEK_SET) != 0) {
+            printf("fseek error.%d.\n", ferror(pFile)); goto err_read_file_or_folder;}
+        memset(buf, 0, sizeof(buf));
+        readedcnt = fread(&buf, 1, sizeof(buf), pFile);
+        if (readedcnt != sizeof(buf)) {
+            fprintf(stderr, "read MBR error[%d][%X].\n", ftell(pFile), ftell(pFile));
+            printf("[%d][%d][%X].\n", ferror(pFile), ftell(pFile), ftell(pFile));
+            goto err_read_file_or_folder;
+        }
+        print_ary(buf, sizeof(buf));
+        printf("\n");
+    } /* if 55 AA */
+
+    goto end_read_file_or_folder;
+err_read_file_or_folder:
+end_read_file_or_folder:
+    /* 处理结束 */
+    if (pFileIn != NULL) { fclose(pFileIn); pFileIn = NULL; }
+    if (pdirtable != NULL) { free(pdirtable); pdirtable = NULL; }
+    if (pfat != NULL) { free(pfat); pfat = NULL; }
+    return returnCode;
+}
+
+
 
 int delete_file_or_folder(const char * filename) {
     /* 变量定义 */
@@ -2144,6 +3139,7 @@ int delete_file_or_folder(const char * filename) {
     /* 变量初始化 */
     returnCode = 0;
     /* 处理开始 */
+    printf("filename=%s.\n", filename);
 
     goto end_delete_file_or_folder;
 err_delete_file_or_folder:
@@ -2767,11 +3763,13 @@ char * make_fat(uint32_t * in, size_t in_size, size_t size, int file_system_id, 
     char * returnCode;
     int idx;
     int idy;
+    int size_byte;
 
     /* 变量初始化 */
     returnCode = NULL;
     idx = 0;
     idy = 0;
+    size_byte = size * 512;
 
     /* 处理开始 */
     printf(">>----- make_fat begin -----\n");
@@ -2780,35 +3778,51 @@ char * make_fat(uint32_t * in, size_t in_size, size_t size, int file_system_id, 
     printf("size=%d.\n", size);
     printf("file_system_id=%d.\n", file_system_id);
 
-    // returnCode = (char *) malloc(size * 512);
-    // if (returnCode == NULL) {
-    //     printf("memory alloc error.\n");
-    //     goto err_make_fat;
-    // }
-    // memset(returnCode, 0, size * 512);
-    returnCode = buf;
-    // TODO:有问题
+    returnCode = (char *) malloc(size_byte);
+    if (returnCode == NULL) {
+        printf("memory alloc error.\n");
+        goto err_make_fat;
+    }
+    memset(returnCode, 0, size_byte);
+    //returnCode = buf;
+    // TODO:这里的代码有问题
     for(idx = 0; idx < in_size; idx ++) {
         // printf("%X ", *(in + idx));
+        printf("idx=%d,idy=%d.\n", idx, idy);
         if (file_system_id == 12) {
             if (idx % 2 == 0) {
-                buf[idy] = 0x00FF & in[idx];
+                returnCode[idy] = 0x00FF & in[idx];
                 idy ++;
-                buf[idy] = (0x0F00 & in[idx]) >> 8;
+                if (idy >= size_byte) {
+                    break;
+                }
+                returnCode[idy] = (0x0F00 & in[idx]) >> 8;
             } else {
-                buf[idy] = ((0x000F & in[idx]) << 4) | (0x0F & returnCode[idy]);
+                returnCode[idy] = ((0x000F & in[idx]) << 4) | (0x0F & returnCode[idy]);
                 idy ++;
-                buf[idy] = (0x0FF0 & in[idx]) >> 4;
+                if (idy >= size_byte) {
+                    break;
+                }
+                returnCode[idy] = (0x0FF0 & in[idx]) >> 4;
                 idy ++;
+                if (idy >= size_byte) {
+                    break;
+                }
             }
         }
         if (file_system_id == 16) {
             memcpy(returnCode + idy, in + idx, sizeof(uint16_t));
             idy += 2;
+            if (idy >= size_byte) {
+                break;
+            }
         }
         if (file_system_id == 32) {
             memcpy(returnCode + idy, in + idx, sizeof(uint32_t));
             idy += 4;
+            if (idy >= size_byte) {
+                break;
+            }
         }
     } /* for */
 
@@ -3152,6 +4166,9 @@ int main(int argc, char * argv[]) {
     int file_system_id = 0;
     char * mbrfile = "";
     int partition_no = -1;
+    char * src_file = "";
+    char * dst_file = "";
+    char * cp_option = "to";
 
     /* 处理开始 */
     for (idx = 0; idx < argc; idx ++) { printf("参数[%d]=%s.\n", idx, argv[idx]); }
@@ -3285,7 +4302,7 @@ int main(int argc, char * argv[]) {
                         show_usage();
                         goto end_main;
                     }
-                } else if (memcmp("-m", argv[idx], strlen("-f")) == 0) {
+                } else if (memcmp("-m", argv[idx], strlen("-m")) == 0) {
                     if ((idx+ 1) < argc) {
                         mbrfile = argv[idx + 1];
                         idx ++;
@@ -3310,7 +4327,27 @@ int main(int argc, char * argv[]) {
     }
     if (strlen("copy") == strlen(argv[2]) && memcmp("copy", argv[2], strlen("copy")) == 0) {
         printf("copy.\n");
-        copy_file_or_folder(argv[1]);
+        if (argc < 6) { show_usage(); goto end_main; }
+        if (memcmp(argv[4], "from", 2) == 0 && memcmp(argv[4], "from", 4) == 0) {
+            /* src to dst*/
+            cp_option = argv[4];
+            src_file = argv[5];
+            dst_file = argv[3];
+        } else {
+            /* src to dst*/
+            src_file = argv[3];
+            dst_file = argv[5];
+        }
+        int copy_direction = 1; /* 从外部到镜像文件 */
+        if (memcmp(dst_file, "/dvr", 4) != 0) {
+            copy_direction = 2; /* 从镜像文件到外部 */
+        }
+        printf("复制方向%d.\n", copy_direction);
+        if (copy_direction == 1) {
+            copy_file_or_folder(argv[1], dst_file, src_file);
+        } else {
+            read_file_or_folder(argv[1], dst_file, src_file);
+        }
         goto end_main;
     }
     if (strlen("delete") == strlen(argv[2]) && memcmp("delete", argv[2], strlen("delete")) == 0) {

@@ -39,4 +39,22 @@ public class Strings {
     }
     return buf.toString();
   }
+  public static String format2(String in, int len, char ch) {
+	    int ln = in.length();
+	    int diff = (len - ln);
+	    StringBuffer buf = new StringBuffer();
+	    if (diff > 0) {
+	      buf.append(in);
+	      for(int i = 0; i < diff; i ++) {
+	        buf.append(ch);
+	      }
+	    }
+	    if (diff == 0) {
+	      buf.append(in);
+	    }
+	    if (diff < 0) {
+	      buf.append(in.substring(0 - diff));
+	    }
+	    return buf.toString();
+	  }
 }

@@ -3,4 +3,5 @@ REM .\qemu.exe -L . -m 32 -localtime -no-kqemu -std-vga -boot a -fda .\qemu_img\
 REM .\qemu.exe -L . -m 32 -localtime -no-kqemu -std-vga -boot a -fda .\qemu_img\win98(FAT12).img -hda .\qemu_img\qcow2_4g.qcow2 -soundhw sb16,pcspk
 REM .\qemu.exe -L . -m 32 -localtime -no-kqemu -std-vga -boot a -fda .\qemu_img\Dosv6.22.IMg -hda .\qemu_img\qcow2_4g.qcow2 -soundhw sb16,pcspk
 REM .\qemu.exe -L . -m 32 -localtime -no-kqemu -std-vga -boot a -fda .\qemu_img\win98(FAT12).img -hda ..\..\fat\edqcow2\test -soundhw sb16,pcspk
-.\qemu.exe -L . -m 32 -localtime -no-kqemu -std-vga -boot a -fda .\qemu_img\win98(FAT12).img -hda .\qemu_img\format\qcow2m_format.qcow2 -soundhw sb16,pcspk
+REM .\qemu.exe -L . -m 32 -localtime -no-kqemu -std-vga -boot a -fda .\qemu_img\win98(FAT12).img -hda .\qemu_img\copy\qcow2_16127K_.qcow2 -soundhw sb16,pcspk
+.\qemu.exe -L . -m 32 -localtime -no-kqemu -std-vga -boot a -fda .\qemu_img\win98(FAT12).img -hda .\qemu_img\copy\qcow2_16127K_copy.qcow2 -soundhw sb16,pcspk -net nic

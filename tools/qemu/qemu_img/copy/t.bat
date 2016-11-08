@@ -1,0 +1,1 @@
+C:\Users\DBJ\git\hos\fat\edqcow2\edqcow2 C:\Users\DBJ\git\hos\tools\qemu\qemu_img\copy\qcow2_16127K_.qcow2 copy /drv1/README.TXT to C:\Users\DBJ\git\hos\tools\qemu\qemu_img\copy\README.TXT > C:\Users\DBJ\git\hos\tools\qemu\qemu_img\copy\qcow2_16127K_.qcow2_rt.log

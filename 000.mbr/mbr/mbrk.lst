@@ -1,0 +1,247 @@
+     1 00000000                                 ; MBR的引导程序
+     2                                                        org 0600H
+     3 00000600                                               cpu 8086
+      >> [ERROR #001] syntax error.
+     4 00000600                                 [BITS 16]
+     5 00000600                                           section .data align=16
+      >> [ERROR #001] syntax error.
+     6 00000600                                 ;label    :    instruction operands     ; comment
+     7 00000600 31 C0                                          XOR  AX,AX               ; AX = 0000
+     8 00000602 8E D0                                          MOV  SS,AX               ; SS = 0000
+     9 00000604 BC 7C00                                        MOV  SP,0X7C00           ; SP = 7C00
+    10 00000607 FB                                             STI                      ; 开中断
+    11 00000608 50                                             PUSH AX                  ; 
+    12 00000609 07                                             POP  ES                  ; ES = 0000
+    13 0000060A 50                                             PUSH AX                  ;
+    14 0000060B 1F                                             POP  DS                  ; DS = 0000
+    15 0000060C FC                                             CLD                      ; FLAGS.DF = 0
+    16 0000060D                                 ; 把7C1B处开始的485字节复制到061B处，   ;
+    17 0000060D                                 ; 并从061B处开始执行                    ; 
+    18 0000060D BE 7C1B                                        MOV  SI,0X7C1B           ; SI = 7C1B
+    19 00000610 BF 061B                                        MOV  DI,0X061B           ; DI = 061B
+    20 00000613 50                                             PUSH AX                  ; CS
+    21 00000614 57                                             PUSH DI                  ; IP
+    22 00000615 B9 01E5                                        MOV  CX,0X01E5           ; CX = 01E5(485字节)
+    23 00000618 F3 A4                                          REP  MOVSB               ; CX: 0000
+    24 0000061A CB                                             RETF                     ; IP: 061B CS:0000
+    25 0000061B                                 ;---------------------------------------;-------------------
+    26 0000061B                                 ; 这里才是1B处开始的代码                ; 
+    27 0000061B BE 07BE                                        MOV  SI,0X07BE           ; SI: 07BE 实际是1BE
+    28 0000061E B1 04                                          MOV  CL,0X04             ; CX: 0004
+    29 00000620                                 CHK_PTE   :                             ;
+      >> [ERROR #001] syntax error.
+    30 00000620 38 2C                                          CMP  [SI],CH             ; cmp 分区状态 0
+    31 00000622 7C 09                                          JL   SCH_PTE             ; [SI] 80 =>
+    32 00000624 75 15                                          JNZ  INVALIDPT           ; [SI] NOT 00
+    33 00000626 83 C6 10                                       ADD  SI,BYTE +0X10       ; [SI] = 00 下一个分区
+    34 00000629 E2 F5                                          LOOP CHK_PTE             ; 下一个分区
+    35 0000062B CD 18                                          INT  0X18                ; ROM-BASIC 
+    36 0000062D                                 SCH_PTE   :                             ;
+      >> [ERROR #001] syntax error.
+    37 0000062D 8B 14                                          MOV  DX,[SI]             ; DX: 0080
+    38 0000062F 89 F5                                          MOV  BP,SI               ; BP: 07BE
+    39 00000631                                 NEXT_PTE  :                             ; 只有一个80
+      >> [ERROR #001] syntax error.
+    40 00000631 83 C6 10                                       ADD  SI,BYTE +0X10       ; SI: 07FE
+    41 00000634 49                                             DEC  CX                  ;
+    42 00000635 74 16                                          JZ   CHK_SYSID           ; =>
+    43 00000637 38 2C                                          CMP  [SI],CH             ; CH: 00 NEED 80 00 00 00
+    44 00000639 74 F6                                          JZ   NEXT_PTE            ;
+    45 0000063B                                 INVALIDPT :                             ;
+      >> [ERROR #001] syntax error.
+    46 0000063B BE 0710                                        MOV  SI,MSG1 + 1         ; SI: 0710
+    47 0000063E                                 NEXT_CH   :                             ;
+      >> [ERROR #001] syntax error.
+    48 0000063E 4E                                             DEC  SI                  ;
+    49 0000063F                                 DSP_MSG:                                ; DISPLAY MESSAGE
+    50 0000063F AC                                             LODSB                    ; DS:SI -> AL
+    51 00000640 3C 00                                          CMP  AL,0X00             ;
+    52 00000642 74 FA                                          JZ   NEXT_CH             ;
+    53 00000644 BB 0007                                        MOV  BX,0X0007           ;
+    54 00000647 B4 0E                                          MOV  AH,0X0E             ; AL=字符，BH=页码，BL=颜色（只适用于图形模式）
+    55 00000649 CD 10                                          INT  0X10                ;
+    56 0000064B                                 DSP_ERRMSG:                             ; DISPLAY MESSAGE
+    57 0000064B EB F2                                          JMP  SHORT DSP_MSG       ; DISPLAY MESSAGE
+    58 0000064D                                 ;---------------------------------------;-------------------
+    59 0000064D                                 CHK_SYSID :                             ; ??
+      >> [ERROR #001] syntax error.
+    60 0000064D 89 46 25                                       MOV  [BP+0X25],AX        ; BP: 07BE AX=?0000? SS:0000,[BP+0X25]:CX
+    61 00000650 96                                             XCHG AX,SI               ; SI: 07FE=>07BE
+    62 00000651 8A 46 04                                       MOV  AL,[BP+0X04]        ; SYSTEM ID
+    63 00000654 B4 06                                          MOV  AH,0X06             ; AH: 06
+    64 00000656 3C 0E                                          CMP  AL,0X0E             ; 
+    65 00000658 74 11                                          JZ   TST13HEX            ; FAT16(0E)
+    66 0000065A B4 0B                                          MOV  AH,0X0B             ; 
+    67 0000065C 3C 0C                                          CMP  AL,0X0C             ; 
+    68 0000065E 74 05                                          JZ   SET_FOR_0C          ; FAT32(0C)
+    69 00000660 38 E0                                          CMP  AL,AH               ; AH:0B(FAT32)
+    70 00000662 75 2B                                          JNZ  SET_CNT             ; OTHERWISE TO READ
+    71 00000664 40                                             INC  AX                  ; FAT32(06)
+    72 00000665                                 SET_FOR_0C:                             ;
+    73 00000665 C6 46 25 06                                    MOV  BYTE [BP+0X25],0X06 ; 06=>CX
+    74 00000669 75 24                                          JNZ  SET_CNT             ; TO READ
+    75 0000066B                                 TST13HEX  :                             ; 
+      >> [ERROR #001] syntax error.
+    76 0000066B BB 55AA                                        MOV  BX,0X55AA           ; 
+    77 0000066E 50                                             PUSH AX                  ; SAVE AX
+    78 0000066F                                 ;INT 13h AH=41h:Check Extensions Present;
+    79 0000066F                                 ;AH:41h = function number for extensions check
+    80 0000066F                                 ;DL:drive index (e.g. 1st HDD = 80h)
+    81 0000066F                                 ;BX:55AAh
+    82 0000066F                                 ;
+    83 0000066F                                 ;CF:Set On Not Present, Clear If Present
+    84 0000066F                                 ;AH:Error Code or Major Version Number
+    85 0000066F                                 ;BX:AA55h
+    86 0000066F                                 ;CX:Interface support bitmask:
+    87 0000066F                                 ;   1 - Device Access using the packet structure
+    88 0000066F                                 ;   2 - Drive Locking and Ejecting
+    89 0000066F                                 ;   4 - Enhanced Disk Drive Support (EDD)
+    90 0000066F B4 41                                          MOV  AH,0X41             ; 
+    91 00000671 CD 13                                          INT  0X13                ; 
+    92 00000673 58                                             POP  AX                  ; RESTORE AX
+    93 00000674 72 16                                          JC   NO_PRESENT          ; CF=1 NG
+    94 00000676 81 FB AA55                                     CMP  BX,0XAA55           ;
+    95 0000067A 75 10                                          JNZ  NO_PRESENT          ; BX!=AA55 NG
+    96 0000067C F6 C1 01                                       TEST CL,0X01             ; CL=01 first
+    97 0000067F 74 0B                                          JZ   NO_PRESENT          ;
+    98 00000681 88 C4                                          MOV  AH,AL               ;
+    99 00000683 88 56 24                                       MOV  [BP+0X24],DL        ;
+   100 00000686 C7 06 06A1 1EEB                                MOV  WORD [0X06A1],0X1EEB; 7915
+   101 0000068C                                 NO_PRESENT:
+   102 0000068C 88 66 04                                       MOV  [BP+0X04],AH
+   103 0000068F                                 SET_CNT   :                             ;
+      >> [ERROR #001] syntax error.
+   104 0000068F BF 000A                                        MOV  DI,0X000A           ; DI: 0A
+   105 00000692                                 READ_VBR  :                             ;
+      >> [ERROR #001] syntax error.
+   106 00000692                                 ;INT 13h AH=02h: Read Sectors From Drive;
+   107 00000692                                 ;AL:Sectors To Read Count               ;
+   108 00000692                                 ;CF:Set On Error, Clear If No Error
+   109 00000692                                 ;AH:Return Code
+   110 00000692                                 ;AL:Actual Sectors Read Count
+   111 00000692                                                                         ; AH:Read Sectors From Drive, AL:Sectors To Read Count
+   112 00000692                                                                         ; CH:Cylinder, CL:Sector
+   113 00000692                                                                         ; DH:Head,     DL:Drive
+   114 00000692                                                                         ; ES:BX:Buffer Address Pointer
+   115 00000692 B8 0201                                        MOV  AX,0X0201           ; AX: 0201
+   116 00000695 89 E3                                          MOV  BX,SP               ; BX: 7C00, ES: 0000
+   117 00000697 31 C9                                          XOR  CX,CX               ; CX: 0000
+   118 00000699 83 FF 05                                       CMP  DI,BYTE +0X05       ; 
+   119 0000069C 7F 03                                          JG   READ_DISK           ; DI > 5
+   120 0000069E 8B 4E 25                                       MOV  CX,[BP+0X25]        ; CX: 0006
+   121 000006A1                                 READ_DISK :                             ; 
+      >> [ERROR #001] syntax error.
+   122 000006A1 03 4E 02                                       ADD  CX,[BP+0X02]        ; SEC, CYL
+   123 000006A4 CD 13                                          INT  0X13                ; 
+   124 000006A6                                 _LBL000000A6:
+   125 000006A6 72 29                                          JC   RESET_DISK          ; CF=1ERROR
+   126 000006A8 BE 0746                                        MOV  SI,MSG3             ; MISS OS
+   127 000006AB 81 3E 7DFE AA55                                CMP  WORD [0X7DFE],0XAA55; 
+   128 000006B1 74 5A                                          JZ   PRE_RUNVBR          ; RUN
+   129 000006B3 83 EF 05                                       SUB  DI,BYTE +0X05       ; DI - 5 > 0
+   130 000006B6 7F DA                                          JG   READ_VBR            ; RETRY
+   131 000006B8                                 PRINT_MSG :
+      >> [ERROR #001] syntax error.
+   132 000006B8                                 ;MOV SI, 0X00
+   133 000006B8 85 F6                                          TEST SI,SI               ; SI == 0
+   134 000006BA 75 83                                          JNZ  DSP_MSG             ; DISPLAY MESSAGE
+   135 000006BC BE 0727                                        MOV  SI,MSG2             ; ERROR LOAD OS
+   136 000006BF EB 8A                                          JMP  SHORT DSP_ERRMSG    ; DISPLAY MESSAGE
+   137 000006C1                                 
+   138 000006C1 98                                             CBW
+   139 000006C2 91                                             XCHG AX,CX
+   140 000006C3 52                                             PUSH DX
+   141 000006C4 99                                             CWD
+   142 000006C5 03 46 08                                       ADD  AX,[BP+0X08]        ; 
+   143 000006C8 13 56 0A                                       ADC  DX,[BP+0X0A]        ; 
+   144 000006CB E8 0012                                        CALL WORD _LBL_0XE0
+   145 000006CE 5A                                             POP  DX
+   146 000006CF EB D5                                          JMP  SHORT _LBL000000A6
+   147 000006D1                                 RESET_DISK:
+   148 000006D1 4F                                             DEC  DI                  ;
+   149 000006D2 74 E4                                          JZ   PRINT_MSG           ;
+   150 000006D4 31 C0                                          XOR  AX,AX               ; Reset Disk Drives
+   151 000006D6 CD 13                                          INT  0X13                ;
+   152 000006D8 EB B8                                          JMP  SHORT READ_VBR      ;
+   153 000006DA                                 
+   154 000006DA                                 ;DB 0, 0, 0, 0, 0, 0
+   155 000006DA 00 00 00 00 00 00               TIMES 6 DB 0
+   156 000006E0                                 
+   157 000006E0                                 _LBL_0XE0:
+   158 000006E0 56                                             PUSH SI
+   159 000006E1 31 F6                                          XOR  SI,SI
+   160 000006E3 56                                             PUSH SI
+   161 000006E4 56                                             PUSH SI
+   162 000006E5 52                                             PUSH DX
+   163 000006E6 50                                             PUSH AX
+   164 000006E7 06                                             PUSH ES
+   165 000006E8 53                                             PUSH BX
+   166 000006E9 51                                             PUSH CX                  ; CX =>IP?
+   167 000006EA BE 0010                                        MOV  SI,0X10
+   168 000006ED 56                                             PUSH SI                  ; SAVE SI
+   169 000006EE 89 E6                                          MOV  SI,SP
+   170 000006F0 50                                             PUSH AX                  ; SAVE AX
+   171 000006F1 52                                             PUSH DX                  ; SAVE DX
+   172 000006F2 B8 4200                                        MOV  AX,0X4200           ; DL=DRV,DS:DI=
+   173 000006F5 8A 56 24                                       MOV  DL,[BP+0X24]        ; DRIVE INDEX
+   174 000006F8 CD 13                                          INT  0X13                ; CF=0OK,CF=1NG
+   175 000006FA 5A                                             POP  DX                  ; RESTORE DX
+   176 000006FB 58                                             POP  AX                  ; RESTORE AX
+   177 000006FC 8D 64 10                                       LEA  SP,[SI+0X10]
+   178 000006FF 72 0A                                          JC   _LBL_00000105
+   179 00000701                                 _LBL_0XFB:
+   180 00000701 40                                             INC  AX
+   181 00000702 75 01                                          JNZ _LBL_000000FF
+   182 00000704 42                                             INC DX
+   183 00000705                                 _LBL_000000FF:
+   184 00000705 80 C7 02                                       ADD  BH,0X2
+   185 00000708 E2 F7                                          LOOP _LBL_0XFB
+   186 0000070A F8                                             CLC
+   187 0000070B                                 _LBL_00000105:
+   188 0000070B 5E                                             POP  SI                  ; RESTORE SI
+   189 0000070C C3                                             RET                      ; IP=, ___CS
+   190 0000070D                                 ;-----------------------------------------------------------
+   191 0000070D                                 
+   192 0000070D                                 
+   193 0000070D                                 PRE_RUNVBR:
+   194 0000070D EB 74                                          JMP  SHORT RUN_VBR
+   195 0000070F                                 
+   196 0000070F 49 6E 76 61 6C 69 64 20 70 61   MSG1     DB 'Invalid partition table', 0
+       00000719 72 74 69 74 69 6F 6E 20 74 61 
+       00000723 62 6C 65 00 
+   197 00000727 45 72 72 6F 72 20 6C 6F 61 64   MSG2     DB 'Error loading operating system', 0
+       00000731 69 6E 67 20 6F 70 65 72 61 74 
+       0000073B 69 6E 67 20 73 79 73 74 65 6D 
+       00000745 00 
+   198 00000746 4D 69 73 73 69 6E 67 20 4F 70   MSG3     DB 'Missing Operating system', 0
+       00000750 65 72 61 74 69 6E 67 20 73 79 
+       0000075A 73 74 65 6D 00 
+   199 0000075F                                 
+   200 0000075F 00 00 00 00 00 00 00 00 00 00   TIMES 36 DB 0
+       00000769 00 00 00 00 00 00 00 00 00 00 
+       00000773 00 00 00 00 00 00 00 00 00 00 
+       0000077D 00 00 00 00 00 00 
+   201 00000783                                 
+   202 00000783                                 RUN_VBR   :                             ;
+      >> [ERROR #001] syntax error.
+   203 00000783 89 E7                                          MOV  DI,SP               ;
+   204 00000785 1E                                             PUSH DS                  ; CS: DS
+   205 00000786 57                                             PUSH DI                  ; IP: DI
+   206 00000787 89 EE                                          MOV  SI,BP               ; SI: BP
+   207 00000789 CB                                             RETF                     ; IP: 061B CS:0000
+   208 0000078A                                 
+   209 0000078A 00 00 00 00 00 00 00 00 00 00   TIMES 116 DB 0
+       00000794 00 00 00 00 00 00 00 00 00 00 
+       0000079E 00 00 00 00 00 00 00 00 00 00 
+       000007A8 00 00 00 00 00 00 00 00 00 00 
+       000007B2 00 00 00 00 00 00 00 00 00 00 
+       000007BC 00 00 00 00 00 00 00 00 00 00 
+       000007C6 00 00 00 00 00 00 00 00 00 00 
+       000007D0 00 00 00 00 00 00 00 00 00 00 
+       000007DA 00 00 00 00 00 00 00 00 00 00 
+       000007E4 00 00 00 00 00 00 00 00 00 00 
+       000007EE 00 00 00 00 00 00 00 00 00 00 
+       000007F8 00 00 00 00 00 00 
+   210 000007FE                                 
+   211 000007FE 55                              DB 0X55
+   212 000007FF AA                              DB 0XAA

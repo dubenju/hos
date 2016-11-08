@@ -1,0 +1,130 @@
+(KVM连载)4.4.1 QEMU支持的网络模式
+网络是现代计算机系统不可或缺的一部分，QEMU也对虚拟机提供丰富的网络支持。qemu-kvm中主要给客户机提供了如下4种不同模式的网络。
+
+（1）基于网桥（Bridge）的虚拟网卡
+
+（2）基于NAT（Network Addresss Translation）的虚拟网络
+
+（3）QEMU内置的用户模式网络（user mode networking）
+
+（4）直接分配网络设备（包括VT-d和SR-IOV）
+
+本章主要讲述其中第1、2、3种模式，其中第4种网络设备的直接分配将在本书第5章中详细讲述。在介绍网络的章节，除了特别的需要iptables配置端口映射、数据包转发规则的情况，一般情况下，默认将防火墙所有规则都关闭以避免它妨碍客户机中的网络畅通，在实际生产环境中，请根据实际系统的特点进行配置。
+
+QEMU命令行中，对客户机网络的配置（除了网络设备直接分配之外）都是用“-net”参数来进行配置的，如果没有设置任何的“-net”参数，则默认使用“-net nic -net user”参数从而使用完全基于QEMU内部实现的用户模式下的网络协议栈（将在4.4.4节详细介绍）。
+
+qemu-kvm提供了对一系列主流和兼容性良好的网卡的模拟，通过“-net nic,model=?”参数可以查询到当前的qemu-kvm工具实现了那些网卡的模拟，如下命令行显示了qemu-kvm-1.1.0中能模拟的网卡种类。
+
+[root@jay-linux ~]# qemu-system-x86_64 -net nic,model=?
+
+qemu: Supported NIC models: ne2k_pci,i82551,i82557b,i82559er,rtl8139,e1000,pcnet,virtio
+
+其中，“rtl819”这个网卡模式是qemu-kvm默认的模拟网卡类型，RTL8139是Realtek半导体公司的一个10/100M网卡系列，是曾经非常流行（当然现在看来有点古老）且兼容性好的网卡，几乎所有的现代操作系统都对RTL8139网卡驱动的提供支持。其中的“e1000”系列是提供Intel e1000系列的网卡模拟，纯的QEMU（非qemu-kvm）默认就是提供Intel e1000系列的虚拟网卡。而其中的virtio类型是qemu-kvm对半虚拟化IO（virtio）驱动的支持（将会在第5章中详细介绍virtio的基本原理、配置和使用）。
+
+qemu-kvm命令行不加任何网络相关的参数启动客户机后，在客户机中可以看到它有一个默认的RTL8139系列的网卡（如下所示），当然由于没有进行更多的网络配置，这个模拟的网卡尽管在客户机中可见，但其使用的是用户模式的网络，其功能非常有限（将在后面的4.4.4节中详述）。
+
+[root@kvm-guest ~]# lspci | grep Eth
+
+00:03.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C/8139C+ (rev 20)
+
+如下的命令行会模拟一个Intel e1000系列的网卡给客户机使用。
+
+qemu-system-x86_64 rhel6u3.img -net nic,model=e1000
+
+在客户机中看到的e1000系列网卡如下所示，默认是Intel 82540EM系列的网卡。
+
+[root@kvm-guest ~]# lspci | grep Eth
+
+00:03.0 Ethernet controller: Intel Corporation 82540EM Gigabit Ethernet Controller (rev 03)
+
+qemu-kvm命令行中基本的“-net”参数的细节如下：
+
+-net nic[,vlan=n][,macaddr=mac][,model=type][,name=name][,addr=addr][,vectors=v]
+
+它会让QEMU建立一个新的网卡并将其连接到n号VLAN上。
+
+其中，“-net nic”这个是必须的参数，表明这是一个网卡的配置。
+
+vlan=n  表示将网卡放入到编号为n的VLAN，默认为0。
+
+macaddr=mac  设置网卡的MAC地址，默认会根据宿主机中网卡的地址来分配；若局域网中客户机太多，建议自己设置MAC地址以防止MAC地址冲突。
+
+model=type  设置模拟的网卡的类型，qemu-kvm中默认为rtl8139。
+
+name=name  为网卡设置一个易读的名称，该名称仅在QEMU monitor中可能用到。
+
+addr=addr  设置网卡在客户机中的PCI设备地址为addr。
+
+vectors=v  设置该网卡设备的MSI-X向量的数量为n，该选项仅对使用virtio驱动的网卡有效，设置为“vectors=0”是关闭virtio网卡的MSI-X中断方式。
+
+如需给一个客户机提供多个网卡，可以多次使用“-net”参数即可。
+
+在宿主机中用如下的命令行启动一个客户机，并使用上面的一些网络参数。
+
+[root@jay-linux kvm-demo]# qemu-system-x86_64 -m 1024 rhel6u3.img -net nic,vlan=0,macaddr=52:54:00:12:34:22,model=e1000,addr=08 –net user
+
+在客户机中用一些工具查看网卡相关的信息如下（这里使用了用户模式的网络栈，其详细介绍请参考4.4.4节），可知上面的网络设置都已生效。
+
+[root@kvm-guest ~]# lspci | grep Eth
+
+00:08.0 Ethernet controller: Intel Corporation 82540EM Gigabit Ethernet Controller (rev 03)
+
+[root@kvm-guest ~]# ethtool -i eth1
+
+driver: e1000
+
+version: 7.3.21-k8-NAPI
+
+firmware-version:
+
+bus-info: 0000:00:08.0
+
+[root@kvm-guest ~]# ifconfig
+
+eth1      Link encap:Ethernet  HWaddr 52:54:00:12:34:22
+
+inet addr:10.0.2.15  Bcast:10.0.2.255  Mask:255.255.255.0
+
+inet6 addr: fe80::5054:ff:fe12:3422/64 Scope:Link
+
+UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+
+RX packets:10 errors:0 dropped:0 overruns:0 frame:0
+
+TX packets:47 errors:0 dropped:0 overruns:0 carrier:0
+
+collisions:0 txqueuelen:1000
+
+RX bytes:1890 (1.8 KiB)  TX bytes:6380 (6.2 KiB)
+
+ 
+
+lo        Link encap:Local Loopback
+
+inet addr:127.0.0.1  Mask:255.0.0.0
+
+inet6 addr: ::1/128 Scope:Host
+
+UP LOOPBACK RUNNING  MTU:16436  Metric:1
+
+RX packets:12 errors:0 dropped:0 overruns:0 frame:0
+
+TX packets:12 errors:0 dropped:0 overruns:0 carrier:0
+
+collisions:0 txqueuelen:0
+
+RX bytes:720 (720.0 b)  TX bytes:720 (720.0 b)
+
+在QEMU monitor中查看网络的信息如下：
+
+(qemu) info network
+
+VLAN 0 devices:
+
+user.0: type=user,net=10.0.2.0,restrict=off
+
+e1000.0: type=nic,model=e1000,macaddr=52:54:00:12:34:22
+
+Devices not on any VLAN:
+
+本节介绍的网络设置的基本参数，但是由于没有去详细配置其具体的网络工作模式，所以这里得到虚拟得到的网卡在客户机中可能并不能连接上外部网络，接下来的3个小节将详细第介绍各个网络工作模式的原理和配置方法。

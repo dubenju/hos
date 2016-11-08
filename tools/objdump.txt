@@ -1,0 +1,84 @@
+使用法: objdump <option(s)> <file(s)>
+ オブジェクトファイル <file(s)> の情報を表示する
+ 下記のスイッチの中で最低一つは指定しなければいけません:
+  -a, --archive-headers    Display archive header information
+  -f, --file-headers       Display the contents of the overall file header
+  -p, --private-headers    Display object format specific file header contents
+  -P, --private=OPT,OPT... Display object format specific contents
+  -h, --[section-]headers  Display the contents of the section headers
+  -x, --all-headers        Display the contents of all headers
+  -d, --disassemble        Display assembler contents of executable sections
+  -D, --disassemble-all    Display assembler contents of all sections
+  -S, --source             Intermix source code with disassembly
+  -s, --full-contents      Display the full contents of all sections requested
+  -g, --debugging          Display debug information in object file
+  -e, --debugging-tags     Display debug information using ctags style
+  -G, --stabs              Display (in raw form) any STABS info in the file
+  -W[lLiaprmfFsoRt] or
+  --dwarf[=rawline,=decodedline,=info,=abbrev,=pubnames,=aranges,=macro,=frames,
+          =frames-interp,=str,=loc,=Ranges,=pubtypes,
+          =gdb_index,=trace_info,=trace_abbrev,=trace_aranges,
+          =addr,=cu_index]
+                           Display DWARF info in the file
+  -t, --syms               Display the contents of the symbol table(s)
+  -T, --dynamic-syms       Display the contents of the dynamic symbol table
+  -r, --reloc              Display the relocation entries in the file
+  -R, --dynamic-reloc      Display the dynamic relocation entries in the file
+  @<file>                  Read options from <file>
+  -v, --version            Display this program's version number
+  -i, --info               List object formats and architectures supported
+  -H, --help               Display this information
+
+ 以下のスイッチはオプションです:
+  -b, --target=BFDNAME           ターゲットのオブジェクト形式を BFDNAME と指定する
+  -m, --architecture=MACHINE     ターゲットのアーキテクチャを MACHINE と指定する
+  -j, --section=NAME             セクション NAME に関する情報のみを表示する
+  -M, --disassembler-options=OPT 逆アセンブラにテキスト OPT を渡す
+  -EB --endian=big               ビッグエンディアンと見なして逆アセンブルする
+  -EL --endian=little            リトルエンディアンと見なして逆アセンブルする
+      --file-start-context       Include context from start of file (with -S)
+  -I, --include=DIR              ソースファイルの検索リストにディレクトリ DIR を加える
+  -l, --line-numbers             出力にファイル名と行番号を含める
+  -F, --file-offsets             情報を表示するときにファイルオフセットを含める
+  -C, --demangle[=STYLE]         名前変形 (mangle)/前処理されたシンボルをデコードする
+                                  STYLE はを指定する場合は `auto', `gnu',
+                                  `lucid', `arm', `hp', `edg', `gnu-v3', `java'
+                                  または `gnat'
+  -w, --wide                     80列以上で出力を書式整形する
+  -z, --disassemble-zeroes       逆アセンブル時に 0 のみのブロックをスキップしない
+      --start-address=ADDR       アドレスが ADDR 以上のデータのみ処理する
+      --stop-address=ADDR        アドレスが ADDR 以下のデータのみ処理する
+      --prefix-addresses         逆アセンブル時に完全なアドレスを併せて表示する
+      --[no-]show-raw-insn       シンボルを使用した逆アセンブル時に十六進数を併せて表示する
+      --insn-width=WIDTH         -d を使用時に一行の幅を WIDTH で表示する
+      --adjust-vma=OFFSET        すべてのセクションアドレスを表示する時に OFFSET を加える
+      --special-syms             シンボルダンプ時に特殊シンボルを含める
+      --prefix=PREFIX            -S を使用時に絶対パスに PREFIX を加える
+      --prefix-strip=LEVEL       -S を使用時にディレクトリ名の先頭から LEVEL 階層分取り除く
+      --dwarf-depth=N        Do not display DIEs at depth N or greater
+      --dwarf-start=N        Display DIEs starting with N, at the same depth
+                             or deeper
+      --dwarf-check          Make additional dwarf internal consistency checks.      
+
+objdump: サポートされているターゲット: pe-i386 pei-i386 elf32-i386 elf32-little elf32-big plugin srec symbolsrec verilog tekhex binary ihex
+objdump: サポートされているアーキテクチャ: i386 i386:x86-64 i386:x64-32 i8086 i386:intel i386:x86-64:intel i386:x64-32:intel i386:nacl i386:x86-64:nacl i386:x64-32:nacl plugin
+
+The following i386/x86-64 specific disassembler options are supported for use
+with the -M switch (multiple options should be separated by commas):
+  x86-64      Disassemble in 64bit mode
+  i386        Disassemble in 32bit mode
+  i8086       Disassemble in 16bit mode
+  att         Display instruction in AT&T syntax
+  intel       Display instruction in Intel syntax
+  att-mnemonic
+              Display instruction in AT&T mnemonic
+  intel-mnemonic
+              Display instruction in Intel mnemonic
+  addr64      Assume 64bit address size
+  addr32      Assume 32bit address size
+  addr16      Assume 16bit address size
+  data32      Assume 32bit data size
+  data16      Assume 16bit data size
+  suffix      Always display instruction suffix in AT&T syntax
+バグを発見したら <<http://www.sourceware.org/bugzilla/>> に報告して下さい。
+翻訳に関するバグは<translation-team-ja@lists.sourceforge.net>に報告してください。

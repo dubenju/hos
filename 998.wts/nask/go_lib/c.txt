@@ -1,0 +1,228 @@
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe memchr.c  -mtune=i386 -march=i386 -o memchr.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe memcmp.c  -mtune=i386 -march=i386 -o memcmp.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe memcpy.c  -mtune=i386 -march=i386 -o memcpy.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe memmove.c  -mtune=i386 -march=i386 -o memmove.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe memset.c  -mtune=i386 -march=i386 -o memset.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe strcat.c  -mtune=i386 -march=i386 -o strcat.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe strchr.c  -mtune=i386 -march=i386 -o strchr.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe strcmp.c  -mtune=i386 -march=i386 -o strcmp.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe strcpy.c  -mtune=i386 -march=i386 -o strcpy.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe strcspn.c  -mtune=i386 -march=i386 -o strcspn.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe strlen.c  -mtune=i386 -march=i386 -o strlen.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe strncat.c  -mtune=i386 -march=i386 -o strncat.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe strncmp.c  -mtune=i386 -march=i386 -o strncmp.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe strncpy.c  -mtune=i386 -march=i386 -o strncpy.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe strpbrk.c  -mtune=i386 -march=i386 -o strpbrk.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe strrchr.c  -mtune=i386 -march=i386 -o strrchr.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe strspn.c  -mtune=i386 -march=i386 -o strspn.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe strstr.c  -mtune=i386 -march=i386 -o strstr.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe strdup.c  -mtune=i386 -march=i386 -o strdup.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe ldexp.c  -mtune=i386 -march=i386 -o ldexp.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe frexp.c  -mtune=i386 -march=i386 -o frexp.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe atof.c  -mtune=i386 -march=i386 -o atof.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe atoi.c  -mtune=i386 -march=i386 -o atoi.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe abs.c  -mtune=i386 -march=i386 -o abs.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe rand.c  -mtune=i386 -march=i386 -o rand.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe errno.c  -mtune=i386 -march=i386 -o errno.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe abort.c  -mtune=i386 -march=i386 -o abort.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe sprintf.c  -mtune=i386 -march=i386 -o sprintf.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe fprintf.c  -mtune=i386 -march=i386 -o fprintf.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe vfprintf.c  -mtune=i386 -march=i386 -o vfprintf.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe calloc.c  -mtune=i386 -march=i386 -o calloc.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe fputs.c  -mtune=i386 -march=i386 -o fputs.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe fputc.c  -mtune=i386 -march=i386 -o fputc.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe fwrite.c  -mtune=i386 -march=i386 -o fwrite.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe feof.c  -mtune=i386 -march=i386 -o feof.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe ungetc.c  -mtune=i386 -march=i386 -o ungetc.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe fseek.c  -mtune=i386 -march=i386 -o fseek.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe ftell.c  -mtune=i386 -march=i386 -o ftell.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe fgets.c  -mtune=i386 -march=i386 -o fgets.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe fread.c  -mtune=i386 -march=i386 -o fread.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe malloc.c  -mtune=i386 -march=i386 -o malloc.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe realloc.c  -mtune=i386 -march=i386 -o realloc.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe dummy.c  -mtune=i386 -march=i386 -o dummy.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe fgetc.c  -mtune=i386 -march=i386 -o fgetc.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe mmmalloc.c  -mtune=i386 -march=i386 -o mmmalloc.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe symalloc.c  -mtune=i386 -march=i386 -o symalloc.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe vsprintf.c  -mtune=i386 -march=i386 -o vsprintf.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe fopen.c  -mtune=i386 -march=i386 -o fopen.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe fclose.c  -mtune=i386 -march=i386 -o fclose.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe printf.c  -mtune=i386 -march=i386 -o printf.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe mmreallo.c  -mtune=i386 -march=i386 -o mmreallo.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe printf.c  -mtune=i386 -march=i386 -o printf.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe strtoul.c  -mtune=i386 -march=i386 -o strtoul.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe strtoul0.c  -mtune=i386 -march=i386 -o strtoul0.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe strtol.c  -mtune=i386 -march=i386 -o strtol.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe qsort.c  -mtune=i386 -march=i386 -o qsort.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\libexec\gcc\mingw32\4.5.2\cc1.exe stdin.c  -mtune=i386 -march=i386 -o stdin.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o memchr.o memchr.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o memcmp.o memcmp.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o memcpy.o memcpy.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o memmove.o memmove.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o memset.o memset.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o strcat.o strcat.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o strchr.o strchr.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o strcmp.o strcmp.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o strcpy.o strcpy.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o strcspn.o strcspn.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o strlen.o strlen.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o strncat.o strncat.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o strncmp.o strncmp.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o strncpy.o strncpy.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o strpbrk.o strpbrk.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o strrchr.o strrchr.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o strspn.o strspn.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o strstr.o strstr.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o strdup.o strdup.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o ldexp.o ldexp.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o frexp.o frexp.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o atof.o atof.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o atoi.o atoi.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o abs.o abs.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o rand.o rand.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o errno.o errno.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o abort.o abort.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o sprintf.o sprintf.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o fprintf.o fprintf.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o vfprintf.o vfprintf.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o calloc.o calloc.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o fputs.o fputs.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o fputc.o fputc.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o fwrite.o fwrite.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o feof.o feof.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o ungetc.o ungetc.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o fseek.o fseek.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o ftell.o ftell.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o fgets.o fgets.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o fread.o fread.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o malloc.o malloc.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o realloc.o realloc.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o dummy.o dummy.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o fgetc.o fgetc.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o mmmalloc.o mmmalloc.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o symalloc.o symalloc.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o vsprintf.o vsprintf.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o fopen.o fopen.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o fclose.o fclose.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o mmreallo.o mmreallo.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o printf.o printf.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o strtoul.o strtoul.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o strtoul0.o strtoul0.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o strtol.o strtol.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o qsort.o qsort.s 
+
+C:\prj\hos\998.wts\nask\go_lib>c:\mingw\mingw32\bin\as.exe -o stdin.o stdin.s 
+
+C:\prj\hos\998.wts\nask\go_lib>C:\prj\hos\998.wts\golib00\golib00\golib00w.exe out:go_lib.lib memchr.o memcmp.o memcpy.o memmove.o memset.o strcat.o strchr.o strcmp.o strcpy.o strcspn.o strlen.o strncat.o strncmp.o strncpy.o strpbrk.o strrchr.o strspn.o strstr.o strdup.o ldexp.o frexp.o atof.o atoi.o abs.o rand.o errno.o  abort.o sprintf.o fprintf.o vfprintf.o calloc.o fputs.o fputc.o fwrite.o feof.o ungetc.o fseek.o ftell.o fgets.o fread.o malloc.o realloc.o dummy.o fgetc.o mmmalloc.o symalloc.o vsprintf.o fopen.o fclose.o mmreallo.o printf.o strtoul.o strtoul0.o strtol.o qsort.o stdin.o 

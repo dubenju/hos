@@ -136,8 +136,7 @@ typedef struct _VBRFAT32 {
 } VBRFAT32, *PVBRFAT32;
 
 typedef struct _DirectoryEntry {
-  /* DOS file name (padded with spaces) */
-  unsigned char fileName[8];
+  unsigned char fileName[8];  /* DOS file name (padded with spaces) */
 /*
  * 0x00 Entry is available and no subsequent entry is in use 
  * 0x05 Initial character is actually 0xE5. 
@@ -145,12 +144,8 @@ typedef struct _DirectoryEntry {
  * 0xE5 Entry has been previously erased and is available. 
  *      File undelete utilities must replace this character with a regular character as part of the undeletion process. 
  */
-
-  /* DOS file extension (padded with spaces) */
-  unsigned char fileExtension[3];
-
-  /* File Attributes */
-  unsigned char fileAttrube[1];
+  unsigned char fileExtension[3];  /* DOS file extension (padded with spaces) */
+  unsigned char fileAttrube[1];  /* File Attributes */
   /*
    * A SHR I
    * 0 0x01 Read Only R
@@ -162,42 +157,25 @@ typedef struct _DirectoryEntry {
    * 6 0x40 Device (internal use only, never found on disk) 
    * 7 0x80 Unused 
    */
-
-  /* Reserved */
-  unsigned char Reserved[1];
-
-  /* Create time */
-  unsigned char createTime[1];
-
+  unsigned char Reserved[1];  /* Reserved */
+  unsigned char createTime[1];  /* Create time */
   /* Create time 15-11Hours (0-23) 10-5Minutes (0-59) 4-0 Seconds/2 (0-29) */
   unsigned char createTimeHMS[2];
-
   /* Create date. 15-9Year (0 = 1980, 127 = 2107) 8-5Month (1 = January, 12 = December)4-0Day (1 - 31) */
   unsigned char createDateYMD[2];
-
-  /* Last access date;  */
-  unsigned char lastAcDateYMD[2];
-
+  unsigned char lastAcDateYMD[2];  /* Last access date;  */
   /* EA-Index (used by OS/2 and NT) in FAT12 and FAT16, High 2 bytes of first cluster number in FAT32 */
   unsigned char eaIndex[2];
-
-  /* Last modified time; */
-  unsigned char lastModifyTime[2];
-
-  /* Last modified date; */
-  unsigned char lastModifyDate[2];
-
+  unsigned char lastModifyTime[2];  /* Last modified time; */
+  unsigned char lastModifyDate[2];  /* Last modified date; */
   /* Start of file in clusters in FAT12 and FAT16. 
    * Low 2 bytes of first cluster in FAT32. Entries with the Volume Label flag, 
    * subdirectory ".." pointing to root, 
    * and empty files with size 0 should have first cluster 0. 
    */
   unsigned char startClusters[2];
-
   /* File size in bytes. Entries with the Volume Label or Subdirectory flag set should have a size of 0. */
   unsigned char fileSize[4];
-
 } DIRENT, *PDIRENT;
-
 
 #endif // _BPB_H_

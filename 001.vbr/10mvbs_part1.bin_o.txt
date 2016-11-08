@@ -1,0 +1,3 @@
+
+10mvbs_part1.bin:     ファイル形式 binary
+
