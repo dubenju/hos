@@ -39,8 +39,8 @@ LBL_START :                             ;
                PUSH BP                  ; 
                MOV  DI,0X0522
                MOV  [BP],DI
-               MOV  [BP+0X02],CX
-               MOV  CL,0X0B
+               MOV  [BP+0X02],CX        ; 0000:0522
+               MOV  CL,0X0B             ; 11byte
                CLD
                REP  MOVSB               ; DS:SI=>ES:DI
                PUSH ES                  ; 

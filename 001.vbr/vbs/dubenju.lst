@@ -1,0 +1,36 @@
+     1                                                 org 0000H
+     2                                                 cpu 8086
+     3                                  [BITS 16]
+     4                                                section .data align=16
+     5 00000000 EB3B                                   JMP LBL_START
+     6 00000002 00<rept>                TIMES 59 DB 0
+     7                                  LBL_START:
+     8 0000003D FA                                     CLI
+     9 0000003E 31C0                                   XOR AX,AX
+    10 00000040 8ED0                                   MOV SS,AX
+    11 00000042 BC007C                                 MOV SP,0X7C00
+    12 00000045 FB                                     STI
+    13 00000046 50                                     PUSH AX
+    14 00000047 07                                     POP  ES
+    15 00000048 50                                     PUSH AX
+    16 00000049 1F                                     POP DS
+    17 0000004A FC                                     CLD
+    18                                  ;
+    19 0000004B BE[5E00]                               MOV SI, MSG1
+    20 0000004E B90002                                 MOV CX, 512
+    21                                  LBL_DSP:
+    22 00000051 AC                                     LODSB 
+    23 00000052 B40E                                   MOV AH,0X0E
+    24 00000054 BB0700                                 MOV BX,0X0007
+    25                                  ;               MOV CX,0
+    26                                  ;               MOV DX, 0
+    27                                  ;               MOV BP,0X7C00
+    28 00000057 CD10                                   INT 10H
+    29 00000059 49                                     DEC CX
+    30 0000005A 75F5                                   JNZ  SHORT LBL_DSP
+    31                                  LBL_HANGU:
+    32 0000005C EBFE                               jmp LBL_HANGU
+    33                                  
+    34 0000005E 496E76616C69642070-     MSG1     DB 'Invalid partition table', 0
+    35 00000067 6172746974696F6E20-
+    36 00000070 7461626C6500       

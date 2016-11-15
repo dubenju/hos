@@ -92,6 +92,8 @@ PartitionEntryItem * print_partition_table_64(const uint64_t * table1, const uin
 void print_list(PartitionEntryItem * pt);
 uint32_t get_l1_index(uint32_t in, uint32_t cluster_size, uint32_t sector_size);
 uint32_t get_l2_index(uint32_t in);
+void print_ary(unsigned char * buf, size_t size);
+int print_fdt(char * buf, size_t size);
 
 int show_usage(void) {
     /* 变量定义 */
@@ -968,7 +970,7 @@ int write_qcow2(QCOW2_FILE * qcow2File, FILE * pFile, uint64_t sector_no, void *
             printf("fseek error(%lld).\n", write_offset);
             goto err_write_qcow2;
         }
-        int writecnt = fwrite(buf + write_size, 1, out_size, pFile);
+        int writecnt = fwrite((char *)buf + write_size, 1, out_size, pFile);
         if (writecnt != out_size) {
             printf("file write error(%d != %d).\n", writecnt, out_size);
             goto err_write_qcow2;
@@ -1091,6 +1093,8 @@ int create(const char * filename, uint64_t total_size, size_t cluster_size) {
 //    cluster_size    = 4096;  // TODO:修正为函数取得
 //    filename        = ".\\test";
 
+    /* 处理开始 */
+    printf(">>----- create begin -----\n");
     cluster_bits = get_bits_from_size(cluster_size);
     if (cluster_bits < MIN_CLUSTER_BITS || cluster_bits > MAX_CLUSTER_BITS) {
         // 9 - 21
@@ -1169,7 +1173,7 @@ int create(const char * filename, uint64_t total_size, size_t cluster_size) {
         offset += cluster_size;
     }
 
-    refcount_block = malloc(ref_clusters * cluster_size);
+    refcount_block = (uint16_t *) malloc(ref_clusters * cluster_size);
     memset(refcount_block, 0, ref_clusters * cluster_size);
 
     /* update refcounts */
@@ -1203,13 +1207,21 @@ int create(const char * filename, uint64_t total_size, size_t cluster_size) {
     fseek(pFile, refcount_block_offset, SEEK_SET);
     fwrite(refcount_block, 1, ref_clusters * cluster_size, pFile);
 
-    fclose(pFile);
-    pFile = NULL;
+    /* 处理结束 */
+    printf("----- create end -----<<\n");
+    if (pFile != NULL) {
+        fclose(pFile);
+        pFile = NULL;
+    }
 
-    free(refcount_table);
-    free(refcount_block);
-    refcount_table = NULL;
-    refcount_block = NULL;
+    if (refcount_table != NULL) {
+        free(refcount_table);
+        refcount_table = NULL;
+    }
+    if (refcount_block != NULL) {
+        free(refcount_block);
+        refcount_block = NULL;
+    }
     /* 处理结束 */
     return 0;
 }
@@ -1439,6 +1451,7 @@ uint64_t total_size, char * mbrfile, const char * fmt) {
     memset(buf, 0xF6, sizeof(buf));
 
     /* 处理开始 */
+    printf(">>----- create_partition begin -----\n");
     qcow2File = (QCOW2_FILE *) malloc(sizeof(QCOW2_FILE));
     if (qcow2File == NULL) {
         fprintf(stderr, "QCOW2 file alloc error.\n");
@@ -1446,7 +1459,7 @@ uint64_t total_size, char * mbrfile, const char * fmt) {
     }
     memset(qcow2File, 0, sizeof(QCOW2_FILE));
 
-    pFile = fopen(filename, "rw+b");
+    pFile = fopen(filename, "r+b");
     if (pFile == NULL) { fprintf(stderr, "file(%s) open error(1).", filename); returnCode = 1; goto end_create_partition; }
 
     qcow2File->pHeader = read_header(pFile);
@@ -1660,6 +1673,7 @@ uint64_t total_size, char * mbrfile, const char * fmt) {
     /* 容量检查 */
     memset(&pe, 0, sizeof(PartitionEntry));
     if (partition_type == 1) {
+        /* PrimaryPartition */
         pe.status = 0x80;
         pe.start_sector_no = 0x3F;
         pe.start_head = get_header(pe.start_sector_no);
@@ -1668,6 +1682,7 @@ uint64_t total_size, char * mbrfile, const char * fmt) {
         pe.start_sector = (( cylinder & 0x3FF ) >> 2) | sector;
         pe.start_cylinder = cylinder & 0xFF;
         pe.type   = 0x0E; /* WIN95 FAT16 */
+        pe.type   = 0x04; /* DOS 3.0+ FAT16 */
         if (memcmp(fmt, "fat32", 5) == 0) {
             pe.type   = 0x0C;
         }
@@ -1679,6 +1694,7 @@ uint64_t total_size, char * mbrfile, const char * fmt) {
         pe.end_cylinder = cylinder & 0xFF;
 
     } else if (partition_type == 2) {
+        /* ExtendedPartition */
         pe.status = 0x00;
         pe.start_sector_no = 0x3F;
         pe.sector_total = total_size / 512;
@@ -1695,6 +1711,7 @@ uint64_t total_size, char * mbrfile, const char * fmt) {
         pe.end_cylinder = cylinder & 0xFF;
 
     } else if (partition_type == 3) {
+        /* LogicalPartition */
         pe.status = 0x00;
         pe.start_sector_no = 0x3F;
         pe.sector_total = total_size / 512;
@@ -1831,12 +1848,13 @@ uint64_t total_size, char * mbrfile, const char * fmt) {
 err_create_partition:
     printf("create_partition is abend!!!.\n");
 end_create_partition:
+    /* 处理结束 */
+    printf("----- create_partition end -----<<\n");
     printf("create_partition is normal end.\n");
     if (pe_table != NULL) {
         free(pe_table);
         pe_table = NULL;
     }
-    /* 处理结束 */
     if (qcow2File != NULL) {
         if (qcow2File->pHeader != NULL) {
             free(qcow2File->pHeader); qcow2File->pHeader = NULL;
@@ -1930,7 +1948,7 @@ int format_partition(const char * filename, int parttion_no, const char * fmt, c
     printf("filesystem:%s.\n", fmt);
 
     /* 从分区表中获取分区信息。 */
-    pFile = fopen(filename, "rw+b");
+    pFile = fopen(filename, "r+b");
     if (pFile == NULL) {
         fprintf(stderr, "file(%s) open error(1).", filename);
         returnCode = 1; goto end_format_partition;
@@ -2040,6 +2058,11 @@ int format_partition(const char * filename, int parttion_no, const char * fmt, c
         printf("写入引导扇区开始。\n");
         memset(&vbrfat1216, 0, sizeof(vbrfat1216));
         FILE * vbr_file = fopen(vbr_file_name, "r+b");
+        if (vbr_file == NULL) {
+            printf("[%s] not exist.\n", vbr_file_name);
+            returnCode = 1;
+            goto err_format_partition;
+        }
         fread(&vbrfat1216, 1, 512, vbr_file);
         fclose(vbr_file);
         vbrfat1216.bpb.bpb_BytesPerSector = 512;
@@ -2054,6 +2077,8 @@ int format_partition(const char * filename, int parttion_no, const char * fmt, c
         vbrfat1216.bpb.bpb_NumberOfHeads = 16; // TODO:
         vbrfat1216.bpb.bpb_HiddenSectors = 63; // TODO:
         vbrfat1216.bpb.bpb_SectorsBig = 0; // TODO:
+        vbrfat1216.bs_DrvNum = 128; // TODO:
+        vbrfat1216.bs_Bootsig = 41; // TODO:
         memset(vbrfat1216.bs_FileSysType, 0x20, sizeof(8));
         memcpy(vbrfat1216.bs_FileSysType, "FAT12", 5);
         if (file_system_index == 16) {
@@ -2088,6 +2113,9 @@ int format_partition(const char * filename, int parttion_no, const char * fmt, c
         // make_fat(pfat, fat_size, bpb_SectorsPerFAT, file_system_index, fat_buf);
         fat_buf = make_fat(pfat, fat_size, bpb_SectorsPerFAT, file_system_index, fat_buf);
         if (fat_buf == NULL) { printf("make_fat error.\n"); returnCode = 1; goto end_format_partition;}
+        // printf("\n\n\n-----------------------------------------\n\n\n");
+        // print_ary(fat_buf, 512);
+        // printf("\n\n\n-----------------------------------------\n\n\n");
         if (write_qcow2(qcow2File, pFile, cur_pe.sector_index + 64, fat_buf, bpb_SectorsPerFAT * 512) != 0) {
             returnCode = 1; goto err_format_partition; }
         printf("写入FAT1结束。\n");
@@ -2226,7 +2254,7 @@ int copy_file_or_folder(const char * filename, char * dst, char * src) {
     parttion_no = 1;
 
     /* 从分区表中获取分区信息。 */
-    pFile = fopen(filename, "rw+b");
+    pFile = fopen(filename, "r+b");
     if (pFile == NULL) {
         fprintf(stderr, "file(%s) open error(1).", filename);
         returnCode = 1; goto err_copy_file_or_folder;
@@ -2238,8 +2266,8 @@ int copy_file_or_folder(const char * filename, char * dst, char * src) {
     }
     memset(qcow2File, 0, sizeof(QCOW2_FILE));
     if (read_qcow2(pFile, qcow2File) < 0) {
-        printf("format_partition:qcow2 image file read error.\n");
-         returnCode = 1; goto err_copy_file_or_folder;
+        printf("copy_file_or_folder:qcow2 image file read error.\n");
+        returnCode = 1; goto err_copy_file_or_folder;
     }
     print_qcow2_file(qcow2File);
     print_qcow2(qcow2File);
@@ -2289,7 +2317,7 @@ int copy_file_or_folder(const char * filename, char * dst, char * src) {
     int fat_size = 512;
     int system_idx = 12;
     printf("启动扇区:%X, %X type:%X.\n", buf[510], buf[511], cur_pe.pe.type);
-    if (cur_pe.pe.type == 0x01 || cur_pe.pe.type == 0x06 || cur_pe.pe.type == 0x0E) {
+    if (cur_pe.pe.type == 0x01 || cur_pe.pe.type == 0x04 || cur_pe.pe.type == 0x06 || cur_pe.pe.type == 0x0E) {
         /* FAT16 */
         /*
          06 DOS 3.31+: 16-bit FAT (over 32M)
@@ -2330,6 +2358,10 @@ int copy_file_or_folder(const char * filename, char * dst, char * src) {
                 system_idx = 32;
             }
         }
+    }
+    if (cur_pe.pe.type == 0x01) {
+        /* FAT32 */
+        printf("!!!警告!!!FAT32还没有实现.\n");
     }
     printf("\n");
     printf("该分区的根目录表项个数为%d.\n", dir_cnt);
@@ -2401,8 +2433,19 @@ int copy_file_or_folder(const char * filename, char * dst, char * src) {
                 }
             }
             if (system_idx == 16) {
-                memcpy(pfat + idx_pfat, buf, readedcnt);
-                idx_pfat += 512 / 2;
+                // memcpy(pfat + idx_pfat, buf, readedcnt);
+                // idx_pfat += 512 / 2;
+                for (idy = 0; idy < 512; idy ++) {
+                    if (idy % 2 == 0) {
+                        *(pfat + idx_pfat) = buf[idy];
+                    } else if (idy % 2 == 1) {
+                        *(pfat + idx_pfat) = ((buf[idy] & 0x00FF) << 8) | *(pfat + idx_pfat);
+                        idx_pfat ++;
+                        if (idx_pfat >= pfat_cnt) {
+                            break;
+                        }
+                    }
+                }
             }
             if (system_idx == 32) {
                 memcpy(pfat + idx_pfat, buf, readedcnt);
@@ -2469,7 +2512,7 @@ int copy_file_or_folder(const char * filename, char * dst, char * src) {
                 goto err_copy_file_or_folder;
             }
             // print_ary(buf, sizeof(buf));
-            print_fdt(buf, sizeof(buf));
+            print_fdt((char *) buf, sizeof(buf));
             memcpy(pdirtable + dir_idx, buf, readedcnt);
             dir_idx = dir_idx + readedcnt / sizeof(DIRENT);
         }
@@ -2477,8 +2520,8 @@ int copy_file_or_folder(const char * filename, char * dst, char * src) {
 
         /* 创建RootDir */
         printf("dir_cnt=%d.\n", dir_cnt);
-        for (dir_idx = 0; dir_idx < dir_cnt; dir_cnt += sizeof(DIRENT)) {
-            if (strlen((pdirtable + dir_idx)->fileName) == 0){
+        for (dir_idx = 0; dir_idx < dir_cnt; dir_idx += 1) {
+            if (strlen((char *)(pdirtable + dir_idx)->fileName) == 0){
                 printf("dir_idx=%d.@break\n", dir_idx);
                 break;
             }
@@ -2488,23 +2531,24 @@ int copy_file_or_folder(const char * filename, char * dst, char * src) {
         memset(&cur_file, 0, sizeof(DIRENT));
 
         /* 向目录项中写入文件名和扩展名 */
-        int ilen = strlen(src);
+        int ilen = strlen(dst);
         int ipos = ilen - 1;
         int iend = ilen;
+        printf("dst=%s.\n", dst);
         printf("src=%s.\n", src);
         printf("len=%d.\n", ilen);
         printf("end=%d.\n", iend);
         printf("pos=%d.\n", ipos);
         while (ipos >= 0) {
-            if (*(src + ipos) == '.') {
+            if (*(dst + ipos) == '.') {
                 printf("%d.\n", ilen - ipos);
-                memcpy(cur_file.fileExtension, src + ipos + 1, 3);
+                memcpy(cur_file.fileExtension, dst + ipos + 1, 3);
                 iend = ipos;
             }
-            if (*(src + ipos) == '\\') {
+            if (*(dst + ipos) == '\\' || *(dst + ipos) == '/' ) {
                 printf("%d.\n", iend - ipos);
                 memset(cur_file.fileName, 0x20, 8);
-                memcpy(cur_file.fileName, src + ipos + 1, iend - ipos - 1);
+                memcpy(cur_file.fileName, dst + ipos + 1, iend - ipos - 1);
                 break;
             }
             if (ilen - ipos > 12) {
@@ -2548,10 +2592,15 @@ int copy_file_or_folder(const char * filename, char * dst, char * src) {
         memcpy(cur_file.fileSize, &src_file_size, sizeof(uint32_t));
 
         print_dirt(&cur_file);
+        // print_fdt(pdirtable, dir_cnt);
+        printf("dir_idx=%d.\n", dir_idx);
         memcpy(pdirtable + dir_idx, &cur_file ,sizeof(DIRENT));
+        // print_fdt(pdirtable, dir_cnt);
 
         /* 写入目录表 */
+        printf("写入目录表...开始\n");
         write_qcow2(qcow2File, pFile, root, pdirtable, sizeof(DIRENT) * dir_cnt);
+        printf("写入目录表...结束\n");
 
         /* 按照簇  扇区单位写入文件 */
         int cluster_cnt = src_file_size / cluster_size;
@@ -2605,7 +2654,7 @@ int copy_file_or_folder(const char * filename, char * dst, char * src) {
         *(pfat + cur_cluster_no) = 0xFFFFFFFF;
         /* 写入FAT1,FAT2 */
         printf("文件系统FAT%d.扇区数量%d.\n", system_idx, fat_sector_cnt);
-        fat_buf = make_fat(pfat, fat_size, fat_sector_cnt, system_idx, fat_buf);
+        fat_buf = make_fat(pfat, pfat_cnt, fat_sector_cnt, system_idx, fat_buf);
         if (fat_buf == NULL) { printf("make_fat error.\n"); returnCode = 1; goto err_copy_file_or_folder;}
         write_qcow2(qcow2File, pFile, fat1, fat_buf, fat_sector_cnt * 512);
         write_qcow2(qcow2File, pFile, fat2, fat_buf, fat_sector_cnt * 512);
@@ -2725,20 +2774,20 @@ int read_file_or_folder(const char * filename, char * dst, char * src) {
     parttion_no = 1;
 
     /* 从分区表中获取分区信息。 */
-    pFile = fopen(filename, "rw+b");
+    pFile = fopen(filename, "r+b");
     if (pFile == NULL) {
-        fprintf(stderr, "file(%s) open error(1).", filename);
+        printf("file(%s) open error(1).", filename);
         returnCode = 1; goto err_read_file_or_folder;
     }
     qcow2File = (QCOW2_FILE *) malloc(sizeof(QCOW2_FILE));
     if (qcow2File == NULL) {
-        fprintf(stderr, "QCOW2 file alloc error.\n");
+        printf("QCOW2 file alloc error.\n");
         returnCode = 1; goto err_read_file_or_folder;
     }
     memset(qcow2File, 0, sizeof(QCOW2_FILE));
     if (read_qcow2(pFile, qcow2File) < 0) {
-        printf("format_partition:qcow2 image file read error.\n");
-         returnCode = 1; goto err_read_file_or_folder;
+        printf("read_file_or_folder:qcow2 image file read error.\n");
+        returnCode = 1; goto err_read_file_or_folder;
     }
     print_qcow2_file(qcow2File);
     print_qcow2(qcow2File);
@@ -2901,17 +2950,28 @@ int read_file_or_folder(const char * filename, char * dst, char * src) {
                 }
             } /* fat12 */
             if (system_idx == 16) {
-                memcpy(pfat + idx_pfat, buf, readedcnt);
-                idx_pfat += 512 / 2;
-            }
+                // memcpy(pfat + idx_pfat, buf, readedcnt);
+                // idx_pfat += 512 / 2;
+                for (idy = 0; idy < 512; idy ++) {
+                    if (idy % 2 == 0) {
+                        *(pfat + idx_pfat) = buf[idy];
+                    } else if (idy % 2 == 1) {
+                        *(pfat + idx_pfat) = ((buf[idy] & 0x00FF) << 8) | *(pfat + idx_pfat);
+                        idx_pfat ++;
+                        if (idx_pfat >= pfat_cnt) {
+                            break;
+                        }
+                    }
+                }
+            } /* FAT16 */
             if (system_idx == 32) {
                 memcpy(pfat + idx_pfat, buf, readedcnt);
                 idx_pfat += 512 / 4;
-            }
+            } /* FAT32 */
         } /* for */
         // print_ary(buf, sizeof(buf));
         printf("\n");
-        for (idx = 0; idx < pfat_cnt; idx ++) {
+        for (idx = 0; idx < pfat_cnt && idx < 512; idx ++) {
             printf("%X ", *(pfat + idx));
             if ((idx + 1) % 16 == 0) {
                 printf("\n");
@@ -2933,7 +2993,14 @@ int read_file_or_folder(const char * filename, char * dst, char * src) {
             printf("[%d][%d][%X].\n", ferror(pFile), ftell(pFile), ftell(pFile));
             goto err_read_file_or_folder;
         }
-        print_ary(buf, sizeof(buf));
+        // print_ary(buf, sizeof(buf));
+        printf("\n");
+        for (idx = 0; idx < pfat_cnt && idx < 512; idx ++) {
+            printf("%X ", *(buf + idx));
+            if ((idx + 1) % 16 == 0) {
+                printf("\n");
+            }
+        }
         printf("\n");
 
         /* 获取RootDir */
@@ -2961,12 +3028,11 @@ int read_file_or_folder(const char * filename, char * dst, char * src) {
             memset(buf, 0, sizeof(buf));
             readedcnt = fread(&buf, 1, sizeof(buf), pFile);
             if (readedcnt != sizeof(buf)) {
-                fprintf(stderr, "read MBR error[%d][%X].\n", ftell(pFile), ftell(pFile));
-                printf("[%d][%d][%X].\n", ferror(pFile), ftell(pFile), ftell(pFile));
+                printf("read root dir ent errorreadedcnt[%d] !=sizeof(buf)[%d].\n", readedcnt, sizeof(buf));
                 goto err_read_file_or_folder;
             }
             // print_ary(buf, sizeof(buf));
-            print_fdt(buf, sizeof(buf));
+            print_fdt((char *) buf, sizeof(buf));
             memcpy(pdirtable + dir_idx, buf, readedcnt);
             dir_idx = dir_idx + readedcnt / sizeof(DIRENT);
         } /* while */
@@ -3004,12 +3070,12 @@ int read_file_or_folder(const char * filename, char * dst, char * src) {
 
         /* 查找RootDir */
         printf("dir_cnt=%d.\n", dir_cnt);
-        for (dir_idx = 0; dir_idx < dir_cnt; dir_cnt += sizeof(DIRENT)) {
+        for (dir_idx = 0; dir_idx < dir_cnt; dir_idx += 1) {
             // if (strlen((pdirtable + dir_idx)->fileName) == 0) {
             //     continue;
             // }
             // printf("%s\n", (pdirtable + dir_idx)->fileName);
-            if (strlen((pdirtable + dir_idx)->fileName) != 0
+            if (strlen((char *)(pdirtable + dir_idx)->fileName) != 0
             && memcmp((pdirtable + dir_idx)->fileName, src_file_name, strlen(src_file_name)) == 0
             && memcmp((pdirtable + dir_idx)->fileExtension, src_file_name_ex, strlen(src_file_name_ex)) == 0){
                 printf("dir_idx=%d.@break\n", dir_idx);
@@ -3058,9 +3124,10 @@ int read_file_or_folder(const char * filename, char * dst, char * src) {
         uint32_t cluster_idx = 0;
         idx_pfat = startcluster;
         int write_cnt = 0;
+        int write_sum = 0;
         int write_size = src_file_size;
         while(cluster_idx < cluster_cnt) {
-            printf("idx_pfat=%d.\n", idx_pfat);
+            printf("idx_pfat=%d,%X.\n", idx_pfat, idx_pfat);
             printf("cluster_idx=%d.\n", cluster_idx);
             printf("cluster_cnt=%d.\n", cluster_cnt);
 
@@ -3078,8 +3145,8 @@ int read_file_or_folder(const char * filename, char * dst, char * src) {
                 memset(buf, 0, sizeof(buf));
                 readedcnt = fread(&buf, 1, sizeof(buf), pFile);
                 if (readedcnt != sizeof(buf)) {
-                    fprintf(stderr, "read MBR error[%d][%X].\n", ftell(pFile), ftell(pFile));
-                    printf("[%d][%d][%X].\n", ferror(pFile), ftell(pFile), ftell(pFile));
+                    printf("read MBR errorreadedcnt[%d]!=sizeof(buf)[%d].\n", readedcnt, sizeof(buf));
+                    // printf("[%d][%d][%X].\n", ferror(pFile), ftell(pFile), ftell(pFile));
                     goto err_read_file_or_folder;
                 }
                 if (write_size >= readedcnt) {
@@ -3089,15 +3156,18 @@ int read_file_or_folder(const char * filename, char * dst, char * src) {
                     write_cnt = fwrite(&buf, 1, write_size, pFileIn);
                     write_size = 0;
                 }
-                printf("写入%d.\n", write_cnt);
+                write_sum += write_cnt;
+                printf("写入%d,累计%d.\n", write_cnt, write_sum);
             }
 
-            if ((idx_pfat & 0x0F0) == 0x0F0) {
-                break;
-            }
+
 
             /* 下一个簇 */
             idx_pfat = *(pfat + idx_pfat);
+            printf("idx_pfat=%X.\n", idx_pfat);
+            if ((idx_pfat & 0x0F0) == 0x0F0) {
+                break;
+            }
             cluster_idx ++;
         } /* while*/
 
@@ -3396,7 +3466,7 @@ end_print_partition_table_64:
     return root;
 }
 
-int print_fdt(const char * buf, size_t size) {
+int print_fdt(char * buf, size_t size) {
     /* 变量定义 */
     int returnCode;
     DIRENT dir_ent;
@@ -3416,6 +3486,7 @@ int print_fdt(const char * buf, size_t size) {
 
     /* 处理开始 */
     printf(">>----- print_fdt -----.\n");
+    printf("大小:%d.\n", size);
     for (idx = 0; idx < size; idx += 32) {
         memset(&dir_ent, 0, sizeof(DIRENT));
         memcpy(&dir_ent, buf + idx, sizeof(DIRENT));
@@ -3492,9 +3563,11 @@ void print_vbr(PartitionEntryItem * pe_table, const uint64_t * table2, const uin
             goto end_print_vbr;
         }
         printf("启动扇区:%X, %X type:%X.\n", buf[510], buf[511], p->pe.type);
-        if (p->pe.type == 0x01 || p->pe.type == 0x06 || p->pe.type == 0x0E) {
+        if (p->pe.type == 0x01 || p->pe.type == 0x04 || p->pe.type == 0x06 || p->pe.type == 0x0E) {
             /* FAT16 */
             /*
+             01 DOS        12-bit FAT
+             04 DOS 3.0+   16-bit FAT (up to 32M)
              06 DOS 3.31+: 16-bit FAT (over 32M)
              0E WIN95: DOS 16-bit FAT, LBA-mapped
              */
@@ -3636,7 +3709,7 @@ void print_vbr(PartitionEntryItem * pe_table, const uint64_t * table2, const uin
                 goto end_print_vbr;
             }
             // print_ary(buf, sizeof(buf));
-            print_fdt(buf, sizeof(buf));
+            print_fdt((char *) buf, sizeof(buf));
             printf("\n");
 
             /* File */
@@ -3776,6 +3849,7 @@ char * make_fat(uint32_t * in, size_t in_size, size_t size, int file_system_id, 
     printf("in=%X.\n", in);
     printf("in_size=%d.\n", in_size);
     printf("size=%d.\n", size);
+    printf("size_byte=%d.\n", size_byte);
     printf("file_system_id=%d.\n", file_system_id);
 
     returnCode = (char *) malloc(size_byte);
@@ -3787,7 +3861,7 @@ char * make_fat(uint32_t * in, size_t in_size, size_t size, int file_system_id, 
     //returnCode = buf;
     // TODO:这里的代码有问题
     for(idx = 0; idx < in_size; idx ++) {
-        // printf("%X ", *(in + idx));
+        printf("%X ", *(in + idx));
         printf("idx=%d,idy=%d.\n", idx, idy);
         if (file_system_id == 12) {
             if (idx % 2 == 0) {
@@ -3809,21 +3883,28 @@ char * make_fat(uint32_t * in, size_t in_size, size_t size, int file_system_id, 
                     break;
                 }
             }
-        }
+        } /* FAT12 */
         if (file_system_id == 16) {
-            memcpy(returnCode + idy, in + idx, sizeof(uint16_t));
-            idy += 2;
+            // memcpy(returnCode + idy, in + idx, sizeof(uint16_t));
+            //idy += 2;
+            returnCode[idy] = 0x00FF & in[idx];
+            idy ++;
             if (idy >= size_byte) {
                 break;
             }
-        }
+            returnCode[idy] = 0x00FF & (in[idx] >> 8);
+            idy ++;
+            if (idy >= size_byte) {
+                break;
+            }
+        } /* FAT16 */
         if (file_system_id == 32) {
             memcpy(returnCode + idy, in + idx, sizeof(uint32_t));
             idy += 4;
             if (idy >= size_byte) {
                 break;
             }
-        }
+        } /* FAT32 */
     } /* for */
 
     goto end_make_fat;
@@ -3879,12 +3960,12 @@ int info(const char * filename) {
 
     /* 处理开始 */
     printf("this option will display the information of the partition on qcow2(%s).\n", filename);
-    pFile = fopen(filename, "rw+b");
+    pFile = fopen(filename, "r+b");
     if (pFile == NULL) { fprintf(stderr, "file(%s) open error(1).", filename); returnCode = 1; goto end_info; }
 
     printf("\n!!!WARNING!!! 现在的代码是不支持超过2GB的文件的!!!\n\n");
     printf("%s.\n", ansi_status);
-    printf("sizeof(size_t) %d, sizeof(off_t) %d, sizeof(off64_t) %d\n", sizeof(size_t), sizeof(off_t), sizeof(off64_t));
+    // printf("sizeof(size_t) %d, sizeof(off_t) %d, sizeof(off64_t) %d\n", sizeof(size_t), sizeof(off_t), sizeof(off64_t));
     if (fseek(pFile, 0L, SEEK_END)) { printf("fseek error(SEEK_END).\n"); returnCode = 1; goto end_info; }
     file_size = ftell(pFile);
     printf("file's size=%ld.\n", file_size);
@@ -4159,7 +4240,7 @@ int main(int argc, char * argv[]) {
     int idx = 0;
     uint64_t total_size = 0;
     size_t cluster_size = 4096;
-    char * format = "auto_";
+    char format[6];
     char * clusterSize = "";
     char * fileSize = "";
     int partition_type = 0;
@@ -4171,15 +4252,23 @@ int main(int argc, char * argv[]) {
     char * cp_option = "to";
 
     /* 处理开始 */
+    if (sizeof(VBRFAT1216) != 512) {
+        printf("please confirm #pragma pack(1) in your program.\n");
+        return -1;
+    }
+    memset(format, 0, sizeof(format));
+    memcpy(format, "auto_", 5);
+
     for (idx = 0; idx < argc; idx ++) { printf("参数[%d]=%s.\n", idx, argv[idx]); }
     if (argc < 3) { show_usage(); goto end_main; }
 
     if (strlen("create") == strlen(argv[2]) && memcmp("create", argv[2], strlen("create")) == 0) {
-        printf("create.\n");
+        printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~create.\n");
         for (idx = 3; idx < argc; idx ++) {
             if (memcmp("-f", argv[idx], strlen("-f")) == 0) {
                 if ((idx+ 1) < argc) {
-                    format = argv[idx + 1];
+                    memset(format, 0, sizeof(format));
+                    memcpy(format, argv[idx + 1], (strlen(argv[idx + 1]) <= 5, strlen(argv[idx + 1]), 5));
                     idx ++;
                 } else {
                     show_usage();
@@ -4197,15 +4286,19 @@ int main(int argc, char * argv[]) {
                 fileSize = argv[idx];
             }
         }
+        printf("fileSize=[%s]\n", fileSize);
         if (strlen(fileSize) <= 0) { show_usage(); goto end_main; }
         else { total_size = get_bytesize(fileSize); }
+
         if (total_size < 0) { show_usage(); goto end_main; }
         /* KB */
         if (total_size % 1024 != 0) { show_usage(); goto end_main; }
 
+        printf("fileSize=[%s]\n", clusterSize);
         if (strlen(clusterSize) > 0) { cluster_size = get_bytesize(clusterSize); }
         if (cluster_size <= 0) { show_usage(); goto end_main; }
         if (cluster_size % 512 != 0) { show_usage(); goto end_main; }
+        printf("format=[%s]\n", format);
         if (strlen(format) < 5) { show_usage(); goto end_main; }
         if (memcmp(format, "auto_", 5) == 0) { memcpy(format, "qcow2", 5); }
         if (memcmp(format, "qcow2", 5) != 0) { show_usage(); goto end_main; }
@@ -4214,12 +4307,12 @@ int main(int argc, char * argv[]) {
         goto end_main;
     }
     if (strlen("info") == strlen(argv[2]) && memcmp("info", argv[2], strlen("info")) == 0) {
-        printf("info.\n");
+        printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~info.\n");
         info(argv[1]);
         goto end_main;
     }
     if (strlen("fdisk") == strlen(argv[2]) && memcmp("fdisk", argv[2], strlen("fdisk")) == 0) {
-        printf("fdisk ");
+        printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~fdisk ");
         if (argc < 5) { show_usage(); goto end_main; }
         if (strlen("create") == strlen(argv[3]) && memcmp("create", argv[3], strlen("create")) == 0) {
             printf("create ");
@@ -4237,7 +4330,8 @@ int main(int argc, char * argv[]) {
             for (idx = 5; idx < argc; idx ++) {
                 if (memcmp("-f", argv[idx], strlen("-f")) == 0) {
                     if ((idx+ 1) < argc) {
-                        format = argv[idx + 1];
+                        memset(format, 0, sizeof(format));
+                        memcpy(format, argv[idx + 1], (strlen(argv[idx + 1]) <= 5, strlen(argv[idx + 1]), 5));
                         idx ++;
                     } else {
                         show_usage();
@@ -4265,16 +4359,21 @@ int main(int argc, char * argv[]) {
             }
             
             /* check */
+            printf("fileSize=[%s]\n", fileSize);
             if (strlen(fileSize) <= 0) { show_usage(); goto end_main; }
             else { total_size = get_bytesize(fileSize); }
             if (total_size <= 0) { show_usage(); goto end_main; }
             if (total_size % 512 != 0) { show_usage(); goto end_main; }
 
+            printf("clusterSize=[%s]\n", clusterSize);
             if (strlen(clusterSize) > 0) { cluster_size = get_bytesize(clusterSize); }
             if (cluster_size <= 0) { show_usage(); goto end_main; }
             if (cluster_size % 512 != 0) { show_usage(); goto end_main; }
 
+            printf("mbrfile=[%s]\n", mbrfile);
             if (strlen(mbrfile) <= 0) { show_usage(); goto end_main; }
+
+            printf("format=[%s]\n", format);
             if (strlen(format) < 5) { show_usage(); goto end_main; }
             if (memcmp(format, "auto_", 5) != 0
             &&  memcmp(format, "fat12", 5) != 0
@@ -4291,42 +4390,48 @@ int main(int argc, char * argv[]) {
         goto end_main;
     }
     if (strlen("format") == strlen(argv[2]) && memcmp("format", argv[2], strlen("format")) == 0) {
-        printf("format.\n");
+        printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~format.\n");
         if (argc < 4) { show_usage(); goto end_main; }
-            for (idx = 3; idx < argc; idx ++) {
-                if (memcmp("-f", argv[idx], strlen("-f")) == 0) {
-                    if ((idx+ 1) < argc) {
-                        format = argv[idx + 1];
-                        idx ++;
-                    } else {
-                        show_usage();
-                        goto end_main;
-                    }
-                } else if (memcmp("-m", argv[idx], strlen("-m")) == 0) {
-                    if ((idx+ 1) < argc) {
-                        mbrfile = argv[idx + 1];
-                        idx ++;
-                    } else {
-                        show_usage();
-                        goto end_main;
-                    }
+        for (idx = 3; idx < argc; idx ++) {
+            if (memcmp("-f", argv[idx], strlen("-f")) == 0) {
+                if ((idx+ 1) < argc) {
+                    memset(format, 0, sizeof(format));
+                    memcpy(format, argv[idx + 1], (strlen(argv[idx + 1]) <= 5, strlen(argv[idx + 1]), 5));
+                    idx ++;
                 } else {
-                    partition_no = get_partition_no(argv[idx]);
+                    show_usage();
+                    goto end_main;
                 }
+            } else if (memcmp("-m", argv[idx], strlen("-m")) == 0) {
+                if ((idx+ 1) < argc) {
+                    mbrfile = argv[idx + 1];
+                    idx ++;
+                } else {
+                    show_usage();
+                    goto end_main;
+                }
+            } else {
+                partition_no = get_partition_no(argv[idx]);
             }
+        } /* for */
+        printf("partition_no=[%d]\n", partition_no);
         if (partition_no <= 0) { show_usage(); goto end_main; }
+
+        printf("format=[%s]\n", format);
         if (strlen(format) < 5) { show_usage(); goto end_main; }
         if (memcmp(format, "auto_", 5) != 0
         &&  memcmp(format, "fat12", 5) != 0
         &&  memcmp(format, "fat16", 5) != 0
         &&  memcmp(format, "fat32", 5) != 0) { show_usage(); goto end_main; }
+
+        printf("mbrfile=[%s]\n", mbrfile);
         if (strlen(mbrfile) <= 0) { show_usage(); goto end_main; }
 
         format_partition(argv[1], partition_no, format, mbrfile);
         goto end_main;
     }
     if (strlen("copy") == strlen(argv[2]) && memcmp("copy", argv[2], strlen("copy")) == 0) {
-        printf("copy.\n");
+        printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~copy.\n");
         if (argc < 6) { show_usage(); goto end_main; }
         if (memcmp(argv[4], "from", 2) == 0 && memcmp(argv[4], "from", 4) == 0) {
             /* src to dst*/
@@ -4339,7 +4444,7 @@ int main(int argc, char * argv[]) {
             dst_file = argv[5];
         }
         int copy_direction = 1; /* 从外部到镜像文件 */
-        if (memcmp(dst_file, "/dvr", 4) != 0) {
+        if (memcmp(dst_file, "/drv", 4) != 0) {
             copy_direction = 2; /* 从镜像文件到外部 */
         }
         printf("复制方向%d.\n", copy_direction);
@@ -4351,7 +4456,7 @@ int main(int argc, char * argv[]) {
         goto end_main;
     }
     if (strlen("delete") == strlen(argv[2]) && memcmp("delete", argv[2], strlen("delete")) == 0) {
-        printf("delete.\n");
+        printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~delete.\n");
         delete_file_or_folder(argv[1]);
         goto end_main;
     }
@@ -4361,6 +4466,7 @@ int main(int argc, char * argv[]) {
 err_main:
 end_main:
     /* 处理结束 */
+    printf("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ END.\n");
     return 0;
 }
 
@@ -4400,4 +4506,5 @@ int main1(int argc, char * argv[]) {
             printf("\n");
         }
     }
+    return 0;
 }

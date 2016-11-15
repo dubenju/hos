@@ -1,1 +1,0 @@
-.\qemu.exe -L C:\Users\DBJ\git\hos\tools\qemu -m 32 -localtime -no-kqemu -std-vga -boot c -fda .\qemu_img\win98(FAT12).img -hda C:\Users\DBJ\git\hos\000.mbr\mbr\qcow2_20m_fmt.qcow2 -soundhw sb16,pcspk -net nic

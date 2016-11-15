@@ -1,12 +1,12 @@
 ; MBR的引导程序
-              org 0600H
+              org 0000H
               cpu 8086
 [BITS 16]
           section .data align=16
 ;label    :    instruction operands     ; comment
                XOR  AX,AX               ; AX = 0000
                MOV  SS,AX               ; SS = 0000
-               MOV  SP,0X7C00           ; SP = 7C00
+               MOV  SP,7C00H            ; SP = 7C00
                STI                      ; 开中断
                PUSH AX                  ; 
                POP  ES                  ; ES = 0000
@@ -15,29 +15,29 @@
                CLD                      ; FLAGS.DF = 0
 ; 把7C1B处开始的485字节复制到061B处，   ;
 ; 并从061B处开始执行                    ; 
-               MOV  SI,0X7C1B           ; SI = 7C1B
-               MOV  DI,0X061B           ; DI = 061B
+               MOV  SI,7C1BH            ; SI = 7C1B
+               MOV  DI,061BH            ; DI = 061B
                PUSH AX                  ; CS
                PUSH DI                  ; IP
-               MOV  CX,0X01E5           ; CX = 01E5(485字节)
+               MOV  CX,01E5H            ; CX = 01E5(485字节)
                REP  MOVSB               ; CX: 0000
                RETF                     ; IP: 061B CS:0000
 ;---------------------------------------;-------------------
 ; 这里才是1B处开始的代码                ; 
-               MOV  SI,0X07BE           ; SI: 07BE 实际是1BE
-               MOV  CL,0X04             ; CX: 0004
+               MOV  SI,07BEH            ; SI: 07BE 实际是1BE
+               MOV  CL,04H              ; CX: 0004
 CHK_PTE   :                             ;
                CMP  [SI],CH             ; cmp 分区状态 0
                JL   SCH_PTE             ; [SI] 80 =>
                JNZ  INVALIDPT           ; [SI] NOT 00
-               ADD  SI,BYTE +0X10       ; [SI] = 00 下一个分区
+               ADD  SI,BYTE + 10H       ; [SI] = 00 下一个分区
                LOOP CHK_PTE             ; 下一个分区
-               INT  0X18                ; ROM-BASIC 
+               INT  18H                 ; ROM-BASIC 
 SCH_PTE   :                             ;
                MOV  DX,[SI]             ; DX: 0080
                MOV  BP,SI               ; BP: 07BE
 NEXT_PTE  :                             ; 只有一个80
-               ADD  SI,BYTE +0X10       ; SI: 07FE
+               ADD  SI,BYTE +10H        ; SI: 07FE
                DEC  CX                  ;
                JZ   CHK_SYSID           ; =>
                CMP  [SI],CH             ; CH: 00 NEED 80 00 00 00
@@ -48,32 +48,32 @@ NEXT_CH   :                             ;
                DEC  SI                  ;
 DSP_MSG:                                ; DISPLAY MESSAGE
                LODSB                    ; DS:SI -> AL
-               CMP  AL,0X00             ;
+               CMP  AL,00H              ;
                JZ   NEXT_CH             ;
-               MOV  BX,0X0007           ;
-               MOV  AH,0X0E             ; AL=字符，BH=页码，BL=颜色（只适用于图形模式）
-               INT  0X10                ;
+               MOV  BX,0007H            ;
+               MOV  AH,0EH              ; AL=字符，BH=页码，BL=颜色（只适用于图形模式）
+               INT  10H                 ;
 DSP_ERRMSG:                             ; DISPLAY MESSAGE
                JMP  SHORT DSP_MSG       ; DISPLAY MESSAGE
 ;---------------------------------------;-------------------
 CHK_SYSID :                             ; ??
-               MOV  [BP+0X25],AX        ; BP: 07BE AX=?0000? SS:0000,[BP+0X25]:CX
+               MOV  [BP+25H],AX         ; BP: 07BE AX=?0000? SS:0000,[BP+0X25]:CX
                XCHG AX,SI               ; SI: 07FE=>07BE
-               MOV  AL,[BP+0X04]        ; SYSTEM ID
-               MOV  AH,0X06             ; AH: 06
-               CMP  AL,0X0E             ; 
+               MOV  AL,[BP+04H]         ; SYSTEM ID
+               MOV  AH,06H              ; AH: 06
+               CMP  AL,0EH              ; 
                JZ   TST13HEX            ; FAT16(0E)
-               MOV  AH,0X0B             ; 
-               CMP  AL,0X0C             ; 
+               MOV  AH,0BH              ; 
+               CMP  AL,0CH              ; 
                JZ   SET_FOR_0C          ; FAT32(0C)
                CMP  AL,AH               ; AH:0B(FAT32)
                JNZ  SET_CNT             ; OTHERWISE TO READ
                INC  AX                  ; FAT32(06)
 SET_FOR_0C:                             ;
-               MOV  BYTE [BP+0X25],0X06 ; 06=>CX
+               MOV  BYTE [BP+25H],06H   ; 06=>CX
                JNZ  SET_CNT             ; TO READ
 TST13HEX  :                             ; 
-               MOV  BX,0X55AA           ; 
+               MOV  BX,55AAH            ; 
                PUSH AX                  ; SAVE AX
 ;INT 13h AH=41h:Check Extensions Present;
 ;AH:41h = function number for extensions check
@@ -87,21 +87,21 @@ TST13HEX  :                             ;
 ;   1 - Device Access using the packet structure
 ;   2 - Drive Locking and Ejecting
 ;   4 - Enhanced Disk Drive Support (EDD)
-               MOV  AH,0X41             ; 
-               INT  0X13                ; 
+               MOV  AH,41H              ; 
+               INT  13H                 ; 
                POP  AX                  ; RESTORE AX
                JC   NO_PRESENT          ; CF=1 NG
-               CMP  BX,0XAA55           ;
+               CMP  BX,0AA55H           ;
                JNZ  NO_PRESENT          ; BX!=AA55 NG
-               TEST CL,0X01             ; CL=01 first
+               TEST CL,01H              ; CL=01 first
                JZ   NO_PRESENT          ;
                MOV  AH,AL               ;
-               MOV  [BP+0X24],DL        ;
-               MOV  WORD [0X06A1],0X1EEB; 7915
+               MOV  [BP+24H],DL         ;
+               MOV  WORD [06A1H],1EEBH  ; 7915
 NO_PRESENT:
-               MOV  [BP+0X04],AH
+               MOV  [BP+04H],AH
 SET_CNT   :                             ;
-               MOV  DI,0X000A           ; DI: 0A
+               MOV  DI,000AH            ; DI: 0A
 READ_VBR  :                             ;
 ;INT 13h AH=02h: Read Sectors From Drive;
 ;AL:Sectors To Read Count               ;
@@ -112,21 +112,21 @@ READ_VBR  :                             ;
                                         ; CH:Cylinder, CL:Sector
                                         ; DH:Head,     DL:Drive
                                         ; ES:BX:Buffer Address Pointer
-               MOV  AX,0X0201           ; AX: 0201
+               MOV  AX,0201H            ; AX: 0201
                MOV  BX,SP               ; BX: 7C00, ES: 0000
                XOR  CX,CX               ; CX: 0000
-               CMP  DI,BYTE +0X05       ; 
+               CMP  DI,BYTE +05H        ; 
                JG   READ_DISK           ; DI > 5
-               MOV  CX,[BP+0X25]        ; CX: 0006
+               MOV  CX,[BP+25H]         ; CX: 0006
 READ_DISK :                             ; 
-               ADD  CX,[BP+0X02]        ; SEC, CYL
-               INT  0X13                ; 
+               ADD  CX,[BP+02H]         ; SEC, CYL
+               INT  13H                 ; 
 _LBL000000A6:
                JC   RESET_DISK          ; CF=1ERROR
                MOV  SI,MSG3             ; MISS OS
-               CMP  WORD [0X7DFE],0XAA55; 
+               CMP  WORD [7DFEH],0AA55H ; 
                JZ   PRE_RUNVBR          ; RUN
-               SUB  DI,BYTE +0X05       ; DI - 5 > 0
+               SUB  DI,BYTE +05H        ; DI - 5 > 0
                JG   READ_VBR            ; RETRY
 PRINT_MSG :
 ;MOV SI, 0X00
@@ -139,8 +139,8 @@ PRINT_MSG :
                XCHG AX,CX
                PUSH DX
                CWD
-               ADD  AX,[BP+0X08]        ; 
-               ADC  DX,[BP+0X0A]        ; 
+               ADD  AX,[BP+08H]         ; 
+               ADC  DX,[BP+0AH]         ; 
                CALL WORD _LBL_0XE0
                POP  DX
                JMP  SHORT _LBL000000A6
@@ -148,10 +148,9 @@ RESET_DISK:
                DEC  DI                  ;
                JZ   PRINT_MSG           ;
                XOR  AX,AX               ; Reset Disk Drives
-               INT  0X13                ;
+               INT  13H                 ;
                JMP  SHORT READ_VBR      ;
 
-;DB 0, 0, 0, 0, 0, 0
 TIMES 6 DB 0
 
 _LBL_0XE0:
@@ -164,24 +163,24 @@ _LBL_0XE0:
                PUSH ES
                PUSH BX
                PUSH CX                  ; CX =>IP?
-               MOV  SI,0X10
+               MOV  SI,10H
                PUSH SI                  ; SAVE SI
                MOV  SI,SP
                PUSH AX                  ; SAVE AX
                PUSH DX                  ; SAVE DX
-               MOV  AX,0X4200           ; DL=DRV,DS:DI=
-               MOV  DL,[BP+0X24]        ; DRIVE INDEX
-               INT  0X13                ; CF=0OK,CF=1NG
+               MOV  AX,4200H            ; DL=DRV,DS:DI=
+               MOV  DL,[BP+24H]         ; DRIVE INDEX
+               INT  13H                 ; CF=0OK,CF=1NG
                POP  DX                  ; RESTORE DX
                POP  AX                  ; RESTORE AX
-               LEA  SP,[SI+0X10]
+               LEA  SP,[SI+10H]
                JC   _LBL_00000105
 _LBL_0XFB:
                INC  AX
                JNZ _LBL_000000FF
                INC DX
 _LBL_000000FF:
-               ADD  BH,0X2
+               ADD  BH,02H
                LOOP _LBL_0XFB
                CLC
 _LBL_00000105:
@@ -208,5 +207,5 @@ RUN_VBR   :                             ;
 
 TIMES 116 DB 0
 
-DB 0X55
-DB 0XAA
+DB 55H
+DB 0AAH
