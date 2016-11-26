@@ -1,0 +1,1619 @@
+.\obj\coff.o size is 13418
+Target Machine           =0X014C.Intel 386 or later.
+Number Of Sections       =  0006
+Time & Date Stamp (After 1970/1/1 0:00:00) =0
+PointerTo Symbol Table   =0X3134
+Number Of Symbols        =  0035
+Size   Of Optional Header=  0000
+Characteristics          =0X0104
+Section Flag             =F_LNNO
+Section Flag             =F_AR32WR:F_LITTLE
+the pos is before Optional Header:0X000014.
+the pos is before Section Header:0X000014.
+1 Section Header ----------
+Section Name           =.text
+Virtual Size           =  0000
+Virtual Address        =0X0000
+Size    Of RawData     =  5056
+Pointer To RawData     =0X0104
+Pointer To Relocations =0X25B8
+Pointer To Linenumbers =0X0000
+Number  Of Relocations =  0287
+Number  Of Linenumbers =  0000
+Section Flags          =0X60300020
+Section Type           =STYP_TEXT
+Section Type           =STYP_Section can be executed as code
+Section Type           =STYP_Section can be read.
+2 Section Header ----------
+Section Name           =.data
+Virtual Size           =  0000
+Virtual Address        =0X0000
+Size    Of RawData     =  0000
+Pointer To RawData     =0X0000
+Pointer To Relocations =0X0000
+Pointer To Linenumbers =0X0000
+Number  Of Relocations =  0000
+Number  Of Linenumbers =  0000
+Section Flags          =0XC0300040
+Section Type           =STYP_DATA
+Section Type           =STYP_Section can be read.
+Section Type           =STYP_Section can be written to.
+3 Section Header ----------
+Section Name           =.bss
+Virtual Size           =  0000
+Virtual Address        =0X0000
+Size    Of RawData     =  0000
+Pointer To RawData     =0X0000
+Pointer To Relocations =0X0000
+Pointer To Linenumbers =0X0000
+Number  Of Relocations =  0000
+Number  Of Linenumbers =  0000
+Section Flags          =0XC0300080
+Section Type           =STYP_BSS
+Section Type           =STYP_Section can be read.
+Section Type           =STYP_Section can be written to.
+4 Section Header ----------
+Section Name           =.rdata
+Virtual Size           =  0000
+Virtual Address        =0X0000
+Size    Of RawData     =  4072
+Pointer To RawData     =0X14C4
+Pointer To Relocations =0X0000
+Pointer To Linenumbers =0X0000
+Number  Of Relocations =  0000
+Number  Of Linenumbers =  0000
+Section Flags          =0X40300040
+Section Type           =STYP_DATA
+Section Type           =STYP_Section can be read.
+5 Section Header ----------
+Section Name           =/4
+Virtual Size           =  0000
+Virtual Address        =0X0000
+Size    Of RawData     =  0020
+Pointer To RawData     =0X24AC
+Pointer To Relocations =0X0000
+Pointer To Linenumbers =0X0000
+Number  Of Relocations =  0000
+Number  Of Linenumbers =  0000
+Section Flags          =0X40300040
+Section Type           =STYP_DATA
+Section Type           =STYP_Section can be read.
+6 Section Header ----------
+Section Name           =/15
+Virtual Size           =  0000
+Virtual Address        =0X0000
+Size    Of RawData     =  0248
+Pointer To RawData     =0X24C0
+Pointer To Relocations =0X30EE
+Pointer To Linenumbers =0X0000
+Number  Of Relocations =  0007
+Number  Of Linenumbers =  0000
+Section Flags          =0X40300040
+Section Type           =STYP_DATA
+Section Type           =STYP_Section can be read.
+the pos is before Raw Data:0X000104.
+the pos is before Relocation Entries:0X0025B8.
+1 Relocation Entry ----------
+Reference Address    =0016
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+2 Relocation Entry ----------
+Reference Address    =170000
+Symbol    Index      =1310720
+Type   Of Relocation =0120
+3 Relocation Entry ----------
+Reference Address    =0010
+Symbol    Index      =19202054
+Type   Of Relocation =0000
+4 Relocation Entry ----------
+Reference Address    =140000
+Symbol    Index      =0305
+Type   Of Relocation =0010
+5 Relocation Entry ----------
+Reference Address    =1360006
+Symbol    Index      =1572864
+Type   Of Relocation =0000
+6 Relocation Entry ----------
+Reference Address    =0142
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+7 Relocation Entry ----------
+Reference Address    =180000
+Symbol    Index      =1310720
+Type   Of Relocation =0153
+8 Relocation Entry ----------
+Reference Address    =0010
+Symbol    Index      =22544390
+Type   Of Relocation =0000
+9 Relocation Entry ----------
+Reference Address    =140000
+Symbol    Index      =0356
+Type   Of Relocation =0010
+10 Relocation Entry ----------
+Reference Address    =1690006
+Symbol    Index      =1572864
+Type   Of Relocation =0000
+11 Relocation Entry ----------
+Reference Address    =0175
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+12 Relocation Entry ----------
+Reference Address    =180000
+Symbol    Index      =1310720
+Type   Of Relocation =0186
+13 Relocation Entry ----------
+Reference Address    =0010
+Symbol    Index      =25886726
+Type   Of Relocation =0000
+14 Relocation Entry ----------
+Reference Address    =140000
+Symbol    Index      =0407
+Type   Of Relocation =0010
+15 Relocation Entry ----------
+Reference Address    =19c0006
+Symbol    Index      =1572864
+Type   Of Relocation =0000
+16 Relocation Entry ----------
+Reference Address    =01a8
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+17 Relocation Entry ----------
+Reference Address    =180000
+Symbol    Index      =1310720
+Type   Of Relocation =01b6
+18 Relocation Entry ----------
+Reference Address    =0010
+Symbol    Index      =29032454
+Type   Of Relocation =0000
+19 Relocation Entry ----------
+Reference Address    =140000
+Symbol    Index      =0452
+Type   Of Relocation =0010
+20 Relocation Entry ----------
+Reference Address    =1c90006
+Symbol    Index      =1572864
+Type   Of Relocation =0000
+21 Relocation Entry ----------
+Reference Address    =01d2
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+22 Relocation Entry ----------
+Reference Address    =180000
+Symbol    Index      =1310720
+Type   Of Relocation =01e0
+23 Relocation Entry ----------
+Reference Address    =0010
+Symbol    Index      =31784966
+Type   Of Relocation =0000
+24 Relocation Entry ----------
+Reference Address    =140000
+Symbol    Index      =0494
+Type   Of Relocation =0010
+25 Relocation Entry ----------
+Reference Address    =1f30006
+Symbol    Index      =1572864
+Type   Of Relocation =0000
+26 Relocation Entry ----------
+Reference Address    =01fc
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+27 Relocation Entry ----------
+Reference Address    =180000
+Symbol    Index      =1310720
+Type   Of Relocation =020a
+28 Relocation Entry ----------
+Reference Address    =0010
+Symbol    Index      =34537478
+Type   Of Relocation =0000
+29 Relocation Entry ----------
+Reference Address    =140000
+Symbol    Index      =0536
+Type   Of Relocation =0010
+30 Relocation Entry ----------
+Reference Address    =21d0006
+Symbol    Index      =1572864
+Type   Of Relocation =0000
+31 Relocation Entry ----------
+Reference Address    =022b
+Symbol    Index      =0025
+Type   Of Relocation =0014
+32 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =0246
+33 Relocation Entry ----------
+Reference Address    =0017
+Symbol    Index      =39256084
+Type   Of Relocation =0000
+34 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =0604
+Type   Of Relocation =0017
+35 Relocation Entry ----------
+Reference Address    =26d0014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+36 Relocation Entry ----------
+Reference Address    =0272
+Symbol    Index      =0023
+Type   Of Relocation =0014
+37 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =0288
+38 Relocation Entry ----------
+Reference Address    =0017
+Symbol    Index      =43843604
+Type   Of Relocation =0000
+39 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =0674
+Type   Of Relocation =0017
+40 Relocation Entry ----------
+Reference Address    =2b70014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+41 Relocation Entry ----------
+Reference Address    =02bc
+Symbol    Index      =0023
+Type   Of Relocation =0014
+42 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =02d9
+43 Relocation Entry ----------
+Reference Address    =0018
+Symbol    Index      =49348628
+Type   Of Relocation =0000
+44 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =0758
+Type   Of Relocation =0018
+45 Relocation Entry ----------
+Reference Address    =30e0014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+46 Relocation Entry ----------
+Reference Address    =0313
+Symbol    Index      =0024
+Type   Of Relocation =0014
+47 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =0330
+48 Relocation Entry ----------
+Reference Address    =0018
+Symbol    Index      =55050260
+Type   Of Relocation =0000
+49 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =0845
+Type   Of Relocation =0018
+50 Relocation Entry ----------
+Reference Address    =3650014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+51 Relocation Entry ----------
+Reference Address    =036a
+Symbol    Index      =0024
+Type   Of Relocation =0014
+52 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =0387
+53 Relocation Entry ----------
+Reference Address    =0018
+Symbol    Index      =60882964
+Type   Of Relocation =0000
+54 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =0934
+Type   Of Relocation =0018
+55 Relocation Entry ----------
+Reference Address    =3c00014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+56 Relocation Entry ----------
+Reference Address    =03c5
+Symbol    Index      =0024
+Type   Of Relocation =0014
+57 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =03e4
+58 Relocation Entry ----------
+Reference Address    =0018
+Symbol    Index      =66977812
+Type   Of Relocation =0000
+59 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =1027
+Type   Of Relocation =0018
+60 Relocation Entry ----------
+Reference Address    =41d0014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+61 Relocation Entry ----------
+Reference Address    =0422
+Symbol    Index      =0024
+Type   Of Relocation =0014
+62 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =0441
+63 Relocation Entry ----------
+Reference Address    =0018
+Symbol    Index      =73072660
+Type   Of Relocation =0000
+64 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =1120
+Type   Of Relocation =0018
+65 Relocation Entry ----------
+Reference Address    =47a0014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+66 Relocation Entry ----------
+Reference Address    =047f
+Symbol    Index      =0024
+Type   Of Relocation =0014
+67 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =04a0
+68 Relocation Entry ----------
+Reference Address    =0017
+Symbol    Index      =78970900
+Type   Of Relocation =0000
+69 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =1210
+Type   Of Relocation =0017
+70 Relocation Entry ----------
+Reference Address    =4cb0014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+71 Relocation Entry ----------
+Reference Address    =04d0
+Symbol    Index      =0023
+Type   Of Relocation =0014
+72 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =04e6
+73 Relocation Entry ----------
+Reference Address    =0017
+Symbol    Index      =83296276
+Type   Of Relocation =0000
+74 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =1276
+Type   Of Relocation =0017
+75 Relocation Entry ----------
+Reference Address    =50d0014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+76 Relocation Entry ----------
+Reference Address    =0512
+Symbol    Index      =0023
+Type   Of Relocation =0014
+77 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =0528
+78 Relocation Entry ----------
+Reference Address    =0017
+Symbol    Index      =87621652
+Type   Of Relocation =0000
+79 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =1342
+Type   Of Relocation =0017
+80 Relocation Entry ----------
+Reference Address    =5680014
+Symbol    Index      =1703936
+Type   Of Relocation =0000
+81 Relocation Entry ----------
+Reference Address    =0582
+Symbol    Index      =0027
+Type   Of Relocation =0014
+82 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =0596
+83 Relocation Entry ----------
+Reference Address    =0017
+Symbol    Index      =94634004
+Type   Of Relocation =0000
+84 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =1449
+Type   Of Relocation =0017
+85 Relocation Entry ----------
+Reference Address    =5ba0014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+86 Relocation Entry ----------
+Reference Address    =05bf
+Symbol    Index      =0023
+Type   Of Relocation =0014
+87 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =05d5
+88 Relocation Entry ----------
+Reference Address    =0017
+Symbol    Index      =98959380
+Type   Of Relocation =0000
+89 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =1515
+Type   Of Relocation =0017
+90 Relocation Entry ----------
+Reference Address    =5fc0014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+91 Relocation Entry ----------
+Reference Address    =0601
+Symbol    Index      =0023
+Type   Of Relocation =0014
+92 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =0617
+93 Relocation Entry ----------
+Reference Address    =0017
+Symbol    Index      =103284756
+Type   Of Relocation =0000
+94 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =1581
+Type   Of Relocation =0017
+95 Relocation Entry ----------
+Reference Address    =6420014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+96 Relocation Entry ----------
+Reference Address    =0647
+Symbol    Index      =0023
+Type   Of Relocation =0014
+97 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =0661
+98 Relocation Entry ----------
+Reference Address    =0017
+Symbol    Index      =108134420
+Type   Of Relocation =0000
+99 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =1655
+Type   Of Relocation =0017
+100 Relocation Entry ----------
+Reference Address    =68b0014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+101 Relocation Entry ----------
+Reference Address    =0690
+Symbol    Index      =0024
+Type   Of Relocation =0014
+102 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =06a9
+103 Relocation Entry ----------
+Reference Address    =0018
+Symbol    Index      =113180692
+Type   Of Relocation =0000
+104 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =1732
+Type   Of Relocation =0018
+105 Relocation Entry ----------
+Reference Address    =6da0014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+106 Relocation Entry ----------
+Reference Address    =06df
+Symbol    Index      =0024
+Type   Of Relocation =0014
+107 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =06fa
+108 Relocation Entry ----------
+Reference Address    =0018
+Symbol    Index      =118489108
+Type   Of Relocation =0000
+109 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =1813
+Type   Of Relocation =0018
+110 Relocation Entry ----------
+Reference Address    =72b0014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+111 Relocation Entry ----------
+Reference Address    =0730
+Symbol    Index      =0024
+Type   Of Relocation =0014
+112 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =074b
+113 Relocation Entry ----------
+Reference Address    =0018
+Symbol    Index      =123797524
+Type   Of Relocation =0000
+114 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =1894
+Type   Of Relocation =0018
+115 Relocation Entry ----------
+Reference Address    =77c0014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+116 Relocation Entry ----------
+Reference Address    =0781
+Symbol    Index      =0024
+Type   Of Relocation =0014
+117 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =079c
+118 Relocation Entry ----------
+Reference Address    =0018
+Symbol    Index      =128778260
+Type   Of Relocation =0000
+119 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =1970
+Type   Of Relocation =0018
+120 Relocation Entry ----------
+Reference Address    =7c80014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+121 Relocation Entry ----------
+Reference Address    =07cd
+Symbol    Index      =0023
+Type   Of Relocation =0014
+122 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =07e2
+123 Relocation Entry ----------
+Reference Address    =0017
+Symbol    Index      =133365780
+Type   Of Relocation =0000
+124 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =2040
+Type   Of Relocation =0017
+125 Relocation Entry ----------
+Reference Address    =80d0014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+126 Relocation Entry ----------
+Reference Address    =0812
+Symbol    Index      =0023
+Type   Of Relocation =0014
+127 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =082b
+128 Relocation Entry ----------
+Reference Address    =0018
+Symbol    Index      =138346516
+Type   Of Relocation =0000
+129 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =2116
+Type   Of Relocation =0018
+130 Relocation Entry ----------
+Reference Address    =85a0014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+131 Relocation Entry ----------
+Reference Address    =085f
+Symbol    Index      =0023
+Type   Of Relocation =0014
+132 Relocation Entry ----------
+Reference Address    =1a0000
+Symbol    Index      =1310720
+Type   Of Relocation =089d
+133 Relocation Entry ----------
+Reference Address    =001b
+Symbol    Index      =145424404
+Type   Of Relocation =0000
+134 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =2224
+Type   Of Relocation =0017
+135 Relocation Entry ----------
+Reference Address    =8c30014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+136 Relocation Entry ----------
+Reference Address    =08c8
+Symbol    Index      =0023
+Type   Of Relocation =0014
+137 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =08de
+138 Relocation Entry ----------
+Reference Address    =0017
+Symbol    Index      =150011924
+Type   Of Relocation =0000
+139 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =2294
+Type   Of Relocation =0017
+140 Relocation Entry ----------
+Reference Address    =90a0014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+141 Relocation Entry ----------
+Reference Address    =090f
+Symbol    Index      =0024
+Type   Of Relocation =0014
+142 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =0928
+143 Relocation Entry ----------
+Reference Address    =0018
+Symbol    Index      =154861588
+Type   Of Relocation =0000
+144 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =2368
+Type   Of Relocation =0018
+145 Relocation Entry ----------
+Reference Address    =9540014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+146 Relocation Entry ----------
+Reference Address    =0959
+Symbol    Index      =0024
+Type   Of Relocation =0014
+147 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =0972
+148 Relocation Entry ----------
+Reference Address    =0018
+Symbol    Index      =159842324
+Type   Of Relocation =0000
+149 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =2444
+Type   Of Relocation =0017
+150 Relocation Entry ----------
+Reference Address    =9a10014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+151 Relocation Entry ----------
+Reference Address    =09a6
+Symbol    Index      =0023
+Type   Of Relocation =0014
+152 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =09bd
+153 Relocation Entry ----------
+Reference Address    =0018
+Symbol    Index      =164560916
+Type   Of Relocation =0000
+154 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =2516
+Type   Of Relocation =0018
+155 Relocation Entry ----------
+Reference Address    =9e60014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+156 Relocation Entry ----------
+Reference Address    =09eb
+Symbol    Index      =0024
+Type   Of Relocation =0014
+157 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =0a02
+158 Relocation Entry ----------
+Reference Address    =0018
+Symbol    Index      =169082900
+Type   Of Relocation =0000
+159 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =2585
+Type   Of Relocation =0018
+160 Relocation Entry ----------
+Reference Address    =a2b0014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+161 Relocation Entry ----------
+Reference Address    =0a30
+Symbol    Index      =0024
+Type   Of Relocation =0014
+162 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =0a47
+163 Relocation Entry ----------
+Reference Address    =0018
+Symbol    Index      =173604884
+Type   Of Relocation =0000
+164 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =2654
+Type   Of Relocation =0018
+165 Relocation Entry ----------
+Reference Address    =a700014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+166 Relocation Entry ----------
+Reference Address    =0a75
+Symbol    Index      =0024
+Type   Of Relocation =0014
+167 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =0a8c
+168 Relocation Entry ----------
+Reference Address    =0018
+Symbol    Index      =178126868
+Type   Of Relocation =0000
+169 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =2723
+Type   Of Relocation =0018
+170 Relocation Entry ----------
+Reference Address    =ab50014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+171 Relocation Entry ----------
+Reference Address    =0aba
+Symbol    Index      =0024
+Type   Of Relocation =0014
+172 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =0ad4
+173 Relocation Entry ----------
+Reference Address    =0017
+Symbol    Index      =184025108
+Type   Of Relocation =0000
+174 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =2813
+Type   Of Relocation =0017
+175 Relocation Entry ----------
+Reference Address    =b1a0014
+Symbol    Index      =1638400
+Type   Of Relocation =0000
+176 Relocation Entry ----------
+Reference Address    =0b36
+Symbol    Index      =0025
+Type   Of Relocation =0014
+177 Relocation Entry ----------
+Reference Address    =160000
+Symbol    Index      =1310720
+Type   Of Relocation =0bf4
+178 Relocation Entry ----------
+Reference Address    =0010
+Symbol    Index      =201523206
+Type   Of Relocation =0000
+179 Relocation Entry ----------
+Reference Address    =140000
+Symbol    Index      =3110
+Type   Of Relocation =0010
+180 Relocation Entry ----------
+Reference Address    =c2b0006
+Symbol    Index      =1507328
+Type   Of Relocation =0000
+181 Relocation Entry ----------
+Reference Address    =0c4a
+Symbol    Index      =0029
+Type   Of Relocation =0014
+182 Relocation Entry ----------
+Reference Address    =1e0000
+Symbol    Index      =1310720
+Type   Of Relocation =0c7d
+183 Relocation Entry ----------
+Reference Address    =0010
+Symbol    Index      =209846278
+Type   Of Relocation =0000
+184 Relocation Entry ----------
+Reference Address    =140000
+Symbol    Index      =3233
+Type   Of Relocation =001d
+185 Relocation Entry ----------
+Reference Address    =cc00014
+Symbol    Index      =1703936
+Type   Of Relocation =0000
+186 Relocation Entry ----------
+Reference Address    =0cea
+Symbol    Index      =0031
+Type   Of Relocation =0014
+187 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =0d1a
+188 Relocation Entry ----------
+Reference Address    =0017
+Symbol    Index      =221904916
+Type   Of Relocation =0000
+189 Relocation Entry ----------
+Reference Address    =140000
+Symbol    Index      =3397
+Type   Of Relocation =0010
+190 Relocation Entry ----------
+Reference Address    =d4a0006
+Symbol    Index      =1507328
+Type   Of Relocation =0000
+191 Relocation Entry ----------
+Reference Address    =0d77
+Symbol    Index      =0026
+Type   Of Relocation =0014
+192 Relocation Entry ----------
+Reference Address    =1f0000
+Symbol    Index      =1310720
+Type   Of Relocation =0dc9
+193 Relocation Entry ----------
+Reference Address    =0010
+Symbol    Index      =231604230
+Type   Of Relocation =0000
+194 Relocation Entry ----------
+Reference Address    =140000
+Symbol    Index      =3563
+Type   Of Relocation =001e
+195 Relocation Entry ----------
+Reference Address    =df60014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+196 Relocation Entry ----------
+Reference Address    =0dfb
+Symbol    Index      =0023
+Type   Of Relocation =0014
+197 Relocation Entry ----------
+Reference Address    =1a0000
+Symbol    Index      =1310720
+Type   Of Relocation =0e56
+198 Relocation Entry ----------
+Reference Address    =001f
+Symbol    Index      =243335188
+Type   Of Relocation =0000
+199 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =3718
+Type   Of Relocation =0017
+200 Relocation Entry ----------
+Reference Address    =ef10014
+Symbol    Index      =1966080
+Type   Of Relocation =0000
+201 Relocation Entry ----------
+Reference Address    =0efc
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+202 Relocation Entry ----------
+Reference Address    =170000
+Symbol    Index      =1310720
+Type   Of Relocation =0f23
+203 Relocation Entry ----------
+Reference Address    =001d
+Symbol    Index      =254935060
+Type   Of Relocation =0000
+204 Relocation Entry ----------
+Reference Address    =140000
+Symbol    Index      =3901
+Type   Of Relocation =0010
+205 Relocation Entry ----------
+Reference Address    =f420006
+Symbol    Index      =1507328
+Type   Of Relocation =0000
+206 Relocation Entry ----------
+Reference Address    =0f6b
+Symbol    Index      =0026
+Type   Of Relocation =0014
+207 Relocation Entry ----------
+Reference Address    =1f0000
+Symbol    Index      =1310720
+Type   Of Relocation =0fbd
+208 Relocation Entry ----------
+Reference Address    =0010
+Symbol    Index      =264372230
+Type   Of Relocation =0000
+209 Relocation Entry ----------
+Reference Address    =140000
+Symbol    Index      =4094
+Type   Of Relocation =001e
+210 Relocation Entry ----------
+Reference Address    =10090014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+211 Relocation Entry ----------
+Reference Address    =100e
+Symbol    Index      =0023
+Type   Of Relocation =0014
+212 Relocation Entry ----------
+Reference Address    =1d0000
+Symbol    Index      =1310720
+Type   Of Relocation =103f
+213 Relocation Entry ----------
+Reference Address    =001e
+Symbol    Index      =273285140
+Type   Of Relocation =0000
+214 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =4175
+Type   Of Relocation =0017
+215 Relocation Entry ----------
+Reference Address    =105e0014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+216 Relocation Entry ----------
+Reference Address    =1063
+Symbol    Index      =0023
+Type   Of Relocation =0014
+217 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =1077
+218 Relocation Entry ----------
+Reference Address    =0017
+Symbol    Index      =278921236
+Type   Of Relocation =0000
+219 Relocation Entry ----------
+Reference Address    =140000
+Symbol    Index      =4295
+Type   Of Relocation =001f
+220 Relocation Entry ----------
+Reference Address    =10f20014
+Symbol    Index      =1048576
+Type   Of Relocation =0000
+221 Relocation Entry ----------
+Reference Address    =10f7
+Symbol    Index      =0023
+Type   Of Relocation =0014
+222 Relocation Entry ----------
+Reference Address    =1e0000
+Symbol    Index      =1310720
+Type   Of Relocation =113e
+223 Relocation Entry ----------
+Reference Address    =0010
+Symbol    Index      =289603590
+Type   Of Relocation =0000
+224 Relocation Entry ----------
+Reference Address    =140000
+Symbol    Index      =4519
+Type   Of Relocation =0010
+225 Relocation Entry ----------
+Reference Address    =11ac0006
+Symbol    Index      =1507328
+Type   Of Relocation =0000
+226 Relocation Entry ----------
+Reference Address    =11d3
+Symbol    Index      =0031
+Type   Of Relocation =0014
+227 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =1203
+228 Relocation Entry ----------
+Reference Address    =0017
+Symbol    Index      =303300628
+Type   Of Relocation =0000
+229 Relocation Entry ----------
+Reference Address    =60000
+Symbol    Index      =4633
+Type   Of Relocation =0017
+230 Relocation Entry ----------
+Reference Address    =12280014
+Symbol    Index      =1966080
+Type   Of Relocation =0000
+231 Relocation Entry ----------
+Reference Address    =124c
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+232 Relocation Entry ----------
+Reference Address    =170000
+Symbol    Index      =1310720
+Type   Of Relocation =1282
+233 Relocation Entry ----------
+Reference Address    =0010
+Symbol    Index      =310837254
+Type   Of Relocation =0000
+234 Relocation Entry ----------
+Reference Address    =140000
+Symbol    Index      =4800
+Type   Of Relocation =0020
+Relocation Type      =RELOC_REL32
+235 Relocation Entry ----------
+Reference Address    =12f70014
+Symbol    Index      =1703936
+Type   Of Relocation =0000
+236 Relocation Entry ----------
+Reference Address    =1327
+Symbol    Index      =0031
+Type   Of Relocation =0014
+237 Relocation Entry ----------
+Reference Address    =100000
+Symbol    Index      =393216
+Type   Of Relocation =1363
+238 Relocation Entry ----------
+Reference Address    =0017
+Symbol    Index      =328073236
+Type   Of Relocation =0000
+239 Relocation Entry ----------
+Reference Address    =140000
+Symbol    Index      =5032
+Type   Of Relocation =0022
+240 Relocation Entry ----------
+Reference Address    =200014
+Symbol    Index      =655360
+Type   Of Relocation =0000
+241 Relocation Entry ----------
+Reference Address    =0040
+Symbol    Index      =0010
+Type   Of Relocation =0014
+242 Relocation Entry ----------
+Reference Address    =a0000
+Symbol    Index      =1310720
+Type   Of Relocation =0080
+243 Relocation Entry ----------
+Reference Address    =000a
+Symbol    Index      =10485780
+Type   Of Relocation =0000
+244 Relocation Entry ----------
+Reference Address    =140000
+Symbol    Index      =0192
+Type   Of Relocation =000a
+245 Relocation Entry ----------
+Reference Address    =e00014
+Symbol    Index      =655360
+Type   Of Relocation =0000
+246 Relocation Entry ----------
+Reference Address    =6c69662e
+Symbol    Index      =0101
+Type   Of Relocation =0000
+247 Relocation Entry ----------
+Reference Address    =fffe
+Symbol    Index      =1868759399
+Type   Of Relocation =6666
+248 Relocation Entry ----------
+Reference Address    =0000
+Symbol    Index      =0000
+Type   Of Relocation =0000
+249 Relocation Entry ----------
+Reference Address    =0000
+Symbol    Index      =0025
+Type   Of Relocation =0000
+250 Relocation Entry ----------
+Reference Address    =200001
+Symbol    Index      =0258
+Type   Of Relocation =0000
+251 Relocation Entry ----------
+Reference Address    =0000
+Symbol    Index      =0000
+Type   Of Relocation =0000
+252 Relocation Entry ----------
+Reference Address    =0000
+Symbol    Index      =0046
+Type   Of Relocation =0485
+253 Relocation Entry ----------
+Reference Address    =200001
+Symbol    Index      =0002
+Type   Of Relocation =0000
+254 Relocation Entry ----------
+Reference Address    =5440000
+Symbol    Index      =65536
+Type   Of Relocation =0020
+Relocation Type      =RELOC_REL32
+255 Relocation Entry ----------
+Reference Address    =0000
+Symbol    Index      =0095
+Type   Of Relocation =07b8
+256 Relocation Entry ----------
+Reference Address    =200001
+Symbol    Index      =0002
+Type   Of Relocation =0000
+257 Relocation Entry ----------
+Reference Address    =84a0000
+Symbol    Index      =65536
+Type   Of Relocation =0020
+Relocation Type      =RELOC_REL32
+258 Relocation Entry ----------
+Reference Address    =0000
+Symbol    Index      =0149
+Type   Of Relocation =0ada
+259 Relocation Entry ----------
+Reference Address    =200001
+Symbol    Index      =1834942466
+Type   Of Relocation =6961
+260 Relocation Entry ----------
+Reference Address    =b480000
+Symbol    Index      =65536
+Type   Of Relocation =0020
+Relocation Type      =RELOC_REL32
+261 Relocation Entry ----------
+Reference Address    =7865742e
+Symbol    Index      =0116
+Type   Of Relocation =0000
+262 Relocation Entry ----------
+Reference Address    =0001
+Symbol    Index      =331219203
+Type   Of Relocation =0000
+263 Relocation Entry ----------
+Reference Address    =0000
+Symbol    Index      =0000
+Type   Of Relocation =0000
+264 Relocation Entry ----------
+Reference Address    =7461642e
+Symbol    Index      =0097
+Type   Of Relocation =0000
+265 Relocation Entry ----------
+Reference Address    =0002
+Symbol    Index      =0259
+Type   Of Relocation =0000
+266 Relocation Entry ----------
+Reference Address    =0000
+Symbol    Index      =0000
+Type   Of Relocation =0000
+267 Relocation Entry ----------
+Reference Address    =7373622e
+Symbol    Index      =0000
+Type   Of Relocation =0000
+268 Relocation Entry ----------
+Reference Address    =0003
+Symbol    Index      =0259
+Type   Of Relocation =0000
+269 Relocation Entry ----------
+Reference Address    =0000
+Symbol    Index      =0000
+Type   Of Relocation =0000
+270 Relocation Entry ----------
+Reference Address    =6164722e
+Symbol    Index      =24948
+Type   Of Relocation =0000
+271 Relocation Entry ----------
+Reference Address    =0004
+Symbol    Index      =266797315
+Type   Of Relocation =0000
+272 Relocation Entry ----------
+Reference Address    =0000
+Symbol    Index      =0000
+Type   Of Relocation =0000
+273 Relocation Entry ----------
+Reference Address    =0000
+Symbol    Index      =0171
+Type   Of Relocation =0000
+274 Relocation Entry ----------
+Reference Address    =0005
+Symbol    Index      =1114371
+Type   Of Relocation =0000
+275 Relocation Entry ----------
+Reference Address    =0000
+Symbol    Index      =0000
+Type   Of Relocation =0000
+276 Relocation Entry ----------
+Reference Address    =0000
+Symbol    Index      =0182
+Type   Of Relocation =0000
+277 Relocation Entry ----------
+Reference Address    =0006
+Symbol    Index      =16253187
+Type   Of Relocation =0000
+278 Relocation Entry ----------
+Reference Address    =0000
+Symbol    Index      =0000
+Type   Of Relocation =0000
+279 Relocation Entry ----------
+Reference Address    =6d5f5f5f
+Symbol    Index      =7235937
+Type   Of Relocation =0000
+280 Relocation Entry ----------
+Reference Address    =200000
+Symbol    Index      =1885274114
+Type   Of Relocation =6972
+281 Relocation Entry ----------
+Reference Address    =0066
+Symbol    Index      =0000
+Type   Of Relocation =0020
+Relocation Type      =RELOC_REL32
+282 Relocation Entry ----------
+Reference Address    =7475705f
+Symbol    Index      =0115
+Type   Of Relocation =0000
+283 Relocation Entry ----------
+Reference Address    =200000
+Symbol    Index      =1885274114
+Type   Of Relocation =7475
+284 Relocation Entry ----------
+Reference Address    =7261
+Symbol    Index      =0000
+Type   Of Relocation =0020
+Relocation Type      =RELOC_REL32
+285 Relocation Entry ----------
+Reference Address    =6d656d5f
+Symbol    Index      =7628147
+Type   Of Relocation =0000
+286 Relocation Entry ----------
+Reference Address    =200000
+Symbol    Index      =1834942466
+Type   Of Relocation =6d65
+287 Relocation Entry ----------
+Reference Address    =0079
+Symbol    Index      =0000
+Type   Of Relocation =0020
+Relocation Type      =RELOC_REL32
+288 Relocation Entry ----------
+Reference Address    =706f665f
+Symbol    Index      =28261
+Type   Of Relocation =0000
+289 Relocation Entry ----------
+Reference Address    =200000
+Symbol    Index      =1717501954
+Type   Of Relocation =6573
+290 Relocation Entry ----------
+Reference Address    =0000
+Symbol    Index      =0000
+Type   Of Relocation =0020
+Relocation Type      =RELOC_REL32
+291 Relocation Entry ----------
+Reference Address    =6574665f
+Symbol    Index      =27756
+Type   Of Relocation =0000
+292 Relocation Entry ----------
+Reference Address    =200000
+Symbol    Index      =1717501954
+Type   Of Relocation =6572
+293 Relocation Entry ----------
+Reference Address    =0000
+Symbol    Index      =0000
+Type   Of Relocation =0020
+Relocation Type      =RELOC_REL32
+294 Relocation Entry ----------
+Reference Address    =6c616d5f
+Symbol    Index      =6516588
+Type   Of Relocation =0000
+the pos is before Line Number Entries:0X003380.
+the pos is before Symbol Table:0X003134.
+sizeof(SYMENT)=18.
+sizeof(SYMENT_offset)=8.
+1 Symbol Table ----------
+Symbol Name     =.file
+Value of Symbol =0000
+Section Number  =0XFFFFFFFE
+Section Number  =N_DEBUG?:A debug? symbol.
+Symbol Type     =  0000
+Storage Class   =0X0067
+Auxiliary Count =0X0001
+2 Symbol Table ----------
+Symbol Name     =coff.c
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0000
+Storage Class   =0X0000
+Storage Class   =C_NULL
+Auxiliary Count =0X0000
+3 Symbol Table ----------
+Symbol Name    =25
+Value of Symbol =0000
+Section Number  =0X0001
+Section Number  =N_ABS:An absolute symbol. This means that the value of the n_value field is an absolute value.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0001
+4 Symbol Table ----------
+Symbol Name    =0
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0000
+Storage Class   =0X0000
+Storage Class   =C_NULL
+Auxiliary Count =0X0000
+5 Symbol Table ----------
+Symbol Name    =46
+Value of Symbol =1157
+Section Number  =0X0001
+Section Number  =N_ABS:An absolute symbol. This means that the value of the n_value field is an absolute value.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+6 Symbol Table ----------
+Symbol Name    =71
+Value of Symbol =1348
+Section Number  =0X0001
+Section Number  =N_ABS:An absolute symbol. This means that the value of the n_value field is an absolute value.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+7 Symbol Table ----------
+Symbol Name    =95
+Value of Symbol =1976
+Section Number  =0X0001
+Section Number  =N_ABS:An absolute symbol. This means that the value of the n_value field is an absolute value.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+8 Symbol Table ----------
+Symbol Name    =121
+Value of Symbol =2122
+Section Number  =0X0001
+Section Number  =N_ABS:An absolute symbol. This means that the value of the n_value field is an absolute value.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+9 Symbol Table ----------
+Symbol Name    =149
+Value of Symbol =2778
+Section Number  =0X0001
+Section Number  =N_ABS:An absolute symbol. This means that the value of the n_value field is an absolute value.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+10 Symbol Table ----------
+Symbol Name     =_main
+Value of Symbol =2888
+Section Number  =0X0001
+Section Number  =N_ABS:An absolute symbol. This means that the value of the n_value field is an absolute value.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+11 Symbol Table ----------
+Symbol Name     =.text
+Value of Symbol =0000
+Section Number  =0X0001
+Section Number  =N_ABS:An absolute symbol. This means that the value of the n_value field is an absolute value.
+Symbol Type     =  0000
+Storage Class   =0X0003
+Storage Class   =C_STAT:STATIC
+Auxiliary Count =0X0001
+12 Symbol Table ----------
+Symbol Name     =¾
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0000
+Storage Class   =0X0000
+Storage Class   =C_NULL
+Auxiliary Count =0X0000
+13 Symbol Table ----------
+Symbol Name     =.data
+Value of Symbol =0000
+Section Number  =0X0002
+Section Number  =N_DEBUG:A debugging symbol. In the example below, information about the file has been put into a symbol like this.
+Symbol Type     =  0000
+Storage Class   =0X0003
+Storage Class   =C_STAT:STATIC
+Auxiliary Count =0X0001
+14 Symbol Table ----------
+Symbol Name    =0
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0000
+Storage Class   =0X0000
+Storage Class   =C_NULL
+Auxiliary Count =0X0000
+15 Symbol Table ----------
+Symbol Name     =.bss
+Value of Symbol =0000
+Section Number  =0X0003
+Symbol Type     =  0000
+Storage Class   =0X0003
+Storage Class   =C_STAT:STATIC
+Auxiliary Count =0X0001
+16 Symbol Table ----------
+Symbol Name    =0
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0000
+Storage Class   =0X0000
+Storage Class   =C_NULL
+Auxiliary Count =0X0000
+17 Symbol Table ----------
+Symbol Name     =.rdata
+Value of Symbol =0000
+Section Number  =0X0004
+Symbol Type     =  0000
+Storage Class   =0X0003
+Storage Class   =C_STAT:STATIC
+Auxiliary Count =0X0001
+18 Symbol Table ----------
+Symbol Name     =ç
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0000
+Storage Class   =0X0000
+Storage Class   =C_NULL
+Auxiliary Count =0X0000
+19 Symbol Table ----------
+Symbol Name    =171
+Value of Symbol =0000
+Section Number  =0X0005
+Symbol Type     =  0000
+Storage Class   =0X0003
+Storage Class   =C_STAT:STATIC
+Auxiliary Count =0X0001
+20 Symbol Table ----------
+Symbol Name     =
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0000
+Storage Class   =0X0000
+Storage Class   =C_NULL
+Auxiliary Count =0X0000
+21 Symbol Table ----------
+Symbol Name    =182
+Value of Symbol =0000
+Section Number  =0X0006
+Symbol Type     =  0000
+Storage Class   =0X0003
+Storage Class   =C_STAT:STATIC
+Auxiliary Count =0X0001
+22 Symbol Table ----------
+Symbol Name     =ø
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0000
+Storage Class   =0X0000
+Storage Class   =C_NULL
+Auxiliary Count =0X0000
+23 Symbol Table ----------
+Symbol Name     =___main
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+24 Symbol Table ----------
+Symbol Name     =_printf
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+25 Symbol Table ----------
+Symbol Name     =_puts
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+26 Symbol Table ----------
+Symbol Name     =_putchar
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+27 Symbol Table ----------
+Symbol Name     =_memset
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+28 Symbol Table ----------
+Symbol Name     =_memcpy
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+29 Symbol Table ----------
+Symbol Name     =_fopen
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+30 Symbol Table ----------
+Symbol Name     =_fseek
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+31 Symbol Table ----------
+Symbol Name     =_ftell
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+32 Symbol Table ----------
+Symbol Name     =_fread
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+33 Symbol Table ----------
+Symbol Name     =_malloc
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+34 Symbol Table ----------
+Symbol Name     =_free
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+35 Symbol Table ----------
+Symbol Name     =_fclose
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+the pos is before String Table:0X0033AA.
+String Table Offset is :33AA
+String Table Size is :192(readed).
+String Table Size is :188(file).
+String Table Size is :192
+1 String Table ----------
+.rdata$zzz
+.eh_frame
+_display_coff_header
+_display_optional_header
+_display_section_header
+_display_relocation_entry
+_display_symbol_table_entry
+_display_string_table
+.rdata$zzz
+.eh_frame
+

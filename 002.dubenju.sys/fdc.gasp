@@ -1,0 +1,852 @@
+	.file	"fdc.c"
+	.data
+LC0:
+	.ascii "fdc\0"
+	.text
+	.balign 2
+.globl _fdc_task
+	.def	_fdc_task;	.scl	2;	.type	32;	.endef
+_fdc_task:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	pushl	%ebx
+	subl	$12, %esp
+	movl	$0, -24(%ebp)
+	call	_task_now
+	pushl	$LC0
+	movl	%eax, %esi
+	call	_timer_alloc
+	movl	%eax, %edi
+	pushl	$2880
+	leal	16(%esi), %eax
+	pushl	%eax
+	pushl	%edi
+	call	_timer_init
+	pushl	$16384
+	pushl	$3932160
+	call	_memman_alloc_4k
+	pushl	%esi
+	movl	%eax, _fdc_fbuf
+	pushl	%eax
+	pushl	$4096
+	pushl	$_fdc_fifo
+	call	_fifo32_init
+	leal	-20(%ebp), %eax
+	addl	$40, %esp
+	pushl	%eax
+	call	_fdc_init
+	pushl	$12
+	pushl	$1010
+	call	_io_out8
+L14:
+	addl	$12, %esp
+L2:
+	leal	16(%esi), %ebx
+	call	_io_cli
+	pushl	%ebx
+	call	_fifo32_status
+	popl	%edx
+	testl	%eax, %eax
+	je	L15
+	pushl	%ebx
+	call	_fifo32_get
+	movl	%eax, %ebx
+	call	_io_sti
+	popl	%eax
+	cmpl	$2880, %ebx
+	je	L16
+	pushl	%edi
+	call	_timer_cancel
+	leal	-24(%ebp), %edx
+	pushl	%edx
+	movl	%ebx, %eax
+	sarl	$12, %ebx
+	leal	-20(%ebp), %edx
+	pushl	%edx
+	andl	$4095, %eax
+	pushl	%eax
+	pushl	%ebx
+	call	_fdc_readwrite
+	addl	$20, %esp
+	movl	%eax, %ebx
+	cmpl	$100, %eax
+	je	L11
+	pushl	%eax
+	call	_put_retcode
+	popl	%ecx
+L12:
+	movl	$255, %eax
+	subl	%ebx, %eax
+	pushl	%eax
+	movl	_inout, %eax
+	addl	$16, %eax
+	pushl	%eax
+	call	_fifo32_put
+L13:
+	popl	%eax
+	popl	%edx
+	jmp	L2
+L11:
+	xorl	%ebx, %ebx
+	jmp	L12
+L16:
+	pushl	$12
+	pushl	$1010
+	call	_io_out8
+	movl	$0, -24(%ebp)
+	jmp	L13
+L15:
+	cmpb	$0, -13(%ebp)
+	jg	L17
+	pushl	$300
+	pushl	%edi
+	call	_timer_settime
+	pushl	%esi
+	call	_task_sleep
+	call	_io_sti
+	jmp	L14
+L17:
+	leal	-24(%ebp), %eax
+	pushl	%eax
+	leal	-20(%ebp), %eax
+	pushl	%eax
+	pushl	$2880
+	pushl	-20(%ebp)
+	call	_fdc_readwrite
+	movl	%eax, %ebx
+	pushl	%eax
+	call	_put_retcode
+	movl	$255, %eax
+	subl	%ebx, %eax
+	pushl	%eax
+	movl	_inout, %eax
+	addl	$16, %eax
+	pushl	%eax
+	call	_fifo32_put
+	addl	$28, %esp
+	jmp	L2
+	.balign 2
+.globl _fdc_init
+	.def	_fdc_init;	.scl	2;	.type	32;	.endef
+_fdc_init:
+	pushl	%ebp
+	movl	%esp, %ebp
+	movl	8(%ebp), %eax
+	movl	$0, (%eax)
+	movb	$-1, 4(%eax)
+	movb	$-1, 5(%eax)
+	movb	$0, 6(%eax)
+	movb	$0, 7(%eax)
+	pushl	$192
+	pushl	$214
+	call	_io_out8
+	pushl	$0
+	pushl	$192
+	call	_io_out8
+	pushl	$6
+	pushl	$10
+	call	_io_out8
+	leave
+	ret
+	.balign 2
+.globl _fdc_setread
+	.def	_fdc_setread;	.scl	2;	.type	32;	.endef
+_fdc_setread:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	$6
+	pushl	$11
+	call	_io_out8
+	pushl	$255
+	pushl	$5
+	call	_io_out8
+	movl	8(%ebp), %eax
+	leal	-1(%eax,%eax), %eax
+	pushl	%eax
+	pushl	$5
+	call	_io_out8
+	pushl	$0
+	pushl	$4
+	call	_io_out8
+	addl	$32, %esp
+	pushl	$128
+	pushl	$4
+	call	_io_out8
+	pushl	$38
+	pushl	$129
+	call	_io_out8
+	pushl	$2
+	pushl	$10
+	call	_io_out8
+	leave
+	ret
+	.balign 2
+.globl _fdc_setwrite
+	.def	_fdc_setwrite;	.scl	2;	.type	32;	.endef
+_fdc_setwrite:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	$10
+	pushl	$11
+	call	_io_out8
+	pushl	$255
+	pushl	$5
+	call	_io_out8
+	movl	8(%ebp), %eax
+	leal	-1(%eax,%eax), %eax
+	pushl	%eax
+	pushl	$5
+	call	_io_out8
+	pushl	$0
+	pushl	$4
+	call	_io_out8
+	addl	$32, %esp
+	pushl	$128
+	pushl	$4
+	call	_io_out8
+	pushl	$38
+	pushl	$129
+	call	_io_out8
+	pushl	$2
+	pushl	$10
+	call	_io_out8
+	leave
+	ret
+	.data
+LC2:
+	.ascii "fdc write -- C:%02d H:%02d S:%02d N:%02d\0"
+LC3:
+	.ascii "fdd\0"
+LC1:
+	.ascii "fdc read  -- C:%02d H:%02d S:%02d N:%02d\0"
+	.text
+	.balign 2
+.globl _fdc_readwrite
+	.def	_fdc_readwrite;	.scl	2;	.type	32;	.endef
+_fdc_readwrite:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	pushl	%ebx
+	subl	$68, %esp
+	movl	16(%ebp), %ebx
+	movl	$0, -52(%ebp)
+	movl	$0, -60(%ebp)
+	call	_task_now
+	movl	$36, %edx
+	movl	%edx, %esi
+	movl	%eax, -72(%ebp)
+	movl	12(%ebp), %eax
+	cltd
+	idivl	%esi
+	movb	%al, -61(%ebp)
+	movl	%eax, %ecx
+	movl	%edx, %eax
+	movl	$18, %esi
+	cltd
+	idivl	%esi
+	incl	%edx
+	movb	%al, -62(%ebp)
+	movl	$0, -76(%ebp)
+	movb	%dl, -63(%ebp)
+	movl	%eax, %esi
+	cmpb	$0, 7(%ebx)
+	jne	L22
+	movl	8(%ebp), %eax
+	movb	%cl, 4(%ebx)
+	movl	%eax, (%ebx)
+	movl	%esi, %eax
+	movb	%al, 5(%ebx)
+	movb	-63(%ebp), %al
+	movb	%al, 6(%ebx)
+	movb	$1, 7(%ebx)
+L60:
+	movl	$100, %eax
+L21:
+	leal	-12(%ebp), %esp
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	ret
+L22:
+	movl	8(%ebp), %esi
+	cmpl	(%ebx), %esi
+	je	L61
+L23:
+	cld
+	xorl	%eax, %eax
+	leal	-44(%ebp), %edi
+	movl	$30, %ecx
+	leal	-44(%ebp), %esi
+	rep
+	stosb
+	cmpl	$1, (%ebx)
+	je	L62
+	movsbl	7(%ebx),%eax
+	pushl	%eax
+	movsbl	6(%ebx),%eax
+	pushl	%eax
+	movsbl	5(%ebx),%eax
+	pushl	%eax
+	movsbl	4(%ebx),%eax
+	pushl	%eax
+	pushl	$LC2
+	pushl	%esi
+	call	_sprintf
+	pushl	$7
+	pushl	%esi
+	call	_dbg_putstr0
+	addl	$32, %esp
+	movsbl	7(%ebx),%eax
+	pushl	%eax
+	call	_fdc_setwrite
+L57:
+	movsbl	4(%ebx),%esi
+	movsbl	5(%ebx),%ecx
+	imull	$18, %ecx, %edx
+	imull	$36, %esi, %eax
+	addl	%edx, %eax
+	popl	%edi
+	movsbl	6(%ebx),%edx
+	addl	%edx, %eax
+	sall	$9, %eax
+	addl	$1048064, %eax
+	movl	%eax, -68(%ebp)
+	movl	20(%ebp), %eax
+	cmpl	$0, (%eax)
+	jne	L26
+	pushl	$28
+	pushl	$1010
+	call	_io_out8
+	pushl	$LC3
+	call	_timer_alloc
+	pushl	$128
+	pushl	$_fdc_fifo
+	pushl	%eax
+	movl	%eax, -76(%ebp)
+	call	_timer_init
+	pushl	$300
+	pushl	-76(%ebp)
+	call	_timer_settime
+	addl	$32, %esp
+	movl	20(%ebp), %esi
+	movl	$1, (%esi)
+L28:
+	call	_io_cli
+	pushl	$_fdc_fifo
+	call	_fifo32_status
+	popl	%edx
+	testl	%eax, %eax
+	je	L63
+	pushl	$_fdc_fifo
+	call	_fifo32_get
+	movl	%eax, %esi
+	call	_io_sti
+	popl	%edi
+	cmpl	$128, %esi
+	je	L64
+	cmpl	$255, %esi
+	jne	L28
+	cmpl	$0, -52(%ebp)
+	je	L65
+	call	_fdc_getstat
+	testl	%eax, %eax
+	movl	%eax, -56(%ebp)
+	je	L66
+	cmpl	$2, -60(%ebp)
+	jg	L29
+	incl	-60(%ebp)
+	movsbl	6(%ebx),%eax
+	pushl	%eax
+	movsbl	5(%ebx),%eax
+	pushl	%eax
+	movsbl	4(%ebx),%eax
+	pushl	%eax
+	pushl	(%ebx)
+	call	_fdc_sendcmd
+L58:
+	addl	$16, %esp
+	jmp	L28
+L29:
+	cmpb	$79, -61(%ebp)
+	jg	L53
+	movl	8(%ebp), %eax
+	movl	%eax, (%ebx)
+	movb	-61(%ebp), %al
+	movb	%al, 4(%ebx)
+	movb	-62(%ebp), %al
+	movb	%al, 5(%ebx)
+	movb	-63(%ebp), %al
+	movb	%al, 6(%ebx)
+	movb	$1, 7(%ebx)
+L54:
+	pushl	$6
+	pushl	$10
+	call	_io_out8
+	popl	%ebx
+	popl	%esi
+	cmpl	$0, -76(%ebp)
+	je	L55
+	pushl	-76(%ebp)
+	call	_timer_free
+	popl	%ecx
+L55:
+	movl	-56(%ebp), %eax
+	jmp	L21
+L53:
+	movl	$0, (%ebx)
+	movb	$-1, 4(%ebx)
+	movb	$-1, 5(%ebx)
+	movb	$0, 6(%ebx)
+	movb	$0, 7(%ebx)
+	jmp	L54
+L66:
+	cmpl	$1, (%ebx)
+	jne	L29
+	movl	$0, -48(%ebp)
+	movsbl	7(%ebx),%eax
+	cmpl	%eax, -56(%ebp)
+	jge	L29
+	movl	$0, -80(%ebp)
+L49:
+	call	_io_cli
+	movsbl	5(%ebx),%eax
+	movsbl	4(%ebx),%edx
+	movsbl	6(%ebx),%ecx
+	leal	(%eax,%edx,2), %edx
+	movl	-48(%ebp), %eax
+	leal	-1(%eax,%ecx), %ecx
+	movl	_i_sta(,%edx,4), %eax
+	sarl	%cl, %eax
+	andl	$1, %eax
+	jne	L48
+	movl	-80(%ebp), %edi
+	movl	-80(%ebp), %esi
+	addl	-68(%ebp), %edi
+	addl	$2523136, %esi
+	cld
+	movl	$128, %ecx
+	rep
+	movsl
+	movsbl	5(%ebx),%eax
+	movsbl	4(%ebx),%edx
+	movsbl	6(%ebx),%ecx
+	movl	-48(%ebp), %esi
+	leal	(%eax,%edx,2), %edx
+	movl	$1, %eax
+	leal	-1(%esi,%ecx), %ecx
+	sall	%cl, %eax
+	orl	%eax, _i_sta(,%edx,4)
+L48:
+	call	_io_sti
+	incl	-48(%ebp)
+	addl	$512, -80(%ebp)
+	movsbl	7(%ebx),%eax
+	cmpl	%eax, -48(%ebp)
+	jl	L49
+	jmp	L29
+L65:
+	call	_fdc_sendint
+	call	_fdc_getsint
+	cmpl	$-1, %eax
+	movl	%eax, -56(%ebp)
+	je	L28
+	testl	%eax, %eax
+	jne	L29
+	cmpl	$1, (%ebx)
+	je	L39
+	movsbl	7(%ebx),%ecx
+	cld
+	sall	$9, %ecx
+	movl	$2523136, %edi
+	movl	-68(%ebp), %esi
+	rep
+	movsb
+L39:
+	movsbl	6(%ebx),%eax
+	pushl	%eax
+	movsbl	5(%ebx),%eax
+	pushl	%eax
+	movsbl	4(%ebx),%eax
+	pushl	%eax
+	pushl	(%ebx)
+	call	_fdc_sendcmd
+	movl	$1, -52(%ebp)
+	jmp	L58
+L64:
+	movsbl	5(%ebx),%eax
+	pushl	%eax
+	movsbl	4(%ebx),%eax
+	pushl	%eax
+L59:
+	call	_fdc_sendseek
+	popl	%ecx
+	popl	%esi
+	jmp	L28
+L63:
+	pushl	-72(%ebp)
+	call	_task_sleep
+	call	_io_sti
+	popl	%eax
+	jmp	L28
+L26:
+	pushl	%ecx
+	pushl	%esi
+	jmp	L59
+L62:
+	movsbl	7(%ebx),%eax
+	pushl	%eax
+	movsbl	6(%ebx),%eax
+	pushl	%eax
+	movsbl	5(%ebx),%eax
+	pushl	%eax
+	movsbl	4(%ebx),%eax
+	pushl	%eax
+	pushl	$LC1
+	pushl	%esi
+	call	_sprintf
+	pushl	$7
+	pushl	%esi
+	call	_dbg_putstr0
+	addl	$32, %esp
+	movsbl	7(%ebx),%eax
+	pushl	%eax
+	call	_fdc_setread
+	jmp	L57
+L61:
+	movb	-61(%ebp), %al
+	cmpb	4(%ebx), %al
+	jne	L23
+	movb	-62(%ebp), %al
+	cmpb	5(%ebx), %al
+	jne	L23
+	movb	6(%ebx), %al
+	subb	%al, -63(%ebp)
+	movb	-63(%ebp), %al
+	incl	%eax
+	movb	%al, 7(%ebx)
+	jmp	L60
+	.balign 2
+.globl _fdc_sendseek
+	.def	_fdc_sendseek;	.scl	2;	.type	32;	.endef
+_fdc_sendseek:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%esi
+	pushl	%ebx
+	movsbl	8(%ebp),%esi
+	movsbl	12(%ebp),%ebx
+	sall	$2, %ebx
+	call	_wait_fdc_init
+	call	_wait_fdc_send
+	pushl	$15
+	pushl	$1013
+	call	_io_out8
+	call	_wait_fdc_send
+	pushl	%ebx
+	pushl	$1013
+	call	_io_out8
+	call	_wait_fdc_send
+	movl	%esi, 12(%ebp)
+	movl	$1013, 8(%ebp)
+	addl	$16, %esp
+	leal	-8(%ebp), %esp
+	popl	%ebx
+	popl	%esi
+	popl	%ebp
+	jmp	_io_out8
+	.balign 2
+.globl _fdc_sendint
+	.def	_fdc_sendint;	.scl	2;	.type	32;	.endef
+_fdc_sendint:
+	pushl	%ebp
+	movl	%esp, %ebp
+	call	_wait_fdc_sint
+	call	_wait_fdc_send
+	pushl	$8
+	pushl	$1013
+	call	_io_out8
+	leave
+	ret
+	.balign 2
+.globl _fdc_sendcmd
+	.def	_fdc_sendcmd;	.scl	2;	.type	32;	.endef
+_fdc_sendcmd:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%ebx
+	pushl	%eax
+	movb	12(%ebp), %al
+	movl	8(%ebp), %ebx
+	movb	%al, -5(%ebp)
+	movb	16(%ebp), %al
+	movb	%al, -6(%ebp)
+	movb	20(%ebp), %al
+	movb	%al, -7(%ebp)
+	call	_wait_fdc_init
+	decl	%ebx
+	je	L73
+	call	_wait_fdc_send
+	pushl	$197
+L72:
+	pushl	$1013
+	call	_io_out8
+	call	_wait_fdc_send
+	movsbl	-6(%ebp),%ebx
+	leal	0(,%ebx,4), %eax
+	pushl	%eax
+	pushl	$1013
+	call	_io_out8
+	call	_wait_fdc_send
+	movsbl	-5(%ebp),%eax
+	pushl	%eax
+	pushl	$1013
+	call	_io_out8
+	call	_wait_fdc_send
+	pushl	%ebx
+	pushl	$1013
+	call	_io_out8
+	addl	$32, %esp
+	call	_wait_fdc_send
+	movsbl	-7(%ebp),%eax
+	pushl	%eax
+	pushl	$1013
+	call	_io_out8
+	call	_wait_fdc_send
+	pushl	$2
+	pushl	$1013
+	call	_io_out8
+	call	_wait_fdc_send
+	pushl	$18
+	pushl	$1013
+	call	_io_out8
+	call	_wait_fdc_send
+	pushl	$27
+	pushl	$1013
+	call	_io_out8
+	addl	$32, %esp
+	call	_wait_fdc_send
+	movl	-4(%ebp), %ebx
+	movl	$255, 12(%ebp)
+	movl	$1013, 8(%ebp)
+	leave
+	jmp	_io_out8
+L73:
+	call	_wait_fdc_send
+	pushl	$230
+	jmp	L72
+	.balign 2
+.globl _fdc_getsint
+	.def	_fdc_getsint;	.scl	2;	.type	32;	.endef
+_fdc_getsint:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%ebx
+	call	_wait_fdc_recv
+	pushl	$1013
+	call	_io_in8
+	movb	%al, %bl
+	call	_wait_fdc_recv
+	pushl	$1013
+	call	_io_in8
+	popl	%edx
+	movl	%ebx, %eax
+	popl	%ecx
+	andl	$192, %eax
+	orl	$-1, %edx
+	cmpl	$192, %eax
+	je	L74
+	xorl	%edx, %edx
+	testl	$192, %ebx
+	setne	%dl
+L74:
+	movl	%edx, %eax
+	movl	-4(%ebp), %ebx
+	leave
+	ret
+	.balign 2
+.globl _fdc_getstat
+	.def	_fdc_getstat;	.scl	2;	.type	32;	.endef
+_fdc_getstat:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%ebx
+	call	_wait_fdc_recv
+	pushl	$1013
+	call	_io_in8
+	movb	%al, %bl
+	call	_wait_fdc_recv
+	pushl	$1013
+	call	_io_in8
+	call	_wait_fdc_recv
+	pushl	$1013
+	call	_io_in8
+	call	_wait_fdc_recv
+	pushl	$1013
+	call	_io_in8
+	call	_wait_fdc_recv
+	pushl	$1013
+	call	_io_in8
+	call	_wait_fdc_recv
+	pushl	$1013
+	call	_io_in8
+	call	_wait_fdc_recv
+	pushl	$1013
+	call	_io_in8
+	xorl	%eax, %eax
+	addl	$28, %esp
+	testl	$192, %ebx
+	movl	-4(%ebp), %ebx
+	setne	%al
+	leave
+	ret
+	.balign 2
+.globl _wait_fdc_init
+	.def	_wait_fdc_init;	.scl	2;	.type	32;	.endef
+_wait_fdc_init:
+	pushl	%ebp
+	movl	%esp, %ebp
+L81:
+	pushl	$1012
+	call	_io_in8
+	popl	%edx
+	andl	$17, %eax
+	jne	L81
+	leave
+	ret
+	.balign 2
+.globl _wait_fdc_sint
+	.def	_wait_fdc_sint;	.scl	2;	.type	32;	.endef
+_wait_fdc_sint:
+	pushl	%ebp
+	movl	%esp, %ebp
+L86:
+	pushl	$1012
+	call	_io_in8
+	popl	%ecx
+	andl	$16, %eax
+	jne	L86
+	leave
+	ret
+	.balign 2
+.globl _wait_fdc_send
+	.def	_wait_fdc_send;	.scl	2;	.type	32;	.endef
+_wait_fdc_send:
+	pushl	%ebp
+	movl	%esp, %ebp
+L91:
+	pushl	$1012
+	call	_io_in8
+	popl	%edx
+	andl	$192, %eax
+	addl	$-128, %eax
+	jne	L91
+	leave
+	ret
+	.balign 2
+.globl _wait_fdc_recv
+	.def	_wait_fdc_recv;	.scl	2;	.type	32;	.endef
+_wait_fdc_recv:
+	pushl	%ebp
+	movl	%esp, %ebp
+L96:
+	pushl	$1012
+	call	_io_in8
+	popl	%ecx
+	andl	$192, %eax
+	cmpl	$192, %eax
+	jne	L96
+	leave
+	ret
+	.balign 2
+.globl _inthandler26
+	.def	_inthandler26;	.scl	2;	.type	32;	.endef
+_inthandler26:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	$1012
+	call	_io_in8
+	pushl	$102
+	pushl	$32
+	call	_io_out8
+	pushl	$255
+	pushl	$_fdc_fifo
+	call	_fifo32_put
+	leave
+	ret
+	.data
+LC4:
+	.ascii "  -> rc=%d\12\0"
+	.text
+	.balign 2
+.globl _put_retcode
+	.def	_put_retcode;	.scl	2;	.type	32;	.endef
+_put_retcode:
+	pushl	%ebp
+	xorl	%eax, %eax
+	movl	%esp, %ebp
+	movl	$30, %ecx
+	pushl	%edi
+	cld
+	pushl	%ebx
+	leal	-40(%ebp), %edi
+	subl	$32, %esp
+	leal	-40(%ebp), %ebx
+	rep
+	stosb
+	pushl	8(%ebp)
+	pushl	$LC4
+	pushl	%ebx
+	call	_sprintf
+	pushl	$7
+	pushl	%ebx
+	call	_dbg_putstr0
+	leal	-8(%ebp), %esp
+	popl	%ebx
+	popl	%edi
+	popl	%ebp
+	ret
+.globl _fdc_fbuf
+	.data
+	.balign 4
+_fdc_fbuf:
+	.space 4
+.globl _fdc_fifo
+	.data
+	.balign 16
+_fdc_fifo:
+	.space 28
+	.def	_io_in8;	.scl	2;	.type	32;	.endef
+	.def	_wait_fdc_recv;	.scl	2;	.type	32;	.endef
+	.def	_wait_fdc_sint;	.scl	2;	.type	32;	.endef
+	.def	_wait_fdc_send;	.scl	2;	.type	32;	.endef
+	.def	_wait_fdc_init;	.scl	2;	.type	32;	.endef
+	.def	_timer_free;	.scl	2;	.type	32;	.endef
+	.def	_fdc_getstat;	.scl	2;	.type	32;	.endef
+	.def	_fdc_sendcmd;	.scl	2;	.type	32;	.endef
+	.def	_fdc_getsint;	.scl	2;	.type	32;	.endef
+	.def	_fdc_sendint;	.scl	2;	.type	32;	.endef
+	.def	_fdc_sendseek;	.scl	2;	.type	32;	.endef
+	.def	_dbg_putstr0;	.scl	2;	.type	32;	.endef
+	.def	_sprintf;	.scl	2;	.type	32;	.endef
+	.def	_timer_cancel;	.scl	2;	.type	32;	.endef
+	.def	_fifo32_get;	.scl	2;	.type	32;	.endef
+	.def	_io_sti;	.scl	2;	.type	32;	.endef
+	.def	_task_sleep;	.scl	2;	.type	32;	.endef
+	.def	_timer_settime;	.scl	2;	.type	32;	.endef
+	.def	_fifo32_put;	.scl	2;	.type	32;	.endef
+	.def	_put_retcode;	.scl	2;	.type	32;	.endef
+	.def	_fdc_readwrite;	.scl	2;	.type	32;	.endef
+	.def	_fifo32_status;	.scl	2;	.type	32;	.endef
+	.def	_io_cli;	.scl	2;	.type	32;	.endef
+	.def	_io_out8;	.scl	2;	.type	32;	.endef
+	.def	_fdc_init;	.scl	2;	.type	32;	.endef
+	.def	_fifo32_init;	.scl	2;	.type	32;	.endef
+	.def	_memman_alloc_4k;	.scl	2;	.type	32;	.endef
+	.def	_timer_init;	.scl	2;	.type	32;	.endef
+	.def	_timer_alloc;	.scl	2;	.type	32;	.endef
+	.def	_task_now;	.scl	2;	.type	32;	.endef

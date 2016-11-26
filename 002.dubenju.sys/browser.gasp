@@ -1,0 +1,320 @@
+	.file	"browser.c"
+	.data
+LC0:
+	.ascii "File(F) Edit(E) Format(O) View(V) Help(H)\0"
+LC1:
+	.ascii "Desktop\0"
+LC2:
+	.ascii "Document\0"
+LC3:
+	.ascii "Computer\0"
+LC4:
+	.ascii "NetWork\0"
+LC5:
+	.ascii "Recycler\0"
+LC6:
+	.ascii "%d\0"
+	.text
+	.balign 2
+.globl _browser_task
+	.def	_browser_task;	.scl	2;	.type	32;	.endef
+_browser_task:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	pushl	%ebx
+	movl	$20, %ebx
+	subl	$116, %esp
+	call	_task_now
+	movl	%ebx, %ecx
+	cld
+	movl	%eax, -104(%ebp)
+	leal	-92(%ebp), %eax
+	movl	%eax, -108(%ebp)
+	xorl	%eax, %eax
+	movl	-108(%ebp), %edi
+	rep
+	stosl
+	pushl	$LC0
+	leal	-92(%ebp), %eax
+	pushl	%eax
+	leal	-92(%ebp), %edi
+	call	_sprintf
+	movl	8(%ebp), %eax
+	pushl	%edi
+	pushl	$1
+	pushl	$0
+	pushl	$26
+	pushl	$8
+	pushl	4(%eax)
+	pushl	(%eax)
+	call	_putfonts8_asc
+	addl	$36, %esp
+	pushl	$7
+	pushl	$320
+	pushl	$160
+	pushl	$44
+	pushl	$6
+	pushl	8(%ebp)
+	call	_make_textbox8
+	pushl	$160
+	pushl	$350
+	pushl	$6
+	pushl	8(%ebp)
+	call	_make_h_scroll
+	addl	$40, %esp
+	pushl	$306
+	pushl	$44
+	pushl	$152
+	pushl	8(%ebp)
+	call	_make_v_scroll
+	pushl	$0
+	pushl	$22
+	pushl	$90
+	pushl	$44
+	pushl	$200
+	pushl	8(%ebp)
+	call	_make_progress
+	movl	8(%ebp), %edi
+	addl	$40, %esp
+	movl	$0, -100(%ebp)
+	pushl	$200
+	pushl	$200
+	pushl	$100
+	pushl	$100
+	pushl	$0
+	pushl	4(%edi)
+	pushl	(%edi)
+	leal	-92(%ebp), %edi
+	call	_DDAline
+	cld
+	movl	-100(%ebp), %eax
+	movl	%ebx, %ecx
+	rep
+	stosl
+	pushl	$LC1
+	leal	-92(%ebp), %edi
+	pushl	%edi
+	call	_sprintf
+	addl	$36, %esp
+	pushl	%edi
+	movl	8(%ebp), %edi
+	pushl	$1
+	pushl	$0
+	pushl	$44
+	pushl	$8
+	pushl	4(%edi)
+	pushl	(%edi)
+	leal	-92(%ebp), %edi
+	call	_putfonts8_asc
+	cld
+	movl	-100(%ebp), %eax
+	movl	%ebx, %ecx
+	rep
+	stosl
+	pushl	$LC2
+	leal	-92(%ebp), %eax
+	pushl	%eax
+	leal	-92(%ebp), %edi
+	call	_sprintf
+	movl	8(%ebp), %eax
+	addl	$36, %esp
+	pushl	%edi
+	pushl	$1
+	pushl	$0
+	pushl	$62
+	pushl	$24
+	pushl	4(%eax)
+	pushl	(%eax)
+	call	_putfonts8_asc
+	movl	-100(%ebp), %eax
+	cld
+	movl	%ebx, %ecx
+	rep
+	stosl
+	pushl	$LC3
+	leal	-92(%ebp), %eax
+	pushl	%eax
+	leal	-92(%ebp), %edi
+	call	_sprintf
+	movl	8(%ebp), %eax
+	addl	$36, %esp
+	pushl	%edi
+	pushl	$1
+	pushl	$0
+	pushl	$80
+	pushl	$24
+	pushl	4(%eax)
+	pushl	(%eax)
+	call	_putfonts8_asc
+	movl	-100(%ebp), %eax
+	cld
+	movl	%ebx, %ecx
+	rep
+	stosl
+	pushl	$LC4
+	leal	-92(%ebp), %eax
+	pushl	%eax
+	leal	-92(%ebp), %edi
+	call	_sprintf
+	movl	8(%ebp), %eax
+	addl	$36, %esp
+	pushl	%edi
+	pushl	$1
+	pushl	$0
+	pushl	$98
+	pushl	$24
+	pushl	4(%eax)
+	pushl	(%eax)
+	call	_putfonts8_asc
+	movl	-100(%ebp), %eax
+	cld
+	movl	%ebx, %ecx
+	rep
+	stosl
+	pushl	$LC5
+	leal	-92(%ebp), %eax
+	pushl	%eax
+	leal	-92(%ebp), %edi
+	call	_sprintf
+	movl	8(%ebp), %eax
+	addl	$36, %esp
+	pushl	%edi
+	pushl	$1
+	pushl	$0
+	pushl	$116
+	pushl	$24
+	pushl	4(%eax)
+	pushl	(%eax)
+	call	_putfonts8_asc
+	addl	$28, %esp
+	movl	$134, -96(%ebp)
+L2:
+	call	_io_cli
+	movl	-104(%ebp), %ebx
+	addl	$16, %ebx
+	pushl	%ebx
+	call	_fifo32_status
+	popl	%esi
+	testl	%eax, %eax
+	je	L12
+	pushl	%ebx
+	call	_fifo32_get
+	movl	%eax, %esi
+	call	_io_sti
+	popl	%edx
+	leal	-256(%esi), %eax
+	cmpl	$255, %eax
+	ja	L7
+	movl	%esi, %eax
+	movl	8(%ebp), %edi
+	movb	%al, -92(%ebp)
+	leal	-92(%ebp), %eax
+	pushl	%eax
+	pushl	$1
+	pushl	$4
+	pushl	-96(%ebp)
+	pushl	$8
+	movb	$0, -91(%ebp)
+	pushl	4(%edi)
+	pushl	(%edi)
+	call	_putfonts8_asc
+	addl	$28, %esp
+	addl	$18, -96(%ebp)
+L7:
+	leal	-512(%esi), %eax
+	cmpl	$255, %eax
+	ja	L8
+	leal	-92(%ebp), %eax
+	movl	$20, %ecx
+	movl	%eax, -128(%ebp)
+	leal	-92(%ebp), %ebx
+	cld
+	xorl	%eax, %eax
+	movl	-128(%ebp), %edi
+	rep
+	stosl
+	pushl	%esi
+	pushl	$LC6
+	pushl	%ebx
+	call	_sprintf
+	movl	8(%ebp), %eax
+	pushl	%ebx
+	pushl	$1
+	pushl	$4
+	pushl	-96(%ebp)
+	pushl	$8
+	pushl	4(%eax)
+	pushl	(%eax)
+	call	_putfonts8_asc
+	addl	$40, %esp
+	addl	$10, -100(%ebp)
+	addl	$18, -96(%ebp)
+	cmpl	$90, -100(%ebp)
+	jle	L9
+	pushl	$0
+	pushl	$22
+	pushl	$90
+	movl	$0, -100(%ebp)
+L11:
+	pushl	$44
+	pushl	$200
+	pushl	8(%ebp)
+	call	_make_progress
+	addl	$24, %esp
+L8:
+	pushl	$360
+	pushl	$520
+	pushl	$10
+	pushl	$10
+	pushl	8(%ebp)
+	call	_sheet_refresh
+	addl	$20, %esp
+	jmp	L2
+L9:
+	pushl	$1
+	pushl	$22
+	pushl	-100(%ebp)
+	jmp	L11
+L12:
+	pushl	-104(%ebp)
+	call	_task_sleep
+	call	_io_sti
+	popl	%ecx
+	jmp	L2
+	.data
+LC7:
+	.ascii "test\0"
+	.text
+	.balign 2
+.globl _brow_callback
+	.def	_brow_callback;	.scl	2;	.type	32;	.endef
+_brow_callback:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	$LC7
+	pushl	$1
+	pushl	$4
+	movl	8(%ebp), %eax
+	pushl	$100
+	pushl	$100
+	pushl	4(%eax)
+	pushl	(%eax)
+	call	_putfonts8_asc
+	leave
+	ret
+	.def	_sheet_refresh;	.scl	2;	.type	32;	.endef
+	.def	_fifo32_get;	.scl	2;	.type	32;	.endef
+	.def	_io_sti;	.scl	2;	.type	32;	.endef
+	.def	_task_sleep;	.scl	2;	.type	32;	.endef
+	.def	_fifo32_status;	.scl	2;	.type	32;	.endef
+	.def	_io_cli;	.scl	2;	.type	32;	.endef
+	.def	_DDAline;	.scl	2;	.type	32;	.endef
+	.def	_make_progress;	.scl	2;	.type	32;	.endef
+	.def	_make_v_scroll;	.scl	2;	.type	32;	.endef
+	.def	_make_h_scroll;	.scl	2;	.type	32;	.endef
+	.def	_make_textbox8;	.scl	2;	.type	32;	.endef
+	.def	_putfonts8_asc;	.scl	2;	.type	32;	.endef
+	.def	_sprintf;	.scl	2;	.type	32;	.endef
+	.def	_task_now;	.scl	2;	.type	32;	.endef

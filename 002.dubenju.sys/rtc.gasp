@@ -1,0 +1,106 @@
+	.file	"rtc.c"
+	.text
+	.balign 2
+.globl _init_rtc
+	.def	_init_rtc;	.scl	2;	.type	32;	.endef
+_init_rtc:
+	pushl	%ebp
+	movl	%esp, %ebp
+	popl	%ebp
+	ret
+	.data
+_adr.0:
+	.byte	50
+	.byte	8
+	.byte	7
+	.byte	4
+	.byte	2
+	.byte	0
+	.byte	9
+_max.1:
+	.byte	-103
+	.byte	18
+	.byte	49
+	.byte	35
+	.byte	89
+	.byte	96
+	.byte	-103
+	.text
+	.balign 2
+.globl _rtc_get
+	.def	_rtc_get;	.scl	2;	.type	32;	.endef
+_rtc_get:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	pushl	%ebx
+	pushl	%eax
+	orl	$-1, %eax
+	movl	8(%ebp), %esi
+	movl	$0, -16(%ebp)
+	cmpl	$5, %esi
+	jle	L4
+L2:
+	leal	-12(%ebp), %esp
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	ret
+L4:
+	movzbl	_adr.0(%esi), %eax
+	pushl	%eax
+	xorl	%edi, %edi
+	pushl	$112
+	call	_io_out8
+	pushl	$113
+	call	_io_in8
+	movb	%al, %bl
+	movzbl	_adr.0(%esi), %eax
+	pushl	%eax
+	pushl	$112
+	call	_io_out8
+	pushl	$113
+	call	_io_in8
+	addl	$24, %esp
+	movb	%al, %cl
+	cmpb	%al, %bl
+	je	L11
+L8:
+	movl	$1, %edi
+L7:
+	testl	%esi, %esi
+	jne	L6
+	movb	%cl, %al
+	movl	%ecx, %edx
+	shrb	$4, %al
+	andl	$15, %edx
+	movzbl	%al, %eax
+	imull	$10, %eax, %eax
+	addl	%edx, %eax
+	movl	$6, %esi
+	imull	$100, %eax, %eax
+	incl	%edi
+	movl	%eax, -16(%ebp)
+L6:
+	testl	%edi, %edi
+	jne	L4
+	movb	%cl, %al
+	movl	%ecx, %edx
+	shrb	$4, %al
+	andl	$15, %edx
+	movzbl	%al, %eax
+	imull	$10, %eax, %eax
+	addl	%edx, %eax
+	addl	-16(%ebp), %eax
+	jmp	L2
+L11:
+	andl	$15, %eax
+	cmpb	$9, %al
+	ja	L8
+	cmpb	%cl, _max.1(%esi)
+	jae	L7
+	jmp	L8
+	.def	_io_in8;	.scl	2;	.type	32;	.endef
+	.def	_io_out8;	.scl	2;	.type	32;	.endef

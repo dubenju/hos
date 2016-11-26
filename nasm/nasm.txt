@@ -1,0 +1,1892 @@
+NASM
+
+1. NASM编译器介绍：
+    1) Netwide Assembler，是开源且免费的汇编器；
+    2) 该汇编器只提供编译的功能，但不提供连接的功能，在Linux下编译器产生.o文件后还需要使用ld链接器和操作系统的库链接才能形成可执行文件，而在Windows下需要使用MASM的ml链接器连接形成.exe文件；
+    3) 这里我们先介绍实模式编程，由于Linux以及Windows都是运行在保护模式下的，因此我们会将编译好的程序写进虚拟硬盘的主引导扇区中，然后由虚拟机启动来观察程序运行效果，在Windows中使用Oracle Virtual Box以及VHD，在Linux中使用Bochs和dd磁盘工具；
+    4) NASM和MASM一样都是遵从Intel汇编语法，因此指令集（即指令的名称相同）相同、语法相同，仅仅就是内存寻址形式以及其它的一些语法的细微处有不同地方；
+
+2. 符号命名规则以及立即数的表示形式、越界问题：
+    1) 对于指令、寄存器名称以及立即数中的字母，都对大小写不敏感；
+    2) 但是对于标号是大小写敏感的！比如Tag:和tag:就是两个完全不同的标号；
+    3) 标号必须以字母开头，或者是以'_'、'.'、'@'、'?'开头，当然标号当中也可以包含这些符号，并且标号也可以只包含这些符号，比如'@@'等，但是如果以特殊符号开头而不是以字母开头，对于NASM有特殊含义（之后会详细讲解）；
+    4) 立即数的表示：
+        i. 规则基本和MASM一样，可以用H、没有后缀、B来区分十六进制、十进制、二进制，并且后缀的大小写随意；
+        ii. 后缀法表示十六进制时，如果是以字母开头的就必须加一个0前缀，否则编译器会认为这是一个标号而不是一个立即数而报错！（注意：标号基本上是以字母开头的）
+        iii. 但是NASM还支持更加传统的十六进制表示形式，就是C语言的0x前缀表示法，用这种方式十六进制如果是以字母开头就无需加0前缀了，并且无需任何后缀，x的大小写随意；
+        iv. NASM允许使用下划线来使较长的立即数更加清晰，并且对于任意一种表示法都有效，比如100_0_11_11B、0F_E_3H、33_3_33、0x89_EF等，但是下划线不能放在开头，否则汇编器会将其误认为标号而报错；
+       ！注意：任何汇编语言都不允许立即数作为目的操作数，因为目的操作数具有存放运算结果的功能，而立即数没有自己的空间，因此不能作为目的操作数使用！
+    5) 立即数越界问题：就是指立即数的范围超出目的操作数的范围大小，比如mov cl, 0623EFA823H、mov byte [bx], 3242342342325等，这种情况编译器不会报错，但是会警告提示范围过大，如果执意运行而忽视警告，则在运行时会做截断处理而损失精度，极大可能会导致程序错误或异常崩溃！所以不能忽视立即数越界问题；
+    6) 良好的符号命名习惯：
+        i. 所有指令和寄存器名称都小写；
+        ii. 立即数的后缀都大写；
+        iii. 立即数中的字母都大写；
+        iv. 0x中的x小写；
+        v. 全局标号以大写字母开头，后面跟小写字母（和Java的类名相似）；
+        vi. 局部标号全小写；（关于全局标号和局部标号的概念后面会详细介绍）
+    7) 字符串的表示：
+        i. 字符串也是一种立即数；
+        ii. 既可以使用' '也可以使用" "来表示字符串立即数；
+        iii. 如果字符串中有"则必须使用' '将字符串括起来，相反，如果字符串中有'则必须使用" "将字符串括起来，这样就可以是字符串中的"和'符号转义；
+        iv. ‘ ’和" "的匹配规则：用' '括起来就不能在字符串中有'符号了，对于" "情况也相同，字符串中不能再含有"，因为这是由NASM识别字符串的规则决定的，当汇编器读取起始的'或"时，就会将其看做字符串的起始/结束，因此一旦扫描到第二个'或"时就会认为是字符串的结束，如果后面还有其它字符则汇编器会变得非常苦恼因而干脆直接报错！
+
+3. 声明数据：
+    1) 除了db、dw、dd之外还多了一个dq，即define quad word来声明四字数据（64位）；
+    2) 声明的数据越界问题：比如db 0xFFFF，该立即数明显超出一字节的范围，对于这种情况编译器会警告但不会报错，如果执意运行同样是做阶段处理而损失精度，可能会导致程序错误或异常崩溃，因此不容忽视；
+    3) NASM没有了“d? n dup(...)”的重复定义数据的语法了，取而代之的是伪指令times，使用形式是"times 重复次数 指令（可以是汇编指令也可以是伪指令）"，times就表示重复的意思，可以将后面指定的指令重复执行指定次数，比如"times 128 db 1"，即表示重复定义128个连续的字节1；
+
+4. 汇编地址以及标号的本质：
+    1) 汇编地址的概念在所有汇编编译器里都是统一的，但不过之前在[Intel汇编-MASM]中没有提到过，因此在这里就需要强调一下；
+    2) 所谓汇编地址，就是编译器给源程序中每条指令定义的地址，由于编译后的程序可以在内存中浮动（即可以装载在内存中的任意位置），因此直接用绝对地址（20位的湿模式下的物理内存地址）来给源程序中的指令定位的话将不利于程序在内存中的浮动；
+    3) 汇编地址定位规则：
+        一般规则：
+        i. 如果在没有使用特殊指令的一般情况下（特别是vstart指令），整个源程序中第一条指令的汇编地址为0，之后所有指令的汇编地址都是相对于整个源程序第一条指令的偏移地址，即使程序中分了很多段也是如此，在这种情况下，如果将整个源程序看做一个段的话则汇编地址就是段内偏移地址；
+        ii. 在NASM中，所有的标号实质上就是其所在处指令的汇编地址（相对于整个源程序第一条指令的偏移地址），在编译后会将所有标号都替换成该汇编地址值（即立即数）；
+        特殊规则：
+        i. 如果在定义段的时候使用了vstart指令，比如"section my_segment vstart=15"，则会提醒汇编器，该段起始指令的汇编地址是15，段内的其它指令的汇编地址都是和该段起始指令地址的偏移量加上15；
+！NASM使用关键字section来定义段，后面跟一个段的名称（用户自取），接下来跟一些段的属性定义；
+！因此，vstart伪指令就是规定段的其实汇编地址的指令；
+！如果vstart=0，则段内的汇编指令就是段内的偏移地址了！！！这种手法经常使用！！
+        ii. 使用NASM规则的标准段，是指section .data、section .text、section .bss，这三种标准段都默认包含有vstart=0的含义，因此段内的指令以及标号的汇编地址都是段内偏移地址，并且在加载程序的时候会自动使cs执行.text、ds指向.bss、es指向.data而无需人手工来执行对段寄存器赋值的步骤，而对于i.中的人全权定义段的方式则没有这种自动的步骤，需要亲手对段寄存器进行赋值！
+    4) 引用标号：
+        i. 和MASM不一样的是NASM大大简化了对标号的引用，不需要再用seg和offset对标号取段地址和偏移地址了；
+        ii. 在NASM中，标号就是一个立即数，而这个立即数就是汇编地址而已，仅此而已！！
+        iii. 在NASM中不再有MASM中数据标号的概念了，也就不存在什么arr[5]之类的内存寻址形式了！！！！
+        iv. 在NASM中所有出现标号的地方都会用标号的汇编地址替换，因此诸如mov ax, tag之类的指令，仅仅就是将一个立即数（tag的汇编地址）传送至ax而已，而不是取tag地址内的数据了！！！如果要取标号处内存中的数据就必须使用[ ]（类似C语言的指针运算符*），比如[tag]就代表取tag地址内存中的数据；
+
+！！！只有段寄存器中存放的才是真实的物理内存段地址（即16的整数倍），标号全部都是源程序的汇编地址！
+！这种地址模式有利于程序在内存中浮动，只需要在装载程序（程序装入内存的过程）的时候定义一下段寄存器中的内容即可，其余的偏移地址都能由标号（汇编地址）正确表示）；
+
+    5) 定义标号：
+        i. NASM定义标号和MASM定义标号的规则略有不同；
+        ii. NASM在定义标号是可以不使用冒号也可以不使用；
+        iii. 如果使用了冒号则会是汇编器将其强制视为标号，如果没使用冒号则汇编器会自行推断；
+        iv. 汇编器推断是否是标号的规则，首先读入单词，如果单词后跟着一个冒号则将其视为标号，如果没有跟冒号则会先核对其是否是某个指令的名字，如果不是则将其视为标号，因此当标号名和指令名冲突的时候要加冒号，否则可以不加；
+        v. NASM规则中，如果标号指示的是一段数据的定义也可以使用冒号定义（当然也可以不使用冒号），这点和MASM不同（MASM指示数据定义的标号在定义时一定不能加冒号），在NASM中可以这样来：
+
+data1 db 1, 2, 3  
+string1: db 'abcd'  
+！因此NASM在语法上还是相当自由的！
+        vi. 标号定义的规范：定义数据时不要使用冒号，在指令行中定义标号时使用冒号，这样以示区分指令地址和数据区域的入口；
+
+5. 寻址方式：
+    1) 寻址方式就是指应该到哪里找操作符，比如操作数放在寄存器中、指令中、内存中等；
+    2) 寄存器寻址：
+        i. 操作数位于寄存器中，比如mov ax, cx；
+        ii. 这种寻址方式是最最快的，比立即数寻址还快，因为寄存器是CPU中最快的部件；
+        iii. CPU不支持两种不同尺寸的寄存器相互作用，比如mov ax, bl等，都是不对的，会直接编译报错，即使ax比bl宽也不行！这个是CPU硬件层面上就已经决定了的；
+    3) 立即寻址：
+        i. 操作数以立即数的形式出现在指令中，此时操作数就存放在指令中，而指令存放在指令寄存器IR中（Instruction Register），在CPU内部，但是对于程序员不可见；
+        ii. 从IR中取数据没有直接从寄存器中取数据来的快，因此寄存器寻址仍然是最快的方式；
+        iii. 比如：mov ax, 17、mov bx, tag等，注意引用标号也是一种立即寻址方式，因为标号在编译后会被替换成一个汇编地址，而汇编地址就是一个立即数；
+    4) 内存寻址：即操作数在内存中，内存寻址的方式有很多种，我们放到下一小节具体分解；
+
+6. 内存寻址：
+    1) 内存寻址最主要的问题就是提供偏移地址（因为段地址有默认的段寄存器给出或者直接使用段前缀表示法来确定段地址），因此这里全部讨论偏移地址的确定方式，而偏移地址也称为有效地址，因此内存寻址主要解决如何确定偏移地址的问题；
+    2) 偏移地址由中括号[ ]给出，因此问题就转化为[ ]中的内容该如何确定；
+    3) 直接寻址：有效地址直接由立即数给出，比如mov ax, [0x5C00]等，当然标号也是立即数，因此也可以填标号，比如mov ax, [data]等，即偏移地址直接由立即数给出；
+    4) 基址寻址：
+        i. 有效地址由基址寄存器给出，[ ]中只包含bx或bp（两者之一），可以带一个立即数；
+        ii. 基址寄存器是指bx和bp，bx默认段是ds，而bp默认段是ss；
+        iii. 例如：mov [bx + 3], ax、mov byte [bp], 0x55等；
+！！两个操作数中做多只能有一个可以是内存，不能两个都是，这是当代CPU的固有限制，我们不得不接受这种规定，内存内部没有单元之间相互通信的通道，信息交换必须通过CPU进行，即使是内存和立即数作用也是如此，因为立即数保存在CPU的IR中，也是CPU的一部分，如上例iii.中的第二个例子；
+！NASM不需要再使用ptr关键在来指定内存的大小了，可以直接使用byte、word、dword、qword来指定内存的大小（qword只能用在保护模式中，是模式下不能使用）；
+    5) 关于立即数偏移量的问题：在基址寻址以及后面很多寻址方式中都可以跟一个立即数偏移量，比如mov bx, [bx + 2]，该偏移量可正可负，但是建议使用减号和一个整数来表示负的偏移量，比如mov al, [bx - 2]；
+    6) 变址寻址：
+        i. 有效地址由变址寄存器si或di给出，[ ]中只能包含si和di的其中一个，可以带一个立即数偏移量；
+        ii. 变址寄存器也称为索引寄存器，在数组之间批量传送数据时经常使用；
+        iii. 例如：mov ax, [si + 5]、mov [di], 100111B等；
+        iv. 基址寄存器的默认段都是ds；
+    7) 基址变址寻址：
+        i. 同时使用基址寄存器和变址寄存器来确定有效地址，[ ]只能包含一个基址寄存器和一个变址寄存器，可以带一个立即数偏移量；
+        ii. 默认的段由基址寄存器决定，如果基址寄存器是bx则默认为ds，如果是bp则默认是ss；
+        iii. 例如：mov ax, [bx + si + 3], 2、xor [bp + di + 9], 77等；
+    8) 数组访问：
+        i. 将数据标号作为数组的首地址，可以实现和MASM一样的利用数据标号实现和C语言一样的数组访问功能；
+        ii. 使用格式是：[标号 + 之前讲过的所有访问方式]
+        iii. 例如：
+
+arr db 1, 2, 3, 4, 5, 6, 7  
+  
+    mov     ax, [arr + bx] ; arr[bx]  
+    mov     ax, [arr + si] ; arr[bx][si]  
+    mov     ax, [arr + bp + di] ; arr[bp][di]  
+    mov     ax, [arr + 3] ; arr[3]  
+！这样就使标号具有和MASM数据标号一样的功能了！
+！因此可以在NASM中轻松实现诸如直接定址表、查表等功能了！
+
+！！注意：虽然标号也是立即数，但是在内存寻址的[ ]中最多只能出现一个标号，但是可以带多个普通立即数（非标号）！！
+！！因为在内存寻址中标号是有特殊含义的，即一个数组的首地址，因此标号在内存寻址中专门用于表示数组首地址的而不是用来表示立即数偏移量的！！
+！！如果出现多于一个标号会直接报错！！请看示例：
+
+mov ax, [data1 + tag + bx] ; 错！最多只能有一个标号  
+mov [data1 + bx + si + 3 - 2 + 0F9H]; 对！立即数可以带多个  
+    9) 段前缀表示法：
+        i. MASM也有段前缀表示法，即不使用默认的段寄存器而人为指定一个段寄存器，在MASM中段前缀是写在[ ]外面的，比如es:[bx + di + 6]，但是在NASM中段前缀是写在里[ ]里面的；
+        ii. NASM的段前缀表示方法：[段寄存器:之前讲过的所有有效地址确定方式]
+        iii. 例如：mov ax, [es: arr + bx + di + 9H]，这就表示段是es段，而有效地址是arr+bx+di+9H，是一种带段前缀的数组访问，并且是基址变址寻址；
+
+7. 定义数据常量：
+    1) 数据常量的定义方式就是使用equ伪指令（即等置语句）将一个值和一个标号相关联，比如：CONST_VALUE equ 10，既然是和标号关联，则定义该标号的时候同样可以加冒号，比如：CONST_VALUE: equ 10，这两者效果一样，但是推荐使用没有冒号的那种定义方式，这样可以使源程序更加规范；
+    2) 等值伪指令的背后实现方式就是类似C语言中的宏，此时这里的标号不再指代一个汇编地址了，而仅仅是一个宏符号而已，以后在代码中所有引用该宏的地方都会被（文本）替换成其所代表的数值；
+    3) 注意，该种定义数据常量的方式并不占用汇编地址也不会产生占用任何内存单元，仅仅就是一种文本层面上的替换，这种替换工作会在预处理阶段完成，原理和C语言一模一样，就是个#define语句而已；
+    4) 这种宏定义不等于C语言中的普通变量的定义，比如a equ 10之后再来个a equ 20，这种是错误的，这不是常量，而是宏，因此汇编器会认为你重复定义了两个同名的宏而报错！
+    5) 可以用一个宏来定义另一个宏，比如a equ 5; b equ a; 则最后b的宏值就是5，就是一个传递的宏替换而已；
+！！！注意和标号的区别：
+！如果用标号来定义数据，则定义的数据中可以出现标号，只不过这里的标号实质上是一个汇编地址的数值，当然也可以出现宏（数据常量），只不过会被替换成其宏值；
+！这个道理对宏值同样有效：
+
+data1 db 1, 2, 3  
+value1 equ 20  
+data2 dw 1, data1, value1 ; data2数组中包括元素1、汇编地址data1和宏值20  
+value2 equ data1 ; value2的宏值是汇编地址data1  
+value3 equ value1 ; 宏替换20
+
+
+1. 过程调用：
+    1) 即call和ret指令的组合使用，这里我们先介绍call指令的使用方式；
+    2) 16位段内直接相对近调用：
+        i. 格式：call near(可省) 标号/立即数；
+        ii. near就表示近的意思，但是near可以省了，汇编器会默认为是16位段内直接相对近调用；
+        iii. 直接是指：调用的过程的地址直接由立即数（即一个显示的汇编地址）或者标号（符号化的汇编地址）给出；
+        iv. 段内：是指只给出了偏移地址而没有给出段地址，因此只能调用同一个段中的过程；
+        v. 相对：是指不直接用标号或立即数对IP进行赋值，而是给出（在指令的二进制码中给出）目的地和当前跳转指令的下一条指令的汇编地址之差，即一个位移量，这使得程序的浮动性（灵活性）增强；
+        vi. 16位是指位移量是一个16位的有符号数，因此跳转范围为[-32768, 32767]，即最多向前跳32768个字节最多向后跳32767个字节；
+    3) 16位段内间接绝对近调用：
+        i. 格式：call r16/m16，其r16表示16位通用寄存器，m16表示16位内存单元；
+        ii. 间接是指：跳转的地址不是直接给出而是存放在后面指定寄存器或内存中；
+        iii. 绝对是指：直接将跳转地址值赋给IP而不是计算位移量；
+        iv. 16位段内是指：偏移地址由16位单元给出，由于只给出了偏移地址而没有段地址因此只能在段内跳转，挑战范围是整个64KB的段空间界限；
+    4) 16位段内直接相对近转移或间接绝对近转移的使用规范：建议不适用near关键字，这样方便记忆；
+    5) 16位直接绝对远调用：
+        i. 格式：call 立即数:立即数，即直接给出"段地址:偏移地址"，立即数可以是标号、宏等；
+        ii. 16位主要是约束偏移地址，即偏移地址只能是16位的，这也是理所应当的；
+        iii. 直接绝对是指直接给出精确的物理地址（20位物理地址）；
+        iv. 这里的远调用是指由于给出了段地址，就可以全局地在段之间来换跳转了；
+    6) 16位间接绝对远调用：
+        i. 格式：call far m32，由于必须给出段地址和偏移地址，同时由于是8086体系不能使用32位寄存器保存地址，因此只能使用32位内存来保存了；
+        ii. 16位同样是约束偏移地址的；
+        iii. 间接是指调转地址保存在后面指定的内存中；
+        iv. 绝对是指直接将内存中的段地址和偏移地址直接赋给cs:ip，同样是低位保存偏移地址高位保存段地址；
+        v. 最常使用的手法是将跳转地址保存到一个标号所代表的数据区中，调用时直接取标号所在内存中的地址即可：
+
+func_addr dw 0x1020, 0x2000  
+call far [func_addr]  
+    7) ret和retf：这在MASM讲过了，ret对应只给出偏移地址的近调用，retf对应给出全地址的远调用，后者比前者多一个cs的push和pop；
+
+2. 无条件转移指令（和call的格式基本相似）：
+    1) 相对短转移：
+        i. 格式：jmp short 立即数/标号
+        ii. 只要是短转移必定都是直接的，即直接给出立即数/标号的偏移地址；
+        iii. 短转移比近转移的范围还要小，同样也是相对的，即跳转一个位移量，但是范围只有1字节长度，即[-128, 127]；
+    2) 16位直接相对近转移：
+        i. 格式：jmp near 立即数/标号
+        ii. 同样也是段内的、位移量的跳转，范围是[-32768, 32767]的16位长度；
+    3) 16位间接绝对近转移：
+        i. 格式：jmp near r16/m16
+        ii. 同样也是段内的、直接对ip赋值的跳转；
+！！！注意：以上的短转移和近转移的short和near都可以省略，如果是标号或者立即数，汇编器会自动根据位移量的大小决定使用短转移还是近转移，如果给出的寄存器或内存则只能是间接绝对近转移了；
+！短转移和近转移的使用规范：统一不加关键字short和near，这样简便且方便记忆！
+    4) 16位直接绝对远转移：jmp far i16:i16，其中i16就是指16位立即数，也可以是标号或宏，和16位的远call相对应；
+    5) 16位简介绝对远转移：jmp far m32，和16位的远call相对应；
+
+3. 对call和jmp越界的检查：
+    1) 对于间接近转移：由于给出地址的都是寄存器或内存，本身就已经限制在16位了，因此不可能会超出16位长度的跳转范围，因此没有产生超出范围报错的可能，但是CPU是笨的，并不会检查跳转是否超出了逻辑（人定义的）段的范围，比如虽然是在16位限制以内，但不会检查是否从.text段跳到了.data是不会检查的（也许这两个段相距很短）；
+    2) 对于short类型的短转移只检查跳跃范围是否超出[-128, 127]，其余逻辑层面上的越界不检查；
+    3) 对于直接近转移和前面short类型的检查方法一样，只检查跳跃范围处在[-32768, 32767]之内，逻辑层面的不检查；
+    4) 对于远跳转则什么都不检查，可以随意、任意、全局地跳，即使跳跃范围是在段内也无所谓；
+
+4. $和$$标记：
+    1) 是在转移指令中常用的两个标记；
+    2) $表示$所在的当前行的汇编地址，比如jmp $就表示无限循环，即不停地跳转到自己的位置；
+    3)
+表示
+标记所在的段的起始位置的汇编地址（如果用户有定义的段的话），如果没有定义任何段则整个汇编程序自成一段；
+
+
+主引导扇区程序介绍
+
+1. 主引导扇区的作用以及开机之后的大致流程：
+    1) 为了学习实模式下的编程而不受操作系统的影响，因为在正常的开机后，经过主引导扇区的对操作系统的加载就会把计算机的控制权交给操作系统从而进入保护模式，因此就只有运行主引导扇区程序时系统处于实模式状态；
+    2) 内存逻辑地址空间：
+        i. 实模式下CPU有20根地址线，能访问的地址空间有1MB，但是这1MB并不全部都指向DRAM；
+        ii. 在体系结构中CPU将这1MB空间映射到了多个存储设备上，其中：
+        iii. ROM占据顶部64KB空间，F0000~FFFFF；
+        iv. DRAM占据底部640KB的1MB中最大的空间，00000~9FFFF；
+        v. 中间空出来320KB用于分配给外围设备的存储空间，其中最重要的就是字符界面的显示器，这是一种古老的显示模式，80（个字符） × 25（行）为一屏，一屏总共能满满显示2000个字符，由于每个字符包括其ASCII码和颜色等属性，因此一个字符占两个字节，因此一屏占4000个字节，而留个其的地址空间时B8000~BFFFF这32768个字节（即刚好一个段64KB），总共可以容纳8屏多一点点儿，而在屏幕上显示字符的过程仅仅就是向显存中存放字符的过程那么简单；
+    3) 开机加电后系统的运作流程：
+        i. 卡机加电后cs:ip自动指向0xFFFF0的BIOS固件处；
+        ii. 该处只有一条指令：jmp far 0xF000:0x0000，然后跳转到了BIOS固件的起始位置，运行BIOS的程序；
+        iii. 在BIOS程序中会先在0x00000处加载BIOS自己的中断向量表，然后再执行一些硬件初始化和自检程序；
+        iv. 完成自检和初始化后调用BIOS的int19中断例程将控制权交给操作系统（实质上该例程是读取磁盘0号逻辑扇区的MBR主引导扇区程序，而传统上MBR是属于操作系统的，虽然该程序仍然运行于实模式）；
+    4) MBR：
+        i. 即主引导扇区程序，位于逻辑0号扇区内，作用是加载操作系统代码，使程序从实模式变换到保护模式，真正将系统的实权交给操作系统，即扮演一个接力手的角色；
+        ii. int19BIOS例程会从磁盘的0面0道1扇区（也是逻辑0号扇区）的512B内容加载到0x0000:0x7C00处；
+        iii. BIOS判断该扇区是MBR的标准就是检测512字节的最后两个字节是否是0x55和0xAA，这是规范！如果检测符合规范，则执行跳转指令jmp far 0x0000:0x7C00转到主引导程序处执行操作系统引导工作，否则就会开机失败转去执行错误处理中断例程报告本次开机失败！
+    5) 在这里我们不介绍如何引导操作系统，只介绍一个简单的MBR程序，让其在屏幕上显示一定的内容，并学会如何使用BOCHS单步调试，这也是调试操作系统内核的基础；
+
+    ; 此程序用于显示标号target的汇编地址的十进制形式  
+    ; 注意，此时跳到了0x0000:0x7C00处  
+    ; 因此cs=0x0000而ip=0x7C00  
+  
+            jmp     start  
+  
+stack       times 20 db 0                       ; 定义一个栈，程序中需要使用  
+len_stack   equ $ - stack     
+  
+VIDEO_SEG_BEGIN         equ     0xB800          ; 显存起始段地址  
+THIS_SEG                equ     0x7C00          ; 整个程序自成一段，起始偏移地址为0x7C00但起始汇编地址是0x0000  
+  
+str_info            db      'Label offset: '    ; 要显示的信息  
+len_str_info        equ     $ - str_info        ; 上面字符串的长度  
+  
+target  db  0  
+  
+    start:  
+            ; es指向显存，ds指向str_info  
+            mov     ax, VIDEO_SEG_BEGIN  
+            mov     es, ax  
+            mov     ax, cs                      ; 此时cs=0x0000  
+            mov     ds, ax  
+              
+            ; 显示字符串"Label offet: "  
+            mov     ah, 0007H                   ; 设置字的颜色属性，ASCII码存放在al中，颜色属性存放在ah中    
+            mov     bx, 0  
+            mov     bp, 0  
+            mov     cx, len_str_info  
+.lp1:       mov     al, [THIS_SEG + str_info + bx]  
+            mov     [es:bp], ax  
+            inc     bx  
+            add     bp, 2  
+            loop    .lp1  
+  
+            ; 初始化栈段  
+            mov     ax, cs  
+            mov     ss, ax  
+            mov     sp, THIS_SEG + stack + len_stack  
+  
+            ; 将target分解成5位十进制数的ASCII码并倒序入栈  
+            mov     ax, target                  ; ax存放被除数ax  
+            mov     bx, 10                      ; bx存放除数10  
+            mov     cx, 5                       ; 最多是个五位数，一位位分解  
+.lp2:       xor     dx, dx                      ; 将dx清零，被除数就成了dx:ax  
+            div     bx  
+            add     dl, 0x30                    ; 余数加0x30得到ASCII码  
+            mov     dh, 0004H                   ; 设置该数字的颜色  
+            push    dx                          ; 由于是倒序的，所以用栈反转一下  
+            loop    .lp2  
+  
+            ; 将倒序的5个十进制数顺序弹出到显存从而可以显示正确的顺序  
+            mov     cx, 5  
+.lp3:       pop     word [es:bp]  
+            add     bp, 2  
+            loop    .lp3  
+            mov     dh, 0004H  
+            mov     dl, 'D'  
+            mov     [es:bp], dx                 ; 最后补一个后缀D表示十进制数  
+            mov     word [es: bp + 2], 0        ; 补一个空白字符冲马桶，将显存中的内容冲到显示器上  
+  
+            jmp     $                           ; 死循环卡住程序  
+  
+times 510-($-$$)    db 0                        ; 填满剩余空间，总共512KB  
+                    dw 0xAA55                   ; 最后两字节存放MBR结束符  
+    
+2. 局部标号和全局标号：
+    1) 局部标号有一个句号"."作为前缀，而全局标号没有前缀；
+    2) 局部标号的作用是用来解决程序过长时标号的命名冲突问题，局部标号可以使得同一个名字的标号可以多次重复定义并不会产生命名冲突；
+    3) 局部标号的作用域：
+        i. 局部标号往往夹在两个离得最近的全局标号之间，而其作用域也就位于这两个全局标号之间了；
+        ii. 在作用域之外可以重复定义同名的局部标号；
+        iii. 在逻辑上局部标号”属于“前面的最近的全局标号，这种属于关系类似于C语言中的结构体和结构体成员之间的关系；
+        iv. 如果在作用域之内访问局部标号可以”直呼其名“，但是如果想在作用域之外访问某个局部标号就要使用和C语言访问结构体成员的一样的方式去访问那个局部标号了：
+
+s1:         mov     ah, al  
+            add     cx, bx  
+            jmp     s2.tag1         ; 作用域之外访问，所属全局标号.局部标号，否则会报错，提示没有定义该局部标号！  
+            nop  
+            nop  
+            sub     ax, 1  
+s2:         jmp     .tag1           ; 在作用域范围之内访问  
+            mov     ax, bx  
+            add     ax, bx  
+    .tag1:  nop  
+            mov     bx, cx    
+！！！注意：gdb拒绝在命令行中对局部标号设置断点（可能是gdb的一个bug吧！），因此只能通过外部工具比如Insight等调试工具进行设置（这些工具可以在任意一行上设置断点）；
+
+
+; 应用程序头  
+; 用于提供加载器相关加载信息  
+; 是应用程序规范的一部分  
+section header vstart=0  
+    app_size        dd  app_end                 ; [APP_SIZE:0x00] 程序的大小（字节）  
+    app_entry       dw  start                   ; [APP_ENTRY:0x04] 入口处偏移地址  
+    app_entry_seg   dd  section.code1.start     ; [APP_ENTRY_SEG:0x06] 入口处段地址  
+    ; section.段名.start是NASM提供的伪指令，用于段起始位置在源程序中的绝对汇编地址  
+    ; 绝对汇编地址是指相对于整个源程序头的偏移量，而整个程序头的绝对汇编地址是0  
+    ; 绝对汇编地址是一个32位无符号数，因此使用dd表示  
+  
+    c_realloc_tbl   dw  (tbl_end - tbl_start) / 4       ; [C_REALLOC_TBL:0x0A] 重定位表表项数目  
+tbl_start:  ; [TBL_START:0x0C]  
+    seg_addr_code1  dd  section.code1.start  
+    seg_addr_code2  dd  section.code2.start  
+    seg_addr_data1  dd  section.data1.start  
+    seg_addr_data2  dd  section.data2.start  
+    seg_addr_stack  dd  section.stack.start  
+tbl_end:  
+; section header end  
+  
+  
+;;  
+;;  
+section stack align=16 vstart=0  
+    resb 256  
+stack_end:  
+; section stack end  
+  
+  
+;;  
+;;  
+section data1 align=16 vstart=0  
+    msg0 db '  This is NASM - the famous Netwide Assembler. '  
+         db 'Back at SourceForge and in intensive development! '  
+         db 'Get the current versions from http://www.nasm.us/.'  
+         db 0x0d,0x0a,0x0d,0x0a  
+         db '  Example code for calculate 1+2+...+1000:',0x0d,0x0a,0x0d,0x0a  
+         db '     xor dx,dx',0x0d,0x0a  
+         db '     xor ax,ax',0x0d,0x0a  
+         db '     xor cx,cx',0x0d,0x0a  
+         db '  @@:',0x0d,0x0a  
+         db '     inc cx',0x0d,0x0a  
+         db '     add ax,cx',0x0d,0x0a  
+         db '     adc dx,0',0x0d,0x0a  
+         db '     inc cx',0x0d,0x0a  
+         db '     cmp cx,1000',0x0d,0x0a  
+         db '     jle @@',0x0d,0x0a  
+         db '     ... ...(Some other codes)',0x0d,0x0a,0x0d,0x0a  
+         db 0  
+; section data1 end  
+  
+  
+;;  
+;;  
+section data2 align=16 vstart=0  
+    msg1 db '  Welcome and enjoy NASM! '  
+         db '2015-01-05'  
+         db 0  
+; section data2 end  
+  
+  
+;;  
+;;  
+section code1 align=16 vstart=0  
+start:  
+            mov     ax, [seg_addr_stack]  
+            mov     ss, ax  
+            mov     sp, stack_end  
+  
+            mov     ax, [seg_addr_data1]  
+            mov     ds, ax  
+            mov     bx, msg0  
+            call    put_string                  ; 显示第一段信息  
+  
+            ; 在加载程序中将es指向header了  
+            push    word [es:seg_addr_code2]    ; 先将code2的偏移地址和段地址入栈  
+            mov     ax, _start.begin  
+            push    ax  
+            retf                                ; 利用retf修改cs:ip使其跳转至code2  
+    .continue:  
+            mov     ax, [es:seg_addr_data2]  
+            mov     ds, ax  
+            mov     bx, msg1  
+            call    put_string                  ; 使ds:bx指向msg1并输出  
+  
+            jmp     $  
+; end start  
+  
+; 字符串控制宏以及显卡光标端口宏  
+CHAR_TRAIL          equ     0x00        ; 字符串结束符  
+CHAR_RET            equ     0x0D        ; 回车符  
+CHAR_NL             equ     0x0A        ; 换行符  
+DCHAR_NONE          equ     0x0720      ; 显存中显示空的字  
+  
+PORT_CHOOSE         equ     0x3D4       ; 索引端口，用于选择子端口（8位）   
+SUBPORT_HIGH        equ     0x0E        ; 子端口号  
+SUBPORT_LOW         equ     0x0F        ; 这两个子端口分别存放光标位置的高位和低位  
+PORT_DATA           equ     0x3D5       ; 数据端口，存放选定的端口中的数据（8位）  
+  
+VIDEO_SEG_BEGIN     equ     0xB800      ; 显卡区域起始段地址  
+  
+; func put_string  
+; <- [ds:bx]:msg0  
+; colision register: es  
+; 将msg0打印至屏幕  
+put_string:  
+            push    es  
+  
+            ; 获取当前光标位置保存在ax中  
+            mov     dx, PORT_CHOOSE  
+            mov     al, SUBPORT_HIGH          
+            out     dx, al                  ; 选择一个子端口  
+            mov     dx, PORT_DATA  
+            in      al, dx  
+            mov     ah, al                  ; 从子端口中读取光标高位保存在ah中  
+  
+            mov     dx, PORT_CHOOSE  
+            mov     al, SUBPORT_LOW  
+            out     dx, al  
+            mov     dx, PORT_DATA  
+            in      al, dx                  ; 同理从子端口中读取光标低位保存在al中  
+                                            ; 最终将整个结果保存在ax中  
+  
+            ; 目前ax存放着光标的位置  
+  
+    .lp:    mov     cl, [bx]                    ; 读取一个字符保存在cl中  
+            cmp     cl, CHAR_TRAIL              ; 判断该字符是否是结束符  
+            je      .ret  
+            call    put_char                    ; 不是结束符就打印该字符  
+            inc     bx                          ; 继续读取下一个字符  
+            jmp     .lp  
+  
+    .ret:   pop     es  
+            ret  
+  
+; func put_char  
+; <- cl:当前读取的一个字符  
+; colision register: ds, bx  
+put_char:     
+            push    ds  
+            push    bx                      ; 备份  
+  
+            ; ds和es都指向显卡  
+            mov     bx, VIDEO_SEG_BEGIN  
+            mov     ds, bx  
+            mov     es, bx  
+              
+            ; 目前ax存放着光标的位置  
+  
+            cmp     cl, CHAR_RET            ; 判断字符是否是回车  
+            jne     .next0                  ; 不是回车则继续接下来的步骤  
+    .deal_ret: ; 是回车则处理回车  
+            mov     bl, 80  
+            div     bl  
+            mul     bl                      ; 除去光标位置中80的余数即可  
+                                            ; ax中得到的是回车后光标的位置  
+            jmp     .set_cursor  
+  
+    .next0: cmp     cl, CHAR_NL             ; 判断是否是换行符  
+            jne     .next1                  ; 如果不是换行符则继续接下来的代码  
+    .deal_nl: ; 处理换行的情形  
+            add     ax, 80                  ; 换行很简单，只要加80即可  
+            jmp     .deal_roll_screen       ; 换行可能会造成屏幕滚动，因此需要处理  
+  
+    .next1: ; 结束、回车、换行都不是那就是普通字符了，因此需要打印出来，并且光标后移一位  
+            mov     bx, ax                  ; 先将ax复制到bx中  
+            shl     bx, 1                   ; 显卡区域每个字符占两个字节（还有一个属性字节）  
+            mov     [bx], cl  
+            inc     ax                      ; 光标后移一位  
+            ; jmp   .deal_roll_screen       ; 光标后移也可能会造成滚屏  
+  
+    .deal_roll_screen:  
+            cmp     ax, 2000              
+            jl      .set_cursor             ; 检查光标是否越界，如果越界则需要滚屏，否则可以直接设置光标  
+        .roll_screen: ; 滚屏处理  
+            mov     si, 80 * 2  
+            mov     di, 0  
+            mov     cx, 2000 - 80  
+            cld  
+            rep     movsw  
+        .clear_bottom_line: ; 滚屏后需要清除最后一行  
+            mov     bx, (2000 - 80) * 2  
+            mov     cx, 80  
+        .cls:  
+            mov     word [bx], DCHAR_NONE  
+            add     bx, 2  
+            loop    .cls  
+              
+            mov     ax, 2000 - 80       ; 滚屏后光标位置设置成最后一行起始  
+            ; jmp   .set_cursor         ; 滚屏完成后方可显示新的光标的位置了  
+  
+    .set_cursor:  
+            mov     bx, ax              ; 将光标位置备份到bx中，因为访问端口会用到ax  
+  
+            mov     dx, PORT_CHOOSE  
+            mov     al, SUBPORT_HIGH  
+            out     dx, al  
+            mov     dx, PORT_DATA  
+            mov     al, bh  
+            out     dx, al  
+  
+            mov     dx, PORT_CHOOSE  
+            mov     al, SUBPORT_LOW  
+            out     dx, al  
+            mov     dx, PORT_DATA  
+            mov     al, bl  
+            out     dx, al  
+  
+            pop     bx  
+            pop     ds  
+  
+            ret  
+; section code1 end  
+  
+  
+;;  
+;;  
+section code2 align=16 vstart=0  
+_start:  
+    .begin: push    word [es:seg_addr_code1]        ; code2没做什么实事就是再跳回code1的continue继续执行  
+            mov     ax, start.continue  
+            push    ax  
+            retf  
+; section code2 end  
+  
+              
+;;  
+;;  
+section trail align=16  
+app_end:  
+; section trail end  
+
+
+
+; 主引导扇区程序作为应用程序加载器  
+  
+; 虽然就只有一个段但是也需要定义  
+; 最主要是为了使用段属性vstart=0x7C00  
+; 这样就可以使得段内的所有汇编地址都是相对0x7C00开始的  
+; 因为MBR加载在0x0000:0x7C00处，因此IP初始化为0x7C00  
+; 而所有偏移地址都是相对0x7C00的  
+; 有了这一步程序中的所有标号都能真正代表偏移地址了  
+section loader align=16 vstart=0x7C00  
+            jmp     near start  
+  
+    LBA_APP_START       equ     100             ; 应用程序所在硬盘的起始逻辑扇区号，这里是人为规定的  
+    ADDR_20_LOAD_START  dd      0x10000         ; 内存中加载的起始20位绝对物理地址  
+  
+    ; 应用程序头中信息的偏移地址  
+    APP_SIZE_LOW        equ     0x00          
+    APP_SIZE_HIGH       equ     0x02  
+    APP_ENTRY           equ     0x04  
+    APP_ENTRY_SEG       equ     0x06  
+    APP_ENTRY_SEG_LOW   equ     0x06  
+    APP_ENTRY_SEG_HIGH  equ     0x08  
+    C_REALLOC_TBL       equ     0x0A  
+    TBL_START           equ     0x0C  
+  
+            ; 从0x0FFFF往下（即地址减小）的一段区域一般都作为MBR的栈！  
+            ; 因此ss:sp指向0x0000:0x0000  
+            ; 这样在push的时候sp能回到0xFFFF  
+start:      mov     ax, 0  
+            mov     ss, ax  
+            mov     sp, ax  
+  
+            ; ds -> 内存中加载的起始位置段地址  
+            mov     ax, [cs:ADDR_20_LOAD_START]  
+            mov     dx, [cs:ADDR_20_LOAD_START+2]  
+            mov     bx, 16  
+            div     bx  
+            mov     ds, ax  
+  
+            mov     es, ax  
+  
+            ; 先读取一个扇区，即应用程序头所在的扇区  
+            xor     di, di                        
+            mov     si, LBA_APP_START           ; [di:si]全局保存当前读取的逻辑扇区号  
+            mov     cx, 1                       ; 读取一个扇区  
+            call    read_lba                  
+            ; 读取完毕，ds:0指向程序的第一扇区中的内容  
+  
+            mov     dx, [APP_SIZE_HIGH]  
+            mov     ax, [APP_SIZE_LOW]  
+            mov     bx, 512  
+            div     bx  
+            cmp     dx, 0  
+            jne     .deal_left              ; 有余数，可以将已经读取的那个扇区看做余数的扇区  
+            dec     ax                      ; 无余数则需要减去已经读取的那个扇区  
+    .deal_left:  
+            cmp     ax, 0  
+            je      redirect_entry          ; 如果没有剩余扇区要读则直接去重定位程序入口点  
+            push    ds                      ; 备份并改变其指向  
+  
+            mov     cx, ax                  ; 剩余要读的扇区数量  
+            mov     ax, ds  
+            add     ax, 0x20                ; 使其指向下一个512字节起始处（必然是16位对齐的）  
+            mov     ds, ax  
+            inc     si                      ; 指向下一个要读的扇区  
+            call    read_lba  
+  
+            pop     ds                      ; 恢复ds使其指向加载的程序的开始处  
+  
+        ; 到此为止程序彻底加载完毕  
+          
+        ; 接下来的工作是将程序头中的入口地址，以及重定位表中的地址  
+        ; 修改成实际的物理地址  
+        ; 这里所重定位的地址都是段地址  
+        ; 将程序中段的绝对汇编地址更新成加载在内存中的实际物理段地址  
+        ; 公式是：16位物理段地址 = (整个程序起始位置的20位物理 + 段的32位绝对汇编地址) >> 4  
+  
+    redirect_entry: ; 重定位入口处地址  
+            mov     dx, [APP_ENTRY_SEG_HIGH]        ; [dx:ax]中保存入口处的绝对汇编地址  
+            mov     ax, [APP_ENTRY_SEG_LOW]  
+            call    calc_seg_phy_addr_16            ; 计算段的16位段地址（即物理段地址），结果保存在ax中  
+            mov     [APP_ENTRY_SEG], ax             ; 更新  
+  
+            ; 处理重定位表  
+            mov     cx, [C_REALLOC_TBL]  
+            mov     bx, TBL_START  
+    .realloc:  
+            mov     dx, [bx + 2]  
+            mov     ax, [bx]  
+            call    calc_seg_phy_addr_16  
+            mov     [bx], ax  
+            add     bx, 4  
+            loop    .realloc  
+  
+            ;mov        ax, ds    
+            ;mov        es, ax                          ; 使es初始化成加载的起始位置并交给应用程序处理  
+            jmp     far [APP_ENTRY]                 ; 控制权交给应用程序  
+  
+  
+; func read_lba  
+; <- [di:si]:读取的逻辑扇区号  
+; <- cx:读取的扇区数量  
+; <- ds:目的区域段地址  
+; 将cx个扇区的内容读取到ds:0所指向的内存空间中  
+read_lba:  
+    PORT_DATA       equ     0x1F0       ; 数据端口（16位）  
+    PORT_ERRNO      equ     0x1F1       ; 错误端口（8位）保存最后一次执行命令后的状态（错误原因）  
+    PORT_CLBA       equ     0x1F2       ; 计数端口（8位）保存读写的扇区数量  
+    PORT_LBA_START  equ     0x1F3       ; 逻辑扇区号端口（32位共4个8位口）  
+                                        ; 低28位确定待操作的起始扇区号  
+                                        ; 最高的4位指定扇区寻址模式以及类型选择符）  
+    PORT_CTRL       equ     0x1F7       ; 控制端口（8位）下读写命令同时又能反映硬盘工作状态  
+  
+    CTRL_READ       equ     0x20        ; 读命令，向控制端口发送  
+  
+    BIT_MASK        equ     10001000B   ; 位掩码，取控制端口的第7位和第3位  
+                                        ; 第7位表示硬盘是否忙，1表示忙  
+                                        ; 第3位表示硬盘是否就绪，1表示就绪  
+    STATUS_READY    equ     00001000B   ; 彻底就绪时第7位是0，第3位是1，用于检测硬盘是否就绪  
+  
+            ; 指定读取的扇区数量  
+            mov     dx, PORT_CLBA  
+            mov     al, cl  
+            out     dx, al  
+  
+            ; 向LBA地址口写入28位逻辑扇区号  
+  
+            mov     dx, PORT_LBA_START      ; 0~7位  
+            mov     ax, si  
+            out     dx, al  
+  
+            inc     dx                      ; 8~15位  
+            mov     al, ah  
+            out     dx, al  
+  
+            inc     dx                      ; 16~23位  
+            mov     ax, di  
+            out     dx, al  
+  
+            inc     dx                      ; 24~27位  
+            mov     al, 0xE0  
+            ;mov        al, 111_1_0000B     ; ah保存24~27位，al中保存扇区寻址模式以及类型选择符  
+            or      al, ah  
+            out     dx, al  
+  
+            ; 发出读命令  
+            mov     dx, PORT_CTRL  
+            mov     al, CTRL_READ  
+            out     dx, al  
+    .waits: ; 检测硬盘是否就绪，没就绪就一直等待就绪  
+            in      al, dx  
+            and     al, BIT_MASK  
+            cmp     al, STATUS_READY  
+            jne     .waits  
+  
+            ; 准备就绪就开始读取  
+            shl     cx, 2  
+            mov     dx, PORT_DATA  
+            xor     bx, bx  
+    .readw: ; 循环读取程序，将其加载至ds:0处  
+            in      ax, dx  
+            mov     [bx], ax  
+            add     bx, 2  
+            loop    .readw  
+  
+            ret  
+  
+  
+; func calc_seg_phy_addr_16  
+; <- [dx:ax]:段32位绝对汇编地址  
+; -> ax:16位物理段地址  
+calc_seg_phy_addr_16:  
+            ; 这里的20位起始加载地址使用32位保存的  
+            ; 因此可以通过带进位的加法得到段起始位置的实际的20位物理地址  
+            add     ax, [cs:ADDR_20_LOAD_START]  
+            adc     dx, [cs:ADDR_20_LOAD_START+2]  
+  
+            ; 现在将绝对的20位物理地址右移4位就能得到16位的物理段地址了  
+            ; 必须dx和ax同时右移  
+            ; 方法是ax右移4位即可  
+            ; 而dx采用循环右移4位，应该移到ax高4位的那4位重新回到dx高4位  
+            ; 然后用位掩码去的dx高4位  
+            ; 再利用or将这4位写入ax的高4位即可  
+            shr     ax, 4           ; 低16位右移4位  
+            ror     dx, 4  
+            and     dx, 0xF000      ; 位掩  
+            or      ax, dx          ; 写入  
+  
+            ret  
+  
+times 510-($-$$) db 0  
+                 dw 0xAA55  
+
+
+
+程序的加载以及硬盘访问
+
+1. 用户程序的结构：
+    1) 一般源程序都以段的形式进行组织，这样可以使逻辑更加清晰，在NASM中使用section关键字定义一个段，形式是：section 段名
+    2) 程序可以用段名来引用段，但是NASM编译器并不关心段的具体用途，或者说是根本不知道段的用途（代码段还是数据段等），同时NASM对段的数量也没有任何限制，如果代码中没有定一段则整个程序自成一段；
+    3) 定义段的同时可以定义段的一些属性，比如可以使用关键字align来定义段的对其方式，比如：section code align=16，这样就表示该段的其实地址是以16字节对齐的，即段的起始位置必须是16的整数倍；
+！注意：该属性只影响段的起始位置的对其但不影响段的末尾对齐方式，事实上NASM也无法判断一个段的末尾，只有当遇到一个新的段的定义的时候才能知道前一个段结束了；
+    4) 段的起始位置：就是该段中第一行指令的地址（指令可以是普通指令也当然可以是数据定义指令db、dw等等；
+    5) 和加载程序之间的约定——应用程序头部Header：
+        i. 在有操作系统的环境下编译完一个程序之后编译器会隐式地、默认地添加一个应用程序头部（位置处于程序的起始位置处）；
+        ii. 头部包含着加载器该如何加载该程序的一些信息，或者说是加载器和程序之间的某些约定或规范，而加载器通过这些信息将程序正确地加载进内存中；
+        iii. 在有操作系统的环境下，应用程序头部和加载器都是操作系统负责的，但是在这里我们模拟一下这个操作系统的工作，即手写完成加载器和程序头部来模拟操作系统的这两个功能；
+
+2. 用户程序和加载器的简单实现：
+用户程序：默认程序已经正确加载到了内存的空闲位置，并且从定义的标号start处该是执行程序，作用是将两个数据段中的字符串打印到屏幕上，并且处理回车和换行两个控制符
+！注意用户程序头部的定义，里面包含了程序大小、程序开始执行的入口、程序中各个段的起始位置等信息；
+！其中重定位表的作用就是：编译后各项保存的是各段在源程序中的绝对汇编地址，经加载程序加载后就将各项修改成在物理内存中实际的地址，因此称为重定位表；
+app.nas，编译后生成app.bin
+
+; 应用程序头  
+; 用于提供加载器相关加载信息  
+; 是应用程序规范的一部分  
+section header vstart=0  
+    app_size        dd  app_end                 ; [APP_SIZE:0x00] 程序的大小（字节）  
+    app_entry       dw  start                   ; [APP_ENTRY:0x04] 入口处偏移地址  
+    app_entry_seg   dd  section.code1.start     ; [APP_ENTRY_SEG:0x06] 入口处段地址  
+    ; section.段名.start是NASM提供的伪指令，用于段起始位置在源程序中的绝对汇编地址  
+    ; 绝对汇编地址是指相对于整个源程序头的偏移量，而整个程序头的绝对汇编地址是0  
+    ; 绝对汇编地址是一个32位无符号数，因此使用dd表示  
+  
+    c_realloc_tbl   dw  (tbl_end - tbl_start) / 4       ; [C_REALLOC_TBL:0x0A] 重定位表表项数目  
+tbl_start:  ; [TBL_START:0x0C]  
+    seg_addr_code1  dd  section.code1.start  
+    seg_addr_code2  dd  section.code2.start  
+    seg_addr_data1  dd  section.data1.start  
+    seg_addr_data2  dd  section.data2.start  
+    seg_addr_stack  dd  section.stack.start  
+tbl_end:  
+; section header end  
+  
+  
+;;  
+;;  
+section stack align=16 vstart=0  
+    resb 256  
+stack_end:  
+; section stack end  
+  
+  
+;;  
+;;  
+section data1 align=16 vstart=0  
+    msg0 db '  This is NASM - the famous Netwide Assembler. '  
+         db 'Back at SourceForge and in intensive development! '  
+         db 'Get the current versions from http://www.nasm.us/.'  
+         db 0x0d,0x0a,0x0d,0x0a  
+         db '  Example code for calculate 1+2+...+1000:',0x0d,0x0a,0x0d,0x0a  
+         db '     xor dx,dx',0x0d,0x0a  
+         db '     xor ax,ax',0x0d,0x0a  
+         db '     xor cx,cx',0x0d,0x0a  
+         db '  @@:',0x0d,0x0a  
+         db '     inc cx',0x0d,0x0a  
+         db '     add ax,cx',0x0d,0x0a  
+         db '     adc dx,0',0x0d,0x0a  
+         db '     inc cx',0x0d,0x0a  
+         db '     cmp cx,1000',0x0d,0x0a  
+         db '     jle @@',0x0d,0x0a  
+         db '     ... ...(Some other codes)',0x0d,0x0a,0x0d,0x0a  
+         db 0  
+; section data1 end  
+  
+  
+;;  
+;;  
+section data2 align=16 vstart=0  
+    msg1 db '  Welcome and enjoy NASM! '  
+         db '2015-01-05'  
+         db 0  
+; section data2 end  
+  
+  
+;;  
+;;  
+section code1 align=16 vstart=0  
+start:  
+            mov     ax, [seg_addr_stack]  
+            mov     ss, ax  
+            mov     sp, stack_end  
+  
+            mov     ax, [seg_addr_data1]  
+            mov     ds, ax  
+            mov     bx, msg0  
+            call    put_string                  ; 显示第一段信息  
+  
+            ; 在加载程序中将es指向header了  
+            push    word [es:seg_addr_code2]    ; 先将code2的偏移地址和段地址入栈  
+            mov     ax, _start.begin  
+            push    ax  
+            retf                                ; 利用retf修改cs:ip使其跳转至code2  
+    .continue:  
+            mov     ax, [es:seg_addr_data2]  
+            mov     ds, ax  
+            mov     bx, msg1  
+            call    put_string                  ; 使ds:bx指向msg1并输出  
+  
+            jmp     $  
+; end start  
+  
+; 字符串控制宏以及显卡光标端口宏  
+CHAR_TRAIL          equ     0x00        ; 字符串结束符  
+CHAR_RET            equ     0x0D        ; 回车符  
+CHAR_NL             equ     0x0A        ; 换行符  
+DCHAR_NONE          equ     0x0720      ; 显存中显示空的字  
+  
+PORT_CHOOSE         equ     0x3D4       ; 索引端口，用于选择子端口（8位）   
+SUBPORT_HIGH        equ     0x0E        ; 子端口号  
+SUBPORT_LOW         equ     0x0F        ; 这两个子端口分别存放光标位置的高位和低位  
+PORT_DATA           equ     0x3D5       ; 数据端口，存放选定的端口中的数据（8位）  
+  
+VIDEO_SEG_BEGIN     equ     0xB800      ; 显卡区域起始段地址  
+  
+; func put_string  
+; <- [ds:bx]:msg0  
+; colision register: es  
+; 将msg0打印至屏幕  
+put_string:  
+            push    es  
+  
+            ; 获取当前光标位置保存在ax中  
+            mov     dx, PORT_CHOOSE  
+            mov     al, SUBPORT_HIGH          
+            out     dx, al                  ; 选择一个子端口  
+            mov     dx, PORT_DATA  
+            in      al, dx  
+            mov     ah, al                  ; 从子端口中读取光标高位保存在ah中  
+  
+            mov     dx, PORT_CHOOSE  
+            mov     al, SUBPORT_LOW  
+            out     dx, al  
+            mov     dx, PORT_DATA  
+            in      al, dx                  ; 同理从子端口中读取光标低位保存在al中  
+                                            ; 最终将整个结果保存在ax中  
+  
+            ; 目前ax存放着光标的位置  
+  
+    .lp:    mov     cl, [bx]                    ; 读取一个字符保存在cl中  
+            cmp     cl, CHAR_TRAIL              ; 判断该字符是否是结束符  
+            je      .ret  
+            call    put_char                    ; 不是结束符就打印该字符  
+            inc     bx                          ; 继续读取下一个字符  
+            jmp     .lp  
+  
+    .ret:   pop     es  
+            ret  
+  
+; func put_char  
+; <- cl:当前读取的一个字符  
+; colision register: ds, bx  
+put_char:     
+            push    ds  
+            push    bx                      ; 备份  
+  
+            ; ds和es都指向显卡  
+            mov     bx, VIDEO_SEG_BEGIN  
+            mov     ds, bx  
+            mov     es, bx  
+              
+            ; 目前ax存放着光标的位置  
+  
+            cmp     cl, CHAR_RET            ; 判断字符是否是回车  
+            jne     .next0                  ; 不是回车则继续接下来的步骤  
+    .deal_ret: ; 是回车则处理回车  
+            mov     bl, 80  
+            div     bl  
+            mul     bl                      ; 除去光标位置中80的余数即可  
+                                            ; ax中得到的是回车后光标的位置  
+            jmp     .set_cursor  
+  
+    .next0: cmp     cl, CHAR_NL             ; 判断是否是换行符  
+            jne     .next1                  ; 如果不是换行符则继续接下来的代码  
+    .deal_nl: ; 处理换行的情形  
+            add     ax, 80                  ; 换行很简单，只要加80即可  
+            jmp     .deal_roll_screen       ; 换行可能会造成屏幕滚动，因此需要处理  
+  
+    .next1: ; 结束、回车、换行都不是那就是普通字符了，因此需要打印出来，并且光标后移一位  
+            mov     bx, ax                  ; 先将ax复制到bx中  
+            shl     bx, 1                   ; 显卡区域每个字符占两个字节（还有一个属性字节）  
+            mov     [bx], cl  
+            inc     ax                      ; 光标后移一位  
+            ; jmp   .deal_roll_screen       ; 光标后移也可能会造成滚屏  
+  
+    .deal_roll_screen:  
+            cmp     ax, 2000              
+            jl      .set_cursor             ; 检查光标是否越界，如果越界则需要滚屏，否则可以直接设置光标  
+        .roll_screen: ; 滚屏处理  
+            mov     si, 80 * 2  
+            mov     di, 0  
+            mov     cx, 2000 - 80  
+            cld  
+            rep     movsw  
+        .clear_bottom_line: ; 滚屏后需要清除最后一行  
+            mov     bx, (2000 - 80) * 2  
+            mov     cx, 80  
+        .cls:  
+            mov     word [bx], DCHAR_NONE  
+            add     bx, 2  
+            loop    .cls  
+              
+            mov     ax, 2000 - 80       ; 滚屏后光标位置设置成最后一行起始  
+            ; jmp   .set_cursor         ; 滚屏完成后方可显示新的光标的位置了  
+  
+    .set_cursor:  
+            mov     bx, ax              ; 将光标位置备份到bx中，因为访问端口会用到ax  
+  
+            mov     dx, PORT_CHOOSE  
+            mov     al, SUBPORT_HIGH  
+            out     dx, al  
+            mov     dx, PORT_DATA  
+            mov     al, bh  
+            out     dx, al  
+  
+            mov     dx, PORT_CHOOSE  
+            mov     al, SUBPORT_LOW  
+            out     dx, al  
+            mov     dx, PORT_DATA  
+            mov     al, bl  
+            out     dx, al  
+  
+            pop     bx  
+            pop     ds  
+  
+            ret  
+; section code1 end  
+  
+  
+;;  
+;;  
+section code2 align=16 vstart=0  
+_start:  
+    .begin: push    word [es:seg_addr_code1]        ; code2没做什么实事就是再跳回code1的continue继续执行  
+            mov     ax, start.continue  
+            push    ax  
+            retf  
+; section code2 end  
+  
+              
+;;  
+;;  
+section trail align=16  
+app_end:  
+; section trail end  
+！resb指令就是reserve byte的缩写，即保留一定数量的字节的意思，因此必然还有resw、resd，表示保留一定数量的字和双字的意思，既然是保留就不对定义的数据进行初始化，因此该指令就是定义一段连续的未初始化的数据；
+！关于汇编地址的介绍以及硬盘访问的端口都在源代码中详细介绍，所以这里就不累述了；
+
+加载器的实现：作为主引导扇区程序
+loader.nas，编译后生成loader.mbr
+
+; 主引导扇区程序作为应用程序加载器  
+  
+; 虽然就只有一个段但是也需要定义  
+; 最主要是为了使用段属性vstart=0x7C00  
+; 这样就可以使得段内的所有汇编地址都是相对0x7C00开始的  
+; 因为MBR加载在0x0000:0x7C00处，因此IP初始化为0x7C00  
+; 而所有偏移地址都是相对0x7C00的  
+; 有了这一步程序中的所有标号都能真正代表偏移地址了  
+section loader align=16 vstart=0x7C00  
+            jmp     near start  
+  
+    LBA_APP_START       equ     100             ; 应用程序所在硬盘的起始逻辑扇区号，这里是人为规定的  
+    ADDR_20_LOAD_START  dd      0x10000         ; 内存中加载的起始20位绝对物理地址  
+  
+    ; 应用程序头中信息的偏移地址  
+    APP_SIZE_LOW        equ     0x00          
+    APP_SIZE_HIGH       equ     0x02  
+    APP_ENTRY           equ     0x04  
+    APP_ENTRY_SEG       equ     0x06  
+    APP_ENTRY_SEG_LOW   equ     0x06  
+    APP_ENTRY_SEG_HIGH  equ     0x08  
+    C_REALLOC_TBL       equ     0x0A  
+    TBL_START           equ     0x0C  
+  
+            ; 从0x0FFFF往下（即地址减小）的一段区域一般都作为MBR的栈！  
+            ; 因此ss:sp指向0x0000:0x0000  
+            ; 这样在push的时候sp能回到0xFFFF  
+start:      mov     ax, 0  
+            mov     ss, ax  
+            mov     sp, ax  
+  
+            ; ds -> 内存中加载的起始位置段地址  
+            mov     ax, [cs:ADDR_20_LOAD_START]  
+            mov     dx, [cs:ADDR_20_LOAD_START+2]  
+            mov     bx, 16  
+            div     bx  
+            mov     ds, ax  
+            mov     es, ax                      ; 留给用户程序时使ds和es都指向加载位置首部  
+  
+            ; 先读取一个扇区，即应用程序头所在的扇区  
+            xor     di, di                        
+            mov     si, LBA_APP_START           ; [di:si]全局保存当前读取的逻辑扇区号  
+            mov     cx, 1                       ; 读取一个扇区  
+            call    read_lba                  
+            ; 读取完毕，ds:0指向程序的第一扇区中的内容  
+  
+            mov     dx, [APP_SIZE_HIGH]  
+            mov     ax, [APP_SIZE_LOW]  
+            mov     bx, 512  
+            div     bx  
+            cmp     dx, 0  
+            jne     .deal_left              ; 有余数，可以将已经读取的那个扇区看做余数的扇区  
+            dec     ax                      ; 无余数则需要减去已经读取的那个扇区  
+    .deal_left:  
+            cmp     ax, 0  
+            je      redirect_entry          ; 如果没有剩余扇区要读则直接去重定位程序入口点  
+            push    ds                      ; 备份并改变其指向  
+  
+            mov     cx, ax                  ; 剩余要读的扇区数量  
+            mov     ax, ds  
+            add     ax, 0x20                ; 使其指向下一个512字节起始处（必然是16位对齐的）  
+            mov     ds, ax  
+            inc     si                      ; 指向下一个要读的扇区  
+            call    read_lba  
+  
+            pop     ds                      ; 恢复ds使其指向加载的程序的开始处  
+  
+        ; 到此为止程序彻底加载完毕  
+          
+        ; 接下来的工作是将程序头中的入口地址，以及重定位表中的地址  
+        ; 修改成实际的物理地址  
+        ; 这里所重定位的地址都是段地址  
+        ; 将程序中段的绝对汇编地址更新成加载在内存中的实际物理段地址  
+        ; 公式是：16位物理段地址 = (整个程序起始位置的20位物理 + 段的32位绝对汇编地址) >> 4  
+  
+    redirect_entry: ; 重定位入口处地址  
+            mov     dx, [APP_ENTRY_SEG_HIGH]        ; [dx:ax]中保存入口处的绝对汇编地址  
+            mov     ax, [APP_ENTRY_SEG_LOW]  
+            call    calc_seg_phy_addr_16            ; 计算段的16位段地址（即物理段地址），结果保存在ax中  
+            mov     [APP_ENTRY_SEG], ax             ; 更新  
+  
+            ; 处理重定位表  
+            mov     cx, [C_REALLOC_TBL]  
+            mov     bx, TBL_START  
+    .realloc:  
+            mov     dx, [bx + 2]  
+            mov     ax, [bx]  
+            call    calc_seg_phy_addr_16  
+            mov     [bx], ax  
+            add     bx, 4  
+            loop    .realloc  
+  
+            jmp     far [APP_ENTRY]                 ; 控制权交给应用程序  
+  
+  
+; func read_lba  
+; <- [di:si]:读取的逻辑扇区号  
+; <- cx:读取的扇区数量  
+; <- ds:目的区域段地址  
+; 将cx个扇区的内容读取到ds:0所指向的内存空间中  
+read_lba:  
+    PORT_DATA       equ     0x1F0       ; 数据端口（16位）  
+    PORT_ERRNO      equ     0x1F1       ; 错误端口（8位）保存最后一次执行命令后的状态（错误原因）  
+    PORT_CLBA       equ     0x1F2       ; 计数端口（8位）保存读写的扇区数量  
+    PORT_LBA_START  equ     0x1F3       ; 逻辑扇区号端口（32位共4个8位口）  
+                                        ; 低28位确定待操作的起始扇区号  
+                                        ; 最高的4位指定扇区寻址模式以及类型选择符）  
+    PORT_CTRL       equ     0x1F7       ; 控制端口（8位）下读写命令同时又能反映硬盘工作状态  
+  
+    CTRL_READ       equ     0x20        ; 读命令，向控制端口发送  
+  
+    BIT_MASK        equ     10001000B   ; 位掩码，取控制端口的第7位和第3位  
+                                        ; 第7位表示硬盘是否忙，1表示忙  
+                                        ; 第3位表示硬盘是否就绪，1表示就绪  
+    STATUS_READY    equ     00001000B   ; 彻底就绪时第7位是0，第3位是1，用于检测硬盘是否就绪  
+  
+            ; 指定读取的扇区数量  
+            mov     dx, PORT_CLBA  
+            mov     al, cl  
+            out     dx, al  
+  
+            ; 向LBA地址口写入28位逻辑扇区号  
+  
+            mov     dx, PORT_LBA_START      ; 0~7位  
+            mov     ax, si  
+            out     dx, al  
+  
+            inc     dx                      ; 8~15位  
+            mov     al, ah  
+            out     dx, al  
+  
+            inc     dx                      ; 16~23位  
+            mov     ax, di  
+            out     dx, al  
+  
+            inc     dx                      ; 24~27位  
+            mov     al, 111_0_0000B         ; ah保存24~27位，al中保存扇区寻址模式以及类型选择符  
+                                            ; 其中最高位的111表示采用28位逻辑扇区号模式  
+                                            ; 后面一位的0表示是主盘，1表示从盘，即盘片类型选择符  
+            or      al, ah  
+            out     dx, al  
+  
+            ; 发出读命令  
+            mov     dx, PORT_CTRL  
+            mov     al, CTRL_READ  
+            out     dx, al  
+    .waits: ; 检测硬盘是否就绪，没就绪就一直等待就绪  
+            in      al, dx  
+            and     al, BIT_MASK  
+            cmp     al, STATUS_READY  
+            jne     .waits  
+  
+            ; 准备就绪就开始读取  
+            shl     cx, 8                   ; 一个扇区512B，即256个字  
+                                            ; cx记录剩余多少字未读完，而cx原本存放剩余扇区数  
+                                            ; 因此cx要乘以256，即左移8位  
+            mov     dx, PORT_DATA  
+            xor     bx, bx  
+    .readw: ; 循环读取程序，将其加载至ds:0处  
+            in      ax, dx  
+            mov     [bx], ax  
+            add     bx, 2  
+            loop    .readw  
+  
+            ret  
+  
+  
+; func calc_seg_phy_addr_16  
+; <- [dx:ax]:段32位绝对汇编地址  
+; -> ax:16位物理段地址  
+calc_seg_phy_addr_16:  
+            ; 这里的20位起始加载地址使用32位保存的  
+            ; 因此可以通过带进位的加法得到段起始位置的实际的20位物理地址  
+            add     ax, [cs:ADDR_20_LOAD_START]  
+            adc     dx, [cs:ADDR_20_LOAD_START+2]  
+  
+            ; 现在将绝对的20位物理地址右移4位就能得到16位的物理段地址了  
+            ; 必须dx和ax同时右移  
+            ; 方法是ax右移4位即可  
+            ; 而dx采用循环右移4位，应该移到ax高4位的那4位重新回到dx高4位  
+            ; 然后用位掩码去的dx高4位  
+            ; 再利用or将这4位写入ax的高4位即可  
+            shr     ax, 4           ; 低16位右移4位  
+            ror     dx, 4  
+            and     dx, 0xF000      ; 位掩  
+            or      ax, dx          ; 写入  
+  
+            ret  
+  
+times 510-($-$$) db 0  
+                 dw 0xAA55  
+！注意：程序开始处的一大堆宏定义就是用于和应用程序头部进行通讯的，即那些表项等在头部中的偏移位置，这样就可以轻松访问这些表项了；
+
+3. 查看程序运行结果：将loader.mbr写进虚拟硬盘的0号扇区（总共一个扇区），将app.bin写进100号扇区（总共两个扇区），然后将虚拟盘作为虚拟机的启动盘放在VirtualBox中运行中即可；
+
+
+硬件中断与COMS动态时钟
+
+软中断以及BIOS中断调用
+1. 
+ 在CODE上查看代码片派生到我的代码片
+            org     0x7C00  
+  
+            jmp     start  
+  
+GDT_BEG:  
+DESC_SG_NULL    dd  0x00000000, 0x00000000  
+DESC_SG_CODE    dd  0x7C0001FF, 0x00409800  
+DESC_SG_VIDEO   dd  0x8000FFFF, 0x0040920B  
+DESC_SG_STACK   dd  0x00007A00, 0x00409600  
+GDT_END:  
+  
+GDT_SIZE_DWORD  equ (GDT_END - GDT_BEG) / 4  
+  
+GDTR:   ; 以下48位内容需要加载到全局描述符表寄存器gdtr中  
+GDT_BOUND       dw  GDT_END - GDT_BEG - 1   ; 低16位是GDT的界限（即GDT总共多少字节）  
+                                            ; 如果把GDT看做以字节为单位的数组，则下标从0开始  
+                                            ; 所以该项为GDT总字节数减1  
+                                            ; 本程序总共有4个描述符，GDT每个表项都占8字节  
+GDT_BASE        dd  0x7E00          ; GDT加载在内存中的起始物理地址  
+                                    ; 由于在加载GDTR时还没有进入保护模式，因此只能用20位地址  
+                                    ; 这里就只能用32位来表示20位地址了  
+                                    ; 因此在进入保护模式前只能将GDT加载到1MB的内存空间中  
+                                    ; 在进入保护模式之后可以再将GDT移动到其它位置  
+                                    ; 由于MBR位于0x7C00开始的512字节空间中了  
+                                    ; 因此就将GDT放在后面一个新的512字节处（7E00H = 7C00H + 512）  
+  
+PORT_FAST_A20   equ 0x92            ; 快速设置A20地址线的端口  
+GATE_ALT_A20    equ 0x02            ; 开启A20地址线的位掩码（门控），也称作A20替代门控  
+                                    ; 即该8位端口的1号位置1即可打开A20地址线  
+  
+GATE_PE         equ 0x01            ; 控制寄存器（32位）的第0位——保护模式允许位（Protection Enable）  
+                                    ; 也称作PE门控  
+                                    ; 将其设置为1就真正进入保护模式了  
+                                    ; 从此之后都要按照保护模式的规矩来了  
+                                    ; 这是真正的保护模式的开关  
+  
+msg         db      'We are at Protect Mode...'  
+len_msg     equ     $ - msg   
+  
+start:      ; ds:si指向本代码中的临时GDT  
+            mov     ax, cs  
+            mov     ds, ax  
+            mov     si, GDT_BEG  
+  
+            ; es:di指向GDT实际加载的位置0x7E00:0  
+            mov     ax, [cs: GDT_BASE]  
+            mov     dx, [cs: GDT_BASE+2]  
+            mov     bx, 16  
+            div     bx                      ; 获取实际物理地址对应的16位段地址  
+            mov     es, ax  
+            mov     di, 0  
+  
+            ; 将GDT加载到指定位置  
+            mov     cx, GDT_SIZE_DWORD  
+            rep     movsd  
+  
+            lgdt    [cs: GDTR]              ; load gdtr，将GDTR处的48位内容加载进gdtr中  
+  
+            ; 由于实模式下地址只有20位，为了使20位地址溢出时归0并产生进位CF就必须关闭  
+            ; 第21根地址线即A20（Address #20），如果不关闭则20位地址溢出时的进位会  
+            ; 出现在A20处而不产生CF进位标记，同时不能归0  
+            ; 因此在进入32位保护模式之前必须先开启A20（实模式下A20不工作，即一直为0）  
+            ; 从而使32位的每一位都能工作成为真正意义上的32位模式  
+            in      al, PORT_FAST_A20  
+            or      al, GATE_ALT_A20  
+            out     PORT_FAST_A20, al  
+  
+            ; 保护模式下段的定位和实模式不同  
+            ; 因此在保护模式下所有BIOS中断都不能使用（跳转到中断例程时需要定位）  
+            ; 因此在进入保护模式之后需要重新设置BIOS中断的定位  
+            ; 因此在这个问题解决之前不能相应任何中断  
+            ; 因此在进入保护模式之前到BIOS中断重新设置完毕的过程中必须要关中断以免发生未知异常  
+            cli         ; clear IF，将IF标志位（中断允许标志位）置0  
+                        ; 对应的sti，即set IF，将IF位置1重新允许中断  
+                        ; 由于本程序并不重新设置BIOS的定位，因此就无需sti  
+  
+            mov     eax, cr0            ; cr0是0号寄存器，还有cr1、cr2等  
+            or      eax, GATE_PE        ; 彻底进入保护模式  
+            mov     cr0, eax  
+  
+            ; 虽然是进入了保护模式，但cs的描述符高速缓冲寄存器中的内容还是20位模式下的内容  
+            ; 如果这个问题不解决会导致程序的错误，因此必须刷新cs  
+            ; 刷新的同时也会自动更新描述符高速缓冲寄存器  
+            ; 只能通过转移、调用、返回、中断指令来修改cs  
+            ; 32/16  
+            jmp     dword (DESC_SG_CODE - GDT_BEG):pm32_start   ; 注意cs现在是段选择子  
+  
+            [bits 32]  
+pm32_start:  
+            mov     ax, DESC_SG_VIDEO - GDT_BEG ; 段选择子  
+            mov     ds, ax  
+  
+            mov     cx, len_msg  
+            mov     bx, 0  
+    .lp:    mov     al, [cs: msg+bx-0x7C00]  
+            mov     [bx], al  
+            add     bx, 2  
+            loop    .lp  
+  
+            hlt  
+  
+times 510 - ($ - $$)    db  0  
+                        dw  0xAA55  
+
+
+进入保护模式之前的准备
+1. 保护模式下的描述符表的概念：
+    1) 保护模式相对于实模式最大的不同之处就是对软件的行为做出了很多约束，从而使系统的运行更加安全；
+    2) 在保护模式下段的使用非常严格，需要用各种信息维护段（比如段界限、可读写性、特权级、最下单位等），而这些信息就用一张描述符表来存放；
+    3) 描述表的概念：
+        i. 表中的每一项都保存一个描述符（也称为段描述符），用于存放当前某个段的相关信息，每个表项都固定占8字节（64位），里面存放了段的起始位置、段界限、属性这三个信息           iii. 描述符表是定义在内存中的，所有表项都是在地址层面上紧密连接（即连续）的，因此在进入保护模式之前必须先在内存中找一片空间定义GDT；
+    4) 保护模式下的CPU如何管理GDT呢？——使用全局描述符表寄存器GDTR：
+        i. GDTR即GDT Register，是一个48位的寄存器；
+        ii. 高32位是GDT在内存中的起始位置（即线性基地址），低16位是GDT的界限（即GDT的大小再减1，单位必然是字节），由于界限只有16位，因此最多只能容纳2^16 / 8 = 8192个全局描述符；
+        iii. 一般定义GDT的完整过程：先在内存中找一段空闲空间定义GDT，然后使用lgdt指令装载GDTR（即将基地址以及表界限装入GDTR中），lgdt即load gdtr的意思；
+        iv. lgdt的使用形式：lgdt m48，即gdtr的内容必须要事先准备在内存中（共48位）；
+        v. 这样CPU就可以根据GDTR来找到GDT的位置了，并且可以清楚知道GDT的大小以免将其它内容当做GDT的表项；
+    5) 关于GDT的浮动问题：由于进入保护模式前是实模式，因此一开始只能在实模式下定义GDT，因此GDT只能存放在1MB的空间中，因此如果想将GDT让在4GB的任意位置处就必须等到进入保护模式之后再挪动GDT；
+
+2. 32位线性地址以及段选择子（包括描述符高速缓存器）：
+    1) 由于保护模式下CPU的32根地址线全都可以用（即CPU是32位模式的），所以可以访问的内存大小为4GB，并且32位模式下EIP也是32位的，即一个偏移指针就可以访问全部的4GB内存了，因此理论上就不需要用"段地址 << 4 + 偏移地址"的20位实模式的方式来访问内存了（因为实模式下段寄存器和偏移指针都只有16位（小于20位），只用这些寄存器无法访问20位地址线指向的内存）；
+    2) 但由于Intel“兼容”的商业模式，要求即使是32位的CPU也必须使用"段地址:偏移地址"的形式来访问内存，但不过保护模式下段地址就直接是32位的，而偏移地址也是32位的，因此访问内存的时候无需将段地址移位，而直接就是"段地址+偏移地址=实际的地址"，因此保护模式下的段地址和偏移地址都可以表示绝对的地址，那么整个地址空间就是一个线性的4GB的平坦的空间了，因此在保护模式下不管是段地址还是偏移地址都是线性空间中的一个绝对的点，因此它们都称为线性地址；
+！而原来实模式下的段地址就不是线性地址，因为要对它×16才能得到1MB线性空间中的一个具体的位置
+    3) 那么问题来了，段地址既然是32位的，但是32位模式下没有32位的段寄存器，只有原先的16位的段寄存器cs、ds、es等，用16位的段寄存器如何表示32位的段地址呢？这个问题要回到之前讲过的GDT上了，GDT总共可以容纳8192个描述符，而16位的段寄存器就用来选择你想访问的那个段所对应的描述符，而描述符中存放着段的32位线性基地址，而那个32位线性基地址就是所谓保护模式下的段地址了；
+！也就是说保护模式下的段寄存器不存放段地址，而是称作”段选择子“，因为所有对段的访问都通过GDT进行，GDT中存放的信息可以防止不安全行为（不像实模式中可以随便跳来跳去访问不该访问的内容而造成系统崩溃）；
+    4) 整理一下保护模式下访问内存的过程（那cs为例）：
+cs（段选择子）选择一个描述符 -->  从描述符中取出32位线性段基  -->  拿该段基直接和EIP（32位）偏移地址相加  -->  最终得到32位绝对地址
+    5) 那么问题又来了，在保护模式下每次访问内存之前都要先间接地访问内存中的GDT岂不是很麻烦且很耗时（因为内存的速度比CPU寄存器的速度慢好几个数量级），实际上每个段寄存器的背后都有一个对应的64位描述符高速缓存器，每当段寄存器指向一个新的描述符时CPU都会将GDT对应的表项装进该缓存器中，如果之后不改变段选子的指向则缓存器的内容就不会变，因此在之后对该段的访问过程中32位基地址都会直接从该缓存器中拿，这就比从内存中的GDT拿方便多、快得多了！
+！描述符高速缓冲寄存器位于CPU中，速度和普通寄存器相当，但是对程序员来说是不可见的，是由硬件自身来管理的；
+
+3. 段描述符的格式：
+    1) 前面讲过，一个段描述符就描述符表中的一个表项，占8字节（64位），下面来看一下描述符的具体内容，感叹一下这奇葩的布局，其中上面为高32位，下面位低32位：
+        
+    2) 其中绿色的是32位线性段基地址，红色的是20位段界限，其余都是段属性，那么问题又来了，不是说保护模式下可以访问全部的4GB空间吗，那为什么段界限是20位的而不是32位的呢？20位不是只能访问1MB的空间吗？
+！这就需要属性为G位来配合说明了，G表示Granularity，即粒度的意思，用于解释段界限的含义，表示宽展的单位，如果G为0则表示段的扩展单位为字节，20位的界限则只能表示1MB的空间，如果G为1则表示扩展单位为4KB，则2^20 × 4KB刚好等于4GB，这不就能使用全部的4GB空间了嘛！因此有了G位可以让程序员有更多的选择了；
+    3) 为什么段基和段界限要分成好几块表示呢？从图中看32位线性段基和20位段界限在二进制位层次上不是连续的，布局如此之奇葩，这是因为Intel的"兼容"商业模式，保护模式最早是在80286中出现的，这个版本的CPU中有24位地址线，描述符的布局是上图的一部分，32位是从80386开始的，为了能兼容80286的程序所以要保留一部分原来的模样，同时在此基础上进行一定扩展，所以就出现了现在奇葩的局面；
+    4) 由于布局的奇葩，所以在定义描述符的时候也会比较麻烦，段基、段界限、属性不能连续定义，但是可以使用NASM提供的宏的功能来实现：
+
+; Desc  Base, Limit, Attr  
+;       %1    %2     %3  
+%macro Desc 3  
+    dw  %2 & 0xFFFF  
+    dw  %1 & 0xFFFF  
+    db  (%1 >> 16) & 0xFF  
+    dw  ((%2 >> 8) & 0xF00) | (%3 & 0xF0FF)  
+    db  (%1 >> 24) & 0xFF  
+%endmacro  
+！其中%macro是伪指令用于定义宏，后面跟的是宏的名字（用户自定义），我明知道一般的数据宏都是用equ定义的，这里最主要是用于定义函数宏，因此后面跟的那个十进制的数字表示该宏接受的参数的个数，其中第一个参数是32位线性段基Base，第二个是20位段界限Limit，第三个是属性Attr，在和%endmacro之间的行都是宏的具体内容，所有出现宏调用地方都会用该内容替换，里面对着三个参数进行分解并调整为上图所示的格式，使这64位称为真正上的标准的描述符，其中%n和Shell的$n一样表示第几号参数，只不过这里的参数是从1开始计数的，其中第一行的注释就是该宏的调用形式，其中的Base、Limit、Attr要用具体的数值替换；
+！Attr供16位，包括了中间的4位段界限的占位，在宏分解的时候将忽略这4位，因此理论上这四位填0填1无所谓，但是为了统一规范都填0,；
+！一般Attr都实现用宏定义好，比如DA_DR equ 0x90，其中前缀DA表示Descriptor Attribute，即描述符属性的意思，而后面的DR就表示Data & Read，即可读并且是数据段，这样可以是程序更加清晰；
+
+4. 段描述符的属性：
+    1) G：之前已讲，表示该如何解释段界限的粒度；
+    2) D/B：只能作用于两种类型的段，短语代码段就是D位，即Default Operation Size，即默认操作数大小，如果为0，则表示用ip取指，如果为1则表示用eip取指；对于栈段来说就是B位，即Upper Bound，即上部边界，如果为0表示使用sp来操作栈，如果为1就表示用esp来操作栈；
+！D/B位为0就是16位的保护模式，这种模式很少使用了，以后基本都是将D/B位置1的；
+    3) L：是为64位模式准备的，这里先不用，置0即可；
+    4) AVL：Available，即可使用的位，没有任何意义，仅仅是交给软件使用的位，一般会让操作系统拿去做自己想做的事情；
+    5) P：Present，即段存在位，0表示描述符对应的段还不在内存中，1就表示存在于内存中；是这样的，有时内存紧张，某个段可能会被交换到硬盘中暂时不用，但是该段的描述符仍然是存在的，只是就将该位清0即可，等到再交换回内存之后再置1；
+    6) DPL：Descriptor Previlege Level，即描述符的特权级，CPU共有4中特权级，即0、1、2、3，其中0级别最高，可以看做是从处理器继承而来的（一般都是操作系统进程拥有该特权级），3最低（一般是用户程序的级别），不同特权级的程序相互隔离，严格限制相互访问，并且有些指令只能由0级程序使用，为的就是安全；
+！该位同时指定了要访问该段所必须用于的最低特权级，如果该位是2，则只有0、1、2特权级的程序才能访问；
+    7) S：System，即表示该段是否为系统段，0表示是系统段，1就表示是其它类型的段（代码段、数据段、栈段等等），系统段的概念之后会讲；
+    8) TYPE：共4位，对于数据段来说（栈也包括，只要是不是存放代码的都是数据段）是X、E、W、A，而对于代码段来说则是X、C、R、A
+
+！其中X表示是否可执行，E表示扩展的方向（Extending Direction，0表示向上扩展（普通的数据段）、1表示向下扩展即栈段），W表示是否可写，其中数据段是默认可读的（即必须可读的）；
+！C表示特权级依从（之后会讲），R表示该代码段是否能被读取；
+！是数据段还是代码段只看X位，代码段必须是可执行的，而数据段一定是不能执行的；
+！A是Accessed位，表示该段是否被访问过了，用于访问计数，在虚拟内存管理LRU算法中等可以使用，主要留给操作系统；
+
+5. 32位CPU是如何兼容16位实模式的？
+    1) 实模式下描述符高速缓存器在干什么？实际上在实模式下该缓存器也是工作的，只不过实模式下段寄存器存放的不是选择子（因为没有GDT）而是16位段地址，而在计算20位绝对物理地址的时候需要进行"段地址<<4 + 偏移地址"的变换，因此缓存器中的32位线性基址保存的正式"段地址<<4"的20位段基地址，只不过高12位没有用，恒为0而已，只有进入32位保护模式才真正有用，因此在访问内存的时候也不需要真正地对段地址左移4位，因为直接可以从描述符高速缓存器中取出已经移位好的20位段基并直接和偏移地址相加即可，因此32位CPU运行实模式要比16位CPU要更加快呢！
+    2) 其次就是”关闭A20机制“了：
+        i. 由于32位CPU有32根地址线，而实模式只需要用到20根，那该怎么办呢？多出了整整12根；
+        ii. 其实在实模式下并不需要关闭掉所有的这12根线，而只需要关掉第21根线（即A20，Address #20，从0开始编号）即可；
+        iii. 在原先16位CPU下当地址超过0xFFFFF时会产生溢位OF，并回0，程序员经常使用这招获得循环的内存空间，因此在32位CPU的环境中程序员同样希望能保留这个特征；
+        iv. 但是在32位地址线的情况下，地址超过0xFFFFF时只会向A20进位而不会溢位，即变成0x100000，因此干脆就关闭A20（是指永远为0，即使对其置1也没用），这样就能溢位并且保证能回0了；
+        v. 因此在进入32位保护模式之前必须先将A20打开，否则在保护模式中就只能使用20位地址而不能使用32位地址，这必定会导致程序的错误！
+        vi. 打开A20需要用到0x92控制端口，这在后面的代码中会讲到；
+
+6. 段选择子的格式：
+    1) 段选择子就是要装进段寄存器的东西，并不是想选择几号描述符就对其赋值几，段选子有专门的格式；
+    2) 在16位段选择子中高13位是描述符的索引号，比如选择n号描述符就在高13位填n，而第3位从高到低是TI位和RPL位（占2位）；
+    3) TI：Table Indicator，即描述符表指示器，为0表示选择的描述符在GDT中，为1表示描述符在LDT中；
+    4) RPL：Requested Privilege Level，即请求访问特权级，还是之前DPL的那4个特权级，这里表示要访问该选择子对应的段的那个程序的特权级，比如在程序A中的访问段B，因此需要将段B的描述符索引填到高13位中，而RPL则是程序A的特权级，如果处理器发现A的特权级低于B则拒绝A访问B，直接产生异常中暖；
+    5) 因此可以将低3位称为选择子的属性，可以发现选择子就是"描述符索引<<3 | Attr"，即"描述符索引×8 | Attr"，而每个描述符刚好占8字节，因此如果不考虑属性位的话选择子就是描述符在描述符表中的字节索引（从0号字节开始计算）；
+    6) 因此在这里又可以使用宏函数定义选择子了：
+
+; SELECTOR  Index, Attr  
+%macro SELECTOR 2  
+    dw  (%1 << 3) | %2  
+%endmacro  
+！然后用宏定义预先设定各种Attr即可；
+
+7. 打开保护模式之门的钥匙——cr0：
+    1) cr是指Control Register，即控制寄存器，里面包含了一系列控制处理器操作模式和运行状态的标志位；
+    2) 控制寄存器有多个，cr0、cr1、cr2、cr3、cr4、cr8等；
+    3) 其中cr0的第0位（也就是最低位）如果是0则处理器处在16位实模式，如果置1就完全进入了32位保护模式，而该位就是PE位（Protect Enable），也就是说cr0的最低位就是打开保护模式之门的钥匙了；
+    4) 一旦该位被打开，则在一瞬间就进入了32位保护模式，gdtr将开始工作（监控GDT），内存的访问也变成了选择子模式，反正一切都要按照保护模式的来；
+
+8. 从实模式到保护模式的中间过程：
+    1) 首先必须要关中断cli，因为进入中断例程需要跳转（也就是访问新的内存段），在实模式下是"偏移4位+”的方式，而保护模式下是"选择子“方式，这两种方式截然不同，因此在刚进入保护模式后BIOS中断必定正常使用，为了避免错误，必须在打开cr0#0之前先cli，然后在进入保护模式后重新设置BIOS中断向量，更新之后再开中断sti；
+    2) 扫除实模式的阴影：
+        i. 所谓实模式的阴影就是，在打开cr0#0后进入了全面的32位保护模式，但是此时cs中的值还是实模式下的段地址而不是选择子，并且cs的描述符高速缓存器中的内容也不是GDT中表项的内容，由于之后对内存的访问都是按照保护模式的规矩来的，因此不做更新必然会导致系统崩溃！
+        ii. 使用jmp指令扫除阴影：使用"jmp dword 选择子:偏移地址"的方式即可完成上述任务，首先会将选择子赋给cs，并根据GDT将相应的描述符载入cs的缓存器中，然后将EIP指向偏移地址；
+！在32位保护模式下对cs:eip的修改也只能靠转移、调用、返回指令；
+！修改其他段寄存器的内部运行过程也和上述同理，还是需要通用寄存器中转，比如mov ax, ds的选择子; mov ds, ax；
+    3) 清空指令流水线：
+        i. 由于CPU的并行功能，在执行一条指令的时候就已经将该指令后面的若干条指令提前译码并压入CPU的指令流水线中等待；
+        ii. 在打开cr0#0时就已经有很多指令在流水线之内了，但这些流水线指令是在进入32位保护模式之前就压入的，因此这些指令的格式都是16位，如果在进入32位保护模式之后仍然执行这些16位指令必定会发生错误，因此必须在打开cr0#0之后先清空流水线；
+        iii. 使用上述的jmp dword跳转指令即可清空流水线，由于程序的顺序被打破，因此流水线必定需要清空；
+！小结：jmp dword在扫除实模式阴影的同时也清空了指令流水线，可以说是一举两得啊！
+
+9. 保护模式准备的步骤总结：
+    1) 在1MB空间中挑一个合适的位置存放GDT；
+    2) 想好要定义的描述符，并将定义的内容装载到GDT中；
+    3) 数一下定义好的GDT的大小并看一下GDT的起始32位线性地址将其装入GDTR中（使用lgdt指令）；
+    4) 打开A20；
+    5) cli关中断；
+    6) 打开cr0#0；
+    7) 用jmp dword清空流水线，并重置cs和cs的描述符高速缓存器；
+    8) 跳转到jmp指定的位置正式执行32位保护模式代码；
+    9) 调整BIOS中断向量使之适应32位保护模式下的调用；
+    10) sti开中断；
+    11) 干一些其它事情，比如操作系统引导之类的；
+
+IA-32编程构架
+1. 扩展寄存器：
+    1) IA-32即Intel Architecture, 32-bit，即Intel 32位处理器构架的简称；
+    2) 该构架下最明显的变化就是地址线采用32根，可访问4GB的线性主存空间；
+    3) 通用寄存器的扩展：16位构架下的8个通用寄存器ax, bx, cx, dx, si, di, bp, sp都扩展成32位的eax, ebx, ecx, edx, esi, edi, ebp, esp，其中高16位不可单独使用，低16位兼容16位构架；
+！8个扩展通用寄存器也可以在16位实模式下正常使用；
+    4) ip的扩展：当处理器工作在32位模式下时指令地址都是32位的，因此系统默认使用的扩展后的eip（32位）进行取指；
+    5) 标志寄存器的扩展：flags扩展成32位的eflags，其用法之后会详细讲解；
+
+2. 仍然采用分段模型访问内存：
+    1) IA-32构架下为了“兼容”的商业模式继续采用分段模型，即使一个eip就可以访问全部的4GB空间；
+    2) 段寄存器仍然还是原先的16位的，并没有进行扩展，但是还增加了两个段寄存器fs和gs（仅仅是因为字母升序的原因d、e、f、g来命名的）；
+    3) 32位保护模式下采用的段选择子模式进行分段访问的（这之前已经详细地讲过了）；
+    4) 平坦模式：是一种变通的不分段访问全部4GB空间的方式，方法很简单，段基设为0x00000000，则eip就可以访问整个4GB空间了；
+
+3. 基本工作模式：
+    1) 兼容16位实模式：刚加电时运行在实模式下，此时的80386相当于一个快速的8086，进入32位保护模式后就可以完全利用32位处理器所有强大的功能了；
+    2) 保护模式：即32位保护模式；
+    3) 虚拟8086模式：即V86模式，是保护模式的一种，在该模式下80386可以模拟成多个8086处理器，这样就可以并行地运行多个32位程序以及16位程序，比如Windows下的cmd就是运行在该模式下的；
+
+4. 32位寻址方式：
+    1) 为了兼容16位实模式下的寻址模式，让16位指令和32位指令公用相同的指令码，但通过不同的指令前缀并结合当前处理器运行状态来决定最终的寻址模式；
+    2) 通过前缀0x66来反转寻址模式：如果当前运行在16位模式下，则有指令前缀0x66就表示使用32位寻址模式，若运行在32位模式下，则有指令前缀0x66就表示使用的是16位寻址模式，如果没有前缀0x66则表示使用和各自运行模式相匹配的方式寻址；
+    3) 32位寻址格式：
+        i. 一般描述：[段选择子: 基址寄存器 + 变址寄存器×1/2/4/8 + 8位/32位偏移量]
+        ii. 段选子就和原先实模式下段超越前缀是一个概念；
+        iii. 由于是32位寻址模式，因此偏移地址必然都是32位的，所以基址和变址寄存器都是扩展的32位寄存器；
+        iv. 基址寄存器可以是所有的8个通用扩展寄存器；
+        v. 变址寄存器可以是7个通用的扩展寄存器（除了esp不能用之外）；
+        vi. 变址寄存器所能乘的系数只能是1或2或4或8，不能是其它数；
+        vii. 段前缀、基址寄存器、变址寄存器和偏移量都是可选的，但必须至少有一个，这点和16位寻址模式的规矩是一致的；
+
+5. 0x66前缀的模式反转：
+    1) 在16位模式下所有使用扩展寄存器或者是32位寻址模式的指令时都将会被视为32位指令，因此会为这些指令加上指令前缀0x66，比如：
+
+bits 16  
+mov cx, dx      ; 89 D1  
+mov eax, edx    ; 66 89 D8  
+    2) 同理在32位模式下所有使用原来实模式下的指令时（基本上都是16位或8位寄存器，内存寻址也都是16位的）就会被视为16位指令，因此会为这些指令加上指令前缀0x66，比如：
+
+[bits 32]  
+mov cx, dx      ; 66 89 D1  
+mov eax, edx    ; 89 D8  
+    3) 其中“bits 16/32”是NASM的伪指令，用于指示接下来编译的指令是按照16位编码还是32位编码，其中前缀编码0x66用于反转编码模式，“bits 16/32”外可以加中括号[ ]，但也可以省略，但是建议加中括号以使代码更加清晰；
+！如果代码中没有指令编译模式则一律默认是16位形式的；
+
+6. 一般算术指令的扩展：
+    1) 一般双操作数指令扩展：
+
+add     eax, ebx  
+add     dword [ecx], 0x5F  
+！这两条指令都会被编译成32位的，第一条很明显是使用了扩展寄存器，而第二条使用了32位的内存寻址模式，因此指令中的立即数会被看做是一个32位的数；
+    2) 一般单操作数指令扩展：
+
+inc dword [0x2000]  
+dec dword [eax*2+0x08]  
+！一般出现关键字dword都将会被视为是32位指令，因此在16位下会加指令前缀0x66，而在32位下无需加盖前缀；
+    3) 逻辑移位指令扩展：
+
+shl     eax, 1  
+shl     ebx, 9  
+shl     dword [eax*2+0xFF], cl  
+！移位数如果是立即数的话可以是1以上的数字；
+！如果移位数用寄存器表示则仍然只能使用cl，因为最多只能移动31位，而cl完全可以保存31这个数字了！
+！移位的原理和原来的依然相同，都是先将源操作数和0x1F与一下（即只保留最低5位），然后再进行移位，因为对于32位的数最多只能移动31位，超出这个范围就没任何意义了；
+    4) loop指令的扩展：在32位模式下（bits 32）循环计数变量存放在ecx中，在16位模式下还是使用cx循环计数；
+    5) 乘除法指令的扩展：
+         i. 这里只讲无符号乘法指令mul的扩展，其余都与此相同；
+         ii. 无符号乘法的扩展：mul r32/m32 ; edx:eax <- eax×r32/m32
+
+7. 栈指令的扩展：这块儿的扩展比较特殊且略微复杂，因此单独细讲
+    1) 80386芯片允许直接压入立即数：push byte/word/dword imm
+         i. 牢记：16位模式默认字长是16，而32位模式默认字长是32，因此不管怎么压都只能压入16位数或者32位数，绝不可能压入8位数！
+！注意：栈指令只能操作16位或者32位大小的数；
+         ii. byte：16位下会先将imm带符号扩展至16位后再压入，而32位下会带符号扩展至32位后再压入；
+         iii. word：16位下直接压入，32位下会先带符号扩展至32位再压入；
+         iv. dword：16位和32位都直接将该双字压入（sp和esp都先减4）；
+！小结：
+    i. 对于压入立即数的情况，16位模式必定压16位数（除非在16位模式下强行压入32位数），32位模式必定压32位数；
+    ii. 只有在压入16位模式才能压入16位数（不到16位则带符号扩展至16位），32位模式只能压入32位数（不到32位则带符号扩展至32位）；
+    iii. 如果压入的是16位数则必定是sp - 2，如果压入的是32位数则是sp - 4或者esp - 4；
+    2) 压入的数存在寄存器或者内存中：不管是16位模式还是32位模式，如果压入的是16位数则必定是sp - 2（bits 16）或者esp - 2（bits 32），如果压入的是32位数则必定是sp - 4（bits 16）或者esp - 4（bits32）；
+
+[bits 16]  
+push    [bx]        ; sp - 2  
+push    dword [bp]  ; sp - 4  
+push    ax          ; sp - 2  
+push    ecx         ; sp - 4  
+  
+[bits 32]  
+push    word [ebx + 0x55]   ; esp - 2  
+push    dword [ecx]         ; esp - 4  
+push    cx                  ; esp - 2  
+push    edx                 ; esp - 4  
+    3) 压入段寄存器：
+         i. 16位模式下正常，sp - 2后再压；
+         ii. 32位模式比较奇葩，对于段寄存器只能压32位的，因此会高位填0扩展成32位，接着esp - 4，最后压入；
+
+8. 关于修改段寄存器的小技巧：
+    1) 考虑到有前缀的指令比没前缀的指令执行的时候会少用一点时钟周期，因此编代码的时候应该尽可能地少让指令携带前缀，即尽量在一个模式下使用该模式的指令（尽量不要在一个模式下使用另一个模式的指令，否则会让指令带一个前缀0x66）；
+    2) 修改段寄存器的时候同样需要注意这个问题，因为程序中会频繁访问内存，因此需要考虑修改段寄存器时的指令编码问题：
+
+[bits 16]  
+mov ds, ax  ; 8E D8  
+mov ds, eax ; 66 83 D8  
+  
+[bits 32]  
+mov ds, ax  ; 66 8E D8  
+mov ds, eax ; 8E D8  
+！因此从以上看来，在32位模式下应该尽量使用mov sreg, er的形式来修改段寄存器；
+！即使很多编译器如NASM已经非常只能了，不管是在bits 16还是bits 32，都会将上述两条指令都翻译成无前缀的形式，但是考略到今后可能会在不同平台不同版本的环境中编程，因此建议还是在16位模式中使用mov sreg, r的形式，在32位模式中使用mov sreg, er的形式；
+
+进入保护模式全过程
+
+enter_pm.mbr
+ 在CODE上查看代码片派生到我的代码片
+            org     0x7C00          ; 该命令表示程序将被装在到偏移地址为0x7C00的地方  
+                                    ; 该命令效果是全局的，但只能使用一次，之后不得再用  
+                                    ; 从该位置开始到整个源代码结束之间的所有标号在被访问时都会隐式地自动加上0x7C00  
+                                    ; 但是和vstart=0x7C00不同，vstart会将整个段内所有指令的汇编地址都加上0x7C00  
+                                    ; 而org不影响汇编地址，仅仅就是在访问标号的时候临时加一个0x7C00  
+                                    ; 并将这个临时的和作为访问结果返回  
+  
+            jmp     start  
+  
+GDT_BEG: ; GDT表的定义  
+DESC_SG_NULL    dd  0x00000000, 0x00000000  
+DESC_SG_CODE    dd  0x7C0001FF, 0x00409A00 ; TYPE=1010,代码段必须可读，否则msg中的内容是无法读出并写到显卡中的  
+DESC_SG_VIDEO   dd  0x8000FFFF, 0x0040920B  
+DESC_SG_STACK   dd  0x00007A00, 0x00409600  
+GDT_END:  
+  
+; 段选择子  
+SLCT_NULL       equ DESC_SG_NULL - GDT_BEG  
+SLCT_CODE       equ DESC_SG_CODE - GDT_BEG  
+SLCT_VIDEO      equ DESC_SG_VIDEO - GDT_BEG  
+SLCT_STACK      equ DESC_SG_STACK - GDT_BEG  
+  
+; GDT总共有多少个双字  
+GDT_SIZE_DWORD  equ (GDT_END - GDT_BEG) / 4  
+  
+GDTR:   ; 以下48位内容需要加载到全局描述符表寄存器gdtr中  
+GDT_BOUND       dw  GDT_END - GDT_BEG - 1   ; 低16位是GDT的界限（即GDT总共多少字节）  
+                                            ; 如果把GDT看做以字节为单位的数组，则下标从0开始  
+                                            ; 所以该项为GDT总字节数减1  
+                                            ; 本程序总共有4个描述符，GDT每个表项都占8字节  
+GDT_BASE        dd  0x7E00          ; GDT加载在内存中的起始物理地址  
+                                    ; 由于在加载GDTR时还没有进入保护模式，因此只能用20位地址  
+                                    ; 这里就只能用32位来表示20位地址了  
+                                    ; 因此在进入保护模式前只能将GDT加载到1MB的内存空间中  
+                                    ; 在进入保护模式之后可以再将GDT移动到其它位置  
+                                    ; 由于MBR位于0x7C00开始的512字节空间中了  
+                                    ; 因此就将GDT放在后面一个新的512字节处（7E00H = 7C00H + 512）  
+  
+PORT_FAST_A20   equ 0x92            ; 快速设置A20地址线的端口  
+GATE_ALT_A20    equ 0x02            ; 开启A20地址线的位掩码（门控），也称作A20替代门控  
+                                    ; 即该8位端口的1号位置1即可打开A20地址线  
+  
+GATE_PE         equ 0x01            ; 控制寄存器（32位）的第0位——保护模式允许位（Protection Enable）  
+                                    ; 也称作PE门控  
+                                    ; 将其设置为1就真正进入保护模式了  
+                                    ; 从此之后都要按照保护模式的规矩来了  
+                                    ; 这是真正的保护模式的开关  
+; 程序开始  
+start:      mov     ax, cs  
+            mov     ss, ax  
+            mov     sp, 0x7C00  
+  
+            ; ds:si指向本代码中的临时GDT  
+            mov     ax, cs  
+            mov     ds, ax  
+            mov     si, GDT_BEG  
+  
+            ; es:di指向GDT实际加载的位置0x7E00:0  
+            mov     ax, [cs: GDT_BASE]  
+            mov     dx, [cs: GDT_BASE+2]  
+            mov     bx, 16  
+            div     bx                      ; 获取实际物理地址对应的16位段地址  
+            mov     es, ax  
+            mov     di, 0  
+  
+            ; 将GDT加载到指定位置  
+            mov     cx, GDT_SIZE_DWORD  
+            cld  
+            rep     movsd  
+  
+            lgdt    [cs: GDTR]              ; load gdtr，将GDTR处的48位内容加载进gdtr中  
+  
+            ; 由于实模式下地址只有20位，为了使20位地址溢出时归0并产生进位CF就必须关闭  
+            ; 第21根地址线即A20（Address #20），如果不关闭则20位地址溢出时的进位会  
+            ; 出现在A20处而不产生CF进位标记，同时不能归0  
+            ; 因此在进入32位保护模式之前必须先开启A20（实模式下A20不工作，即一直为0）  
+            ; 从而使32位的每一位都能工作成为真正意义上的32位模式  
+            in      al, PORT_FAST_A20  
+            or      al, GATE_ALT_A20  
+            out     PORT_FAST_A20, al  
+  
+            ; 保护模式下段的定位和实模式不同  
+            ; 因此在保护模式下所有BIOS中断都不能使用（跳转到中断例程时需要定位）  
+            ; 因此在进入保护模式之后需要重新设置BIOS中断的定位  
+            ; 因此在这个问题解决之前不能相应任何中断  
+            ; 因此在进入保护模式之前到BIOS中断重新设置完毕的过程中必须要关中断以免发生未知异常  
+            cli         ; clear IF，将IF标志位（中断允许标志位）置0  
+                        ; 对应的sti，即set IF，将IF位置1重新允许中断  
+                        ; 由于本程序并不重新设置BIOS的定位，因此就无需sti  
+  
+            mov     eax, cr0            ; cr0是0号寄存器，还有cr1、cr2等  
+            or      eax, GATE_PE        ; 彻底进入保护模式  
+            mov     cr0, eax  
+  
+            ; 虽然是进入了保护模式，但cs的描述符高速缓冲寄存器中的内容还是20位模式下的内容  
+            ; 如果这个问题不解决会导致程序的错误，因此必须刷新cs  
+            ; 刷新的同时也会自动更新描述符高速缓冲寄存器，同时清空了流水线  
+            ; 只能通过转移、调用、返回、中断指令来修改cs  
+            jmp     dword SLCT_CODE:(pm32_start - 0x7C00)   ; 注意cs现在是段选择子  
+                                                            ; 由于所有标号被引用的时候会加0x7C00  
+                                                            ; 而段选择子中起始位置是从0x7C00开始算起的  
+                                                            ; 所以在这里跳转的时候偏移地址需要减去0x7C00  
+                                                            ; 使用dword主要是约束偏移地址，使之成为32位的  
+                                                            ; 这之后就会使用eip作为偏移指针了  
+    msg     db  'Already in protect mode...'  
+    len_msg equ $-msg  
+  
+            [bits 32]  
+pm32_start:  
+            mov     eax, SLCT_VIDEO             ; 段选择子  
+            mov     ds, eax  
+  
+            ; 显示msg  
+            mov     ebx, msg-0x7C00  
+            mov     esi, 0  
+            mov     edi, 0  
+    .lp:    mov     al, [cs: ebx+esi]  
+            mov     [edi], al  
+            inc     esi  
+            add     edi, 2  
+            loop    .lp  
+  
+  
+            ; 测试栈段  
+            mov     eax, SLCT_STACK  
+            mov     ss, eax  
+            mov     esp, 0x7C00  
+  
+            mov     ebp, esp        ; 备份esp  
+  
+            push    byte '!'        ; 立即数压入实验  
+            sub     ebp, 4  
+            cmp     ebp, esp        ; 考察一下压入的是否是32位数  
+            jne     .tail  
+            pop     eax             ; 事实证明32位模式下压入的立即数必定都是32为的  
+            mov     [0x1A], al  
+            mov     [0x1C], ' '     ; 抽马桶  
+  
+    .tail:  jmp     $  
+  
+times 510 - ($ - $$)    db  0  
+                        dw  0xAA55  
+
+任务控制以及特权级保护
+1. 任务隔离以及LDT的概念：
+    1) 任务的概念：程序是记录在载体（也就是硬盘等外存）的指令和数据，而任务则是指其加载在内存中的副本，该副本不是等待执行就是正在执行，一个程序可以有多个任务副本；
+    2) 任务的隔离：把所有任务，不管是OS内核还是APP都放在GDT中管理显然是不合理的，容易造成APP对内核数据的破坏等问题，这就需要从两个层面上将它们隔离开来；
+         i. 第一个层面就是特权级层面（给予内核高特权级，给予APP低特权级，不同特权级之间相互访问将会受到很多限制，从而提高安全性）；
+         ii. 第二个层面就是LDT，即Local Descriptor Table，局部描述符表，它是相对于GDT的，GDT是全局的，逻辑上其只有一个并且是由OS管理的，而每个APP都必须拥有一个自己的LDT来管理自己拥有的段，也就是说GDT是共有的（OS、APP都能用） 而LDT是任务私有的，一般只有任务自己使用；
+    3) LDT格式：和GDT格式一模一样，LDT中的段描述符也GDT的段描述符格式也完全一样，只不过LDT的0号槽位也可以用来存放描述符；
+！注意：一般LDT中描述符的DPL为3（GDT中描述符的DPL一般为0，OS拥有最高特权级），并且指示LDT中描述符的选择子的TI位为1（Table Indicator，表示选择的描述符位于LDT中）；
+
+2. 用GDT和LDTR来管理LDT：
+    1) GDT和LDT虽说是描述符表，但这也掩盖不了它们是内存段的事实，由于GDT是全局唯一的，所以处理器要求将所有的LDT都要做出一个GDT描述符放在GDT中统一管理也是合情合理的；
+    2) CPU要求，为了对所有的LDT统一管理，必须在GDT中安装每一个LDT的描述符（就是把LDT看做一个段，然后做出该段的描述符安装到GDT中）；
+    3) 考虑到GDT和LDT的特殊性（适用于系统管理的），因此它们也被称为系统的内存段，简称系统段；
+    4) 系统段的特征：段描述符中S位为0，这就表示这是一个系统段或者是一个门，但是系统段有两种（一种是LDT段另一种是GDT），而门也有多种（调用门、中断门、陷阱门等），那该如何确定其是哪一种角色呢？那就得看TYPE字段了，当S=0，TYPE=0010时就表示LDT段，当S=0，TYPE=1100时就表示调用门，就把S+TYPE看做一个纯5位类型编码即可；
+！其它特征：
+         i. G、AVL、P、DPL位和GDT描述符中相应位的意义一样，只不过GDT和LDT的最大范围只能是64KB，因此不管是4KB粒度还是1B粒度，最终大小都不能超过64KB！
+         ii. D/B和L位对系统段描述符来说没意义，因此恒为0；
+         iii. 一般LDT都是由GDT管理的，因此LDT段的特权级一般为0；
+！综上所述：LDT描述符的属性一般为0x00408200（即描述符的高32位，属性位保留在原始位置，其余无关位清零）；
+    5) 和GDTR一样同样也存在LDTR来指示LDT的位置和大小，只不过LDT在GDT中存在描述符，因此也可以“像访问其它普通GDT段的形式”来访问LDT，之所以打引号是因为指示形式相似而已（毕竟是系统段，不能随意访问的），即LDTR和其它段寄存器一样，也只是一个16位的选择子，但它拥有一个64位的高速缓冲器保存完整的LDT描述符以加速对LDT的访问，因此在加载LDTR的形式和加载GDTR有所不同：
+        i. 加载GDTR的指令是：lgdt m48
+        ii. 而加载LDTR的指令时：lldt r16/m16，即只需要加载一个LDT在GDT中的选择子即可；
+    6) LDTR的唯一性：不是说LDT可以有多个吗？是啊，但是LDTR是只有一个的，毕竟，一个OS是无法预知会有多少个任务会运行（当然任务数量可能非常之多），因此在一个多任务系统中，唯一的LDTR只指向当前正在运行的任务的LDT，因此单核CPU上实现多任务就是通过不停切换LDT指向的方法来模拟”宏观并行微观串行的“；
+
+3. 任务状态段——TSS：
+    1) 对于一个多任务系统，在多任务之间切换的时候必定需要保存被切换走的任务当时的处理器信息，以便在切换回来的时候能正确地”继续“刚刚未完成的作业；
+    2) 所谓的处理器信息就是指在发生任务切换时通用寄存器、段寄存器、标志寄存器等部件上的数据信息，总结起来至少有104个字节量，而这些数据的总和就是任务状态段（Task Status Segment，简称TSS）；
+    3) 每个任务都有唯一属于自己的TSS，需要自己开一片额外的内存空间来存放TSS（这些工作都属于OS），对！你猜对了，TSS和LDT一样，也属于系统段，需要在GDT中注册它的描述符！
+    4) TSS格式固定，一般最小是104个字节，CPU固件能自动识别它以支持多任务之间的切换，其格式如图：
+
+！可以看到，TSS中有LDT选择子，通过该选择子找到并加载LDTR，再多LDT进行访问；
+    5) 在GDT中登记TSS描述符：
+         i. TSS也属于系统段，因此S=0，当描述符是TSS描述符时TYPE=10B1，这个B就表示Busy位，如果为0就表示TSS指示的任务不忙（即准备就绪，可以开始执行），如果为1就表示该任务正在执行或者挂起；
+         ii. DPL一般为00，P表示存在位，当任务没被换入硬盘时为1，其余设置和LDT描述符一样；
+         iii. 因此TSS描述符一般为0x00408900；
+         iv. 同样和GDTR、LDTR一样，也有一个TR来指示TSS的基址和大小：TR就是Task Register，和LDTR一样，也是一个16位的选择子（指示TSS的GDT选择子），同样也有64位的高速缓存器存放完整的TSS描述符；
+         v. 加载TR的指令：ltr r16/m16
+    6) 使用TSS选择子进行任务切换：当call far或jmp far指令的操作数是TSS选择子时就可以实现任务之间的切换（将TSS中的寄存器数据块填入相应寄存器中，并根据LDT选择子加载LDTR等）；
+
+4. LDT和TSS不是万能的，还需要——TCB：
+    1) 虽然TSS中有LDT选择子，但是在多任务中你肯定要记录所有任务的TSS选择子才能实现多任务之间的切换，一般的做法是使用链表，链表节点中的数据域就是tr，而指针域就是next指针了，但在现实情况中仅仅只有一个tr域是远远不够的，还需要更多的信息，比如tr指向的任务的权限、所属成员、所属组等种种信息，只不过tr是核心而已；
+    2) 因此为了管理方便，就需要为每个任务创建一个任务控制块（Task Control Block，简称TCB），每个TCB中则包含了tr等丰富的信息，将所有TCB串成一条链表就形成了任务控制表，这就现代操作系统任务管理的核心，这部分是软件实现部分，也是操作系统内核的关键模块；
+    3) 在本次的程序演示中设计的TCB格式如下图所示：
+       
+    4) 动态管理TCB内存：由于任务数量是无法预知的，但是只要加载一个任务就需要为该任务开一个TCB，因此任务的TCB只能动态加载（和C语言中malloc的概念一样），所以TCB不能传统的一个固定大小的段来存放，因此必须使用一个能访问4G平坦空间的全局描述符来灵活管理，即哪里有合适的空位就忘哪儿塞一个TCB，也就是说TCB存放是灵活的，可以不要求连续存放，但是在本次的程序演示还是使用连续存放的方式来模拟的；
+
+5. 小结——任务控制模块搭建的步骤：
+    1) 为任务创建一个TCB；
+    2) 再为该任务创建一张LDT；
+    3) 将LDT描述符加入GDT中，再将LDT的有关信息填入TCB中（包括LDT选择子，所以要先添加LDT的GDT描述符）；
+    4) 创建TSS；
+    5) 将TSS描述符假如GDT中，再将LDT选择子填入TSS中（所以要先创建LDT才能再执行这步），并把TSS相关信息填入TCB中；
+    6) lldt、ltr使LDT和TSS生效并切换到所指向的任务；
+
+6. 特权级保护之当前特权级——CPL：
+    1) DPL：再回顾一下，就是指描述符特权级，由于描述符指向对象，因此也就是目标对象的特权级（目标对象就是指相应的段），该特权级指示了能访问目标所必须拥有的最低特权级，比如要访问特权级为1的段，自己本身拥有的特权级至少为1，再高的话就是0，但是不能为2和3（数字越小特权级越高）；
+！因此一般来说OS内核DPL为0，驱动、数据库等系统软件的DPL一般为1或2，而APP的DPL最低，必为3；
+    2) CPL的概念：即Current Privilege Level，即当前特权级，就是指 当 前 正 在 执 行 的  代 码 段 的 DPL，注意几个关键词，首先必须是代码段才能执行，而且必须是当前正在执行的那个代码段的特权级，数值上等于当前cs的最后两位（即RPL位上的值）；
+    3) CPL的作用：主要有两个方面，一方面是控制转移时的保护，另一方面是对I/O端口访问权限的管理，这里先着重介绍控制转移的保护；
+         i. 控制转移是指从一个代码段跳到另一个代码段（即使用jmp或call指令组）的过程，也就是说对象必须是代码段（即可执行的）；
+         ii. 在全裸的情况下（不考虑CPL只考虑DPL的情况下）处理器只允许相同特权级之间的代码段相互转移，决不允许不同特权级之间的代码段相互转移，也就是调用者和被调者的特权级必须完全相同，但这显然不能满足显示需求，在现实情况下往往要求用户程序能调用OS内核的例程，即特权级低的调用特权级高的；
+！注意：在任何情况下都不允许特权级高的把控制权交给特权级低的，因为特权级越低就意味着越不可靠，所以处理器直接在硬件层面上杜绝OS内核调用用户例程；
+         iii. 处理器给出的其中一种解决方案就是“CPL+依从代码段”，只要将被调的代码段定义成“依从的”（描述符中TYPE字段的C位为1），并且调用者的CPL低于或等于被调者的DPL就可以实现特权级由低到高的转移了，这里的低于或等于是指特权级低于或等于，也就是说数值上是大于或等于；
+！那问题来了，这样控制权能转移到DPL较高的代码段了，那么返回的时候该怎么办呢？不是说控制权不能由高到低转移吗？
+！注意：“依从“的意思是指高DPL的代码段被调用过后CPL依从调用者的CPL，也就是说向依从代码段转移时CPL不变，因此返回的时候CPL就和DPL相等了；
+！在刚从实模式进入保护模式（cr0.0置1）后处理器会自动将CPL置0，因此可以顺利执行32位的代码；
+         iv. 另一种特权级由低到高的转移方式是通过门（Gate）来实现，接下来会详细讲解门的概念；
+
+7. 调用门控制转移：
+    1) 门也是一种描述符（简称门），和段描述符相同地方是都用来描述内存段，不同的地方是段描述符既可以描述代码段（可执行段）也可以描述数据段（不可执行段），但是门只能用来描述可执行的代码段（程序、例程或任务）；
+    2) 门有很多种，比如专门用于在不同特权级（当然相同特权级也行）之间的控制转移的调用门、处理中断的中断/陷阱门、用来切换任务的任务门等，这里我们着重讲解调用门；
+    3) 门描述符的格式：
+        i. 只要是描述符都是64位的，门也不例外；
+        ii. 虽然门的格式和段描述符的格式大不相同，但是恒不变的仍是P、DPL、S、TYPE这三个字段（位置也没变）；
+        iii. 门描述符也可以只能安装在GDT或LDT中，那么在调用一个描述符的时候处理器是如何判断调用的是段描述符还是门描述符呢？那肯定是看"S+TYPE"的编码了，根据该字段的类型来判断具体属于哪种描述符，除了4个字段，其余的所有位都会根据”S+TYPE“来作解释，如果”S+TYPE“代表的是门，则G、L、AVL等位就废掉了，取而代之的是被解释成门描述符特有的字段，如果”S+TYPE“代表段描述符，则相应地就被解释成之前讲过的段描述符的格式了；
+
+    4) 各字段的意义：
+         i. P：仍然是存在位，但是对于门来说意义有所不同，对于门应该称作有效位，如果在P位为0的情况下调用该门处理器会产生异常中断，在P位为1的情况下可以正常调用该门；
+！注意：这个存在位并不代表门所指向的代码段存不存在于内存中，我们可以看到门描述符中海油段选择子字段，该字段正是门所指向的代码段的描述符的选择子，而我们知道段描述符中也有P位，该P位才是真正地代表代码段是否存在于内存当中，那问题又来了，门描述符的P位到底有什么用呢？
+！该位最主要是给软件利用的，通常用与门调用频率统计等，根据该位的特征，我们把P位置0，则在调用它的时候就会产生中断，而该中断又是故障中断，也就是说你可以为该中断编写自己的中断处理过程，如果在该中断例程中将某个“计数变量”加1，然后在将P位置1，然后再在中断例程中调用该门（P位置1能顺利调用），调用完之后再将P位置0，这样不就每调用一次就能计数一次了吗？
+         ii. DPL：这个是指调用门本身的DPL，也就指你想调用该门应该具有的最低权限，注意和段的DPL区分开来，在这里会同时涉及两个DPL，首先是门DPL，其次是门所指向的代码段的DPL，即目标DPL，你要想成功代用该门，首先你自己的权限（即你当前的权限）CPL必须先大于等于门DPL才有资格调用该门，也就是说门DPL就是你的最低门槛，而你想要成功转入目标代码段执行，根据“权利由低到高”的处理器原则，你的CPL又必须小于等于目标DPL才行，也就是说目标DPL是你的上限，所以总结下来就是，必须满足“门DPL ≤ 目标DPL”；
+         iii. S+TYPE：01100表示调用门，这里我们着重介绍调用门（即在不同特权级代码之间转移的门）；
+         iv. TYPE后面的3位是无效位，恒为0；
+         v. 段选择子:段中偏移：就是指转移的目标点的cs:eip；
+         vi. 参数个数字段：函数传参当然可以使用寄存器了，毕竟寄存器速度最快，但寄存器数量非常少，一旦参数非常多寄存器就无能为力的，普遍的做法就是通过栈传参了，该字段共有5位，因此就意味着最多只能传31个参数；
+    5) 调用门的调用形式：
+         i. 共有两种，一种是jmp far，另一种是call far；
+         ii. 操作数都只有一个，就是门描述符在GDT/LDT中的选择子，因为门描述符中已经包含目标代码的选择子和偏移地址，所以无需在门的调用指令中出现偏移地址了；
+         iii. 但是jmp和call都是远调用（即由far作为修饰），所以操作数还必须是48位的（这个形式非常死板说实在的！编译器可以在这点上优化），按照这个规则，门选择子必须在高16位上，那么低32位是啥呢？答案是：随便啥都行，处理器只检查高16位的门选择子，选定后直接去调用，低32位直接不予以理睬，但不过低32位你又不得不给，这不是很蛋疼吗？是的，就是那么蛋疼，所以约定俗称的做法就是，虽然低32位没有用，但是还是要填目标代码入口处的偏移地址，这样显得更加规范并符合逻辑，这也是业内约定俗成的规矩！
+         iv. jmp far：无需目标代码依从，跳转过去后直接就能是目标依从调用者的CPL；
+         v. call far：进入被调者后CPL提升成目标代码的DPL，比如特权3 call far 特权0，则进入被调后特权相应提升成特权0，那么问题又来了，你返回的时候咋返回啊？不是说处理器禁止特权从高到底转移吗？答案是：处理器为call far调用门开后门了，也只有call far调用门的返回允许特权从高到底转移，并且在该过程中处理器会严格监视这一行为，保证不会出现越权，否则那不就永远也返回不了嘛！
+    5) 为啥使用门转移：不是使用jmp far加依从也能达到同样的效果吗？因为调用门将例程用描述符进行抽象，更加方便系统进行功能模块化、集成化管理，并且门调用安全保护严格，使用形式多样，种类也很多，更加适合多种不同的需求，所以要尽量使用调用门；
+
+8. 访问数据段时的特权级保护——RPL（请求特权级）：
+    1) 前面已经讲过了，cs的最低两位就是CPL，因为CPL的对象是当前正在执行的代码段，而也只有cs指向当前执行的代码段，因此也有且仅有cs的最低两位才能叫CPL，而RPL就是指所有非cs的段寄存器的最低两位了，因为只能通过cs来执行代码，即使使用其它段寄存器指向一些可读的代码段也只能像取数据那样来取指令，得到的就算把它看成指令也不能直接交给CPU执行，因为CPU只把cs指向的数据当做指令来执行；
+！总得而言，RPL肯定是跟数据访问有关的；
+    2) 要理解RPL首先得体会以下情形：当你要访问一个段的时候首先要做的是什么？对了，那就是把目标段的选择子放入一个特定的段寄存器中，之后再利用该段寄存器并配合偏移地址来访问段中的内容，例如常见的mov ds, eax，别小看这一动作，RPL的关键核心全部都在这简单的一条指令上了；
+        i. mov ds, eax这一动作可以看成是一种请求，即当前代码段请求访问eax所代表的选择子指向的那个段，也就是说请求者即为当前代码段，那么RPL（Requestor's Privilege Level）就是指请求者自己的当前特权级CPL；
+！注意！请求者必须是当前正在执行的代码段，可以这样理解，请求是一个动作，而动作的核心就是能运动，只有代码段是一种具有动作的段（数据段是死的，只能被会动的代码段摆布），而要能运动起来就必须是正在执行的代码段了，所以请求者必定是当前正在执行的代码段，第二个层面上来讲，DPL是一种静态的概念（而静态的概念就是数据的概念，即静态的DPL只能表现出代码段具有数据的特征，而CPL反应出的是一种动态的特征，即作为一个执行者具有执行代码这一动作的特征），之前讲过的不同特权级代码段的转移其实就是一种正在动态执行的代码段想访问另一个还未被执行的静态的代码段的一种运动，而当成功转移后那个静态的代码段就被激活成为动态的代码段（因此被激活的活动者只有CPL这个概念对其是有意义的），而那个被转移的代码段则从激活状态变成了静态，此时只有DPL才能代表它存在的意义；
+！小结：CPL是一个动态的概念，即代表执行者本身，而DPL只能代表静态的数据段（没有被执行的代码段也是一种静态的数据段）；
+        ii. RPL在这里就是ds、es等最低两位，它按道理来讲应该和CPL相同，这才能真正代表请求者的特权级；
+？！什么？按道理来讲应该相同？但是eax里面的东西是可以随意乱填的啊！如果CPL是0，而我ds的RPL填的是1会如何呢？答案是还要看你要访问的那个段的DPL，根据选择子中GDT/LDT索引号以及TI位可以唯一确定要访问的段，处理器找到该段后就会检查该段的DPL（也就是目标段的DPL），处理器要求必须当CPL和RPL都大于等于目标段的DPL时才能正常访问该段，否则就会发生特权级异常而中断，这就是数据段访问的特权级保护规则了！！！
+！哦，原来是这样的。只有当当前执行者（也就是请求者）的权利高于或等于目标的时候才能访问它，这非常合情理啊！
+！那么问题又来了，既然请求者的RPL就是CPL那还要RPL有啥用，不就直接看CPL是否大于等于目标段的DPL就行了嘛，为啥还要那么麻烦地整出一个RPL呢？那么就请看下面的例子：
+       在没有RPL的情况下， 一个用户程序（特权级为3）的代码正在执行，其CPL理所当然地是3，并且该程序自己的数据段的特权级必然也是3，现在它需要调用OS的例程来读写自己的数据段（DPL=3），然后它通过调用门传参的形式调用OS的例程，参数ebx中保存了自己的数据段的选择子（假设最低两位废掉不管用）。首先，通过调用门进入OS例程后CPL变成了OS例程的DPL，即CPL变为0（表示进入了操作系统的代码），然后必定要执行mov ds, ebx或mov es, ebx之类的指令来访问指向用户程序的数据区，（虽然RPL没了，但是CPL的规则还是存在的），此时处理器会检查当前的CPL是否有资格访问目标数据段，一看CPL=0（即当前执行者（即OS）），目标数据段（即用户程序的数据段）的DPL=3，CPL≥DPL，有权访问，没问题！于是该过程就开开心心的完成了！
+！别高兴太早！！其实这个过程里面暗藏玄机，试想有一个很恶毒并且非常聪明的程序员通过不法途径知道了OS内核数据段的选择子，然后将该选择子通过ebx传入上述的例程，然后再想想会发生什么？在OS例程执行mov ds, ebx后，处理器发现CPL=0，目标数据段（也就是不怀好意者传入的内核数据段选择子）DPL=0，CPL≥目标段的DPL，也通过了！没问题！可以访问！这不就大错特错了！黑客通过这种方式读取内核数据段中的数据，而该数据段中可能存放着密码等重要信息呢！
+！但是如果有RPL这个东西呢？情况是否会好一点呢？在上例中黑客想访问内核数据段，因此ebx所代表的选择子的索引和TI会指向内核数据段描述符，但是如果最低两位的RPL是用户程序本身的特权级3会怎样呢？进入内核执行mov ds, eax后处理器发现CPL=0，目标DPL=0，但RPL=3，即CPL≥目标DPL，但是RPL<目标DPL，根据有RPL规则的情况下这是不能通过的！即黑客的目的不能得逞！诶！看上去RPL还是挺有用的啊！而也正是在这种情况下会导致CPL和RPL不同！
+！那么问题又来了！传进去的参数ebx是可以自己任意填写的，假如黑客的RPL就不老老实实地写3而就写0那不是又能得逞了吗？答案是：是的，他又能得逞！
+！那RPL不就又没作用了吗？从这个角度看，处理器就是一个大笨蛋，即使给你RPL也是不能判断这个给出的RPL是否真的和用户程序的CPL一致，但是机器是死的人是活的，我们可以通过软件手段保证给出的选择子中的RPL一定是正确的，而这个就是操作系统OS的本职工作了！一般OS都不允许用户修改或赋值选择子，所有段寄存器（即选择子）的管理只能由OS来负责，OS通过自身算法和逻辑判断来保证给出的RPL一定是合理的；
+！！！小结：处理器的原则就是”确保特权代码不会代替用户程序访问一个段，除非用户程序自己拥有访问那个段的权利“，特权代码就是指内核的CPL，这里访问的一个段特别特别是指系统要害段（特别是OS的核心段），而用户自己的访问权利就是指RPL，而要实现这一安全机制就必须靠软硬件结合的手段来实现（CPU提供RPL保护机制，而OS用来保证RPL合法）；
+    3) arpl指令——实现上述的软件实现部分：
+        i. 上述介绍的通过OS软件功能来保证RPL的正确性就是通过arpl指令来实现；
+        ii. arpl的全称是Adjust RPL Field of Segment Selector，即调整段选择子的RPL字段；
+        iii. 上述问题中恶意的程序员利用内核例程时故意提升提供的目的段的选择子的RPL，但是OS可以利用arpl指令让该阴谋破灭，arpl的指令格式为：arpl r16/m16, r16，源操作数和目的操作数可以是16位通用寄存器（但不能是段寄存器），目的操作数还可以是16位内存，但源操作数只能是寄存器，作用是将目的操作数的RPL字段提降低成和源操作数一样；
+！这样就可以顺利解决问题了，只要让程序员提供的选择子作为arpl的目的操作数，并将主调例程的cs的值作为源操作数，就能让RPL=主调CPL（让RPL和提供RPL的主调例程的身份保持一致）了，这不就能阻止“恶意谋权”了嘛！那接下来我们再看一下arpl指令的一些具体细节吧！
+    4) arpl指令的使用细节：
+        i. 该指令会改变ZF标志位，如果源操作数的RPL高于调用者（即有问题，有恶意），就会把源操作数的RPL降低成和目的操作数一样，并且将ZF置1；
+        ii. 如果没有问题（即行为合理）则将ZF置0，不做出其他任何行为；
+        iii. 因此可以OS可以通过ZF位来判断一个例程的目的是否纯洁，如果不纯洁可以采取相应的警告提示等；
+        iv. 目的操作数（即主调提供的目的段选择子）是通过参数传递进来的，而源操作数（即主调的cs的值）好像没有通过参数传进来，调用例程时使用的是call far，因此调用点的cs:eip会被压入栈中，所以源操作数可以从栈中获得并转存到一个通用寄存器中就行了！
+
+9. DPL-CPL-RPL的特权级保护规则汇总：
+    1) 控制转移类：特权级由低到高的转移
+         i. 直接转移的非依从代码段：CPL = 目标DPL
+         ii. 直接转移的依从代码段：CPL ≤ 目标DPL
+    2) 数据访问类：CPL ≥ 目标DPL   &&   RPL ≥ 目标DPL
+    3) ！！栈的特权级保护规则：比较特殊，处理器要求CPL和RPL必须恒等于目标的DPL，其主要目的是为了防止栈空间的不足以及不同特权级之间栈的交叉引用，因此在保护模式中决不能出现[mov ss, xxx，其中xxx的RPL和当前CPL不一样]的指令，也就是说不能显示地将当前栈切换成另一个特权级不同的栈，那一定会问，这该怎么实现任务切换以及不同特权级之间代码的相互调用啊？如果有吊用关系的两个代码特权级不一样那不就不能切栈了吗？答案是通过”call far TSS选择子“以及TSS本身的机制来实现；
+！还记得TSS中的内容吗？里面有ss:esp的信息，也就是说在任务切换的时候"call far TSS选择子"指令背后会执行且栈的动作，这就无需显示地"mov ss, xxx"了；
+！而对于特权级转移，还记得TSS中ss0、ss1、ss2这几个字段吗？为了向高特权级代码转移时能使用高特权级的栈，低特权级代码必须自己多准备几个高特权级的栈，用于在转移到高特权级代码的时候使用（栈的特权保护规则），比如DPL为3的代码段就必须再多准备3个特权级分别为0、1、2的栈，因为有可能向这三种特权级的代码段转移，但是1特权级的代码段就无需再准备2、3特权级的栈了（因为处理器不允许控制从高特权级流向低特权级）而只需要再多准备一个0特权级的栈就行了；
+！而TSS中的ss0、ss1、ss2就是指特权级分别为0、1、2的额外准备的栈了，无需准备的留空白即可（比如特权级为1的就只需要填ss0:esp0就行了，剩下两个清零就好了，而ss:esp则是代表自己特权级下的栈了，即1特权级的栈）；
+！前面讲过门调用有两种，一种是jmp far，这种的CPL是依从的，另一种是call far，其CPL将会和目标DPL相同，并且call是隐含压栈操作的，因此在此过程中必定需要切栈，切栈的过程是隐式进行的，首先处理器会检查目标代码段的DPL，在根据该DPL在TSS中找到相应的栈选择子和esp进行切栈，该过程全自动，都是固件自动完成的！
+！注意：虽然用户程序需要额外为自己添加特权级更高的栈，但这并不意味着用户编写程序的负担会大大增加，一般情况下这种工作肯定都是交由操作系统来处理的，就连用户自己特权级的栈也不需要用户自己开，用户甚至都不需要在编程的时候声明要使用的栈（想想看，在写C语言的时候有自己声明栈吗？），当然也可以自己向编译器建议需要多大的栈（一般情况下，不做任何声明编译器会为你声明一个默认大小的栈），这些建议都会出现在用户程序的头部，用以提示加载器在加载它的时候为其分配多少空间的栈。对！这部分工作都是由操作系统的加载器模块完成的，也就是说用户在编程的时候只需要声明自己需要多大的栈，并在代码中随意使用栈，然后当程序加载的时候加载器更具你的需要在内存中动态分配一定的空间作为你的私有栈，这在我们接下来的程序演示中会有所体现；
+    4) 门转移类：这涉及到4中特权级，CPL、RPL（门选择子的最低两位）、门DPL（门描述符中自己的DPL）、目标DPL（门所指向的代码段的DPL），其中门DPL决定了访问该门的最低权限（可以把门描述符当成一个数据段看待），而目标DPL则跟上面的控制转移类的目标代码段DPL的意义一致，所以门转移类的特权保护规则是：
+CPL、RPL ≥ 门DPL   &&   CPL ≤ 目标DPL（也表示控制权从低到高转移）
+！只不过这里还多了一个门DPL的门槛限制，也就是说门DPL是访问的下限，而目标DPL是转移的上限！    
+
+10. 栈传参——函数调用约定：
+    1) 前面在门描述符的参数个数字段中提到过栈传参的问题，我们在这里着重介绍一下这方面的内容；
+    2) 栈传递的首要因素：不同特权级栈之间的切换，由于函数调用有可能会发生在两个不同特权级的代码段之间，由于与CPL、RPL必须和是用的栈的DPL相同，所以就不得不切换栈（切换成自己额外准备的特权级更高的栈），既然要切换栈就不得不将参数从自己特权级的栈复制到目标特权级的栈中了，这也就是我们在C语言中的函数栈传参的问题了；
+    3) 栈传参带来很多问题，首先是参数应该按照什么样的顺序入栈，其次是参数个数为多少个，还有就是调用返回后由谁来清理栈中的内容（调用者还是被调者），一般来说被调者都是一些库函数，特别是操作系统的内核公用例程、API等，这些代码都是早就写好的，而用户程序千奇百怪，这些早就准备好的代码固然不知道用户是怎么调函数、怎么传参的，因此要解决这一系列问题就必须得在调用者和被调者之间达成一定的协议，这也就是术语“调用约定”了，诸如stdcall、cdecl、thiscall等；
+    4) stdcall：Standard Call，即标准调用约定，用的最多最广泛
+         i. 参数从右往左入栈；
+！什么是左？什么是右？这里的左右就是指你书写函数掉用语句时参数的顺序，比如add(1, 2, 3)，而1、2、3这个书写顺序就是上述的从左往右的顺序了，而从右往左入栈就是指按照3、2、1的先后次序压入目标特权级的栈中，比如现在是3级的main函数调用0级的add函数（add(1, 2, 3);），就会按照push 3 ; push 2 ; push 1 ; 的顺序将三个参数压入0级栈中，压完后栈顶刚好是最左边的那个参数；
+         ii. 由被调者负责清栈切栈：由被调者负责的前提就是被调者必须知道参数的个数，也就是说参数个数必须固定
+！这是指主调者只需提供参数就行了，剩余所有的工作都交由被调者完成，就上述例子将，写完add(1, 2, 3)这条语句主调就完事儿了，后面的切换特权级栈、压栈、执行特权代码（这就不用说了）、特权栈中复制的参数清空、切换会调用者特权级的栈并返回的一系列工作都由被调者来完成；
+！既然都由被调者来完成，而一般被调者都是库函数，都是事先就已经编写好的，也就是说压栈弹栈的push $3, push $2, push $1（这里的$n就表示从左往右数第n个参数）这些语句都是事先写好的，既然是事先写好的就必然事先定好了要写多少条，也就意味着必须事先规定好参数的个数，这是理所当然的啦！一般函数如API之类的，函数名、参数个数、参数顺序程序猿们都是要背的，这当然是固定的了！但是！想必你也使用过printf函数吧，它就是一个变长参数函数，即参数个数不固定，在这种情况下就肯定不能使用stdcall这样的参数固定的调用约定了吧？是的，但是可以使用cdecl约定，该约定允许变长参数，这个后面会讲；
+    5) cdecl：C Declaration Call，C/C++的调用约定
+        i. C/C++程序中如果不加函数调用约定修饰就默认使用这种调用约定；
+        ii. 参数从右往左入栈：和stdcall一样；
+        iii. 由主调者负责切栈清栈，别调者只负责执行代码：主调者是什么样子对被调者当然是透明的，被调者当然不知道主调者会给出几个参数，除非它们约定好给出多少个，但是对于主调者来说自己给出了多少个参数对自己来说必定是心知肚明的，你被调者不知道就不怪你了，但自己有多少个参数还弄不清楚吗？所以在约定好的情况下可以让被调者清栈，但是在没有约定好参数个数的情况下就只能由主调者来负责切栈、压栈和弹栈了（即多少个push、多少个pop）；
+！那爱钻牛角尖的同学肯定会问了，如果我在约定好参数个数的情况下也用cdecl呢？当然可啊！凭什么不可以呢？在这种情况下cdecl和stdcall唯一的区别就是cdecl会使主调者的代码量变大，而stdcall则把这些代码量放到被调那里使主调瘦身；
+！小结：所有变长参数，如printf之类的函数必须使用cdecl修饰！
+    6) fastcall：Fast Call，即快速调用，和stdcall规则一样，只不过头两个参数（即最左边的两个参数）使用ecx和edx传参，剩下的仍然是从右往左压栈，并且切栈/清栈由被调者负责，由于使用了寄存器，所以在速度上会更加快一点；
+    7) thiscall：用于C++的成员函数传参，this指针放在ecx中传入，剩下的规则和stdcall一模一样；
+
+11. 调用门的调用和返回全过程：
+    1) 在这里回顾一下，使用调用门转移必须使用指令jmp far或者call far，操作数是调用门选择子，其必须指向位于GDT或LDT中的调用门描述符，由于描述符中已经包含目标代码的选择子和偏移地址，因此jmp far和call far将忽略操作数中给出的偏移地址；
+    2) 调用的第一步就是特权级检查：不管是jmp far还是call far都必须满足“调用门DPL ≤ CPL ≤ 目标代码的DPL”；
+    3) 接下来就是检查目标代码段是否是依从的，如果是依从的，则不管是jmp far还是call far，都将保持原有的CPL在被调代码段上执行，只不过jmp far就是一去不复返了，无法通过retf返回。但如果目标代码是非依从的，则jmp far规定CPL必须等于目标代码段的DPL，而这种情况刚好可以让call far大显身手了，call far专门为非依从目标代码的转移量身打造，允许在目标代码非依从的情况下在目标代码的特权级上运行，即前面讲过的CPL可以提升成目标代码的DPL，当然也只有retf可以允许从高特权级代码返回至低特权级代码上；
+
+！！接下来我们主要讨论目标代码段非依从情况下的call far调用门转移过程，因为该过程将会改变当前特权级，因此必然会发生栈的切换（切换成和目标代码段特权级相同的栈）；
+！！栈的切换将由处理器固件完成，目标特权级的栈可以从TSS中获得；
+    4) 调用过程：
+        i. 检查目标代码的DPL（位于目标代码段的段描述符中，可以通过call far的操作数，即调用门选择子找到）是否和当前CPL相等，如果相等则代表不用切换栈，直接跳到vi.步即可，否则就代表需要切换栈，接着执行接下来的步骤；
+        ii. 从TSS中读取目标特权级的SS和ESP，在此过程中将对SS（栈段选择子）所指向的栈段描述符进行越界以及特权级方面的检查，如果有异常将引发中断；
+        iii. 目标栈检查无误后将当前栈的SS和ESP保存到处理器内部的匿名寄存器中，并将上一步从TSS中读取的目标栈的SS和ESP载入寄存器SS和ESP中，至此栈切换已经完成，接下来将执行一些后续步骤；
+        iv. 目前已经在目标栈上了，接着将刚刚备份到匿名寄存器的旧栈的SS和ESP压入当前的新栈中来，以便调用返回时可以恢复旧栈；
+        v. 根据调用门描述符中的参数个数字段将旧栈中的参数复制到当前新栈中来，成为调用例程私有的局部参数；
+        vi. 接下来就跟实模式下普通的例程调用一样了，那就是保存调用者的CS和EIP为例程的返回提供依据，只不过在这里是将调用者的CS和EIP压入当前新栈中；
+        vii. 最后就是将目标代码段的CS和EIP（通过调用门描述符找到）载入寄存器CS和EIP中，至此，彻底进入目标代码中执行，如果是非依从的将会提升CPL，依从的则保持CPL不变；
+！以上过程新栈，也就是目标栈，的示意图如下：
+0|SS主调
+ESP主调
+参数1
+参数2
+......
+0|CS主调
+EIP主调
+！栈是从上往下扩展的，上面的地址大，下面的地址小；
+    5) 返回过程：由call far引起的门调用必须通过retf返回，对于依从的代码段，由于CPL不改变，因此无需切换栈，但与非依从的代码段返回时就必须切换栈了，而且是从搞特权及切换回低特权级，而retf是唯一一条允许从高特权到低特权转移的指令；
+        i. 从当前栈（即被调者的高特权级栈）中弹出调用时压入的CS和EIP（存入处理器内部的匿名寄存器中保存起来），并检查CS指向的代码段的特权级，看看是否需要切换栈（即使调用的时候已经检查过了，这里处理器还是会强迫地检查一次，因为栈中的内容是可以自由改动的，为避免处于恶意目的的改动所有的检查都是必要的！如无需切换则跳至vi.步执行；
+        ii. 检查调用时的参数个数，根据retf提供的操作数让ESP跳过那些调用时传入的参数（retf的操作数是以字节为单位的，其值等于参数个数乘以参数大小）；
+        iii. 将调用时压入的返回点SS和ESP恢复到寄存器SS、ESP中完成栈的返回切换，期间将对SS、ESP中的内容进行越界、特权级等的检查；
+        vi. 将之前保存在匿名寄存器中的返回点CS、EIP恢复到寄存器CS、EIP中去，返回到调用点继续执行（如果特权级改变就降低CPL，如果是特权级不变的依从式门调用则不改变CPL）；
+        vii. 如果返回时需要改变特权级则还会多一步特殊的检查，就是检查DS、ES、FS、GS这些数据段选择子中的内容，如果当前CPL小于这些选择子所指向的段的DPL则将这些选择子清零（选择子为0就指向了GDT的0号描述符，即空描述符NULL，如果访问该描述符将会发生异常中断，因此可以避免危险的数据访问行为）；
+！这么做的意图很明显，就是为了防止当前特权级的代码（低特权级）访问高特权级的数据，可是为什么返回之后会发生这样的情况（CPL小于这些选择子指向的段的DPL）呢？还有一个问题就是处理器不是有数据段访问的特权级检查机制嘛，如果发生CPL小于目标DPL的情况不是会产生异常中断吗？为啥还要强制清零呢？
+！这里首先解答第一个问题，一个3特权级的例程调用0特权级的例程，在0特权级历程中当然可能会访问0特权级的数据区（这时就会将某个段寄存器，如ds、es等，指向0特权级的数据区）并且理所当然地通过特权级检查，因为被调的例程是运行在0特权级上的，但不过最后在返回的时候没有将ds恢复成修改前的内容就匆匆返回了（这当然是允许的，处理器无法左右代码的逻辑行为），因此返回后就会出现CPL小于ds指向的数据段的DPL的情形；
+！要解答第二个问题就得回顾一下之前讲过的“特权级检查时机”这一个重要概念了，处理器只有在“mov 段寄存器, reg”时候会进行特权级检查，其余情况下都不会再做任何检查（都会认为已经检查过了，可以放心运行了），在上面的例子中，对ds的修改是在0特权级的代码上进行的，因此可以通过特权及检查，但是在后面返回主调代码的过程中没有再对ds做任何修改，因此这期间不会对ds的特权级做任何检查，因此返回后即使是“CPL < ds指向的段的DPL”也能正常访问ds指向的段，这不就给软件的安全带来非常大的隐患了嘛！所以，与其留这种隐患，还不如直接在固件层面上就避免这种危险情形发生，因此处理器在调用返回后还会再检查一下数据段选择子的合法性，并对不合法的选择子清零；
+
+12. I/O特权级保护——I/O地址映射许可串：
+    1) 在介绍I/O特权级保护之前必须现了解一下特权指令这个概念，由于处理器的脆弱性，随便几条指令就可以让它崩溃，特别是hlt、对cr0的改写之类的指令，因此这样的指令必须由最高特权级的例程才能执行，而特权指令就是指只有CPL=0时才能执行的指令，如hlt、lgdt、lldt、ltr、cr0的读写等等，但其中我们要重点讨论的就是in和out指令，对，这两个指令也是特权指令；
+！但不过很多人会反对这样的规定，因为设备驱动程序通常工作在1特权级下，而驱动最为核心的活动就是使用in、out和硬件模块进行通讯，不仅如此，某些特权级为3的用户程序有时也需要使用in、out访问硬件端口，特别是在一些游戏、图形加速等需要快速反应的场合偶尔也是需要使用这两条指令的，这就不是不能满足现实需求了吗？
+！不，处理器有专门的I/O特权级保护机制满足上述的所有需求，让即使是特权指令的in、out指令也能被所有低特权级的例程使用；
+    2) EFLAGS中的I/O特权级：在I/O特权级机制下其实所有特权级的代码都能使用in、out（即使它俩是特权指令），只不过不同特权级所能访问的端口会有所不同。在EFLAGS寄存器的第12和13位即为当前任务的I/O特权级IOPL（I/O Privilege Level），如果当前CPL大于等于IOPL则允许访问任何端口（即没有任何限制），因此当CPL=0时就可以访问任何端口（0特权级是最高特权级，不可能有比它大的特权级了），但是CPL小于IOPL并不意味着不能访问端口了，准确地讲应该是可以访问一部分同时也会被禁止访问一些端口，而具体哪些可以访问哪些不能访问这得由I/O许可串来决定了；
+   3) I/O许可串：
+       i. 也称为I/O地址映射许可串，位于TSS中；
+       ii. 首先我们先不具体讲解该许可串在TSS中的位置问题，先聊一下许可串的结构：处理器最多有65536个端口，之所以叫做I/O地址映射是因为许可串将65536个端口映射到了65536个比特位上了（就跟QQ号一样，每个QQ号映射到一个比特位上，如果该位为1则表示该QQ号上线，否则就表示下线），这不过许可串上的位为1表示禁止访问相应的端口，为0表示允许访问相应的端口，这样管理的最大好处就是能节省内存空间，就拿QQ号来说吧，要实现检测是否上线，使用上述位表的方式就可以将所有QQ号压缩到只有四五百兆的大小；
+！许可串的比特位地址上升的顺序从0开始编号，0号比特位对应着0号端口，1号比特位对应1号端口，以此类推下去，65535号比特位对应65535号端口；
+       iii. 处理器检测I/O许可的流程：拿out 0x09, al这条指令来说（对于in也是一样的），首先检查你是否工作在0特权级上，如果是则可以自由使用任何端口而不受限制，接下来就检查你是否满足CPL≥IOPL，如果不是就需要检查I/O许可串上的指示了。由于使用的是9号端口，于是处理器去查询许可串上第2个字节（许可串是按照字节编址的，其实这是废话，许可串位于内存空间必定是按照字节编址的，这点需要牢记），因此会先取出该字节，9号位于该字节的第二个比特位上，然后检测该位是否为0，0就允许，1就禁止；
+       iv. I/O许可串在TSS中位置问题：TSS的最小规模是104字节，这在前面演示过了，但是TSS还可以包含I/O地址映射许可串，而该串在内存中的起始位置由TSS102子接触的I/O映射基地址字段来指示；
+！？什么？？为啥还有指示一下许可串的位置呢？为啥不直接让许可串接在TSS的104字节位置处呢？难道许可串还要跟前面的104字节分离开来（不连续起来）吗？是的！当然了，可以分离也可以不分离，关键取决于你的需求！只要许可串基址字段填104字节后面那个字节的地址不就连续起来了嘛！可是你肯定又会问“那一定还有不连续的情况吧？”我想说，是的！这种不连续的需求往往更多！你想想，如果有很多任务都要访问相同的外设，并且对该外设的操作相似，权限也相似，功能也相似（就比如键盘），那么每个任务的TSS都要准备一段相同的许可串，这不就很浪费内存空间吗？因此，现代操作系统的一般做法就是，在内核数据区只维护几个不同类型的I/O许可串供全体任务使用，每个任务根据自身的需求挑选其中一种许可串作为自己的许可串，这就好比操作系统是政府，颁发（给予）许可证给企业（任务）使用，当然这些许可证都是公用的，多个任务可以用同一个许可串，只需要将各自TSS的许可串基址字段指向那个许可串即可，这不就大大节省内存空间了吗？
+       v. 既然TSS的空间可以是不连续的（前104字节必须连续，许可串自身必须连续，这两者之间可以不连续），那TSS的空间大小该如何计算呢？这很简单啊，只要把这两部分的大小相加就行了，事实上处理器也是这么做的，TSS有一个TSS界限的字段，虽然这两部分可以分离，但是仍然可以在逻辑上把这两段合并成同一个连续的线性空间，而TSS界限就等于这两段空间大小相加后减1，而102字节处的许可串基址也是按照该线性空间计算的，从TSS起始位置开始算起（起始位置地址为0），因此如果该字段大于TSS界限值就代表没有I/O许可串存在，如果小于，则表示许可串和前104字节之间还有一段空闲空间，这段空闲空间可以给软件作其它用途；
+！问题又来了，按照上述，许可串的长度不是可以通过“TSS界限+1-串的基址”计算得到吗？这不就意味着许可串的长度可能不是固定的65535了吗？大于65535当然是不行的，难道可以小于65535吗？答案是，是的，但是还有一个许可串的内容需要介绍，那就是许可串结束符；
+       vi. 许可串结束符：处理器规定，许可串必须以0xFF结束，原因是I/O端口是按照字节编址的，但是存在直接读写一个字（即两字节）的I/O指令，比如in ax, 0xF8等。端口按字节编址就意味着端口被设计成一个端口一个字节，如果读写双字其实背后读写了两个连续的端口，因此上述的in ax, 0xF8其实执行了两步"in al, 0xF8 ; in ah, 0xF9"，而为什么需要后缀0xFF呢？就是因为处理器考虑到会有这种读写字或者双字的情况，这就意味着处理器需要检查连续的2个位或者4个位，这同时也意味着这几个位可能会跨越一个字节（最多只会跨越一个字节，因为一个字节8位，最多需要检查连续的4位，4 < 8，所以最多跨越1个字节），这就要求处理器每次要去许可串的两个字节进行检查，那么最致命的问题就是如果被检查的位刚好位于许可串的最后一个字节，由于处理器需要取连续的两个字节，而许可串最后一个字节后面的那个字节已经不是许可串的数据了，那该怎么办啊？所以就要求最后一个字节的每一位都填写1，即最后一个字节是0xFF，该结束符当然也算许可串长度的一部分；
+       v. 接下来是第二个问题，就是许可串边长的问题，其实处理器不要求为每一个端口都提供映射，那些没有出现在该映射区域的端口处理器都假设其为1（即禁止的），因此如果TSS中没有许可串就表示该任务没有权限访问任何端口（除非其运行在0特权级上）；
+！举例子说明，如果I/O许可串长度为11，除去最后一个结束符，实际长度为10，即只有前80个端口（0~79号端口）提供了映射，后面的(65535 - 80)个端口都将会被禁用；

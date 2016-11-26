@@ -1,0 +1,9 @@
+>>----- main begin -----
+text_size=57.
+text_offset_file=36.
+text_offset_mem=36.
+data_size=0.
+data_offset_file=96.
+data_offset_mem=3211264.
+entry_point=84.
+----- main end -----<<

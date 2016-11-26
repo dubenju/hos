@@ -1,0 +1,11 @@
+>>----- main begin -----
+stack_data_heap_size=3211264.
+signature=69726148.
+mem_size=0.
+stack_data=3211264.
+data_size=0.
+data_data=96.
+data_e9=E9000000.
+entry_point=52.
+heap_offset=3211264.
+----- main end -----<<

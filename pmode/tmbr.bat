@@ -1,0 +1,1 @@
+C:\Users\DBJ\git\hos\tools\qemu\qemu.exe -L C:\Users\DBJ\git\hos\tools\qemu -m 32 -localtime -no-kqemu -std-vga -boot c -fda C:\Users\DBJ\git\hos\pmode\qcow2_20m_fdisk.qcow2 -soundhw sb16,pcspk -net nic

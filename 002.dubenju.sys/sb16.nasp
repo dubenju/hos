@@ -1,0 +1,216 @@
+[FORMAT "WCOFF"]
+[INSTRSET "i486p"]
+[OPTIMIZE 1]
+[OPTION 1]
+[BITS 32]
+	EXTERN	_io_out8
+	EXTERN	_io_in8
+[FILE "sb16.c"]
+[SECTION .text]
+	GLOBAL	_test_sb16
+_test_sb16:
+	PUSH	EBP
+	MOV	EBP,ESP
+	PUSH	EBX
+	PUSH	1
+	XOR	EBX,EBX
+	PUSH	550
+	MOV	WORD [_CardID],6
+	MOV	WORD [_IOAddr],544
+	MOV	WORD [_SBIntr],5
+	MOV	WORD [_DMA],1
+	MOV	WORD [_HDMA],5
+	MOV	WORD [_MIDI],0
+	MOV	WORD [_Mixer],816
+	MOV	WORD [_MixerAddr],548
+	MOV	WORD [_MixerData],549
+	MOV	WORD [_DSPReset],550
+	MOV	WORD [_DSPRead],554
+	MOV	WORD [_DSPWrite],556
+	MOV	WORD [_DSPStatus],558
+	MOV	WORD [_DSPIntAck],559
+	CALL	_io_out8
+	PUSH	0
+	MOVSX	EAX,WORD [_DSPReset]
+	PUSH	EAX
+	CALL	_io_out8
+	CALL	_dsp_data_avail
+	ADD	ESP,16
+L7:
+	MOVSX	EAX,WORD [_DSPRead]
+	PUSH	EAX
+	CALL	_io_in8
+	POP	EDX
+	CMP	EAX,170
+	JE	L10
+	INC	EBX
+	CMP	EBX,999
+	JLE	L7
+	OR	EAX,-1
+L1:
+	MOV	EBX,DWORD [-4+EBP]
+	LEAVE
+	RET
+L10:
+	CALL	_get_dsp_version
+	XOR	EAX,EAX
+	JMP	L1
+	GLOBAL	_dsp_data_avail
+_dsp_data_avail:
+	PUSH	EBP
+	MOV	EBP,ESP
+L12:
+	MOVSX	EAX,WORD [_DSPStatus]
+	PUSH	EAX
+	CALL	_io_in8
+	POP	ECX
+	TEST	AL,AL
+	JNS	L12
+	LEAVE
+	RET
+	GLOBAL	_dsp_wait
+_dsp_wait:
+	PUSH	EBP
+	MOV	EBP,ESP
+L17:
+	MOVSX	EAX,WORD [_DSPWrite]
+	PUSH	EAX
+	CALL	_io_in8
+	POP	EDX
+	TEST	AL,AL
+	JS	L17
+	LEAVE
+	RET
+	GLOBAL	_get_dsp_version
+_get_dsp_version:
+	PUSH	EBP
+	MOV	EBP,ESP
+	PUSH	ECX
+	CALL	_dsp_wait
+	PUSH	225
+	MOVSX	EAX,WORD [_DSPWrite]
+	PUSH	EAX
+	CALL	_io_out8
+	CALL	_dsp_data_avail
+	LEA	EAX,DWORD [-1+EBP]
+	PUSH	EAX
+	CALL	_read_dsp
+	LEA	EAX,DWORD [-2+EBP]
+	PUSH	EAX
+	CALL	_read_dsp
+	MOV	AL,BYTE [-1+EBP]
+	MOV	BYTE [_ver1],AL
+	MOV	AL,BYTE [-2+EBP]
+	MOV	BYTE [_ver2],AL
+	LEAVE
+	RET
+	GLOBAL	_read_dsp
+_read_dsp:
+	PUSH	EBP
+	MOV	EBP,ESP
+	CALL	_dsp_data_avail
+	MOVSX	EAX,WORD [_DSPRead]
+	PUSH	EAX
+	CALL	_io_in8
+	MOV	EDX,DWORD [8+EBP]
+	MOV	BYTE [EDX],AL
+	LEAVE
+	RET
+	GLOBAL	_write_dsp
+_write_dsp:
+	PUSH	EBP
+	MOV	EBP,ESP
+	PUSH	EBX
+	MOV	BL,BYTE [8+EBP]
+	CALL	_dsp_wait
+	MOVZX	EBX,BL
+	PUSH	EBX
+	MOVSX	EAX,WORD [_DSPWrite]
+	PUSH	EAX
+	CALL	_io_out8
+	MOV	EBX,DWORD [-4+EBP]
+	LEAVE
+	RET
+	GLOBAL	_CardID
+[SECTION .data]
+	ALIGNB	2
+_CardID:
+	RESB	2
+	GLOBAL	_IOAddr
+[SECTION .data]
+	ALIGNB	2
+_IOAddr:
+	RESB	2
+	GLOBAL	_SBIntr
+[SECTION .data]
+	ALIGNB	2
+_SBIntr:
+	RESB	2
+	GLOBAL	_DMA
+[SECTION .data]
+	ALIGNB	2
+_DMA:
+	RESB	2
+	GLOBAL	_HDMA
+[SECTION .data]
+	ALIGNB	2
+_HDMA:
+	RESB	2
+	GLOBAL	_MIDI
+[SECTION .data]
+	ALIGNB	2
+_MIDI:
+	RESB	2
+	GLOBAL	_Mixer
+[SECTION .data]
+	ALIGNB	2
+_Mixer:
+	RESB	2
+	GLOBAL	_MixerAddr
+[SECTION .data]
+	ALIGNB	2
+_MixerAddr:
+	RESB	2
+	GLOBAL	_MixerData
+[SECTION .data]
+	ALIGNB	2
+_MixerData:
+	RESB	2
+	GLOBAL	_DSPReset
+[SECTION .data]
+	ALIGNB	2
+_DSPReset:
+	RESB	2
+	GLOBAL	_DSPRead
+[SECTION .data]
+	ALIGNB	2
+_DSPRead:
+	RESB	2
+	GLOBAL	_DSPWrite
+[SECTION .data]
+	ALIGNB	2
+_DSPWrite:
+	RESB	2
+	GLOBAL	_DSPStatus
+[SECTION .data]
+	ALIGNB	2
+_DSPStatus:
+	RESB	2
+	GLOBAL	_DSPIntAck
+[SECTION .data]
+	ALIGNB	2
+_DSPIntAck:
+	RESB	2
+	GLOBAL	_DSPVersionNum
+[SECTION .data]
+	ALIGNB	4
+_DSPVersionNum:
+	RESB	4
+	GLOBAL	_ver1
+[SECTION .data]
+_ver1:
+	RESB	1
+	GLOBAL	_ver2
+[SECTION .data]
+_ver2:
+	RESB	1

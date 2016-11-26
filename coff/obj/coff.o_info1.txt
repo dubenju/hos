@@ -1,0 +1,2411 @@
+>>----- main begin -----
+./obj/coff.o size is 13418 bytes.
+print the information of the COFF header.
+
+Target Machine           =0X014C.Intel 386 or later.
+Number Of Sections       =  0006
+Time & Date Stamp (After 1970/1/1 0:00:00) =0
+PointerTo Symbol Table   =0X3134
+Number Of Symbols        =  0035
+Size   Of Optional Header=  0000
+Characteristics(usFlags) =0X0104
+Section Flag             =F_LNNO(Line No is removed.).
+Section Flag             =F_AR32WR:F_LITTLE
+the pos is before Optional Header:0X000014.
+optional header not exist.
+
+the pos is before Section Header:0X000014.
+print the information of the section header.
+
+1 Section Header ----------
+Section Name           =.text
+Virtual Size           =  0000
+Virtual Address        =0X0000
+Size    Of RawData     =  5056
+Pointer To RawData     =0X0104
+Pointer To Relocations =0X25B8
+Pointer To Linenumbers =0X0000
+Number  Of Relocations =  0287
+Number  Of Linenumbers =  0000
+Section Flags          =0X60300020
+Section Type           =STYP_TEXT
+Section Type           =STYP_Section can be executed as code
+Section Type           =STYP_Section can be read.
+print the information of the section header.
+
+2 Section Header ----------
+Section Name           =.data
+Virtual Size           =  0000
+Virtual Address        =0X0000
+Size    Of RawData     =  0000
+Pointer To RawData     =0X0000
+Pointer To Relocations =0X0000
+Pointer To Linenumbers =0X0000
+Number  Of Relocations =  0000
+Number  Of Linenumbers =  0000
+Section Flags          =0XC0300040
+Section Type           =STYP_DATA
+Section Type           =STYP_Section can be read.
+Section Type           =STYP_Section can be written to.
+print the information of the section header.
+
+3 Section Header ----------
+Section Name           =.bss
+Virtual Size           =  0000
+Virtual Address        =0X0000
+Size    Of RawData     =  0000
+Pointer To RawData     =0X0000
+Pointer To Relocations =0X0000
+Pointer To Linenumbers =0X0000
+Number  Of Relocations =  0000
+Number  Of Linenumbers =  0000
+Section Flags          =0XC0300080
+Section Type           =STYP_BSS
+Section Type           =STYP_Section can be read.
+Section Type           =STYP_Section can be written to.
+print the information of the section header.
+
+4 Section Header ----------
+Section Name           =.rdata
+Virtual Size           =  0000
+Virtual Address        =0X0000
+Size    Of RawData     =  4072
+Pointer To RawData     =0X14C4
+Pointer To Relocations =0X0000
+Pointer To Linenumbers =0X0000
+Number  Of Relocations =  0000
+Number  Of Linenumbers =  0000
+Section Flags          =0X40300040
+Section Type           =STYP_DATA
+Section Type           =STYP_Section can be read.
+print the information of the section header.
+
+5 Section Header ----------
+Section Name           =/4
+Virtual Size           =  0000
+Virtual Address        =0X0000
+Size    Of RawData     =  0020
+Pointer To RawData     =0X24AC
+Pointer To Relocations =0X0000
+Pointer To Linenumbers =0X0000
+Number  Of Relocations =  0000
+Number  Of Linenumbers =  0000
+Section Flags          =0X40300040
+Section Type           =STYP_DATA
+Section Type           =STYP_Section can be read.
+print the information of the section header.
+
+6 Section Header ----------
+Section Name           =/15
+Virtual Size           =  0000
+Virtual Address        =0X0000
+Size    Of RawData     =  0248
+Pointer To RawData     =0X24C0
+Pointer To Relocations =0X30EE
+Pointer To Linenumbers =0X0000
+Number  Of Relocations =  0007
+Number  Of Linenumbers =  0000
+Section Flags          =0X40300040
+Section Type           =STYP_DATA
+Section Type           =STYP_Section can be read.
+the pos is before Raw Data:0X000104.
+!!!WARNING the Raw Data is skiped.
+
+the pos is before Relocation Entries:0X0025B8.
+print the information of the relocation entry.
+
+1 Relocation Entry ----------
+Reference Address    =0016
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+2 Relocation Entry ----------
+Reference Address    =001b
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+3 Relocation Entry ----------
+Reference Address    =0120
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+4 Relocation Entry ----------
+Reference Address    =0125
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+5 Relocation Entry ----------
+Reference Address    =0131
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+6 Relocation Entry ----------
+Reference Address    =0136
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+7 Relocation Entry ----------
+Reference Address    =0142
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+8 Relocation Entry ----------
+Reference Address    =0147
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+9 Relocation Entry ----------
+Reference Address    =0153
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+10 Relocation Entry ----------
+Reference Address    =0158
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+11 Relocation Entry ----------
+Reference Address    =0164
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+12 Relocation Entry ----------
+Reference Address    =0169
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+13 Relocation Entry ----------
+Reference Address    =0175
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+14 Relocation Entry ----------
+Reference Address    =017a
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+15 Relocation Entry ----------
+Reference Address    =0186
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+16 Relocation Entry ----------
+Reference Address    =018b
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+17 Relocation Entry ----------
+Reference Address    =0197
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+18 Relocation Entry ----------
+Reference Address    =019c
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+19 Relocation Entry ----------
+Reference Address    =01a8
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+20 Relocation Entry ----------
+Reference Address    =01ad
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+21 Relocation Entry ----------
+Reference Address    =01b6
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+22 Relocation Entry ----------
+Reference Address    =01bb
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+23 Relocation Entry ----------
+Reference Address    =01c4
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+24 Relocation Entry ----------
+Reference Address    =01c9
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+25 Relocation Entry ----------
+Reference Address    =01d2
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+26 Relocation Entry ----------
+Reference Address    =01d7
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+27 Relocation Entry ----------
+Reference Address    =01e0
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+28 Relocation Entry ----------
+Reference Address    =01e5
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+29 Relocation Entry ----------
+Reference Address    =01ee
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+30 Relocation Entry ----------
+Reference Address    =01f3
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+31 Relocation Entry ----------
+Reference Address    =01fc
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+32 Relocation Entry ----------
+Reference Address    =0201
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+33 Relocation Entry ----------
+Reference Address    =020a
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+34 Relocation Entry ----------
+Reference Address    =020f
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+35 Relocation Entry ----------
+Reference Address    =0218
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+36 Relocation Entry ----------
+Reference Address    =021d
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+37 Relocation Entry ----------
+Reference Address    =022b
+Symbol    Index      =0025
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+38 Relocation Entry ----------
+Reference Address    =0241
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+39 Relocation Entry ----------
+Reference Address    =0246
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+40 Relocation Entry ----------
+Reference Address    =0257
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+41 Relocation Entry ----------
+Reference Address    =025c
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+42 Relocation Entry ----------
+Reference Address    =026d
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+43 Relocation Entry ----------
+Reference Address    =0272
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+44 Relocation Entry ----------
+Reference Address    =0283
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+45 Relocation Entry ----------
+Reference Address    =0288
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+46 Relocation Entry ----------
+Reference Address    =029d
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+47 Relocation Entry ----------
+Reference Address    =02a2
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+48 Relocation Entry ----------
+Reference Address    =02b7
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+49 Relocation Entry ----------
+Reference Address    =02bc
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+50 Relocation Entry ----------
+Reference Address    =02d4
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+51 Relocation Entry ----------
+Reference Address    =02d9
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+52 Relocation Entry ----------
+Reference Address    =02f1
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+53 Relocation Entry ----------
+Reference Address    =02f6
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+54 Relocation Entry ----------
+Reference Address    =030e
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+55 Relocation Entry ----------
+Reference Address    =0313
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+56 Relocation Entry ----------
+Reference Address    =032b
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+57 Relocation Entry ----------
+Reference Address    =0330
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+58 Relocation Entry ----------
+Reference Address    =0348
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+59 Relocation Entry ----------
+Reference Address    =034d
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+60 Relocation Entry ----------
+Reference Address    =0365
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+61 Relocation Entry ----------
+Reference Address    =036a
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+62 Relocation Entry ----------
+Reference Address    =0382
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+63 Relocation Entry ----------
+Reference Address    =0387
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+64 Relocation Entry ----------
+Reference Address    =03a1
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+65 Relocation Entry ----------
+Reference Address    =03a6
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+66 Relocation Entry ----------
+Reference Address    =03c0
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+67 Relocation Entry ----------
+Reference Address    =03c5
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+68 Relocation Entry ----------
+Reference Address    =03df
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+69 Relocation Entry ----------
+Reference Address    =03e4
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+70 Relocation Entry ----------
+Reference Address    =03fe
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+71 Relocation Entry ----------
+Reference Address    =0403
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+72 Relocation Entry ----------
+Reference Address    =041d
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+73 Relocation Entry ----------
+Reference Address    =0422
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+74 Relocation Entry ----------
+Reference Address    =043c
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+75 Relocation Entry ----------
+Reference Address    =0441
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+76 Relocation Entry ----------
+Reference Address    =045b
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+77 Relocation Entry ----------
+Reference Address    =0460
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+78 Relocation Entry ----------
+Reference Address    =047a
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+79 Relocation Entry ----------
+Reference Address    =047f
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+80 Relocation Entry ----------
+Reference Address    =049b
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+81 Relocation Entry ----------
+Reference Address    =04a0
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+82 Relocation Entry ----------
+Reference Address    =04b5
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+83 Relocation Entry ----------
+Reference Address    =04ba
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+84 Relocation Entry ----------
+Reference Address    =04cb
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+85 Relocation Entry ----------
+Reference Address    =04d0
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+86 Relocation Entry ----------
+Reference Address    =04e1
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+87 Relocation Entry ----------
+Reference Address    =04e6
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+88 Relocation Entry ----------
+Reference Address    =04f7
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+89 Relocation Entry ----------
+Reference Address    =04fc
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+90 Relocation Entry ----------
+Reference Address    =050d
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+91 Relocation Entry ----------
+Reference Address    =0512
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+92 Relocation Entry ----------
+Reference Address    =0523
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+93 Relocation Entry ----------
+Reference Address    =0528
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+94 Relocation Entry ----------
+Reference Address    =0539
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+95 Relocation Entry ----------
+Reference Address    =053e
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+96 Relocation Entry ----------
+Reference Address    =0568
+Symbol    Index      =0026
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+97 Relocation Entry ----------
+Reference Address    =0582
+Symbol    Index      =0027
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+98 Relocation Entry ----------
+Reference Address    =0591
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+99 Relocation Entry ----------
+Reference Address    =0596
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+100 Relocation Entry ----------
+Reference Address    =05a4
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+101 Relocation Entry ----------
+Reference Address    =05a9
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+102 Relocation Entry ----------
+Reference Address    =05ba
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+103 Relocation Entry ----------
+Reference Address    =05bf
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+104 Relocation Entry ----------
+Reference Address    =05d0
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+105 Relocation Entry ----------
+Reference Address    =05d5
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+106 Relocation Entry ----------
+Reference Address    =05e6
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+107 Relocation Entry ----------
+Reference Address    =05eb
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+108 Relocation Entry ----------
+Reference Address    =05fc
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+109 Relocation Entry ----------
+Reference Address    =0601
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+110 Relocation Entry ----------
+Reference Address    =0612
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+111 Relocation Entry ----------
+Reference Address    =0617
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+112 Relocation Entry ----------
+Reference Address    =0628
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+113 Relocation Entry ----------
+Reference Address    =062d
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+114 Relocation Entry ----------
+Reference Address    =0642
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+115 Relocation Entry ----------
+Reference Address    =0647
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+116 Relocation Entry ----------
+Reference Address    =065c
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+117 Relocation Entry ----------
+Reference Address    =0661
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+118 Relocation Entry ----------
+Reference Address    =0672
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+119 Relocation Entry ----------
+Reference Address    =0677
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+120 Relocation Entry ----------
+Reference Address    =068b
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+121 Relocation Entry ----------
+Reference Address    =0690
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+122 Relocation Entry ----------
+Reference Address    =06a4
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+123 Relocation Entry ----------
+Reference Address    =06a9
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+124 Relocation Entry ----------
+Reference Address    =06bf
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+125 Relocation Entry ----------
+Reference Address    =06c4
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+126 Relocation Entry ----------
+Reference Address    =06da
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+127 Relocation Entry ----------
+Reference Address    =06df
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+128 Relocation Entry ----------
+Reference Address    =06f5
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+129 Relocation Entry ----------
+Reference Address    =06fa
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+130 Relocation Entry ----------
+Reference Address    =0710
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+131 Relocation Entry ----------
+Reference Address    =0715
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+132 Relocation Entry ----------
+Reference Address    =072b
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+133 Relocation Entry ----------
+Reference Address    =0730
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+134 Relocation Entry ----------
+Reference Address    =0746
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+135 Relocation Entry ----------
+Reference Address    =074b
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+136 Relocation Entry ----------
+Reference Address    =0761
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+137 Relocation Entry ----------
+Reference Address    =0766
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+138 Relocation Entry ----------
+Reference Address    =077c
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+139 Relocation Entry ----------
+Reference Address    =0781
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+140 Relocation Entry ----------
+Reference Address    =0797
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+141 Relocation Entry ----------
+Reference Address    =079c
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+142 Relocation Entry ----------
+Reference Address    =07ad
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+143 Relocation Entry ----------
+Reference Address    =07b2
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+144 Relocation Entry ----------
+Reference Address    =07c8
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+145 Relocation Entry ----------
+Reference Address    =07cd
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+146 Relocation Entry ----------
+Reference Address    =07dd
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+147 Relocation Entry ----------
+Reference Address    =07e2
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+148 Relocation Entry ----------
+Reference Address    =07f3
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+149 Relocation Entry ----------
+Reference Address    =07f8
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+150 Relocation Entry ----------
+Reference Address    =080d
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+151 Relocation Entry ----------
+Reference Address    =0812
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+152 Relocation Entry ----------
+Reference Address    =0826
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+153 Relocation Entry ----------
+Reference Address    =082b
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+154 Relocation Entry ----------
+Reference Address    =083f
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+155 Relocation Entry ----------
+Reference Address    =0844
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+156 Relocation Entry ----------
+Reference Address    =085a
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+157 Relocation Entry ----------
+Reference Address    =085f
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+158 Relocation Entry ----------
+Reference Address    =0883
+Symbol    Index      =0026
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+159 Relocation Entry ----------
+Reference Address    =089d
+Symbol    Index      =0027
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+160 Relocation Entry ----------
+Reference Address    =08ab
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+161 Relocation Entry ----------
+Reference Address    =08b0
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+162 Relocation Entry ----------
+Reference Address    =08c3
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+163 Relocation Entry ----------
+Reference Address    =08c8
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+164 Relocation Entry ----------
+Reference Address    =08d9
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+165 Relocation Entry ----------
+Reference Address    =08de
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+166 Relocation Entry ----------
+Reference Address    =08f1
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+167 Relocation Entry ----------
+Reference Address    =08f6
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+168 Relocation Entry ----------
+Reference Address    =090a
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+169 Relocation Entry ----------
+Reference Address    =090f
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+170 Relocation Entry ----------
+Reference Address    =0923
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+171 Relocation Entry ----------
+Reference Address    =0928
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+172 Relocation Entry ----------
+Reference Address    =093b
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+173 Relocation Entry ----------
+Reference Address    =0940
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+174 Relocation Entry ----------
+Reference Address    =0954
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+175 Relocation Entry ----------
+Reference Address    =0959
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+176 Relocation Entry ----------
+Reference Address    =096d
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+177 Relocation Entry ----------
+Reference Address    =0972
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+178 Relocation Entry ----------
+Reference Address    =0987
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+179 Relocation Entry ----------
+Reference Address    =098c
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+180 Relocation Entry ----------
+Reference Address    =09a1
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+181 Relocation Entry ----------
+Reference Address    =09a6
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+182 Relocation Entry ----------
+Reference Address    =09b8
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+183 Relocation Entry ----------
+Reference Address    =09bd
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+184 Relocation Entry ----------
+Reference Address    =09cf
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+185 Relocation Entry ----------
+Reference Address    =09d4
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+186 Relocation Entry ----------
+Reference Address    =09e6
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+187 Relocation Entry ----------
+Reference Address    =09eb
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+188 Relocation Entry ----------
+Reference Address    =09fd
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+189 Relocation Entry ----------
+Reference Address    =0a02
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+190 Relocation Entry ----------
+Reference Address    =0a14
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+191 Relocation Entry ----------
+Reference Address    =0a19
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+192 Relocation Entry ----------
+Reference Address    =0a2b
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+193 Relocation Entry ----------
+Reference Address    =0a30
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+194 Relocation Entry ----------
+Reference Address    =0a42
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+195 Relocation Entry ----------
+Reference Address    =0a47
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+196 Relocation Entry ----------
+Reference Address    =0a59
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+197 Relocation Entry ----------
+Reference Address    =0a5e
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+198 Relocation Entry ----------
+Reference Address    =0a70
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+199 Relocation Entry ----------
+Reference Address    =0a75
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+200 Relocation Entry ----------
+Reference Address    =0a87
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+201 Relocation Entry ----------
+Reference Address    =0a8c
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+202 Relocation Entry ----------
+Reference Address    =0a9e
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+203 Relocation Entry ----------
+Reference Address    =0aa3
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+204 Relocation Entry ----------
+Reference Address    =0ab5
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+205 Relocation Entry ----------
+Reference Address    =0aba
+Symbol    Index      =0024
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+206 Relocation Entry ----------
+Reference Address    =0acf
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+207 Relocation Entry ----------
+Reference Address    =0ad4
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+208 Relocation Entry ----------
+Reference Address    =0af8
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+209 Relocation Entry ----------
+Reference Address    =0afd
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+210 Relocation Entry ----------
+Reference Address    =0b1a
+Symbol    Index      =0025
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+211 Relocation Entry ----------
+Reference Address    =0b36
+Symbol    Index      =0025
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+212 Relocation Entry ----------
+Reference Address    =0b55
+Symbol    Index      =0022
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+213 Relocation Entry ----------
+Reference Address    =0bf4
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+214 Relocation Entry ----------
+Reference Address    =0c03
+Symbol    Index      =0028
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+215 Relocation Entry ----------
+Reference Address    =0c26
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+216 Relocation Entry ----------
+Reference Address    =0c2b
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+217 Relocation Entry ----------
+Reference Address    =0c4a
+Symbol    Index      =0029
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+218 Relocation Entry ----------
+Reference Address    =0c59
+Symbol    Index      =0030
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+219 Relocation Entry ----------
+Reference Address    =0c7d
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+220 Relocation Entry ----------
+Reference Address    =0c82
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+221 Relocation Entry ----------
+Reference Address    =0ca1
+Symbol    Index      =0029
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+222 Relocation Entry ----------
+Reference Address    =0cc0
+Symbol    Index      =0026
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+223 Relocation Entry ----------
+Reference Address    =0cea
+Symbol    Index      =0031
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+224 Relocation Entry ----------
+Reference Address    =0d15
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+225 Relocation Entry ----------
+Reference Address    =0d1a
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+226 Relocation Entry ----------
+Reference Address    =0d3a
+Symbol    Index      =0030
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+227 Relocation Entry ----------
+Reference Address    =0d45
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+228 Relocation Entry ----------
+Reference Address    =0d4a
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+229 Relocation Entry ----------
+Reference Address    =0d77
+Symbol    Index      =0026
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+230 Relocation Entry ----------
+Reference Address    =0d9e
+Symbol    Index      =0031
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+231 Relocation Entry ----------
+Reference Address    =0dc9
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+232 Relocation Entry ----------
+Reference Address    =0dce
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+233 Relocation Entry ----------
+Reference Address    =0deb
+Symbol    Index      =0030
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+234 Relocation Entry ----------
+Reference Address    =0df6
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+235 Relocation Entry ----------
+Reference Address    =0dfb
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+236 Relocation Entry ----------
+Reference Address    =0e2f
+Symbol    Index      =0026
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+237 Relocation Entry ----------
+Reference Address    =0e56
+Symbol    Index      =0031
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+238 Relocation Entry ----------
+Reference Address    =0e81
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+239 Relocation Entry ----------
+Reference Address    =0e86
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+240 Relocation Entry ----------
+Reference Address    =0ef1
+Symbol    Index      =0030
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+241 Relocation Entry ----------
+Reference Address    =0efc
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+242 Relocation Entry ----------
+Reference Address    =0f01
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+243 Relocation Entry ----------
+Reference Address    =0f23
+Symbol    Index      =0029
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+244 Relocation Entry ----------
+Reference Address    =0f32
+Symbol    Index      =0030
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+245 Relocation Entry ----------
+Reference Address    =0f3d
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+246 Relocation Entry ----------
+Reference Address    =0f42
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+247 Relocation Entry ----------
+Reference Address    =0f6b
+Symbol    Index      =0026
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+248 Relocation Entry ----------
+Reference Address    =0f92
+Symbol    Index      =0031
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+249 Relocation Entry ----------
+Reference Address    =0fbd
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+250 Relocation Entry ----------
+Reference Address    =0fc2
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+251 Relocation Entry ----------
+Reference Address    =0ffe
+Symbol    Index      =0030
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+252 Relocation Entry ----------
+Reference Address    =1009
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+253 Relocation Entry ----------
+Reference Address    =100e
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+254 Relocation Entry ----------
+Reference Address    =1030
+Symbol    Index      =0029
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+255 Relocation Entry ----------
+Reference Address    =103f
+Symbol    Index      =0030
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+256 Relocation Entry ----------
+Reference Address    =104a
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+257 Relocation Entry ----------
+Reference Address    =104f
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+258 Relocation Entry ----------
+Reference Address    =105e
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+259 Relocation Entry ----------
+Reference Address    =1063
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+260 Relocation Entry ----------
+Reference Address    =1072
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+261 Relocation Entry ----------
+Reference Address    =1077
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+262 Relocation Entry ----------
+Reference Address    =10a0
+Symbol    Index      =0026
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+263 Relocation Entry ----------
+Reference Address    =10c7
+Symbol    Index      =0031
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+264 Relocation Entry ----------
+Reference Address    =10f2
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+265 Relocation Entry ----------
+Reference Address    =10f7
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+266 Relocation Entry ----------
+Reference Address    =1133
+Symbol    Index      =0030
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+267 Relocation Entry ----------
+Reference Address    =113e
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+268 Relocation Entry ----------
+Reference Address    =1143
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+269 Relocation Entry ----------
+Reference Address    =11a7
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+270 Relocation Entry ----------
+Reference Address    =11ac
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+271 Relocation Entry ----------
+Reference Address    =11d3
+Symbol    Index      =0031
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+272 Relocation Entry ----------
+Reference Address    =11fe
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+273 Relocation Entry ----------
+Reference Address    =1203
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+274 Relocation Entry ----------
+Reference Address    =1214
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+275 Relocation Entry ----------
+Reference Address    =1219
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+276 Relocation Entry ----------
+Reference Address    =1228
+Symbol    Index      =0030
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+277 Relocation Entry ----------
+Reference Address    =124c
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+278 Relocation Entry ----------
+Reference Address    =1251
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+279 Relocation Entry ----------
+Reference Address    =1282
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+280 Relocation Entry ----------
+Reference Address    =1287
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+281 Relocation Entry ----------
+Reference Address    =12c0
+Symbol    Index      =0032
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+282 Relocation Entry ----------
+Reference Address    =12f7
+Symbol    Index      =0026
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+283 Relocation Entry ----------
+Reference Address    =1327
+Symbol    Index      =0031
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+284 Relocation Entry ----------
+Reference Address    =135e
+Symbol    Index      =0016
+Type   Of Relocation =0006
+Relocation Type      =RELOC_ADDR32
+print the information of the relocation entry.
+
+285 Relocation Entry ----------
+Reference Address    =1363
+Symbol    Index      =0023
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+286 Relocation Entry ----------
+Reference Address    =138e
+Symbol    Index      =0033
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+287 Relocation Entry ----------
+Reference Address    =13a8
+Symbol    Index      =0034
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+288 Relocation Entry ----------
+Reference Address    =0020
+Symbol    Index      =0010
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+289 Relocation Entry ----------
+Reference Address    =0040
+Symbol    Index      =0010
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+290 Relocation Entry ----------
+Reference Address    =0060
+Symbol    Index      =0010
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+291 Relocation Entry ----------
+Reference Address    =0080
+Symbol    Index      =0010
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+292 Relocation Entry ----------
+Reference Address    =00a0
+Symbol    Index      =0010
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+293 Relocation Entry ----------
+Reference Address    =00c0
+Symbol    Index      =0010
+Type   Of Relocation =0014
+print the information of the relocation entry.
+
+294 Relocation Entry ----------
+Reference Address    =00e0
+Symbol    Index      =0010
+Type   Of Relocation =0014
+the pos is before Line Number Entries:0X003134.
+sizeof(LINENO)=6.
+line_num_table_size=0.
+line no not exist.
+
+the pos is before Symbol Table:0X003134.
+sizeof(SYMENT)=18.
+sizeof(SYMENT_offset)=8.
+print the information of the symbol table.
+
+1 Symbol Table ----------
+Symbol Name     =.file
+Value of Symbol =0000
+Section Number  =0XFFFFFFFE
+Section Number  =N_DEBUG?:A debug? symbol.
+Symbol Type     =  0000
+Storage Class   =0X0067
+Auxiliary Count =0X0001
+print the information of the symbol table.
+
+2 Symbol Table ----------
+Symbol Name     =coff.c
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0000
+Storage Class   =0X0000
+Storage Class   =C_NULL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+3 Symbol Table ----------
+Symbol Name    =25
+Value of Symbol =0000
+Section Number  =0X0001
+Section Number  =N_ABS:An absolute symbol. This means that the value of the n_value field is an absolute value.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0001
+print the information of the symbol table.
+
+4 Symbol Table ----------
+Symbol Name    =0
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0000
+Storage Class   =0X0000
+Storage Class   =C_NULL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+5 Symbol Table ----------
+Symbol Name    =46
+Value of Symbol =1157
+Section Number  =0X0001
+Section Number  =N_ABS:An absolute symbol. This means that the value of the n_value field is an absolute value.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+6 Symbol Table ----------
+Symbol Name    =71
+Value of Symbol =1348
+Section Number  =0X0001
+Section Number  =N_ABS:An absolute symbol. This means that the value of the n_value field is an absolute value.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+7 Symbol Table ----------
+Symbol Name    =95
+Value of Symbol =1976
+Section Number  =0X0001
+Section Number  =N_ABS:An absolute symbol. This means that the value of the n_value field is an absolute value.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+8 Symbol Table ----------
+Symbol Name    =121
+Value of Symbol =2122
+Section Number  =0X0001
+Section Number  =N_ABS:An absolute symbol. This means that the value of the n_value field is an absolute value.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+9 Symbol Table ----------
+Symbol Name    =149
+Value of Symbol =2778
+Section Number  =0X0001
+Section Number  =N_ABS:An absolute symbol. This means that the value of the n_value field is an absolute value.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+10 Symbol Table ----------
+Symbol Name     =_main
+Value of Symbol =2888
+Section Number  =0X0001
+Section Number  =N_ABS:An absolute symbol. This means that the value of the n_value field is an absolute value.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+11 Symbol Table ----------
+Symbol Name     =.text
+Value of Symbol =0000
+Section Number  =0X0001
+Section Number  =N_ABS:An absolute symbol. This means that the value of the n_value field is an absolute value.
+Symbol Type     =  0000
+Storage Class   =0X0003
+Storage Class   =C_STAT:STATIC
+Auxiliary Count =0X0001
+print the information of the symbol table.
+
+12 Symbol Table ----------
+Symbol Name     =¾
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0000
+Storage Class   =0X0000
+Storage Class   =C_NULL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+13 Symbol Table ----------
+Symbol Name     =.data
+Value of Symbol =0000
+Section Number  =0X0002
+Section Number  =N_DEBUG:A debugging symbol. In the example below, information about the file has been put into a symbol like this.
+Symbol Type     =  0000
+Storage Class   =0X0003
+Storage Class   =C_STAT:STATIC
+Auxiliary Count =0X0001
+print the information of the symbol table.
+
+14 Symbol Table ----------
+Symbol Name    =0
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0000
+Storage Class   =0X0000
+Storage Class   =C_NULL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+15 Symbol Table ----------
+Symbol Name     =.bss
+Value of Symbol =0000
+Section Number  =0X0003
+Symbol Type     =  0000
+Storage Class   =0X0003
+Storage Class   =C_STAT:STATIC
+Auxiliary Count =0X0001
+print the information of the symbol table.
+
+16 Symbol Table ----------
+Symbol Name    =0
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0000
+Storage Class   =0X0000
+Storage Class   =C_NULL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+17 Symbol Table ----------
+Symbol Name     =.rdata
+Value of Symbol =0000
+Section Number  =0X0004
+Symbol Type     =  0000
+Storage Class   =0X0003
+Storage Class   =C_STAT:STATIC
+Auxiliary Count =0X0001
+print the information of the symbol table.
+
+18 Symbol Table ----------
+Symbol Name     =ç
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0000
+Storage Class   =0X0000
+Storage Class   =C_NULL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+19 Symbol Table ----------
+Symbol Name    =171
+Value of Symbol =0000
+Section Number  =0X0005
+Symbol Type     =  0000
+Storage Class   =0X0003
+Storage Class   =C_STAT:STATIC
+Auxiliary Count =0X0001
+print the information of the symbol table.
+
+20 Symbol Table ----------
+Symbol Name     =
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0000
+Storage Class   =0X0000
+Storage Class   =C_NULL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+21 Symbol Table ----------
+Symbol Name    =182
+Value of Symbol =0000
+Section Number  =0X0006
+Symbol Type     =  0000
+Storage Class   =0X0003
+Storage Class   =C_STAT:STATIC
+Auxiliary Count =0X0001
+print the information of the symbol table.
+
+22 Symbol Table ----------
+Symbol Name     =ø
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0000
+Storage Class   =0X0000
+Storage Class   =C_NULL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+23 Symbol Table ----------
+Symbol Name     =___main
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+24 Symbol Table ----------
+Symbol Name     =_printf
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+25 Symbol Table ----------
+Symbol Name     =_puts
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+26 Symbol Table ----------
+Symbol Name     =_putchar
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+27 Symbol Table ----------
+Symbol Name     =_memset
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+28 Symbol Table ----------
+Symbol Name     =_memcpy
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+29 Symbol Table ----------
+Symbol Name     =_fopen
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+30 Symbol Table ----------
+Symbol Name     =_fseek
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+31 Symbol Table ----------
+Symbol Name     =_ftell
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+32 Symbol Table ----------
+Symbol Name     =_fread
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+33 Symbol Table ----------
+Symbol Name     =_malloc
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+34 Symbol Table ----------
+Symbol Name     =_free
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+35 Symbol Table ----------
+Symbol Name     =_fclose
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0032
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+the pos is before String Table:0X0033AA.
+String Table Offset is :33AA
+String Table Size is :192(readed).
+String Table Size is :188(file).
+String Table Size is :192
+print the information of the string table.
+
+1 String Table ----------
+.rdata$zzz
+.eh_frame
+_display_coff_header
+_display_optional_header
+_display_section_header
+_display_relocation_entry
+_display_symbol_table_entry
+_display_string_table
+.rdata$zzz
+.eh_frame
+
+----- main end -----<<

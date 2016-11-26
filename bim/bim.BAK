@@ -1,0 +1,66 @@
+#pragma pack (1)
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+
+typedef struct _bim_info {
+    uint32_t text_size;
+    uint32_t text_offset_file;
+    uint32_t text_offset_mem;
+    uint32_t data_size;
+    uint32_t data_offset_file
+    uint32_t data_offset_mem;
+    uint32_t entry_point;
+    uint32_t bss_size;
+} BIM_INFO;
+
+int main(int argc, char * argv[]) {
+    /* 变量定义 */
+    int returnCode;
+    FILE * pFile;
+    BIM_INFO info;
+    size_t read;
+
+    /* 变量初始化 */
+    returnCode = 0;
+    pFile = NULL;
+
+    /* 处理开始 */
+    printf(">>----- main begin -----\n");
+    if (argc < 2) {
+        printf("file name");
+        goto err_main;
+    }
+
+    pFile = fopen(argv[1], "rb");
+    if (pFile == NULL) {
+        printf("file [%s] open error.\n", argv[1]);
+        goto err_main;
+    }
+    memset(&info, 0, sizeof(BIM_INFO));
+    read = fread(&info, 1, sizeof(BIM_INFO), pFile);
+
+    printf("text_size=%d.\n", info.text_size);
+    printf("text_offset_file=%d.\n", info.text_offset_file);
+    printf("text_offset_mem=%d.\n", info.text_offset_mem);
+    printf("data_size=%d.\n", info.data_size);
+    printf("data_offset_file=%d.\n", info.data_offset_file);
+    printf("data_offset_mem=%d.\n", info.data_offset_mem);
+    printf("entry_point=%d.\n", info.entry_point);
+    //printf("=%d.\n", info.);
+    //printf("=%d.\n", info.);
+
+    goto end_main;
+err_main:
+end_main:
+    /* 处理结束 */
+    printf("----- main end -----<<\n");
+    if (pFile != NULL) {
+        fclose(pFile);
+        pFile = NULL;
+    }
+ 
+    return returnCode;
+}

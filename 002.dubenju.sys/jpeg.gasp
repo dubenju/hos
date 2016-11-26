@@ -1,0 +1,1404 @@
+	.file	"jpeg.c"
+	.text
+	.balign 2
+.globl _info_JPEG
+	.def	_info_JPEG;	.scl	2;	.type	32;	.endef
+_info_JPEG:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	movl	8(%ebp), %edi
+	pushl	%ebx
+	movl	20(%ebp), %eax
+	movl	12(%ebp), %esi
+	leal	512(%edi), %ebx
+	movl	%eax, 23520(%ebx)
+	addl	16(%ebp), %eax
+	movl	%eax, 23524(%ebx)
+	pushl	%ebx
+	call	_jpeg_init
+	popl	%edx
+	xorl	%edx, %edx
+	testl	%eax, %eax
+	jne	L1
+	cmpl	$0, 512(%edi)
+	jne	L3
+	xorl	%edx, %edx
+L1:
+	leal	-12(%ebp), %esp
+	movl	%edx, %eax
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	ret
+L3:
+	movl	$2, (%esi)
+	movl	$1, %edx
+	movl	$0, 4(%esi)
+	movl	512(%edi), %eax
+	movl	%eax, 8(%esi)
+	movl	4(%ebx), %eax
+	movl	%eax, 12(%esi)
+	jmp	L1
+	.balign 2
+.globl _decode0_JPEG
+	.def	_decode0_JPEG;	.scl	2;	.type	32;	.endef
+_decode0_JPEG:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	pushl	%ebx
+	pushl	%ecx
+	movl	8(%ebp), %esi
+	movl	16(%ebp), %eax
+	movl	20(%ebp), %edi
+	leal	512(%esi), %ebx
+	movl	%eax, 23520(%ebx)
+	addl	12(%ebp), %eax
+	movl	%eax, 23524(%ebx)
+	leal	24052(%esi), %eax
+	pushl	%eax
+	call	_jpeg_idct_init
+	pushl	%ebx
+	call	_jpeg_init
+	movl	28(%ebp), %eax
+	movl	%edi, %edx
+	andl	$127, %edx
+	movl	%edx, %ecx
+	cltd
+	idivl	%ecx
+	movl	512(%esi), %edx
+	movl	%eax, -16(%ebp)
+	addl	%edx, %eax
+	movl	%eax, 23536(%ebx)
+	pushl	%edi
+	pushl	24(%ebp)
+	pushl	%ebx
+	call	_jpeg_decode
+	leal	-12(%ebp), %esp
+	popl	%ebx
+	xorl	%eax, %eax
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	ret
+	.balign 2
+.globl _get_bits
+	.def	_get_bits;	.scl	2;	.type	32;	.endef
+_get_bits:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	pushl	%ebx
+	pushl	%esi
+	movl	8(%ebp), %ebx
+	movl	23532(%ebx), %edx
+	movl	23528(%ebx), %esi
+	cmpl	$16, %edx
+	jg	L15
+L13:
+	movl	23520(%ebx), %eax
+	movl	23524(%ebx), %edi
+	movw	$0, -16(%ebp)
+	cmpl	%edi, %eax
+	jae	L10
+	movb	(%eax), %cl
+	movb	%cl, -13(%ebp)
+	leal	1(%eax), %ecx
+	movl	%ecx, 23520(%ebx)
+	cmpb	$-1, -13(%ebp)
+	je	L16
+L11:
+	sall	$8, %esi
+	addl	$8, %edx
+	movzbl	-13(%ebp), %eax
+	orl	%eax, %esi
+	cmpl	$16, %edx
+	jle	L13
+L15:
+	movl	%edx, %edi
+	movl	$1, %eax
+	subl	12(%ebp), %edi
+	movl	%esi, %edx
+	movl	%esi, 23528(%ebx)
+	movl	%edi, %ecx
+	shrl	%cl, %edx
+	movb	12(%ebp), %cl
+	movl	%edi, 23532(%ebx)
+	sall	%cl, %eax
+	decl	%eax
+	andl	%edx, %eax
+	movw	%ax, -16(%ebp)
+L10:
+	movzwl	-16(%ebp), %eax
+	popl	%ebx
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	ret
+L16:
+	movw	$0, -16(%ebp)
+	cmpl	%edi, %ecx
+	jae	L10
+	addl	$2, %eax
+	movl	%eax, 23520(%ebx)
+	jmp	L11
+	.balign 2
+.globl _jpeg_sof
+	.def	_jpeg_sof;	.scl	2;	.type	32;	.endef
+_jpeg_sof:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	pushl	%ebx
+	pushl	%eax
+	movl	8(%ebp), %ebx
+	movl	23520(%ebx), %ecx
+	movl	23524(%ebx), %edi
+	leal	8(%ecx), %esi
+	cmpl	%edi, %esi
+	ja	L19
+	movzbl	3(%ecx), %eax
+	movzbl	4(%ecx), %edx
+	sall	$8, %eax
+	orl	%edx, %eax
+	movl	%eax, 4(%ebx)
+	movzbl	5(%ecx), %eax
+	movzbl	6(%ecx), %edx
+	sall	$8, %eax
+	orl	%edx, %eax
+	movl	%eax, (%ebx)
+	movzbl	7(%ecx), %ecx
+	imull	$3, %ecx, %eax
+	movl	%ecx, -16(%ebp)
+	movl	%ecx, 24(%ebx)
+	leal	(%eax,%esi), %eax
+	movl	%esi, 23520(%ebx)
+	cmpl	%edi, %eax
+	ja	L19
+	xorl	%ecx, %ecx
+	cmpl	-16(%ebp), %ecx
+	jge	L29
+L27:
+	movl	23520(%ebx), %esi
+	movzbl	(%esi), %eax
+	movl	%eax, 28(%ebx,%ecx,4)
+	movb	1(%esi), %dl
+	movzbl	%dl, %eax
+	movl	%eax, 40(%ebx,%ecx,4)
+	movb	%dl, %al
+	shrb	$4, %al
+	andl	$15, %edx
+	movzbl	%al, %eax
+	movl	%eax, 52(%ebx,%ecx,4)
+	movl	%edx, 64(%ebx,%ecx,4)
+	cmpl	%eax, 16(%ebx)
+	jge	L25
+	movl	%eax, 16(%ebx)
+L25:
+	cmpl	%edx, 20(%ebx)
+	jge	L26
+	movl	%edx, 20(%ebx)
+L26:
+	movzbl	2(%esi), %eax
+	movl	%eax, 76(%ebx,%ecx,4)
+	incl	%ecx
+	leal	3(%esi), %eax
+	cmpl	-16(%ebp), %ecx
+	movl	%eax, 23520(%ebx)
+	jl	L27
+L29:
+	xorl	%eax, %eax
+L17:
+	popl	%edi
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	ret
+L19:
+	movl	%edi, 23520(%ebx)
+	movl	$1, %eax
+	jmp	L17
+	.balign 2
+.globl _jpeg_dqt
+	.def	_jpeg_dqt;	.scl	2;	.type	32;	.endef
+_jpeg_dqt:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	pushl	%ebx
+	pushl	%ecx
+	movl	8(%ebp), %edi
+	movl	23520(%edi), %edx
+	movl	23524(%edi), %esi
+	leal	2(%edx), %ecx
+	cmpl	%esi, %ecx
+	ja	L32
+	movzbl	(%edx), %eax
+	sall	$8, %eax
+	movzbl	1(%edx), %edx
+	orl	%edx, %eax
+	movl	%ecx, 23520(%edi)
+	leal	-2(%eax), %ebx
+	leal	(%ebx,%ecx), %eax
+	cmpl	%esi, %eax
+	ja	L32
+	testl	%ebx, %ebx
+	jle	L52
+L50:
+	movl	23520(%edi), %eax
+	movl	$7, %esi
+	decl	%ebx
+	movb	(%eax), %dl
+	incl	%eax
+	andl	%edx, %esi
+	movl	%eax, 23520(%edi)
+	cmpl	17348(%edi), %esi
+	jle	L37
+	movl	%esi, 17348(%edi)
+L37:
+	andl	$248, %edx
+	movl	$0, -16(%ebp)
+	je	L49
+L43:
+	movl	%esi, %eax
+	movl	23520(%edi), %edx
+	sall	$6, %eax
+	addl	-16(%ebp), %eax
+	movzbl	(%edx), %ecx
+	addl	$2, %edx
+	incl	-16(%ebp)
+	movl	%ecx, 16580(%edi,%eax,4)
+	movl	%edx, 23520(%edi)
+	cmpl	$63, -16(%ebp)
+	jle	L43
+	addl	$-128, %ebx
+L34:
+	testl	%ebx, %ebx
+	jg	L50
+L52:
+	xorl	%eax, %eax
+L30:
+	popl	%edx
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	ret
+L49:
+	movl	%esi, %eax
+	movl	23520(%edi), %edx
+	sall	$6, %eax
+	addl	-16(%ebp), %eax
+	movzbl	(%edx), %ecx
+	incl	%edx
+	incl	-16(%ebp)
+	movl	%ecx, 16580(%edi,%eax,4)
+	movl	%edx, 23520(%edi)
+	cmpl	$63, -16(%ebp)
+	jle	L49
+	subl	$64, %ebx
+	jmp	L34
+L32:
+	movl	%esi, 23520(%edi)
+	movl	$1, %eax
+	jmp	L30
+	.balign 2
+.globl _jpeg_dht
+	.def	_jpeg_dht;	.scl	2;	.type	32;	.endef
+_jpeg_dht:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	pushl	%ebx
+	subl	$92, %esp
+	movl	8(%ebp), %edi
+	movl	23520(%edi), %edx
+	leal	2(%edx), %ecx
+	cmpl	23524(%edi), %ecx
+	ja	L59
+	movzbl	(%edx), %eax
+	sall	$8, %eax
+	movzbl	1(%edx), %edx
+	orl	%edx, %eax
+	movl	%ecx, 23520(%edi)
+	subl	$2, %eax
+	movl	%eax, -100(%ebp)
+	testl	%eax, %eax
+	jle	L95
+L93:
+	movl	23520(%edi), %edx
+	leal	17(%edx), %eax
+	cmpl	23524(%edi), %eax
+	ja	L59
+	movb	(%edx), %dl
+	xorl	%ecx, %ecx
+	movb	%dl, %al
+	andl	$15, %edx
+	shrb	$4, %al
+	movzbl	%al, %eax
+	imull	$3084, %eax, %eax
+	imull	$1028, %edx, %edx
+	leal	(%eax,%edi), %eax
+	movl	$0, -96(%ebp)
+	leal	17352(%edx,%eax), %ebx
+	movl	$1, %edx
+L73:
+	movl	23520(%edi), %eax
+	xorl	%esi, %esi
+	movzbl	(%edx,%eax), %eax
+	addl	%eax, -96(%ebp)
+	movl	%eax, -92(%ebp,%edx,4)
+	cmpl	%eax, %esi
+	jge	L99
+	leal	516(%ebx,%ecx), %eax
+L72:
+	movb	%dl, (%eax)
+	incl	%esi
+	incl	%eax
+	incl	%ecx
+	cmpl	-92(%ebp,%edx,4), %esi
+	jl	L72
+L99:
+	incl	%edx
+	cmpl	$16, %edx
+	jle	L73
+	addl	$17, 23520(%edi)
+	movl	-96(%ebp), %eax
+	xorl	%ecx, %ecx
+	xorl	%esi, %esi
+	movl	%eax, (%ebx)
+	movzbl	516(%ebx), %edx
+	cmpl	%eax, %ecx
+	jge	L75
+L86:
+	movzbl	516(%ecx,%ebx), %eax
+	cmpl	%edx, %eax
+	je	L80
+L102:
+	cmpl	-96(%ebp), %ecx
+	jge	L75
+	movb	516(%ecx,%ebx), %al
+	movb	%al, -101(%ebp)
+L82:
+	incl	%edx
+	addl	%esi, %esi
+	movzbl	-101(%ebp), %eax
+	cmpl	%edx, %eax
+	jne	L82
+	cmpl	-96(%ebp), %ecx
+	jl	L86
+L75:
+	movl	-96(%ebp), %eax
+	addl	23520(%edi), %eax
+	cmpl	23524(%edi), %eax
+	ja	L59
+	xorl	%ecx, %ecx
+	cmpl	-96(%ebp), %ecx
+	jge	L104
+L92:
+	movl	23520(%edi), %eax
+	movb	(%ecx,%eax), %al
+	movb	%al, 772(%ecx,%ebx)
+	incl	%ecx
+	cmpl	-96(%ebp), %ecx
+	jl	L92
+L104:
+	movl	-96(%ebp), %eax
+	addl	%eax, 23520(%edi)
+	movl	-100(%ebp), %eax
+	subl	-96(%ebp), %eax
+	subl	$18, %eax
+	movl	%eax, -100(%ebp)
+	testl	%eax, %eax
+	jg	L93
+L95:
+	xorl	%eax, %eax
+L57:
+	addl	$92, %esp
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	ret
+L59:
+	movl	23524(%edi), %eax
+	movl	%eax, 23520(%edi)
+	movl	$1, %eax
+	jmp	L57
+L80:
+	movw	%si, 4(%ebx,%ecx,2)
+	incl	%ecx
+	incl	%esi
+	movzbl	516(%ecx,%ebx), %eax
+	cmpl	%edx, %eax
+	je	L80
+	jmp	L102
+	.balign 2
+.globl _jpeg_init
+	.def	_jpeg_init;	.scl	2;	.type	32;	.endef
+_jpeg_init:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	pushl	%ebx
+	pushl	%edi
+	movl	8(%ebp), %ebx
+	movl	$0, -16(%ebp)
+	movl	$0, (%ebx)
+	movl	$0, 16568(%ebx)
+	movl	$0, 16572(%ebx)
+	movl	$0, 16576(%ebx)
+	movl	$0, 17348(%ebx)
+	movl	$0, 16(%ebx)
+	movl	$0, 20(%ebx)
+	movl	$0, 23532(%ebx)
+	movl	$0, 23528(%ebx)
+	movl	$0, 164(%ebx)
+L106:
+	movl	23520(%ebx), %edx
+	movl	23524(%ebx), %esi
+	leal	2(%edx), %ecx
+	cmpl	%esi, %ecx
+	ja	L110
+	cmpb	$-1, (%edx)
+	jne	L112
+	movb	1(%edx), %al
+	movl	%ecx, 23520(%ebx)
+	cmpb	$-40, %al
+	je	L106
+	cmpb	$-39, %al
+	je	L110
+	cmpb	$-64, %al
+	je	L138
+	cmpb	$-60, %al
+	je	L139
+	cmpb	$-37, %al
+	je	L140
+	cmpb	$-35, %al
+	je	L141
+	cmpb	$-38, %al
+	je	L142
+	leal	4(%edx), %eax
+	cmpl	%esi, %eax
+	ja	L110
+	movzbl	2(%edx), %eax
+	sall	$8, %eax
+	movzbl	1(%ecx), %edx
+	orl	%edx, %eax
+	leal	(%eax,%ecx), %eax
+	movl	%eax, 23520(%ebx)
+	jmp	L106
+L110:
+	movl	%esi, 23520(%ebx)
+L112:
+	movl	$1, -16(%ebp)
+L132:
+	movl	-16(%ebp), %eax
+	leal	-12(%ebp), %esp
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	ret
+L142:
+	leal	5(%edx), %eax
+	cmpl	%esi, %eax
+	ja	L110
+	movzbl	2(%ecx), %edx
+	movl	%eax, 23520(%ebx)
+	movl	%edx, 88(%ebx)
+	leal	(%eax,%edx,2), %eax
+	cmpl	%esi, %eax
+	ja	L110
+	xorl	%ecx, %ecx
+	cmpl	%edx, %ecx
+	jge	L136
+	movl	%edx, %esi
+L131:
+	movl	23520(%ebx), %edx
+	movzbl	(%edx), %eax
+	movl	%eax, 92(%ebx,%ecx,4)
+	movb	1(%edx), %al
+	shrb	$4, %al
+	movzbl	%al, %eax
+	movl	%eax, 116(%ebx,%ecx,4)
+	movb	1(%edx), %al
+	addl	$2, %edx
+	andl	$15, %eax
+	movl	%edx, 23520(%ebx)
+	movzbl	%al, %eax
+	movl	%eax, 104(%ebx,%ecx,4)
+	incl	%ecx
+	cmpl	%esi, %ecx
+	jl	L131
+L136:
+	addl	$3, 23520(%ebx)
+	jmp	L132
+L141:
+	leal	6(%edx), %edi
+	cmpl	%esi, %edi
+	ja	L110
+	movzbl	2(%ecx), %eax
+	movzbl	3(%ecx), %edx
+	sall	$8, %eax
+	movl	%edi, 23520(%ebx)
+	orl	%edx, %eax
+	movl	%eax, 164(%ebx)
+	jmp	L106
+L140:
+	pushl	%ebx
+	call	_jpeg_dqt
+L137:
+	popl	%esi
+	jmp	L106
+L139:
+	pushl	%ebx
+	call	_jpeg_dht
+	jmp	L137
+L138:
+	pushl	%ebx
+	call	_jpeg_sof
+	jmp	L137
+	.balign 2
+.globl _jpeg_decode_init
+	.def	_jpeg_decode_init;	.scl	2;	.type	32;	.endef
+_jpeg_decode_init:
+	pushl	%ebp
+	xorl	%edx, %edx
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	pushl	%ebx
+	movl	8(%ebp), %ebx
+	movl	88(%ebx), %edi
+	cmpl	%edi, %edx
+	jge	L166
+L154:
+	xorl	%ecx, %ecx
+	movl	24(%ebx), %esi
+	cmpl	%esi, %ecx
+	jge	L146
+L153:
+	movl	28(%ebx,%ecx,4), %eax
+	cmpl	%eax, 92(%ebx,%edx,4)
+	je	L172
+	incl	%ecx
+	cmpl	%esi, %ecx
+	jl	L153
+L146:
+	incl	%edx
+	cmpl	%edi, %edx
+	jl	L154
+L166:
+	movl	16(%ebx), %eax
+	xorl	%edx, %edx
+	sall	$3, %eax
+	movl	%eax, 8(%ebx)
+	movl	20(%ebx), %eax
+	sall	$3, %eax
+	movl	%eax, 12(%ebx)
+L159:
+	movl	$128, 168(%ebx,%edx,4)
+	incl	%edx
+	cmpl	$4095, %edx
+	jle	L159
+	xorl	%edx, %edx
+	movl	88(%ebx), %ecx
+	cmpl	%ecx, %edx
+	jge	L171
+	leal	168(%ebx), %eax
+L164:
+	movl	%eax, 16552(%ebx,%edx,4)
+	incl	%edx
+	addl	$4096, %eax
+	cmpl	%ecx, %edx
+	jl	L164
+L171:
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	ret
+L172:
+	movl	52(%ebx,%ecx,4), %eax
+	movl	%eax, 128(%ebx,%edx,4)
+	movl	64(%ebx,%ecx,4), %eax
+	movl	%eax, 140(%ebx,%edx,4)
+	movl	76(%ebx,%ecx,4), %eax
+	movl	%eax, 152(%ebx,%edx,4)
+	jmp	L146
+	.balign 2
+.globl _jpeg_huff_decode
+	.def	_jpeg_huff_decode;	.scl	2;	.type	32;	.endef
+_jpeg_huff_decode:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	xorl	%edi, %edi
+	pushl	%ebx
+	xorl	%esi, %esi
+	pushl	%ebx
+	movl	12(%ebp), %eax
+	movl	16(%ebp), %edx
+	imull	$3084, %eax, %eax
+	imull	$1028, %edx, %edx
+	addl	8(%ebp), %eax
+	movl	$0, -16(%ebp)
+	leal	17352(%edx,%eax), %ebx
+L183:
+	pushl	$1
+	incl	%edi
+	pushl	8(%ebp)
+	call	_get_bits
+	popl	%edx
+	sall	-16(%ebp)
+	movzwl	%ax, %eax
+	popl	%ecx
+	orl	%eax, -16(%ebp)
+	movzbl	516(%esi,%ebx), %eax
+	cmpl	%edi, %eax
+	je	L182
+L187:
+	cmpl	$15, %edi
+	jle	L183
+	orl	$-1, %eax
+L173:
+	leal	-12(%ebp), %esp
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	ret
+L182:
+	movzwl	4(%ebx,%esi,2), %eax
+	cmpl	-16(%ebp), %eax
+	je	L188
+	incl	%esi
+	movzbl	516(%esi,%ebx), %eax
+	cmpl	%edi, %eax
+	je	L182
+	jmp	L187
+L188:
+	movzbl	772(%esi,%ebx), %eax
+	jmp	L173
+	.balign 2
+.globl _jpeg_idct_init
+	.def	_jpeg_idct_init;	.scl	2;	.type	32;	.endef
+_jpeg_idct_init:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	xorl	%esi, %esi
+	pushl	%ebx
+	subl	$216, %esp
+	movl	$32768, -204(%ebp)
+	movl	$32138, -200(%ebp)
+	movl	$30274, -196(%ebp)
+	movl	$27246, -192(%ebp)
+	movl	$23170, -188(%ebp)
+	movl	$18205, -184(%ebp)
+	movl	$12540, -180(%ebp)
+	movl	$6393, -176(%ebp)
+	movl	$0, -172(%ebp)
+	movl	$-6393, -168(%ebp)
+	movl	$-12540, -164(%ebp)
+	movl	$-18205, -160(%ebp)
+	movl	$-23170, -156(%ebp)
+	movl	$-27246, -152(%ebp)
+	movl	$-30274, -148(%ebp)
+	movl	$-32138, -144(%ebp)
+L194:
+	movl	-204(%ebp,%esi,4), %eax
+	negl	%eax
+	movl	%eax, -140(%ebp,%esi,4)
+	incl	%esi
+	cmpl	$15, %esi
+	jle	L194
+	xorl	%esi, %esi
+	movl	$0, -216(%ebp)
+L226:
+	movl	%esi, %ecx
+	movl	%esi, %edx
+	addl	%ecx, %ecx
+	jne	L199
+	movl	$4, %edx
+L199:
+	xorl	%ebx, %ebx
+L204:
+	movl	-204(%ebp,%edx,4), %eax
+	addl	%ecx, %edx
+	movl	%eax, -44(%ebp,%ebx,4)
+	andl	$31, %edx
+	incl	%ebx
+	cmpl	$7, %ebx
+	jle	L204
+	movl	-216(%ebp), %eax
+	sall	$3, %eax
+	movl	$0, -208(%ebp)
+	movl	%eax, -228(%ebp)
+L225:
+	movl	-208(%ebp), %edx
+	movl	%edx, %ebx
+	addl	%ebx, %ebx
+	jne	L209
+	movl	$4, %edx
+L209:
+	xorl	%ecx, %ecx
+L214:
+	movl	-204(%ebp,%edx,4), %eax
+	addl	%ebx, %edx
+	movl	%eax, -76(%ebp,%ecx,4)
+	andl	$31, %edx
+	incl	%ecx
+	cmpl	$7, %ecx
+	jle	L214
+	xorl	%ebx, %ebx
+L224:
+	movl	-44(%ebp,%ebx,4), %edx
+	xorl	%ecx, %ecx
+	movl	%edx, -212(%ebp)
+L223:
+	movl	-212(%ebp), %edi
+	movl	-228(%ebp), %edx
+	imull	-76(%ebp,%ecx,4), %edi
+	sarl	$15, %edi
+	addl	%ebx, %edx
+	movl	8(%ebp), %eax
+	leal	(%ecx,%edx,8), %edx
+	incl	%ecx
+	cmpl	$7, %ecx
+	movl	%edi, (%eax,%edx,4)
+	jle	L223
+	incl	%ebx
+	cmpl	$7, %ebx
+	jle	L224
+	incl	-208(%ebp)
+	addl	$8, -228(%ebp)
+	cmpl	$7, -208(%ebp)
+	jle	L225
+	incl	%esi
+	addl	$8, -216(%ebp)
+	cmpl	$7, %esi
+	jle	L226
+	addl	$216, %esp
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	ret
+	.balign 2
+.globl _jpeg_idct
+	.def	_jpeg_idct;	.scl	2;	.type	32;	.endef
+_jpeg_idct:
+	pushl	%ebp
+	xorl	%edx, %edx
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	pushl	%ebx
+	pushl	%eax
+	pushl	%eax
+L246:
+	movl	12(%ebp), %eax
+	movl	$0, (%eax,%edx,4)
+	incl	%edx
+	cmpl	$63, %edx
+	jle	L246
+	xorl	%edx, %edx
+	xorl	%edi, %edi
+L257:
+	movl	8(%ebp), %esi
+	movl	(%esi,%edx,4), %esi
+	movl	%esi, -20(%ebp)
+	testl	%esi, %esi
+	je	L249
+	movl	16(%ebp), %eax
+	xorl	%ebx, %ebx
+	leal	(%eax,%edi,4), %ecx
+L256:
+	movl	-20(%ebp), %esi
+	movl	12(%ebp), %eax
+	imull	(%ecx), %esi
+	addl	%esi, (%eax,%ebx,4)
+	addl	$4, %ecx
+	incl	%ebx
+	cmpl	$63, %ebx
+	jle	L256
+L249:
+	incl	%edx
+	addl	$64, %edi
+	cmpl	$63, %edx
+	jle	L257
+	xorl	%edx, %edx
+L262:
+	movl	12(%ebp), %esi
+	sarl	$17, (%esi,%edx,4)
+	incl	%edx
+	cmpl	$63, %edx
+	jle	L262
+	popl	%esi
+	popl	%edi
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	ret
+	.balign 2
+.globl _jpeg_get_value
+	.def	_jpeg_get_value;	.scl	2;	.type	32;	.endef
+_jpeg_get_value:
+	pushl	%ebp
+	xorl	%edx, %edx
+	movl	%esp, %ebp
+	pushl	%ebx
+	movl	12(%ebp), %ebx
+	testl	%ebx, %ebx
+	jne	L275
+L271:
+	movl	%edx, %eax
+	movl	-4(%ebp), %ebx
+	leave
+	ret
+L275:
+	pushl	%ebx
+	pushl	8(%ebp)
+	call	_get_bits
+	movzwl	%ax, %edx
+	popl	%eax
+	movl	%edx, %eax
+	popl	%ecx
+	leal	-1(%ebx), %ecx
+	sarl	%cl, %eax
+	andl	$1, %eax
+	jne	L271
+	movl	$1, %eax
+	movb	%bl, %cl
+	sall	%cl, %eax
+	subl	%eax, %edx
+	leal	1(%edx), %edx
+	jmp	L271
+	.balign 2
+.globl _jpeg_decode_huff
+	.def	_jpeg_decode_huff;	.scl	2;	.type	32;	.endef
+_jpeg_decode_huff:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	pushl	%ebx
+	pushl	%eax
+	movl	8(%ebp), %edi
+	movl	12(%ebp), %edx
+	movl	152(%edi,%edx,4), %eax
+	sall	$8, %eax
+	pushl	116(%edi,%edx,4)
+	leal	(%eax,%edi), %ebx
+	pushl	$0
+	pushl	%edi
+	leal	16580(%ebx), %ecx
+	movl	%ecx, -16(%ebp)
+	call	_jpeg_huff_decode
+	addl	$12, %esp
+	xorl	%edx, %edx
+	testl	%eax, %eax
+	js	L276
+	pushl	%eax
+	movl	$1, %esi
+	pushl	%edi
+	call	_jpeg_get_value
+	movl	16(%ebp), %ecx
+	movl	12(%ebp), %edx
+	addl	16568(%edi,%edx,4), %eax
+	movl	%eax, 16568(%edi,%edx,4)
+	imull	16580(%ebx), %eax
+	movl	%eax, (%ecx)
+	popl	%ebx
+	popl	%eax
+L288:
+	movl	12(%ebp), %eax
+	pushl	104(%edi,%eax,4)
+	pushl	$1
+	pushl	%edi
+	call	_jpeg_huff_decode
+	addl	$12, %esp
+	testl	%eax, %eax
+	js	L279
+	testl	%eax, %eax
+	je	L279
+	movl	%eax, %ebx
+	andl	$15, %eax
+	sarl	$4, %ebx
+	pushl	%eax
+	pushl	%edi
+	andl	$15, %ebx
+	call	_jpeg_get_value
+	movl	%eax, %edx
+	popl	%eax
+	popl	%ecx
+	cmpl	$65535, %edx
+	jg	L276
+	movl	%ebx, %eax
+	decl	%ebx
+	testl	%eax, %eax
+	jle	L295
+L287:
+	movl	20(%ebp), %ecx
+	movzbl	(%esi,%ecx), %eax
+	movl	16(%ebp), %ecx
+	incl	%esi
+	movl	$0, (%ecx,%eax,4)
+	movl	%ebx, %eax
+	decl	%ebx
+	testl	%eax, %eax
+	jg	L287
+L295:
+	movl	20(%ebp), %ecx
+	movzbl	(%esi,%ecx), %eax
+	movl	-16(%ebp), %ecx
+	imull	(%ecx,%esi,4), %edx
+	movl	16(%ebp), %ecx
+	incl	%esi
+	cmpl	$63, %esi
+	movl	%edx, (%ecx,%eax,4)
+	jle	L288
+L297:
+	xorl	%edx, %edx
+L276:
+	leal	-12(%ebp), %esp
+	movl	%edx, %eax
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	ret
+L279:
+	cmpl	$63, %esi
+	jg	L297
+L292:
+	movl	20(%ebp), %edx
+	movl	16(%ebp), %ecx
+	movzbl	(%esi,%edx), %eax
+	incl	%esi
+	movl	$0, (%ecx,%eax,4)
+	cmpl	$63, %esi
+	jle	L292
+	jmp	L297
+	.balign 2
+.globl _jpeg_mcu_bitblt
+	.def	_jpeg_mcu_bitblt;	.scl	2;	.type	32;	.endef
+_jpeg_mcu_bitblt:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	pushl	%ebx
+	subl	$16, %esp
+	movl	24(%ebp), %eax
+	movl	20(%ebp), %edx
+	movl	28(%ebp), %esi
+	subl	%eax, 32(%ebp)
+	subl	%edx, %esi
+	imull	16(%ebp), %eax
+	addl	%edx, %eax
+	subl	%esi, 16(%ebp)
+	leal	0(,%eax,4), %ebx
+	addl	12(%ebp), %ebx
+	cmpl	$0, 32(%ebp)
+	jle	L311
+	movl	$0, -24(%ebp)
+	movl	32(%ebp), %edi
+L309:
+	movl	-24(%ebp), %eax
+	cltd
+	idivl	32(%ebp)
+	movl	%eax, %ecx
+	sall	$3, %ecx
+	testl	%esi, %esi
+	movl	%ecx, -16(%ebp)
+	jle	L313
+	movl	$0, -20(%ebp)
+	movl	%esi, %ecx
+L308:
+	movl	-20(%ebp), %eax
+	cltd
+	idivl	%esi
+	movl	%eax, -28(%ebp)
+	movl	8(%ebp), %edx
+	addl	-16(%ebp), %eax
+	addl	$8, -20(%ebp)
+	movl	(%edx,%eax,4), %eax
+	movl	%eax, (%ebx)
+	addl	$4, %ebx
+	decl	%ecx
+	jne	L308
+L313:
+	movl	16(%ebp), %ecx
+	addl	$8, -24(%ebp)
+	decl	%edi
+	leal	(%ebx,%ecx,4), %ebx
+	jne	L309
+L311:
+	addl	$16, %esp
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	ret
+	.balign 2
+.globl _jpeg_decode_mcu
+	.def	_jpeg_decode_mcu;	.scl	2;	.type	32;	.endef
+_jpeg_decode_mcu:
+	pushl	%ebp
+	xorl	%eax, %eax
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	pushl	%ebx
+	subl	$548, %esp
+	movl	8(%ebp), %edx
+	movl	$0, -528(%ebp)
+	cmpl	88(%edx), %eax
+	jge	L331
+	addl	$168, %edx
+	movl	%edx, -560(%ebp)
+L329:
+	movl	-528(%ebp), %eax
+	movl	8(%ebp), %edx
+	movl	$0, -536(%ebp)
+	movl	140(%edx,%eax,4), %edi
+	movl	128(%edx,%eax,4), %esi
+	cmpl	%edi, -536(%ebp)
+	jge	L333
+L328:
+	movl	$0, -532(%ebp)
+	cmpl	%esi, -532(%ebp)
+	jl	L327
+L335:
+	incl	-536(%ebp)
+	cmpl	%edi, -536(%ebp)
+	jl	L328
+L333:
+	movl	8(%ebp), %eax
+	incl	-528(%ebp)
+	movl	-528(%ebp), %edx
+	addl	$4096, -560(%ebp)
+	cmpl	88(%eax), %edx
+	jl	L329
+L331:
+	leal	-12(%ebp), %esp
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	ret
+L327:
+	pushl	12(%ebp)
+	leal	-268(%ebp), %ebx
+	pushl	%ebx
+	pushl	-528(%ebp)
+	pushl	8(%ebp)
+	call	_jpeg_decode_huff
+	movl	8(%ebp), %eax
+	addl	$23540, %eax
+	pushl	%eax
+	leal	-524(%ebp), %eax
+	pushl	%eax
+	pushl	%ebx
+	call	_jpeg_idct
+	movl	-532(%ebp), %ebx
+	movl	8(%ebp), %edx
+	movl	-536(%ebp), %eax
+	incl	%eax
+	incl	%ebx
+	movl	12(%edx), %edx
+	imull	%edx, %eax
+	movl	%edx, -540(%ebp)
+	cltd
+	idivl	%edi
+	pushl	%eax
+	movl	8(%ebp), %eax
+	movl	8(%eax), %ecx
+	movl	%ecx, %eax
+	imull	%ebx, %eax
+	cltd
+	idivl	%esi
+	pushl	%eax
+	movl	-540(%ebp), %eax
+	imull	-536(%ebp), %eax
+	cltd
+	movl	%eax, -540(%ebp)
+	idivl	%edi
+	pushl	%eax
+	movl	%eax, -548(%ebp)
+	movl	-532(%ebp), %eax
+	imull	%ecx, %eax
+	cltd
+	idivl	%esi
+	pushl	%eax
+	leal	-524(%ebp), %eax
+	pushl	%ecx
+	pushl	-560(%ebp)
+	pushl	%eax
+	call	_jpeg_mcu_bitblt
+	movl	%ebx, -532(%ebp)
+	addl	$56, %esp
+	cmpl	%esi, %ebx
+	jl	L327
+	jmp	L335
+	.balign 2
+.globl _jpeg_decode_yuv
+	.def	_jpeg_decode_yuv;	.scl	2;	.type	32;	.endef
+_jpeg_decode_yuv:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	pushl	%ebx
+	subl	$24, %esp
+	movl	8(%ebp), %ecx
+	movl	8(%ecx), %eax
+	movl	12(%ecx), %esi
+	movl	%eax, -32(%ebp)
+	movl	16(%ecx), %eax
+	imull	12(%ebp), %eax
+	leal	0(,%eax,8), %edi
+	movl	20(%ecx), %eax
+	imull	16(%ebp), %eax
+	leal	0(,%eax,8), %edx
+	movl	(%ecx), %eax
+	subl	%edi, %eax
+	movl	%eax, -24(%ebp)
+	movl	-32(%ebp), %eax
+	cmpl	%eax, -24(%ebp)
+	jle	L337
+	movl	%eax, -24(%ebp)
+L337:
+	movl	4(%ecx), %ebx
+	subl	%edx, %ebx
+	cmpl	%esi, %ebx
+	jle	L338
+	movl	%esi, %ebx
+L338:
+	leal	168(%ecx), %eax
+	movl	%eax, -28(%ebp)
+	movl	23536(%ecx), %eax
+	imull	%eax, %edx
+	movl	24(%ebp), %ecx
+	addl	%edi, %edx
+	subl	-24(%ebp), %eax
+	andl	$127, %ecx
+	imull	%ecx, %edx
+	imull	%eax, %ecx
+	addl	%edx, 20(%ebp)
+	movl	%ecx, -36(%ebp)
+	testl	%ebx, %ebx
+	jle	L356
+	movl	%ebx, -20(%ebp)
+L354:
+	cmpl	$0, -24(%ebp)
+	jle	L358
+	movl	-24(%ebp), %edx
+	movl	%edx, -16(%ebp)
+L353:
+	movl	-28(%ebp), %ecx
+	movl	(%ecx), %edi
+	movl	8192(%ecx), %esi
+	sall	$12, %edi
+	leal	0(,%esi,4), %eax
+	movl	%edi, %edx
+	subl	%eax, %edx
+	movl	%edx, %eax
+	movl	4096(%ecx), %edx
+	imull	$7257, %edx, %edx
+	addl	%edx, %eax
+	sarl	$12, %eax
+	leal	128(%eax), %ebx
+	testl	$-256, %ebx
+	je	L347
+	notl	%ebx
+	sarl	$24, %ebx
+L347:
+	movl	%esi, %eax
+	movl	%edi, %ecx
+	imull	$2924, %eax, %eax
+	subl	%eax, %ecx
+	movl	%ecx, %eax
+	sarl	$12, %eax
+	leal	128(%eax), %ecx
+	testl	$-256, %ecx
+	je	L348
+	notl	%ecx
+	sarl	$24, %ecx
+L348:
+	imull	$5742, %esi, %esi
+	leal	(%esi,%edi), %eax
+	sarl	$12, %eax
+	leal	128(%eax), %edx
+	testl	$-256, %edx
+	je	L349
+	notl	%edx
+	sarl	$24, %edx
+L349:
+	cmpl	$4, 24(%ebp)
+	je	L359
+	cmpl	$2, 24(%ebp)
+	je	L360
+L345:
+	decl	-16(%ebp)
+	jne	L353
+L358:
+	movl	-32(%ebp), %eax
+	movl	-28(%ebp), %ecx
+	subl	-24(%ebp), %eax
+	leal	(%ecx,%eax,4), %ecx
+	movl	-36(%ebp), %eax
+	addl	%eax, 20(%ebp)
+	movl	%ecx, -28(%ebp)
+	decl	-20(%ebp)
+	jne	L354
+L356:
+	addl	$24, %esp
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	ret
+L360:
+	sall	$8, %edx
+	leal	0(,%ecx,8), %eax
+	andl	$63488, %edx
+	andl	$255, %ebx
+	sarl	$3, %ebx
+	andl	$2016, %eax
+	orl	%edx, %eax
+	movl	20(%ebp), %edx
+	orl	%ebx, %eax
+	movw	%ax, (%edx)
+	addl	$2, %edx
+	movl	%edx, 20(%ebp)
+	jmp	L345
+L359:
+	movl	20(%ebp), %eax
+	movb	%bl, (%eax)
+	movb	%cl, 1(%eax)
+	movb	%dl, 2(%eax)
+	addl	$4, %eax
+	addl	$4, -28(%ebp)
+	movl	%eax, 20(%ebp)
+	jmp	L345
+	.balign 2
+.globl _jpeg_decode
+	.def	_jpeg_decode;	.scl	2;	.type	32;	.endef
+_jpeg_decode:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	xorl	%edi, %edi
+	pushl	%ebx
+	subl	$76, %esp
+	movl	8(%ebp), %ebx
+	pushl	%ebx
+	movl	$268960000, -76(%ebp)
+	movl	$167969289, -72(%ebp)
+	movl	$421533713, -68(%ebp)
+	movl	$84151058, -64(%ebp)
+	movl	$555356940, -60(%ebp)
+	movl	$573124648, -56(%ebp)
+	movl	$101520411, -52(%ebp)
+	movl	$471141895, -48(%ebp)
+	movl	$942746147, -44(%ebp)
+	movl	$606810681, -40(%ebp)
+	movl	$386864669, -36(%ebp)
+	movl	$858531102, -32(%ebp)
+	movl	$758397754, -28(%ebp)
+	movl	$774315814, -24(%ebp)
+	movl	$909982773, -20(%ebp)
+	movl	$1061041967, -16(%ebp)
+	call	_jpeg_decode_init
+	movl	(%ebx), %eax
+	movl	8(%ebx), %edx
+	addl	%edx, %eax
+	movl	%edx, %esi
+	movl	$0, -80(%ebp)
+	leal	-1(%eax), %ecx
+	movl	%ecx, %eax
+	cltd
+	idivl	%esi
+	movl	12(%ebx), %edx
+	movl	%eax, -84(%ebp)
+	movl	4(%ebx), %eax
+	movl	%edx, %esi
+	addl	%edx, %eax
+	leal	-1(%eax), %ecx
+	movl	%ecx, %eax
+	cltd
+	idivl	%esi
+	popl	%edx
+	movl	%eax, -88(%ebp)
+	cmpl	%eax, %edi
+	jge	L374
+L372:
+	xorl	%esi, %esi
+	cmpl	-84(%ebp), %esi
+	jl	L371
+L376:
+	incl	%edi
+	cmpl	-88(%ebp), %edi
+	jl	L372
+L374:
+	leal	-12(%ebp), %esp
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	ret
+L371:
+	leal	-76(%ebp), %eax
+	incl	-80(%ebp)
+	pushl	%eax
+	pushl	%ebx
+	call	_jpeg_decode_mcu
+	movl	16(%ebp), %eax
+	andl	$32767, %eax
+	pushl	%eax
+	pushl	12(%ebp)
+	pushl	%edi
+	pushl	%esi
+	pushl	%ebx
+	call	_jpeg_decode_yuv
+	addl	$28, %esp
+	movl	164(%ebx), %eax
+	testl	%eax, %eax
+	jle	L368
+	cmpl	%eax, -80(%ebp)
+	jl	L368
+	movl	23532(%ebx), %eax
+	andl	$-8, %eax
+	subl	$8, %eax
+	movl	%eax, 23532(%ebx)
+	movl	$0, 16568(%ebx)
+	movl	$0, 16572(%ebx)
+	movl	$0, 16576(%ebx)
+	movl	$0, -80(%ebp)
+L368:
+	incl	%esi
+	cmpl	-84(%ebp), %esi
+	jl	L371
+	jmp	L376
+	.def	_jpeg_decode;	.scl	2;	.type	32;	.endef
+	.def	_jpeg_idct_init;	.scl	2;	.type	32;	.endef
+	.def	_jpeg_init;	.scl	2;	.type	32;	.endef

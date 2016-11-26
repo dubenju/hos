@@ -1,0 +1,16 @@
+ar_signature=[!<arch>
+].
+ar_fh=[/               0                       0       22        `
+].
+filesizebyte=22.
+ar_fh=[/               0                       0       28        `
+].
+filesizebyte=28.
+ar_fh=[//              0                       0       0         `
+].
+filesizebyte=0.
+ar_fh=[startup.obj/    0                       0       366       `
+].
+filesizebyte=366.
+0 < 60.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ END.

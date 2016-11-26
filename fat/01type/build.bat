@@ -1,1 +1,1 @@
-C:\prj\tools\gnumake3.81.exe
+C:\prj\tools\gnumake3.81.exe %1

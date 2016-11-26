@@ -2,193 +2,266 @@
      2                                  
      3 00000000 EB3C                                                JMP SHORT VBR_START        ; 跳过数BPB
      4 00000002 90                                                  NOP
-     5 00000003 00<rept>                                            TIMES 59 DB 0
-     6                                  VBR_START:
-     7 0000003E FA                                                  CLI
-     8 0000003F 31C0                                                XOR  AX,AX
-     9 00000041 8ED0                                                MOV  SS,AX
-    10 00000043 BC007C                                              MOV  SP,7C00H              ; 初始化堆栈
-    11 00000046 16                                                  PUSH SS
-    12 00000047 07                                                  POP  ES
-    13 00000048 BB7800                                              MOV  BX,0078H              ; 1EH 号中断向量的地址为0000:0078H;指向磁盘驱动器参数表指针
-    14 0000004B 36C537                                              LDS  SI,[SS:BX]             ; 0000:0078H
-    15 0000004E 1E                                                  PUSH DS
-    16 0000004F 56                                                  PUSH SI
-    17 00000050 16                                                  PUSH SS
-    18 00000051 53                                                  PUSH BX
-    19 00000052 BF3E7C                                              MOV  DI,7C3EH              ; VBR_START
-    20 00000055 B90B00                                              MOV  CX,000BH              ; 11字节
-    21 00000058 FC                                                  CLD
-    22 00000059 F3A4                                                REP  MOVSB                  ; DS:SI-11->ES:DI(0000:7C3E)
-    23 0000005B 06                                                  PUSH ES
-    24 0000005C 1F                                                  POP  DS                    ; DS=ES
-    25 0000005D C645FE0F                                            MOV  BYTE [DI-02H],0FH     ; 
-    26 00000061 8B0E187C                                            MOV  CX,[7C18H]
-    27 00000065 884DF9                                              MOV  [DI-07H],CL
-    28 00000068 894702                                              MOV  [BX+02H],AX            ; (AX)=0000H,修改1EH号中断向量(段址)
-    29 0000006B C7073E7C                                            MOV  WORD [BX],7C3EH       ; 修改1EH号中断向量(偏移),这样1EH号中断向量的内容为0000:7C3EH,指向新的磁盘参数表
-    30 0000006F FB                                                  STI
-    31                                  ;功能00H 功能描述： 磁盘系统复位
-    32                                  ;AH＝00H DL＝驱动器，00H~7FH：软盘；80H~0FFH：硬盘
-    33                                  ;CF＝0——操作成功，AH＝00H，否则，AH＝状态代码，参见功能号01H中的说明
-    34 00000070 CD13                                                INT 13H                   ; 用新的磁盘参数表来复位磁盘
-    35 00000072 7279                                                JC DSP_MSG            ; 出错则转出错处理
-    36                                  ;------------------------------------------------------;----------------
-    37 00000074 31C0                                                XOR AX,AX
-    38 00000076 3906137C                                            CMP [7C13H],AX       ; BPB_ToSec16FAT32必须等于0，FAT12/FAT16为扇区总数。 
-    39 0000007A 7408                                                JZ LBL00000084
-    40 0000007C 8B0E137C                                            MOV CX,[7C13H]
-    41 00000080 890E207C                                            MOV [7C20H],CX       ; BPB_ToSec32
-    42                                  LBL00000084:
-    43 00000084 A0107C                                              MOV AL,  [7C10H]     ; FAT表个数
-    44 00000087 F726167C                                            MUL WORD [7C16H]     ; * FAT 表所占的扇区数
-    45 0000008B 03061C7C                                            ADD AX,  [7C1CH]     ; + 隐藏的扇区数L
-    46 0000008F 13161E7C                                            ADC DX,  [7C1EH]     ; + 隐藏的扇区数H
-    47 00000093 03060E7C                                            ADD AX,  [7C0EH]     ; + 保留扇区数L
-    48 00000097 83D200                                              ADC DX,BYTE + 00H     ; + 保留扇区数H
-    49 0000009A A3507C                                              MOV [7C50H],AX
-    50 0000009D 8916527C                                            MOV [7C52H],DX
-    51 000000A1 A3497C                                              MOV [7C49H],AX
-    52 000000A4 89164B7C                                            MOV [7C4BH],DX
-    53 000000A8 B82000                                              MOV AX,20H           ; 32字节
-    54 000000AB F726117C                                            MUL WORD [7C11H]     ; 根目录中目录的个数
-    55 000000AF 8B1E0B7C                                            MOV BX,[7C0BH]       ; 每扇区字节数
-    56 000000B3 01D8                                                ADD AX,BX             ; 
-    57 000000B5 48                                                  DEC AX                ; ( 32 * n + 511 ) / 512
-    58 000000B6 F7F3                                                DIV BX                ; 根目录所占扇区数
-    59 000000B8 0106497C                                            ADD [7C49H],AX              ;
-    60 000000BC 83164B7C00                                          ADC WORD [7C4BH],BYTE + 00H ;
-    61 000000C1 BB0005                                              MOV BX,500H
-    62 000000C4 8B16527C                                            MOV DX,[7C52H]
-    63 000000C8 A1507C                                              MOV AX,[7C50H]
-    64 000000CB E89200                                              CALL WORD LBL00000160
-    65 000000CE 721D                                                JC DSP_MSG
-    66                                  ;
-    67 000000D0 B001                                                MOV AL,01H
-    68 000000D2 E8AC00                                              CALL WORD LBL00000181
-    69 000000D5 7216                                                JC DSP_MSG
-    70                                  ;
-    71 000000D7 89DF                                                MOV DI,BX
-    72 000000D9 B90B00                                              MOV CX,000BH
-    73 000000DC BEE67D                                              MOV SI,7DE6H         ; 1E6:IO      SYS
-    74 000000DF F3A6                                                REPE CMPSB
-    75 000000E1 750A                                                JNZ DSP_MSG
-    76                                  ;
-    77 000000E3 8D7F20                                              LEA DI,[BX+20H]       ; NEXT:MSDOS   SYS
-    78 000000E6 B90B00                                              MOV CX,0BH
-    79 000000E9 F3A6                                                REPE CMPSB
-    80 000000EB 7418                                                JZ LBL00000105
-    81                                  DSP_MSG:
-    82 000000ED BE[9E01]                                            MOV SI,MSG1           ; MSG
-    83 000000F0 E85F00                                              CALL WORD LBL00000152
-    84 000000F3 31C0                                                XOR AX,AX
-    85 000000F5 CD16                                                INT 16H
-    86 000000F7 5E                                                  POP SI
-    87 000000F8 1F                                                  POP DS
-    88 000000F9 8F04                                                POP WORD [SI]
-    89 000000FB 8F4402                                              POP WORD [SI+02H]
-    90 000000FE CD19                                                INT 19H
-    91                                  LBL00000100:
-    92 00000100 58                                                  POP AX
-    93 00000101 58                                                  POP AX
-    94 00000102 58                                                  POP AX
-    95 00000103 EBE8                                                JMP SHORT DSP_MSG
-    96                                  
-    97                                  LBL00000105:
-    98 00000105 8B471A                                              MOV AX,[BX+1AH]
-    99 00000108 48                                                  DEC AX
-   100 00000109 48                                                  DEC AX
-   101 0000010A 8A1E0D7C                                            MOV BL,[7C0DH]
-   102 0000010E 30FF                                                XOR BH,BH
-   103 00000110 F7E3                                                MUL BX
-   104 00000112 0306497C                                            ADD AX,[7C49H]
-   105 00000116 13164B7C                                            ADC DX,[7C4BH]
-   106 0000011A BB0007                                              MOV BX,0700H
-   107 0000011D B90300                                              MOV CX,0003H
-   108                                  LBL00000120:
-   109 00000120 50                                                  PUSH AX
-   110 00000121 52                                                  PUSH DX
-   111 00000122 51                                                  PUSH CX
-   112 00000123 E83A00                                              CALL WORD LBL00000160
-   113 00000126 72D8                                                JC LBL00000100
-   114                                  
-   115 00000128 B001                                                MOV AL,01H
-   116 0000012A E85400                                              CALL WORD LBL00000181
-   117 0000012D 59                                                  POP CX
-   118 0000012E 5A                                                  POP DX
-   119 0000012F 58                                                  POP AX
-   120 00000130 72BB                                                JC DSP_MSG
-   121                                  
-   122 00000132 83C001                                              ADD AX, 0001H
-   123 00000135 83D200                                              ADC DX,BYTE + 00H
-   124 00000138 031E0B7C                                            ADD BX,[7C0BH]
-   125 0000013C E2E2                                                LOOP LBL00000120
-   126 0000013E 8A2E157C                                            MOV CH,[7C15H]
-   127 00000142 8A16247C                                            MOV DL,[7C24H]
-   128 00000146 8B1E497C                                            MOV BX,[7C49H]
-   129 0000014A A14B7C                                              MOV AX,[7C4BH]
-   130 0000014D EA00007000                                          JMP WORD 0070H:0000H
-   131                                  
-   132                                  LBL00000152:
-   133 00000152 AC                                                  LODSB
-   134 00000153 08C0                                                OR AL,AL
-   135 00000155 7429                                                JZ LBL00000180
-   136 00000157 B40E                                                MOV AH,0EH
-   137 00000159 BB0700                                              MOV BX,07H
-   138 0000015C CD10                                                INT 10H
-   139 0000015E EBF2                                                JMP SHORT LBL00000152
-   140                                  
-   141                                  LBL00000160:
-   142                                  ;将逻辑扇区号转换为物理扇区号的子程序
-   143 00000160 3B16187C                                            CMP DX,[7C18H]       ; 每磁道扇区数
-   144 00000164 7319                                                JNC LBL0000017F
-   145 00000166 F736187C                                            DIV WORD [7C18H]
-   146 0000016A FEC2                                                INC DL
-   147 0000016C 88164F7C                                            MOV [7C4FH],DL
-   148 00000170 31D2                                                XOR DX,DX
-   149 00000172 F7361A7C                                            DIV WORD [7C1AH]     ; 磁头数
-   150 00000176 8816257C                                            MOV [7C25H],DL
-   151 0000017A A34D7C                                              MOV [7C4DH],AX
-   152 0000017D F8                                                  CLC                   ; OK
-   153 0000017E C3                                                  RET
-   154                                  LBL0000017F:
-   155 0000017F F9                                                  STC                   ; NG
-   156                                  LBL00000180:
-   157 00000180 C3                                                  RET
-   158                                  
-   159                                  LBL00000181:
-   160                                  ;读一个扇区的子程序
-   161                                  ; AH 02
-   162 00000181 B402                                                MOV AH,02H           ;(AL)=要读的扇区数
-   163 00000183 8B164D7C                                            MOV DX,[07C4DH]       
-   164 00000187 B106                                                MOV CL,06H
-   165 00000189 D2E6                                                SHL DH,CL             
-   166 0000018B 0A364F7C                                            OR  DH,[7C4FH]       
-   167 0000018F 89D1                                                MOV CX,DX             ;(CH)=磁道号
-   168 00000191 86E9                                                XCHG CH,CL            ;(CL)=扇区号(第6,7位为磁道号的高2位)
-   169 00000193 8A16247C                                            MOV DL,[7C24H]       ;(DL)=驱动器号
-   170 00000197 8A36257C                                            MOV DH,[7C25H]       ;(DH)=面号 
-   171 0000019B CD13                                                INT 13H              ;(ES:BX)=缓冲区首址
-   172 0000019D C3                                                  RET
-   173                                  ;
-   174                                  ;                            times 96 DB 0
-   175                                  
-   176 0000019E 0D0A4E6F6E2D537973-     MSG1     DB 0DH,0AH,'Non-System disk or disk error'
-   177 000001A7 74656D206469736B20-
-   178 000001B0 6F72206469736B2065-
-   179 000001B9 72726F72           
-   180 000001BD 0D0A5265706C616365-              DB 0DH,0AH,'Replace and press any key when ready'
-   181 000001C6 20616E642070726573-
-   182 000001CF 7320616E79206B6579-
-   183 000001D8 207768656E20726561-
-   184 000001E1 6479               
-   185 000001E3 0D0A00                           DB 0DH,0AH,00H
-   186                                  
-   187 000001E6 445542454E4A552053-     FILE1 DB 'DUBENJU SYSMSDOS   SYS'
-   188 000001EF 59534D53444F532020-
-   189 000001F8 20535953           
-   190                                  
-   191 000001FC 00<rept>                                            times 2 DB 0
-   192                                  
-   193 000001FE 55                      DB 55H
-   194 000001FF AA                      DB 0AAH
+     5                                  ;                            TIMES 59 DB 0
+     6 00000003 4D53444F53352E30        bsOEM_NAME            DB      'MSDOS5.0'      ; 8 bytes
+     7 0000000B 0000                    bsBYTES_PER_SECTOR    DW      00h             ; 2
+     8 0000000D 00                      bsSECTORS_PER_CLUSTER DB      00h             ; 1
+     9 0000000E 0000                    bsRESERVED_SECTORS    DW      00h             ; 2
+    10 00000010 00                      bsFAT_COPIES          DB      00h             ; 1
+    11 00000011 0000                    bsROOT_DIR_ENTRIES    DW      00h             ; 2
+    12 00000013 0000                    bsTOTAL_DISK_SECTORS  DW      00h             ; 2
+    13 00000015 00                      bsMEDIA_DESCRIPTOR    DB      00h             ; 1
+    14 00000016 0000                    bsSECTORS_PER_FAT     DW      00h             ; 2
+    15 00000018 0000                    bsSECTORS_PER_TRACK   DW      00h             ; 2
+    16 0000001A 0000                    bsSIDES               DW      00h             ; 2
+    17 0000001C 0000                    bsHIDDEN_SECTORS_HIGH DW      00h             ; 2
+    18 0000001E 0000                    bsHIDDEN_SECTORS_LOW  DW      00h             ; 2
+    19 00000020 00000000                bsTOTAL_NUM_SECTORS   DD      00h             ; 4
+    20 00000024 00                      bsPHYS_DRIVE_NUMBER_1 DB      00h             ; 1
+    21 00000025 00                      bsPHYS_DRIVE_NUMBER_2 DB      00h             ; 1
+    22 00000026 29                      bsBOOT_RECORD_SIG     DB      29h             ; 1
+    23 00000027 00A8611F                bsVOL_SERIAL_NUM      DD      1F61A800h       ; 4
+    24 0000002B 4E4F204E414D452020-     bsVOLUME_LABEL        DB      'NO NAME    '   ; 11 bytes
+    25 00000034 2020               
+    26 00000036 4641543136202020        bsFILE_SYSTEM_ID      DB      'FAT16   '      ;  8 bytes
+    27                                  ;[========================================================================]
+    28                                  ;    Disk Parameter Block
+    29                                  ;
+    30                                  ;     The DPB is located in the ROM BIOS at the address pointed to by 0078h.
+    31                                  ;     The 11 bytes starting from START are overwritten at COPY_DPB with the
+    32                                  ;     DPB (7C3E-7C48).  This is what the area looks like *after* the copy
+    33                                  ;     at COPY_DPB:
+    34                                  ;[========================================================================]
+    35                                  ;dpbCONTROL_TIMERS     DW      00h ; 2
+    36                                  ;dpbMOTOR_OFF_DELAY    DB      00h ; 1
+    37                                  ;dpbBYTES_PER_SECTOR   DB      00h ; 1
+    38                                  ;dpbSECTORS_PER_TRACK  DB      00h ; 1
+    39                                  ;dpbGAP_LENGTH         DB      00h ; 1
+    40                                  ;dpbDATA_LENGTH        DB      00h ; 1
+    41                                  ;dpbFORMAT_GAP_LENGTH  DB      00h ; 1
+    42                                  ;dpbFORMAT_FILLER_BYTE DB      00h ; 1
+    43                                  ;dpbHEAD_SETTLE_TIME   DB      00h ; 1
+    44                                  ;dpbMOTOR_START_TIME   DB      00h ; 1
+    45                                  ;[========================================================================]
+    46                                  ;     Following the copy of the DPB, more information is copied over
+    47                                  ;     previously existing code:
+    48                                  ;[========================================================================]
+    49                                  ;cpbsHIDDEN_SECTORS_HIGH DW      00h
+    50                                  ;cpbsHIDDEN_SECTORS_LOW  DW      00h
+    51                                  ;
+    52                                  ;                        DB      00h
+    53                                  ;                        DB      00h
+    54                                  ;                        DB      00h
+    55                                  ;
+    56                                  ;cpbsHIDDEN_SECTORS_HIGH DW      00h
+    57                                  ;cpbsHIDDEN_SECTORS_LOW  DW      00h
+    58                                  ;[========================================================================]
+    59                                  ;     Here is the start of the boot sector code.  Note that the first 11
+    60                                  ;     bytes will be destroyed later on as described above.
+    61                                  ;[========================================================================]
+    62                                  VBR_START:
+    63 0000003E FA                                                  CLI                        ; Disable interrupts
+    64 0000003F 31C0                                                XOR  AX,AX                 ; AX=0000
+    65 00000041 8ED0                                                MOV  SS,AX                 ; SS=0000
+    66 00000043 BC007C                                              MOV  SP,7C00H              ; 初始化堆栈; SP grows in decrements
+    67 00000046 16                                                  PUSH SS
+    68 00000047 07                                                  POP  ES                    ; ES=0000
+    69 00000048 BB7800                                              MOV  BX,0078H              ; 1EH 号中断向量的地址为0000:0078H;指向磁盘驱动器参数表指针
+    70                                                                                         ; The address of the ROM BIOS disk table is 78h. (INT 18h).  ROM routine copies this address during cold boot initialization.
+    71 0000004B 36C537                                              LDS  SI,[SS:BX]            ; 0000:0078H SI points to ROMBIOS table The source for the copy
+    72 0000004E 1E                                                  PUSH DS
+    73 0000004F 56                                                  PUSH SI
+    74 00000050 16                                                  PUSH SS
+    75 00000051 53                                                  PUSH BX
+    76 00000052 BF[3E00]                                            MOV  DI,VBR_START          ; VBR_START ; Address of destination
+    77 00000055 B90B00                                              MOV  CX,000BH              ; 11字节 ; Size of area to copy (Disk parameters) Set direction flag to inc Move 11 bytes from the disk parameter area to overlap with the start  of the code 
+    78 00000058 FC                                                  CLD
+    79 00000059 F3A4                                                REP  MOVSB                 ; DS:SI-11->ES:DI(0000:7C3E)
+    80 0000005B 06                                                  PUSH ES
+    81 0000005C 1F                                                  POP  DS                    ; DS=ES ; DS=0000
+    82 0000005D C645FE0F                                            MOV  BYTE [DI-02H],0FH     ; At this point, DI points  to 7C49, one byte after  the last thing copied.  Destination operand is  dpbHEAD_SETTLE_TIME.
+    83 00000061 8B0E[1800]                                          MOV  CX,[bsSECTORS_PER_TRACK]
+    84 00000065 884DF9                                              MOV  [DI-07H],CL           ; Destination operand is dpbSECTORS_PER_TRACK.
+    85 00000068 894702                                              MOV  [BX+02H],AX           ; (AX)=0000H,修改1EH号中断向量(段址) ; Destination operand is  dpbMOTOR_OFF_DELAY.
+    86 0000006B C707[3E00]                                          MOV  WORD [BX],VBR_START   ; 修改1EH号中断向量(偏移),这样1EH号中断向量的内容为0000:7C3EH,指向新的磁盘参数表
+    87                                                                                         ; The code at 7C6B installs the new Int 1E into the interrupt table at 0000:0078. At 7C68, AX is 0. START is the offset for the new INT 1E.
+    88 0000006F FB                                                  STI
+    89                                  ;功能00H 功能描述： 磁盘系统复位
+    90                                  ;AH＝00H DL＝驱动器，00H~7FH：软盘；80H~0FFH：硬盘
+    91                                  ;CF＝0——操作成功，AH＝00H，否则，AH＝状态代码，参见功能号01H中的说明
+    92 00000070 CD13                                                INT 13H                    ; 用新的磁盘参数表来复位磁盘; Reset drives (AX=0000)
+    93 00000072 7279                                                JC DSP_MSG                 ; 出错则转出错处理
+    94                                  ;------------------------------------------------------;----------------
+    95 00000074 31C0                                                XOR AX,AX
+    96 00000076 3906[1300]                                          CMP [bsTOTAL_DISK_SECTORS],AX ; BPB_ToSec16FAT32必须等于0，FAT12/FAT16为扇区总数。 
+    97 0000007A 7408                                                JZ LBL00000084
+    98 0000007C 8B0E[1300]                                          MOV CX,[bsTOTAL_DISK_SECTORS]
+    99 00000080 890E[2000]                                          MOV [bsTOTAL_NUM_SECTORS],CX             ; BPB_ToSec32
+   100                                  LBL00000084:
+   101 00000084 A0[1000]                                            MOV AL,  [bsFAT_COPIES]     ; FAT表个数
+   102 00000087 F726[1600]                                          MUL WORD [bsSECTORS_PER_FAT]     ; * FAT 表所占的扇区数
+   103 0000008B 0306[1C00]                                          ADD AX,  [bsHIDDEN_SECTORS_HIGH]    ; + 隐藏的扇区数L
+   104 0000008F 1316[1E00]                                          ADC DX,  [bsHIDDEN_SECTORS_LOW]   ; + 隐藏的扇区数H
+   105 00000093 0306[0E00]                                          ADD AX,  [bsRESERVED_SECTORS]    ; + 保留扇区数L
+   106 00000097 83D200                                              ADC DX,BYTE +00H     ; + 保留扇区数H
+   107 0000009A A3507C                                              MOV [7C50H],AX
+   108 0000009D 8916527C                                            MOV [7C52H],DX
+   109 000000A1 A3497C                                              MOV [7C49H],AX
+   110 000000A4 89164B7C                                            MOV [7C4BH],DX
+   111 000000A8 B82000                                              MOV AX,20H           ; 32字节
+   112 000000AB F726[1100]                                          MUL WORD [bsROOT_DIR_ENTRIES]     ; 根目录中目录的个数
+   113 000000AF 8B1E[0B00]                                          MOV BX,[bsBYTES_PER_SECTOR]       ; 每扇区字节数
+   114 000000B3 01D8                                                ADD AX,BX             ; 
+   115 000000B5 48                                                  DEC AX                ; ( 32 * n + 511 ) / 512
+   116 000000B6 F7F3                                                DIV BX                ; 根目录所占扇区数
+   117 000000B8 0106497C                                            ADD [7C49H],AX              ;
+   118 000000BC 83164B7C00                                          ADC WORD [7C4BH],BYTE + 00H ;
+   119 000000C1 BB0005                                              MOV BX,500H
+   120 000000C4 8B16527C                                            MOV DX,[7C52H]
+   121 000000C8 A1507C                                              MOV AX,[7C50H]
+   122 000000CB E89200                                              CALL WORD LBL00000160
+   123 000000CE 721D                                                JC DSP_MSG
+   124                                  ;
+   125 000000D0 B001                                                MOV AL,01H
+   126 000000D2 E8AC00                                              CALL WORD LBL00000181
+   127 000000D5 7216                                                JC DSP_MSG ; Error?  Print message and reboot.
+   128                                  ;
+   129 000000D7 89DF                                                MOV DI,BX
+   130 000000D9 B90B00                                              MOV CX,000BH ; 11 characters in DOS filename.
+   131 000000DC BEE67D                                              MOV SI,7DE6H         ; 1E6:IO      SYS
+   132 000000DF F3A6                                                REPE CMPSB
+   133 000000E1 750A                                                JNZ DSP_MSG ; First file in root dir is not IO.SYS?  Print error.
+   134                                  ;
+   135 000000E3 8D7F20                                              LEA DI,[BX+20H]       ; NEXT:MSDOS   SYS
+   136 000000E6 B90B00                                              MOV CX,0BH ; 11 characters in DOS filename.
+   137 000000E9 F3A6                                                REPE CMPSB ; Is second file in root MSDOS.SYS?
+   138 000000EB 7418                                                JZ LBL00000105; Yes?  Then continue on.
+   139                                  DSP_MSG:
+   140 000000ED BE[9E01]                                            MOV SI,MSG1           ; MSG
+   141 000000F0 E85F00                                              CALL WORD LBL00000152
+   142 000000F3 31C0                                                XOR AX,AX
+   143 000000F5 CD16                                                INT 16H
+   144 000000F7 5E                                                  POP SI
+   145 000000F8 1F                                                  POP DS
+   146 000000F9 8F04                                                POP WORD [SI]
+   147 000000FB 8F4402                                              POP WORD [SI+02H]
+   148 000000FE CD19                                                INT 19H
+   149                                  LBL00000100:
+   150 00000100 58                                                  POP AX
+   151 00000101 58                                                  POP AX
+   152 00000102 58                                                  POP AX
+   153 00000103 EBE8                                                JMP SHORT DSP_MSG
+   154                                  
+   155                                  LBL00000105:
+   156 00000105 8B471A                                              MOV AX,[BX+1AH]
+   157 00000108 48                                                  DEC AX
+   158 00000109 48                                                  DEC AX
+   159 0000010A 8A1E0D7C                                            MOV BL,[7C0DH]
+   160 0000010E 30FF                                                XOR BH,BH
+   161 00000110 F7E3                                                MUL BX
+   162 00000112 0306497C                                            ADD AX,[7C49H]
+   163 00000116 13164B7C                                            ADC DX,[7C4BH]
+   164 0000011A BB0007                                              MOV BX,0700H; DOS loading buffer
+   165 0000011D B90300                                              MOV CX,0003H
+   166                                  LBL00000120:
+   167 00000120 50                                                  PUSH AX
+   168 00000121 52                                                  PUSH DX
+   169 00000122 51                                                  PUSH CX
+   170 00000123 E83A00                                              CALL WORD LBL00000160
+   171 00000126 72D8                                                JC LBL00000100
+   172                                  
+   173 00000128 B001                                                MOV AL,01H
+   174 0000012A E85400                                              CALL WORD LBL00000181
+   175 0000012D 59                                                  POP CX
+   176 0000012E 5A                                                  POP DX
+   177 0000012F 58                                                  POP AX
+   178 00000130 72BB                                                JC DSP_MSG
+   179                                  
+   180 00000132 83C001                                              ADD AX, 0001H
+   181 00000135 83D200                                              ADC DX,BYTE + 00H
+   182 00000138 031E0B7C                                            ADD BX,[7C0BH]
+   183 0000013C E2E2                                                LOOP LBL00000120
+   184 0000013E 8A2E157C                                            MOV CH,[7C15H]
+   185 00000142 8A16247C                                            MOV DL,[7C24H]
+   186 00000146 8B1E497C                                            MOV BX,[7C49H]
+   187 0000014A A14B7C                                              MOV AX,[7C4BH]
+   188 0000014D EA00007000                                          JMP WORD 0070H:0000H ; Transfer to ROM BIOS
+   189                                  
+   190                                  ;[========================================================================]
+   191                                  ;     Procedure     WRITE_STRING
+   192                                  ;[========================================================================]
+   193                                  ;     Parameters:
+   194                                  ;                   SI:  Address of string to write
+   195                                  
+   196                                  LBL00000152:
+   197 00000152 AC                                                  LODSB
+   198 00000153 08C0                                                OR AL,AL
+   199 00000155 7429                                                JZ LBL00000180
+   200 00000157 B40E                                                MOV AH,0EH
+   201 00000159 BB0700                                              MOV BX,07H
+   202 0000015C CD10                                                INT 10H
+   203 0000015E EBF2                                                JMP SHORT LBL00000152
+   204                                  
+   205                                  ;[========================================================================]
+   206                                  ;     Procedure     CALCULATE
+   207                                  ;
+   208                                  ;     This procedure probably translates the sector numbers into physical
+   209                                  ;     addresses for the low level BIOS functions.
+   210                                  ;[========================================================================]
+   211                                  LBL00000160:
+   212                                  ;将逻辑扇区号转换为物理扇区号的子程序
+   213 00000160 3B16187C                                            CMP DX,[7C18H]       ; 每磁道扇区数
+   214 00000164 7319                                                JNC LBL0000017F
+   215 00000166 F736187C                                            DIV WORD [7C18H]
+   216 0000016A FEC2                                                INC DL
+   217 0000016C 88164F7C                                            MOV [7C4FH],DL
+   218 00000170 31D2                                                XOR DX,DX
+   219 00000172 F7361A7C                                            DIV WORD [7C1AH]     ; 磁头数
+   220 00000176 8816257C                                            MOV [7C25H],DL
+   221 0000017A A34D7C                                              MOV [7C4DH],AX
+   222 0000017D F8                                                  CLC                   ; OK
+   223 0000017E C3                                                  RET
+   224                                  LBL0000017F:
+   225 0000017F F9                                                  STC                   ; NG
+   226                                  LBL00000180:
+   227 00000180 C3                                                  RET
+   228                                  
+   229                                  ;[========================================================================]
+   230                                  ;     Procedure     READ_SECTOR
+   231                                  ;[========================================================================]
+   232                                  LBL00000181:
+   233                                  ;读一个扇区的子程序
+   234                                  ; AH 02
+   235 00000181 B402                                                MOV  AH,02H           ;(AL)=要读的扇区数
+   236 00000183 8B164D7C                                            MOV  DX,[07C4DH]       
+   237 00000187 B106                                                MOV  CL,06H
+   238 00000189 D2E6                                                SHL  DH,CL             
+   239 0000018B 0A364F7C                                            OR   DH,[7C4FH]       
+   240 0000018F 89D1                                                MOV  CX,DX             ;(CH)=磁道号
+   241 00000191 86E9                                                XCHG CH,CL            ;(CL)=扇区号(第6,7位为磁道号的高2位)
+   242 00000193 8A16247C                                            MOV  DL,[7C24H]       ;(DL)=驱动器号
+   243 00000197 8A36257C                                            MOV  DH,[7C25H]       ;(DH)=面号 
+   244 0000019B CD13                                                INT  13H              ;(ES:BX)=缓冲区首址
+   245 0000019D C3                                                  RET
+   246                                  ;
+   247                                  ;                            times 96 DB 0
+   248                                  
+   249 0000019E 0D0A4E6F6E2D537973-     MSG1     DB 0DH,0AH,'Non-System disk or disk error'
+   250 000001A7 74656D206469736B20-
+   251 000001B0 6F72206469736B2065-
+   252 000001B9 72726F72           
+   253 000001BD 0D0A5265706C616365-              DB 0DH,0AH,'Replace and press any key when ready'
+   254 000001C6 20616E642070726573-
+   255 000001CF 7320616E79206B6579-
+   256 000001D8 207768656E20726561-
+   257 000001E1 6479               
+   258 000001E3 0D0A00                           DB 0DH,0AH,00H
+   259                                  
+   260 000001E6 445542454E4A552053-     FILE1 DB 'DUBENJU SYSMSDOS   SYS'
+   261 000001EF 59534D53444F532020-
+   262 000001F8 20535953           
+   263                                  
+   264 000001FC 00<rept>                                            times 2 DB 0
+   265                                  
+   266 000001FE 55                      DB 55H
+   267 000001FF AA                      DB 0AAH

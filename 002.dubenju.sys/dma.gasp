@@ -1,0 +1,370 @@
+	.file	"dma.c"
+	.text
+	.balign 2
+.globl _dma_reset
+	.def	_dma_reset;	.scl	2;	.type	32;	.endef
+_dma_reset:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	$255
+	pushl	$13
+	call	_io_out8
+	leave
+	ret
+	.balign 2
+.globl _dma_mask_channel
+	.def	_dma_mask_channel;	.scl	2;	.type	32;	.endef
+_dma_mask_channel:
+	pushl	%ebp
+	movl	%esp, %ebp
+	movb	8(%ebp), %al
+	cmpb	$4, %al
+	ja	L3
+	movzbl	%al, %ecx
+	decl	%ecx
+	movl	$1, %eax
+	sall	%cl, %eax
+	pushl	%eax
+	pushl	$10
+L5:
+	call	_io_out8
+	popl	%eax
+	popl	%edx
+	leave
+	ret
+L3:
+	movzbl	%al, %ecx
+	subl	$5, %ecx
+	movl	$1, %eax
+	sall	%cl, %eax
+	pushl	%eax
+	pushl	$212
+	jmp	L5
+	.balign 2
+.globl _dma_unmask_channel
+	.def	_dma_unmask_channel;	.scl	2;	.type	32;	.endef
+_dma_unmask_channel:
+	pushl	%ebp
+	movl	%esp, %ebp
+	movb	8(%ebp), %al
+	cmpb	$4, %al
+	ja	L7
+	movzbl	%al, %eax
+	pushl	%eax
+	pushl	$10
+L9:
+	call	_io_out8
+	popl	%ecx
+	popl	%eax
+	leave
+	ret
+L7:
+	movzbl	%al, %eax
+	pushl	%eax
+	pushl	$212
+	jmp	L9
+	.balign 2
+.globl _dma_reset_flipflop
+	.def	_dma_reset_flipflop;	.scl	2;	.type	32;	.endef
+_dma_reset_flipflop:
+	pushl	%ebp
+	movl	%esp, %ebp
+	movl	8(%ebp), %edx
+	cmpl	$1, %edx
+	jle	L10
+	pushl	$255
+	movl	$12, %eax
+	testl	%edx, %edx
+	je	L13
+	movl	$216, %eax
+L13:
+	pushl	%eax
+	call	_io_out8
+L10:
+	leave
+	ret
+	.balign 2
+.globl _dma_set_address
+	.def	_dma_set_address;	.scl	2;	.type	32;	.endef
+_dma_set_address:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%esi
+	pushl	%ebx
+	movb	8(%ebp), %dl
+	movb	12(%ebp), %al
+	movzbl	16(%ebp), %esi
+	cmpb	$8, %dl
+	ja	L14
+	movzbl	%dl, %edx
+	xorl	%ecx, %ecx
+	cmpl	$7, %edx
+	ja	L16
+	jmp	*L25(,%edx,4)
+	.data
+	.balign 4
+L25:
+	.long	L17
+	.long	L18
+	.long	L19
+	.long	L20
+	.long	L21
+	.long	L22
+	.long	L23
+	.long	L24
+	.text
+L17:
+	xorl	%ecx, %ecx
+L16:
+	movzbl	%al, %eax
+	movzwl	%cx, %ebx
+	pushl	%eax
+	pushl	%ebx
+	call	_io_out8
+	popl	%eax
+	popl	%edx
+	movl	%ebx, 8(%ebp)
+	movl	%esi, %edx
+	movzbl	%dl, %eax
+	movl	%eax, 12(%ebp)
+	leal	-8(%ebp), %esp
+	popl	%ebx
+	popl	%esi
+	popl	%ebp
+	jmp	_io_out8
+L18:
+	movl	$2, %ecx
+	jmp	L16
+L19:
+	movl	$4, %ecx
+	jmp	L16
+L20:
+	movl	$6, %ecx
+	jmp	L16
+L21:
+	movl	$192, %ecx
+	jmp	L16
+L22:
+	movl	$196, %ecx
+	jmp	L16
+L23:
+	movl	$200, %ecx
+	jmp	L16
+L24:
+	movl	$204, %ecx
+	jmp	L16
+L14:
+	leal	-8(%ebp), %esp
+	popl	%ebx
+	popl	%esi
+	popl	%ebp
+	ret
+	.balign 2
+.globl _dma_set_count
+	.def	_dma_set_count;	.scl	2;	.type	32;	.endef
+_dma_set_count:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%esi
+	pushl	%ebx
+	movb	8(%ebp), %dl
+	movb	12(%ebp), %al
+	movzbl	16(%ebp), %esi
+	cmpb	$8, %dl
+	ja	L27
+	movzbl	%dl, %edx
+	xorl	%ecx, %ecx
+	cmpl	$7, %edx
+	ja	L29
+	jmp	*L38(,%edx,4)
+	.data
+	.balign 4
+L38:
+	.long	L30
+	.long	L31
+	.long	L32
+	.long	L33
+	.long	L34
+	.long	L35
+	.long	L36
+	.long	L37
+	.text
+L30:
+	movl	$1, %ecx
+L29:
+	movzbl	%al, %eax
+	movzwl	%cx, %ebx
+	pushl	%eax
+	pushl	%ebx
+	call	_io_out8
+	movl	%esi, %edx
+	popl	%ecx
+	popl	%eax
+	movl	%ebx, 8(%ebp)
+	movzbl	%dl, %eax
+	movl	%eax, 12(%ebp)
+	leal	-8(%ebp), %esp
+	popl	%ebx
+	popl	%esi
+	popl	%ebp
+	jmp	_io_out8
+L31:
+	movl	$3, %ecx
+	jmp	L29
+L32:
+	movl	$5, %ecx
+	jmp	L29
+L33:
+	movl	$7, %ecx
+	jmp	L29
+L34:
+	movl	$194, %ecx
+	jmp	L29
+L35:
+	movl	$198, %ecx
+	jmp	L29
+L36:
+	movl	$202, %ecx
+	jmp	L29
+L37:
+	movl	$206, %ecx
+	jmp	L29
+L27:
+	leal	-8(%ebp), %esp
+	popl	%ebx
+	popl	%esi
+	popl	%ebp
+	ret
+	.balign 2
+.globl _dma_set_mode
+	.def	_dma_set_mode;	.scl	2;	.type	32;	.endef
+_dma_set_mode:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	pushl	%ebx
+	pushl	%eax
+	movb	8(%ebp), %al
+	movb	%al, -13(%ebp)
+	cmpb	$3, %al
+	seta	%al
+	movzbl	%al, %edi
+	movzbl	12(%ebp), %esi
+	movzbl	-13(%ebp), %ebx
+	testl	%edi, %edi
+	je	L41
+	subl	$4, %ebx
+L41:
+	movzbl	-13(%ebp), %eax
+	pushl	%eax
+	call	_dma_mask_channel
+	movl	%esi, %edx
+	movzbl	%dl, %eax
+	orl	%eax, %ebx
+	pushl	%ebx
+	cmpb	$4, -13(%ebp)
+	sbbl	%eax, %eax
+	andl	$-203, %eax
+	addl	$214, %eax
+	pushl	%eax
+	call	_io_out8
+	movl	%edi, 8(%ebp)
+	addl	$12, %esp
+	leal	-12(%ebp), %esp
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	jmp	_dma_unmask_all
+	.balign 2
+.globl _dma_set_read
+	.def	_dma_set_read;	.scl	2;	.type	32;	.endef
+_dma_set_read:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	$84
+	movzbl	8(%ebp), %eax
+	pushl	%eax
+	call	_dma_set_mode
+	leave
+	ret
+	.balign 2
+.globl _dma_set_write
+	.def	_dma_set_write;	.scl	2;	.type	32;	.endef
+_dma_set_write:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	$88
+	movzbl	8(%ebp), %eax
+	pushl	%eax
+	call	_dma_set_mode
+	leave
+	ret
+	.balign 2
+.globl _dma_set_external_page_register
+	.def	_dma_set_external_page_register;	.scl	2;	.type	32;	.endef
+_dma_set_external_page_register:
+	pushl	%ebp
+	movl	%esp, %ebp
+	movb	8(%ebp), %al
+	movb	12(%ebp), %cl
+	cmpb	$14, %al
+	ja	L48
+	movzbl	%al, %eax
+	decl	%eax
+	xorl	%edx, %edx
+	cmpl	$6, %eax
+	ja	L50
+	jmp	*L58(,%eax,4)
+	.data
+	.balign 4
+L58:
+	.long	L51
+	.long	L52
+	.long	L53
+	.long	L48
+	.long	L55
+	.long	L56
+	.long	L57
+	.text
+L51:
+	movl	$131, %edx
+L50:
+	movzbl	%cl, %eax
+	movl	%eax, 12(%ebp)
+	movzwl	%dx, %eax
+	movl	%eax, 8(%ebp)
+	popl	%ebp
+	jmp	_io_out8
+L52:
+	movl	$129, %edx
+	jmp	L50
+L53:
+	movl	$130, %edx
+	jmp	L50
+L48:
+	popl	%ebp
+	ret
+L55:
+	movl	$137, %edx
+	jmp	L50
+L56:
+	movl	$135, %edx
+	jmp	L50
+L57:
+	movl	$136, %edx
+	jmp	L50
+	.balign 2
+.globl _dma_unmask_all
+	.def	_dma_unmask_all;	.scl	2;	.type	32;	.endef
+_dma_unmask_all:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	$255
+	pushl	$220
+	call	_io_out8
+	leave
+	ret
+	.def	_dma_unmask_all;	.scl	2;	.type	32;	.endef
+	.def	_io_out8;	.scl	2;	.type	32;	.endef

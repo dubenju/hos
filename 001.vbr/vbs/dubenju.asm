@@ -1,4 +1,4 @@
-               org 0000H
+               org 0700H
                cpu 8086
 [BITS 16]
               section .data align=16
@@ -8,7 +8,7 @@ LBL_START:
                CLI
                XOR AX,AX
                MOV SS,AX
-               MOV SP,0X7C00
+               MOV SP,0X0700
                STI
                PUSH AX
                POP  ES
@@ -31,4 +31,4 @@ LBL_DSP:
 LBL_HANGU:
            jmp LBL_HANGU
 
-MSG1     DB 'Invalid partition table', 0
+MSG1     DB 'This is a test by dubenju.', 0

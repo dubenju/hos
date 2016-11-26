@@ -1,0 +1,293 @@
+	.file	"timer.c"
+	.data
+LC0:
+	.ascii "pit\0"
+	.text
+	.balign 2
+.globl _init_pit
+	.def	_init_pit;	.scl	2;	.type	32;	.endef
+_init_pit:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	$52
+	pushl	$67
+	call	_io_out8
+	pushl	$156
+	pushl	$64
+	call	_io_out8
+	pushl	$46
+	pushl	$64
+	call	_io_out8
+	movl	$_timerctl+17984, %edx
+	movl	$0, _timerctl
+	addl	$24, %esp
+	movl	$_timerctl+20, %eax
+L6:
+	movb	$0, (%eax)
+	addl	$36, %eax
+	cmpl	%edx, %eax
+	jle	L6
+	pushl	$LC0
+	call	_timer_alloc
+	movb	$2, 8(%eax)
+	movl	$-1, 4(%eax)
+	movl	$0, (%eax)
+	movl	%eax, _timerctl+8
+	movl	$-1, _timerctl+4
+	leave
+	ret
+	.data
+LC1:
+	.ascii "%-3sT%dinit\0"
+	.text
+	.balign 2
+.globl _timer_alloc
+	.def	_timer_alloc;	.scl	2;	.type	32;	.endef
+_timer_alloc:
+	pushl	%ebp
+	xorl	%edx, %edx
+	movl	%esp, %ebp
+	xorl	%eax, %eax
+	pushl	%ebx
+	movl	$_timerctl+12, %ebx
+L15:
+	cmpb	$0, 8(%ebx)
+	je	L18
+	incl	%edx
+	addl	$36, %ebx
+	addl	$36, %eax
+	cmpl	$499, %edx
+	jle	L15
+	xorl	%eax, %eax
+L9:
+	movl	-4(%ebp), %ebx
+	leave
+	ret
+L18:
+	pushl	%edx
+	addl	$_timerctl+32, %eax
+	pushl	8(%ebp)
+	pushl	$LC1
+	pushl	%eax
+	movb	$1, 8(%ebx)
+	movb	$0, 9(%ebx)
+	call	_sprintf
+	movl	%ebx, %eax
+	jmp	L9
+	.balign 2
+.globl _timer_free
+	.def	_timer_free;	.scl	2;	.type	32;	.endef
+_timer_free:
+	pushl	%ebp
+	movl	%esp, %ebp
+	movl	8(%ebp), %eax
+	movb	$0, 8(%eax)
+	movb	$0, 20(%eax)
+	popl	%ebp
+	ret
+	.balign 2
+.globl _timer_init
+	.def	_timer_init;	.scl	2;	.type	32;	.endef
+_timer_init:
+	pushl	%ebp
+	movl	%esp, %ebp
+	movl	8(%ebp), %eax
+	movl	12(%ebp), %edx
+	movl	%edx, 12(%eax)
+	movl	16(%ebp), %edx
+	movl	%edx, 16(%eax)
+	popl	%ebp
+	ret
+	.balign 2
+.globl _timer_settime
+	.def	_timer_settime;	.scl	2;	.type	32;	.endef
+_timer_settime:
+	pushl	%ebp
+	movl	_timerctl, %eax
+	movl	%esp, %ebp
+	pushl	%esi
+	pushl	%ebx
+	movl	8(%ebp), %ebx
+	addl	12(%ebp), %eax
+	movb	$2, 8(%ebx)
+	movl	%eax, 4(%ebx)
+	call	_io_load_eflags
+	movl	%eax, %esi
+	call	_io_cli
+	movl	_timerctl+8, %eax
+	movl	4(%ebx), %edx
+	cmpl	4(%eax), %edx
+	jbe	L28
+L23:
+	movl	%eax, %ecx
+	movl	(%eax), %eax
+	cmpl	4(%eax), %edx
+	ja	L23
+	movl	%ebx, (%ecx)
+	movl	%eax, (%ebx)
+L27:
+	movl	%esi, 8(%ebp)
+	popl	%ebx
+	popl	%esi
+	popl	%ebp
+	jmp	_io_store_eflags
+L28:
+	movl	%ebx, _timerctl+8
+	movl	%edx, _timerctl+4
+	movl	%eax, (%ebx)
+	jmp	L27
+	.balign 2
+.globl _inthandler20
+	.def	_inthandler20;	.scl	2;	.type	32;	.endef
+_inthandler20:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%esi
+	pushl	%ebx
+	xorl	%esi, %esi
+	pushl	$96
+	pushl	$32
+	call	_io_out8
+	movl	_timerctl, %eax
+	incl	%eax
+	movl	%eax, _timerctl
+	cmpl	%eax, _timerctl+4
+	popl	%ecx
+	popl	%ebx
+	ja	L29
+	movl	_timerctl+8, %ebx
+L31:
+	movl	4(%ebx), %eax
+	cmpl	_timerctl, %eax
+	ja	L32
+	movb	$1, 8(%ebx)
+	cmpl	_task_timer, %ebx
+	je	L35
+	pushl	16(%ebx)
+	pushl	12(%ebx)
+	call	_fifo32_put
+	popl	%eax
+	popl	%edx
+L36:
+	movl	(%ebx), %ebx
+	jmp	L31
+L35:
+	movl	$1, %esi
+	jmp	L36
+L32:
+	movl	%eax, _timerctl+4
+	movl	%ebx, _timerctl+8
+	movl	%esi, %eax
+	testb	%al, %al
+	jne	L38
+L29:
+	leal	-8(%ebp), %esp
+	popl	%ebx
+	popl	%esi
+	popl	%ebp
+	ret
+L38:
+	leal	-8(%ebp), %esp
+	popl	%ebx
+	popl	%esi
+	popl	%ebp
+	jmp	_task_switch
+	.balign 2
+.globl _timer_cancel
+	.def	_timer_cancel;	.scl	2;	.type	32;	.endef
+_timer_cancel:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%esi
+	pushl	%ebx
+	movl	8(%ebp), %ebx
+	call	_io_load_eflags
+	movl	%eax, %esi
+	call	_io_cli
+	cmpb	$2, 8(%ebx)
+	je	L47
+	pushl	%esi
+	call	_io_store_eflags
+	xorl	%eax, %eax
+L39:
+	leal	-8(%ebp), %esp
+	popl	%ebx
+	popl	%esi
+	popl	%ebp
+	ret
+L47:
+	movl	_timerctl+8, %eax
+	cmpl	%eax, %ebx
+	je	L48
+L41:
+	movl	%eax, %edx
+	movl	(%eax), %eax
+	cmpl	%ebx, %eax
+	jne	L41
+	movl	(%ebx), %eax
+	movl	%eax, (%edx)
+L42:
+	movb	$1, 8(%ebx)
+	pushl	%esi
+	call	_io_store_eflags
+	movl	$1, %eax
+	jmp	L39
+L48:
+	movl	(%ebx), %edx
+	movl	%edx, _timerctl+8
+	movl	4(%edx), %eax
+	movl	%eax, _timerctl+4
+	jmp	L42
+	.balign 2
+.globl _timer_cancelall
+	.def	_timer_cancelall;	.scl	2;	.type	32;	.endef
+_timer_cancelall:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	pushl	%ebx
+	movl	$_timerctl+12, %ebx
+	movl	8(%ebp), %edi
+	call	_io_load_eflags
+	movl	%eax, %esi
+	call	_io_cli
+L55:
+	cmpb	$0, 8(%ebx)
+	je	L52
+	cmpb	$0, 9(%ebx)
+	je	L52
+	cmpl	%edi, 12(%ebx)
+	je	L58
+L52:
+	addl	$36, %ebx
+	cmpl	$_timerctl+17976, %ebx
+	jle	L55
+	movl	%esi, 8(%ebp)
+	leal	-12(%ebp), %esp
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	jmp	_io_store_eflags
+L58:
+	pushl	%ebx
+	call	_timer_cancel
+	pushl	%ebx
+	call	_timer_free
+	popl	%eax
+	popl	%edx
+	jmp	L52
+.globl _timerctl
+	.data
+	.balign 16
+_timerctl:
+	.space 18012
+	.def	_task_switch;	.scl	2;	.type	32;	.endef
+	.def	_fifo32_put;	.scl	2;	.type	32;	.endef
+	.def	_io_store_eflags;	.scl	2;	.type	32;	.endef
+	.def	_io_cli;	.scl	2;	.type	32;	.endef
+	.def	_io_load_eflags;	.scl	2;	.type	32;	.endef
+	.def	_sprintf;	.scl	2;	.type	32;	.endef
+	.def	_timer_alloc;	.scl	2;	.type	32;	.endef
+	.def	_io_out8;	.scl	2;	.type	32;	.endef

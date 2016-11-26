@@ -1,0 +1,226 @@
+	.file	"sb16.c"
+	.text
+	.balign 2
+.globl _test_sb16
+	.def	_test_sb16;	.scl	2;	.type	32;	.endef
+_test_sb16:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%ebx
+	pushl	$1
+	xorl	%ebx, %ebx
+	pushl	$550
+	movw	$6, _CardID
+	movw	$544, _IOAddr
+	movw	$5, _SBIntr
+	movw	$1, _DMA
+	movw	$5, _HDMA
+	movw	$0, _MIDI
+	movw	$816, _Mixer
+	movw	$548, _MixerAddr
+	movw	$549, _MixerData
+	movw	$550, _DSPReset
+	movw	$554, _DSPRead
+	movw	$556, _DSPWrite
+	movw	$558, _DSPStatus
+	movw	$559, _DSPIntAck
+	call	_io_out8
+	pushl	$0
+	movswl	_DSPReset,%eax
+	pushl	%eax
+	call	_io_out8
+	call	_dsp_data_avail
+	addl	$16, %esp
+L7:
+	movswl	_DSPRead,%eax
+	pushl	%eax
+	call	_io_in8
+	popl	%edx
+	cmpl	$170, %eax
+	je	L10
+	incl	%ebx
+	cmpl	$999, %ebx
+	jle	L7
+	orl	$-1, %eax
+L1:
+	movl	-4(%ebp), %ebx
+	leave
+	ret
+L10:
+	call	_get_dsp_version
+	xorl	%eax, %eax
+	jmp	L1
+	.balign 2
+.globl _dsp_data_avail
+	.def	_dsp_data_avail;	.scl	2;	.type	32;	.endef
+_dsp_data_avail:
+	pushl	%ebp
+	movl	%esp, %ebp
+L12:
+	movswl	_DSPStatus,%eax
+	pushl	%eax
+	call	_io_in8
+	popl	%ecx
+	testb	%al, %al
+	jns	L12
+	leave
+	ret
+	.balign 2
+.globl _dsp_wait
+	.def	_dsp_wait;	.scl	2;	.type	32;	.endef
+_dsp_wait:
+	pushl	%ebp
+	movl	%esp, %ebp
+L17:
+	movswl	_DSPWrite,%eax
+	pushl	%eax
+	call	_io_in8
+	popl	%edx
+	testb	%al, %al
+	js	L17
+	leave
+	ret
+	.balign 2
+.globl _get_dsp_version
+	.def	_get_dsp_version;	.scl	2;	.type	32;	.endef
+_get_dsp_version:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%ecx
+	call	_dsp_wait
+	pushl	$225
+	movswl	_DSPWrite,%eax
+	pushl	%eax
+	call	_io_out8
+	call	_dsp_data_avail
+	leal	-1(%ebp), %eax
+	pushl	%eax
+	call	_read_dsp
+	leal	-2(%ebp), %eax
+	pushl	%eax
+	call	_read_dsp
+	movb	-1(%ebp), %al
+	movb	%al, _ver1
+	movb	-2(%ebp), %al
+	movb	%al, _ver2
+	leave
+	ret
+	.balign 2
+.globl _read_dsp
+	.def	_read_dsp;	.scl	2;	.type	32;	.endef
+_read_dsp:
+	pushl	%ebp
+	movl	%esp, %ebp
+	call	_dsp_data_avail
+	movswl	_DSPRead,%eax
+	pushl	%eax
+	call	_io_in8
+	movl	8(%ebp), %edx
+	movb	%al, (%edx)
+	leave
+	ret
+	.balign 2
+.globl _write_dsp
+	.def	_write_dsp;	.scl	2;	.type	32;	.endef
+_write_dsp:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%ebx
+	movb	8(%ebp), %bl
+	call	_dsp_wait
+	movzbl	%bl, %ebx
+	pushl	%ebx
+	movswl	_DSPWrite,%eax
+	pushl	%eax
+	call	_io_out8
+	movl	-4(%ebp), %ebx
+	leave
+	ret
+.globl _CardID
+	.data
+	.balign 2
+_CardID:
+	.space 2
+.globl _IOAddr
+	.data
+	.balign 2
+_IOAddr:
+	.space 2
+.globl _SBIntr
+	.data
+	.balign 2
+_SBIntr:
+	.space 2
+.globl _DMA
+	.data
+	.balign 2
+_DMA:
+	.space 2
+.globl _HDMA
+	.data
+	.balign 2
+_HDMA:
+	.space 2
+.globl _MIDI
+	.data
+	.balign 2
+_MIDI:
+	.space 2
+.globl _Mixer
+	.data
+	.balign 2
+_Mixer:
+	.space 2
+.globl _MixerAddr
+	.data
+	.balign 2
+_MixerAddr:
+	.space 2
+.globl _MixerData
+	.data
+	.balign 2
+_MixerData:
+	.space 2
+.globl _DSPReset
+	.data
+	.balign 2
+_DSPReset:
+	.space 2
+.globl _DSPRead
+	.data
+	.balign 2
+_DSPRead:
+	.space 2
+.globl _DSPWrite
+	.data
+	.balign 2
+_DSPWrite:
+	.space 2
+.globl _DSPStatus
+	.data
+	.balign 2
+_DSPStatus:
+	.space 2
+.globl _DSPIntAck
+	.data
+	.balign 2
+_DSPIntAck:
+	.space 2
+.globl _DSPVersionNum
+	.data
+	.balign 4
+_DSPVersionNum:
+	.space 4
+.globl _ver1
+	.data
+_ver1:
+	.space 1
+.globl _ver2
+	.data
+_ver2:
+	.space 1
+	.def	_read_dsp;	.scl	2;	.type	32;	.endef
+	.def	_get_dsp_version;	.scl	2;	.type	32;	.endef
+	.def	_io_in8;	.scl	2;	.type	32;	.endef
+	.def	_dsp_data_avail;	.scl	2;	.type	32;	.endef
+	.def	_io_out8;	.scl	2;	.type	32;	.endef

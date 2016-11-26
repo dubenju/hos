@@ -1,0 +1,49 @@
+	.file	"int.c"
+	.text
+	.balign 2
+.globl _init_pic
+	.def	_init_pic;	.scl	2;	.type	32;	.endef
+_init_pic:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	$255
+	pushl	$33
+	call	_io_out8
+	pushl	$255
+	pushl	$161
+	call	_io_out8
+	pushl	$17
+	pushl	$32
+	call	_io_out8
+	pushl	$32
+	pushl	$33
+	call	_io_out8
+	addl	$32, %esp
+	pushl	$4
+	pushl	$33
+	call	_io_out8
+	pushl	$1
+	pushl	$33
+	call	_io_out8
+	pushl	$17
+	pushl	$160
+	call	_io_out8
+	pushl	$40
+	pushl	$161
+	call	_io_out8
+	addl	$32, %esp
+	pushl	$2
+	pushl	$161
+	call	_io_out8
+	pushl	$1
+	pushl	$161
+	call	_io_out8
+	pushl	$251
+	pushl	$33
+	call	_io_out8
+	pushl	$255
+	pushl	$161
+	call	_io_out8
+	leave
+	ret
+	.def	_io_out8;	.scl	2;	.type	32;	.endef

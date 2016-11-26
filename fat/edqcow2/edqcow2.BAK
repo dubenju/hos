@@ -1472,8 +1472,16 @@ uint64_t total_size, char * mbrfile, const char * fmt) {
     qcow2File->clustor_size = cluster_size;
     printf("%d.\n", cluster_bits);
     printf("cluster_size = %ld\n", cluster_size);
+    printf("size= %lld\n", qcow2File->pHeader->size);
     printf("----- QCOW2 HEADER -----.\n");
     // print_header(qcow2File->pHeader);
+    if (total_size == 0) {
+        total_size = qcow2File->pHeader->size / (16 * 63 * 512);
+        total_size *= (16 * 63 * 512);
+        total_size -= (63 * 512);
+    }
+    printf("total_size=%lld\n", total_size);
+    max_sector_cnt = total_size / 512;
 
 
 
@@ -4360,9 +4368,12 @@ int main(int argc, char * argv[]) {
             
             /* check */
             printf("fileSize=[%s]\n", fileSize);
-            if (strlen(fileSize) <= 0) { show_usage(); goto end_main; }
+            /* if (strlen(fileSize) <= 0) { show_usage(); goto end_main; }
             else { total_size = get_bytesize(fileSize); }
-            if (total_size <= 0) { show_usage(); goto end_main; }
+            if (total_size <= 0) { show_usage(); goto end_main; } */
+            if (strlen(fileSize) > 0) {
+                total_size = get_bytesize(fileSize);
+            }
             if (total_size % 512 != 0) { show_usage(); goto end_main; }
 
             printf("clusterSize=[%s]\n", clusterSize);

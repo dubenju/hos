@@ -1,0 +1,315 @@
+Archive member included because of file (symbol)
+
+../../999.tools/win32/w32clibc.lib(startup.obj)
+                              (mainCRTStartup)
+../../999.tools/win32/w32clibc.lib(puts.obj)
+                              makefont.obj (puts)
+../../999.tools/win32/w32clibc.lib(fopen.obj)
+                              makefont.obj (fopen)
+../../999.tools/win32/w32clibc.lib(fgets.obj)
+                              makefont.obj (fgets)
+../../999.tools/win32/w32clibc.lib(feof.obj)
+                              makefont.obj (feof)
+../../999.tools/win32/w32clibc.lib(fclose.obj)
+                              makefont.obj (fclose)
+../../999.tools/win32/w32clibc.lib(fputc.obj)
+                              makefont.obj (fputc)
+../../999.tools/win32/w32clibc.lib(malloc.obj)
+                              ../../999.tools/win32/w32clibc.lib(startup.obj) (malloc)
+../../999.tools/win32/w32clibc.lib(stdin.obj)
+                              ../../999.tools/win32/w32clibc.lib(startup.obj) (__stdin)
+../../999.tools/win32/w32clibc.lib(fputs.obj)
+                              ../../999.tools/win32/w32clibc.lib(puts.obj) (fputs)
+../../999.tools/win32/w32clibc.lib(free.obj)
+                              ../../999.tools/win32/w32clibc.lib(fopen.obj) (free)
+../../999.tools/win32/w32clibc.lib(fgetc.obj)
+                              ../../999.tools/win32/w32clibc.lib(fgets.obj) (fgetc)
+../../999.tools/win32/w32clibc.lib(fwrite.obj)
+                              ../../999.tools/win32/w32clibc.lib(fputc.obj) (fwrite)
+../../999.tools/win32/w32clibc.lib(fread.obj)
+                              ../../999.tools/win32/w32clibc.lib(fgetc.obj) (fread)
+../../999.tools/win32/libmingw.lib(ds00207.o)
+                              ../../999.tools/win32/w32clibc.lib(startup.obj) (GetCommandLineA@0)
+../../999.tools/win32/libmingw.lib(ds00342.o)
+                              ../../999.tools/win32/w32clibc.lib(startup.obj) (GetStdHandle@4)
+../../999.tools/win32/libmingw.lib(ds00130.o)
+                              ../../999.tools/win32/w32clibc.lib(startup.obj) (ExitProcess@4)
+../../999.tools/win32/libmingw.lib(ds00053.o)
+                              ../../999.tools/win32/w32clibc.lib(fopen.obj) (CreateFileA@28)
+../../999.tools/win32/libmingw.lib(ds00611.o)
+                              ../../999.tools/win32/w32clibc.lib(fopen.obj) (SetFilePointer@16)
+../../999.tools/win32/libmingw.lib(ds00027.o)
+                              ../../999.tools/win32/w32clibc.lib(fclose.obj) (CloseHandle@4)
+../../999.tools/win32/libmingw.lib(ds00323.o)
+                              ../../999.tools/win32/w32clibc.lib(malloc.obj) (GetProcessHeap@0)
+../../999.tools/win32/libmingw.lib(ds00415.o)
+                              ../../999.tools/win32/w32clibc.lib(malloc.obj) (HeapAlloc@12)
+../../999.tools/win32/libmingw.lib(ds00421.o)
+                              ../../999.tools/win32/w32clibc.lib(free.obj) (HeapFree@12)
+../../999.tools/win32/libmingw.lib(ds00724.o)
+                              ../../999.tools/win32/w32clibc.lib(fwrite.obj) (WriteFile@20)
+../../999.tools/win32/libmingw.lib(ds00535.o)
+                              ../../999.tools/win32/w32clibc.lib(fread.obj) (ReadFile@20)
+../../999.tools/win32/libmingw.lib(dh.o)
+                              ../../999.tools/win32/libmingw.lib(ds00207.o) (_head_libkernel32_a)
+../../999.tools/win32/libmingw.lib(dt.o)
+                              ../../999.tools/win32/libmingw.lib(dh.o) (_libkernel32_a_iname)
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+                0x00400000                __image_base__ = 0x400000
+                0x00000000                __dll__ = 0x0
+                0x00001000                __section_alignment__ = 0x1000
+                0x00000200                __file_alignment__ = 0x200
+                0x00000004                __major_os_version__ = 0x4
+                0x00000000                __minor_os_version__ = 0x0
+                0x00000001                __major_image_version__ = 0x1
+                0x00000000                __minor_image_version__ = 0x0
+                0x00000004                __major_subsystem_version__ = 0x4
+                0x00000000                __minor_subsystem_version__ = 0x0
+                0x00000003                __subsystem__ = 0x3
+                0x01000000                __size_of_stack_reserve__ = 0x1000000
+                0x00001000                __size_of_stack_commit__ = 0x1000
+                0x00100000                __size_of_heap_reserve__ = 0x100000
+                0x00001000                __size_of_heap_commit__ = 0x1000
+                0x00000000                __loader_flags__ = 0x0
+LOAD makefont.obj
+LOAD ../../999.tools/win32/w32clibc.lib
+LOAD ../../999.tools/win32/golibc.lib
+LOAD ../../999.tools/win32/libmingw.lib
+
+.text           0x00401000      0x800
+ *(.init)
+ *(.text)
+ .text          0x00401000      0x120 makefont.obj
+                0x00401000                main0
+ .text          0x00401120       0xf3 ../../999.tools/win32/w32clibc.lib(startup.obj)
+                0x004011d1                mainCRTStartup
+ .text          0x00401213       0x36 ../../999.tools/win32/w32clibc.lib(puts.obj)
+                0x00401213                puts
+ .text          0x00401249      0x107 ../../999.tools/win32/w32clibc.lib(fopen.obj)
+                0x00401249                fopen
+ .text          0x00401350       0x4f ../../999.tools/win32/w32clibc.lib(fgets.obj)
+                0x00401350                fgets
+ .text          0x0040139f       0x41 ../../999.tools/win32/w32clibc.lib(feof.obj)
+                0x0040139f                feof
+ .text          0x004013e0       0x2d ../../999.tools/win32/w32clibc.lib(fclose.obj)
+                0x004013e0                fclose
+ .text          0x0040140d       0x25 ../../999.tools/win32/w32clibc.lib(fputc.obj)
+                0x0040140d                fputc
+ .text          0x00401432       0x15 ../../999.tools/win32/w32clibc.lib(malloc.obj)
+                0x00401432                malloc
+ .text          0x00401447       0x33 ../../999.tools/win32/w32clibc.lib(fputs.obj)
+                0x00401447                fputs
+ .text          0x0040147a       0x15 ../../999.tools/win32/w32clibc.lib(free.obj)
+                0x0040147a                free
+ .text          0x0040148f       0x48 ../../999.tools/win32/w32clibc.lib(fgetc.obj)
+                0x0040148f                fgetc
+ .text          0x004014d7       0xb0 ../../999.tools/win32/w32clibc.lib(fwrite.obj)
+                0x004014d7                fwrite
+ .text          0x00401587       0xb1 ../../999.tools/win32/w32clibc.lib(fread.obj)
+                0x00401587                fread
+ *fill*         0x00401638        0x8 00
+ .text          0x00401640        0x8 ../../999.tools/win32/libmingw.lib(ds00207.o)
+                0x00401640                GetCommandLineA@0
+ *fill*         0x00401648        0x8 00
+ .text          0x00401650        0x8 ../../999.tools/win32/libmingw.lib(ds00342.o)
+                0x00401650                GetStdHandle@4
+ *fill*         0x00401658        0x8 00
+ .text          0x00401660        0x8 ../../999.tools/win32/libmingw.lib(ds00130.o)
+                0x00401660                ExitProcess@4
+ *fill*         0x00401668        0x8 00
+ .text          0x00401670        0x8 ../../999.tools/win32/libmingw.lib(ds00053.o)
+                0x00401670                CreateFileA@28
+ *fill*         0x00401678        0x8 00
+ .text          0x00401680        0x8 ../../999.tools/win32/libmingw.lib(ds00611.o)
+                0x00401680                SetFilePointer@16
+ *fill*         0x00401688        0x8 00
+ .text          0x00401690        0x8 ../../999.tools/win32/libmingw.lib(ds00027.o)
+                0x00401690                CloseHandle@4
+ *fill*         0x00401698        0x8 00
+ .text          0x004016a0        0x8 ../../999.tools/win32/libmingw.lib(ds00323.o)
+                0x004016a0                GetProcessHeap@0
+ *fill*         0x004016a8        0x8 00
+ .text          0x004016b0        0x8 ../../999.tools/win32/libmingw.lib(ds00415.o)
+                0x004016b0                HeapAlloc@12
+ *fill*         0x004016b8        0x8 00
+ .text          0x004016c0        0x8 ../../999.tools/win32/libmingw.lib(ds00421.o)
+                0x004016c0                HeapFree@12
+ *fill*         0x004016c8        0x8 00
+ .text          0x004016d0        0x8 ../../999.tools/win32/libmingw.lib(ds00724.o)
+                0x004016d0                WriteFile@20
+ *fill*         0x004016d8        0x8 00
+ .text          0x004016e0        0x8 ../../999.tools/win32/libmingw.lib(ds00535.o)
+                0x004016e0                ReadFile@20
+ *fill*         0x004016e8        0x8 00
+ *(SORT(.text$*))
+ *(.glue_7t)
+ *(.glue_7)
+                0x004016f0                ___CTOR_LIST__ = .
+                0x004016f0                __CTOR_LIST__ = .
+                0x004016f0        0x4 LONG 0xffffffff
+ *(SORT(.ctors.*))
+ *(.ctors)
+ *(.ctor)
+                0x004016f4        0x4 LONG 0x0
+                0x004016f8                ___DTOR_LIST__ = .
+                0x004016f8                __DTOR_LIST__ = .
+                0x004016f8        0x4 LONG 0xffffffff
+ *(SORT(.dtors.*))
+ *(.dtors)
+ *(.dtor)
+                0x004016fc        0x4 LONG 0x0
+ *(.fini)
+ *(.gcc_exc)
+                0x00401700                etext = .
+ *(.gcc_except_table)
+
+.data           0x00402000      0x200
+                0x00402000                __data_start__ = .
+ *(.data)
+ .data          0x00402000       0x58 makefont.obj
+ .data          0x00402058        0x2 ../../999.tools/win32/w32clibc.lib(puts.obj)
+ *fill*         0x0040205a        0x2 00
+ .data          0x0040205c       0x24 ../../999.tools/win32/w32clibc.lib(stdin.obj)
+                0x00402074                __stderr
+                0x00402068                __stdout
+                0x0040205c                __stdin
+ .data          0x00402080        0x2 ../../999.tools/win32/w32clibc.lib(fwrite.obj)
+ *fill*         0x00402082        0xe 00
+ *(.data2)
+ *(SORT(.data$*))
+                0x00402090                __data_end__ = .
+ *(.data_cygwin_nocopy)
+
+.rdata
+ *(.rdata)
+ *(SORT(.rdata$*))
+ *(.eh_frame)
+
+.pdata
+ *(.pdata)
+
+.bss            0x00403000        0x0
+                0x00403000                __bss_start__ = .
+ *(.bss)
+ *(COMMON)
+                0x00403000                __bss_end__ = .
+
+.edata
+ *(.edata)
+
+/DISCARD/
+ *(.debug$S)
+ *(.debug$T)
+ *(.debug$F)
+ *(.drectve)
+
+.idata          0x00403000      0x200
+ SORT(*)(.idata$2)
+ .idata$2       0x00403000       0x14 ../../999.tools/win32/libmingw.lib(dh.o)
+                0x00403000                _head_libkernel32_a
+ SORT(*)(.idata$3)
+                0x00403014        0x4 LONG 0x0
+                0x00403018        0x4 LONG 0x0
+                0x0040301c        0x4 LONG 0x0
+                0x00403020        0x4 LONG 0x0
+                0x00403024        0x4 LONG 0x0
+ SORT(*)(.idata$4)
+ .idata$4       0x00403028        0x4 ../../999.tools/win32/libmingw.lib(dh.o)
+ .idata$4       0x0040302c        0x4 ../../999.tools/win32/libmingw.lib(ds00027.o)
+ .idata$4       0x00403030        0x4 ../../999.tools/win32/libmingw.lib(ds00053.o)
+ .idata$4       0x00403034        0x4 ../../999.tools/win32/libmingw.lib(ds00130.o)
+ .idata$4       0x00403038        0x4 ../../999.tools/win32/libmingw.lib(ds00207.o)
+ .idata$4       0x0040303c        0x4 ../../999.tools/win32/libmingw.lib(ds00323.o)
+ .idata$4       0x00403040        0x4 ../../999.tools/win32/libmingw.lib(ds00342.o)
+ .idata$4       0x00403044        0x4 ../../999.tools/win32/libmingw.lib(ds00415.o)
+ .idata$4       0x00403048        0x4 ../../999.tools/win32/libmingw.lib(ds00421.o)
+ .idata$4       0x0040304c        0x4 ../../999.tools/win32/libmingw.lib(ds00535.o)
+ .idata$4       0x00403050        0x4 ../../999.tools/win32/libmingw.lib(ds00611.o)
+ .idata$4       0x00403054        0x4 ../../999.tools/win32/libmingw.lib(ds00724.o)
+ .idata$4       0x00403058        0x4 ../../999.tools/win32/libmingw.lib(dt.o)
+ SORT(*)(.idata$5)
+ .idata$5       0x0040305c        0x4 ../../999.tools/win32/libmingw.lib(dh.o)
+ .idata$5       0x00403060        0x4 ../../999.tools/win32/libmingw.lib(ds00027.o)
+                0x00403060                _imp__CloseHandle@4
+ .idata$5       0x00403064        0x4 ../../999.tools/win32/libmingw.lib(ds00053.o)
+                0x00403064                _imp__CreateFileA@28
+ .idata$5       0x00403068        0x4 ../../999.tools/win32/libmingw.lib(ds00130.o)
+                0x00403068                _imp__ExitProcess@4
+ .idata$5       0x0040306c        0x4 ../../999.tools/win32/libmingw.lib(ds00207.o)
+                0x0040306c                _imp__GetCommandLineA@0
+ .idata$5       0x00403070        0x4 ../../999.tools/win32/libmingw.lib(ds00323.o)
+                0x00403070                _imp__GetProcessHeap@0
+ .idata$5       0x00403074        0x4 ../../999.tools/win32/libmingw.lib(ds00342.o)
+                0x00403074                _imp__GetStdHandle@4
+ .idata$5       0x00403078        0x4 ../../999.tools/win32/libmingw.lib(ds00415.o)
+                0x00403078                _imp__HeapAlloc@12
+ .idata$5       0x0040307c        0x4 ../../999.tools/win32/libmingw.lib(ds00421.o)
+                0x0040307c                _imp__HeapFree@12
+ .idata$5       0x00403080        0x4 ../../999.tools/win32/libmingw.lib(ds00535.o)
+                0x00403080                _imp__ReadFile@20
+ .idata$5       0x00403084        0x4 ../../999.tools/win32/libmingw.lib(ds00611.o)
+                0x00403084                _imp__SetFilePointer@16
+ .idata$5       0x00403088        0x4 ../../999.tools/win32/libmingw.lib(ds00724.o)
+                0x00403088                _imp__WriteFile@20
+ .idata$5       0x0040308c        0x4 ../../999.tools/win32/libmingw.lib(dt.o)
+ SORT(*)(.idata$6)
+ .idata$6       0x00403090        0xe ../../999.tools/win32/libmingw.lib(ds00027.o)
+ *fill*         0x0040309e        0x2 00
+ .idata$6       0x004030a0        0xe ../../999.tools/win32/libmingw.lib(ds00053.o)
+ *fill*         0x004030ae        0x2 00
+ .idata$6       0x004030b0        0xe ../../999.tools/win32/libmingw.lib(ds00130.o)
+ *fill*         0x004030be        0x2 00
+ .idata$6       0x004030c0       0x12 ../../999.tools/win32/libmingw.lib(ds00207.o)
+ *fill*         0x004030d2        0x2 00
+ .idata$6       0x004030d4       0x12 ../../999.tools/win32/libmingw.lib(ds00323.o)
+ *fill*         0x004030e6        0x2 00
+ .idata$6       0x004030e8       0x10 ../../999.tools/win32/libmingw.lib(ds00342.o)
+ .idata$6       0x004030f8        0xc ../../999.tools/win32/libmingw.lib(ds00415.o)
+ .idata$6       0x00403104        0xc ../../999.tools/win32/libmingw.lib(ds00421.o)
+ .idata$6       0x00403110        0xc ../../999.tools/win32/libmingw.lib(ds00535.o)
+ .idata$6       0x0040311c       0x12 ../../999.tools/win32/libmingw.lib(ds00611.o)
+ *fill*         0x0040312e        0x2 00
+ .idata$6       0x00403130        0xc ../../999.tools/win32/libmingw.lib(ds00724.o)
+ SORT(*)(.idata$7)
+ .idata$7       0x0040313c        0x4 ../../999.tools/win32/libmingw.lib(ds00027.o)
+ .idata$7       0x00403140        0x4 ../../999.tools/win32/libmingw.lib(ds00053.o)
+ .idata$7       0x00403144        0x4 ../../999.tools/win32/libmingw.lib(ds00130.o)
+ .idata$7       0x00403148        0x4 ../../999.tools/win32/libmingw.lib(ds00207.o)
+ .idata$7       0x0040314c        0x4 ../../999.tools/win32/libmingw.lib(ds00323.o)
+ .idata$7       0x00403150        0x4 ../../999.tools/win32/libmingw.lib(ds00342.o)
+ .idata$7       0x00403154        0x4 ../../999.tools/win32/libmingw.lib(ds00415.o)
+ .idata$7       0x00403158        0x4 ../../999.tools/win32/libmingw.lib(ds00421.o)
+ .idata$7       0x0040315c        0x4 ../../999.tools/win32/libmingw.lib(ds00535.o)
+ .idata$7       0x00403160        0x4 ../../999.tools/win32/libmingw.lib(ds00611.o)
+ .idata$7       0x00403164        0x4 ../../999.tools/win32/libmingw.lib(ds00724.o)
+ .idata$7       0x00403168       0x10 ../../999.tools/win32/libmingw.lib(dt.o)
+                0x00403168                _libkernel32_a_iname
+
+.CRT
+ *(SORT(.CRT$*))
+
+.endjunk        0x00404000        0x0
+                0x00404000                end = .
+                0x00404000                _end = .
+                0x00404000                __end__ = .
+
+.rsrc
+ *(.rsrc)
+ *(SORT(.rsrc$*))
+
+.reloc
+ *(.reloc)
+
+.stab
+ *(.stab)
+
+.stabstr
+ *(.stabstr)
+OUTPUT(makefont.exe pei-i386)

@@ -1,0 +1,131 @@
+	.file	"mouse.c"
+	.text
+	.balign 2
+.globl _inthandler2c
+	.def	_inthandler2c;	.scl	2;	.type	32;	.endef
+_inthandler2c:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	$100
+	pushl	$160
+	call	_io_out8
+	pushl	$98
+	pushl	$32
+	call	_io_out8
+	pushl	$96
+	call	_io_in8
+	addl	_mousedata0, %eax
+	pushl	%eax
+	pushl	_mousefifo
+	call	_fifo32_put
+	leave
+	ret
+	.balign 2
+.globl _enable_mouse
+	.def	_enable_mouse;	.scl	2;	.type	32;	.endef
+_enable_mouse:
+	pushl	%ebp
+	movl	%esp, %ebp
+	movl	8(%ebp), %eax
+	movl	%eax, _mousefifo
+	movl	12(%ebp), %eax
+	movl	%eax, _mousedata0
+	call	_wait_KBC_sendready
+	pushl	$212
+	pushl	$100
+	call	_io_out8
+	call	_wait_KBC_sendready
+	pushl	$244
+	pushl	$96
+	call	_io_out8
+	movl	16(%ebp), %eax
+	movb	$0, 3(%eax)
+	leave
+	ret
+	.balign 2
+.globl _mouse_decode
+	.def	_mouse_decode;	.scl	2;	.type	32;	.endef
+_mouse_decode:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%esi
+	pushl	%ebx
+	movl	8(%ebp), %edx
+	movl	12(%ebp), %ecx
+	movl	%ecx, %esi
+	movb	3(%edx), %al
+	testb	%al, %al
+	jne	L4
+	cmpb	$-6, %cl
+	je	L13
+L12:
+	xorl	%eax, %eax
+L3:
+	popl	%ebx
+	popl	%esi
+	popl	%ebp
+	ret
+L13:
+	movb	$1, 3(%edx)
+	jmp	L12
+L4:
+	cmpb	$1, %al
+	je	L14
+	cmpb	$2, %al
+	je	L15
+	cmpb	$3, %al
+	je	L16
+	orl	$-1, %eax
+	jmp	L3
+L16:
+	movb	(%edx), %bl
+	andl	$255, %esi
+	movl	%ebx, %eax
+	movb	%cl, 2(%edx)
+	andl	$7, %eax
+	movl	%esi, 8(%edx)
+	movl	%eax, 12(%edx)
+	movb	%bl, %al
+	movzbl	1(%edx), %ecx
+	andl	$16, %eax
+	movl	%ecx, 4(%edx)
+	movb	$1, 3(%edx)
+	testb	%al, %al
+	je	L10
+	orl	$-256, %ecx
+	movl	%ecx, 4(%edx)
+L10:
+	andl	$32, %ebx
+	testb	%bl, %bl
+	je	L11
+	orl	$-256, 8(%edx)
+L11:
+	negl	8(%edx)
+	movl	$1, %eax
+	jmp	L3
+L15:
+	movb	%cl, 1(%edx)
+	movb	$3, 3(%edx)
+	jmp	L12
+L14:
+	andl	$-56, %esi
+	movl	%esi, %eax
+	cmpb	$8, %al
+	jne	L12
+	movb	%cl, (%edx)
+	movb	$2, 3(%edx)
+	jmp	L12
+.globl _mousefifo
+	.data
+	.balign 4
+_mousefifo:
+	.space 4
+.globl _mousedata0
+	.data
+	.balign 4
+_mousedata0:
+	.space 4
+	.def	_wait_KBC_sendready;	.scl	2;	.type	32;	.endef
+	.def	_fifo32_put;	.scl	2;	.type	32;	.endef
+	.def	_io_in8;	.scl	2;	.type	32;	.endef
+	.def	_io_out8;	.scl	2;	.type	32;	.endef

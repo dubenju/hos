@@ -65,27 +65,6 @@ public class Dasm {
 		"FS",
 		"GS"
 	};
-	public static String get_oo_mmm(int oo, int mmm, int dir) {
-		StringBuffer buf = new StringBuffer();
-		if (oo == 0) {
-//			System.out.println("@get_oo_mmm oo=" + oo);
-			buf.append(mmms[mmm]);
-		}
-		if (oo == 1) {
-//			System.out.println("@get_oo_mmm oo=" + oo);
-//			System.out.println("@get_oo_mmm mmm=" + mmm);
-			buf.append(mmms[mmm]);
-		}
-		if (oo == 2) {
-//			System.out.println("@get_oo_mmm oo=" + oo);
-			buf.append(mmms[mmm]);
-		}
-		if (oo == 3) {
-//			System.out.println("@get_oo_mmm oo=" + oo);
-			buf.append(mmms[mmm]);
-		}
-		return buf.toString();
-	}
 	public static int get_oo_mmm_dir (byte[] in, int pos, int dir, StringBuffer buf) {
 		int oo  = (in[pos] >> 6) & 0x03;
 		int rrr = (in[pos] >> 3) & 0x07;
@@ -104,25 +83,7 @@ public class Dasm {
 		}
 		return pos;
 	}
-	public static String get_oo_sss_mmm(int oo, int sss, int mmm) {
-		StringBuffer buf = new StringBuffer();
-		buf.append(ssss[sss]);
-		buf.append(", ");
-		if (oo == 0) {
-			buf.append(mmms[mmm]);
-		}
-		if (oo == 1) {
-//			System.out.println("@get_oo_sss_mmm oo=" + oo);
-		}
-		if (oo == 2) {
-//			System.out.println("@get_oo_sss_mmm oo=" + oo);
-			buf.append(mmms[mmm]);
-		}
-		if (oo == 3) {
-			buf.append(rrrw1[mmm]);
-		}
-		return buf.toString();
-	}
+
 	public static int get_oo_sss_mmm_dir(byte[] in, int pos, StringBuffer buf) {
 		int oo  = (in[pos] >> 6) & 0x03;
 		int sss = (in[pos] >> 3) & 0x07;
@@ -143,65 +104,17 @@ public class Dasm {
 		}
 		return pos;
 	}
-	public static String get_w_oo_rrr_mmm(int w, int oo, int rrr, int mmm, int dir) {
-		StringBuffer buf = new StringBuffer();
-		if (oo == 0) {
-//			System.out.println("@get_w_oo_rrr_mmm oo=" + oo);
-			/* 00 : If mmm = 110, then a displacement follows the operation; otherwise, no displacement is used */
-			/* 110 : SS:[BP] */
-			/* 110 : DH : SI : ESI */
-			if (dir == 0) {
-				buf.append((w == 0) ? rrrw0[rrr] : rrrw1[rrr]);
-				buf.append(", ");
-				buf.append((w == 0) ? rrrw0[mmm] : rrrw1[mmm]);
-			} else {
-				buf.append((w == 0) ? rrrw0[mmm] : rrrw1[mmm]);
-				buf.append(", ");
-				buf.append((w == 0) ? rrrw0[rrr] : rrrw1[rrr]);
-			}
-		}
-		if (oo == 1) {
-//			System.out.println("@get_w_oo_rrr_mmm oo=" + oo);
-//			System.out.println("@get_w_oo_rrr_mmm rrr=" + rrr);
-//			System.out.println("@get_w_oo_rrr_mmm mmm=" + mmm);
-			/* 01 : An 8-bit signed displacement follows the opcode  */
-			if (dir == 0) {
-				buf.append((w == 0) ? rrrw0[rrr] : rrrw1[rrr]);
-				buf.append(", ");
-				buf.append((w == 0) ? mmms[mmm] : mmms[mmm]);
-			} else {
-				buf.append((w == 0) ? mmms[mmm] : mmms[mmm]);
-				buf.append(", ");
-				buf.append((w == 0) ? rrrw0[rrr] : rrrw1[rrr]);
-			}
-		}
-		if (oo == 2) {
-//			System.out.println("@get_w_oo_rrr_mmm oo=" + oo);
-		}
-		if (oo == 3) {
-			/* 11 : mmm specifies a register, instead of an addressing mode */
-			if (dir == 0) {
-				buf.append((w == 0) ? rrrw0[rrr] : rrrw1[rrr]);
-				buf.append(", ");
-				buf.append((w == 0) ? rrrw0[mmm] : rrrw1[mmm]);
-			} else {
-				buf.append((w == 0) ? rrrw0[mmm] : rrrw1[mmm]);
-				buf.append(", ");
-				buf.append((w == 0) ? rrrw0[rrr] : rrrw1[rrr]);
-			}
-		}
-		return buf.toString();
-	}
 
 	public static int get_w_oo_rrr_mmm_dir(byte[] in, int pos, int w, int dir, StringBuffer buf) {
 		int oo  = (in[pos] >> 6) & 0x03;
 		int rrr = (in[pos] >> 3) & 0x07;
 		int mmm = (in[pos]     ) & 0x07;
-
-		System.out.println("@get_w_oo_rrr_mmm_dir w=" + w);
-		System.out.println("@get_w_oo_rrr_mmm_dir oo=" + oo);
-		System.out.println("@get_w_oo_rrr_mmm_dir rrr=" + rrr);
-		System.out.println("@get_w_oo_rrr_mmm_dir mmm=" + mmm);
+/*
+System.out.println("@get_w_oo_rrr_mmm_dir w=" + w);
+System.out.println("@get_w_oo_rrr_mmm_dir oo=" + oo);
+System.out.println("@get_w_oo_rrr_mmm_dir rrr=" + rrr);
+System.out.println("@get_w_oo_rrr_mmm_dir mmm=" + mmm);
+*/
 		if (oo == 0) {
 			/* 00 : If mmm = 110, then a displacement follows the operation; otherwise, no displacement is used */
 			/* 110 : SS:[BP] */
@@ -410,8 +323,13 @@ public class Dasm {
 		out.append(Strings.format2(UInteger.fmtHex(buf[pos], 2).toUpperCase(), 18, ' '));
 		int start = pos;
 		int op = (buf[pos] >> 1) & 0x07;
-		int w =   buf[pos] & 0x01;
-
+		// int w =   buf[pos] & 0x01;
+		int w = (buf[pos]) & 0x0F;
+		if (w < 0x03) {
+			out.append("AND ");
+		} else {
+			out.append("SUB ");
+		}
 		out.append("\n");
 		int len = pos - start;
 		// System.out.printf("len=" + len);
@@ -507,7 +425,11 @@ public class Dasm {
 		out.append(Strings.format2(UInteger.fmtHex(buf[pos], 2).toUpperCase(), 18, ' '));
 		int start = pos;
 		int op = (buf[pos] >> 1) & 0x07;
-		int w =   buf[pos] & 0x01;
+		// int w =   buf[pos] & 0x01;
+		/* INC DEC */
+		int w = (buf[pos] >> 3) & 0x1;
+		out.append((( w == 0) ? "INC " : "DEC ") + rrrw1[buf[pos] & 0x7]);
+
 		out.append("\n");
 		int len = pos - start;
 		// System.out.printf("len=" + len);
@@ -524,7 +446,10 @@ public class Dasm {
 		out.append(Strings.format2(UInteger.fmtHex(buf[pos], 2).toUpperCase(), 18, ' '));
 		int start = pos;
 		int op = (buf[pos] >> 1) & 0x07;
-		int w =   buf[pos] & 0x01;
+		// int w =   buf[pos] & 0x01;
+		/* PUSH POP */
+		int w = (buf[pos] >> 3) & 0x1;
+		out.append((( w == 0) ? "PUSH " : "POP ") + rrrw1[buf[pos] & 0x7]);
 		out.append("\n");
 		int len = pos - start;
 		// System.out.printf("len=" + len);
@@ -542,6 +467,9 @@ public class Dasm {
 		int start = pos;
 		int op = (buf[pos] >> 1) & 0x07;
 		int w =   buf[pos] & 0x01;
+
+		out.append("!!!8086!!!");
+
 		out.append("\n");
 		int len = pos - start;
 		// System.out.printf("len=" + len);
@@ -559,6 +487,10 @@ public class Dasm {
 		int start = pos;
 		int op = (buf[pos] >> 1) & 0x07;
 		int w =   buf[pos] & 0x01;
+		/* Jcccc */
+		out.append("J" + cccc[buf[pos] & 0x0F] + " SHORT ");
+		out.append(Strings.format(Integer.toHexString(pos + 2 + buf[pos + 1]).toUpperCase(), 8, '0'));
+		pos ++;
 		out.append("\n");
 		int len = pos - start;
 		// System.out.printf("len=" + len);
@@ -780,6 +712,51 @@ MOV Reg,Mem 1000101woorrrmmm
 		int start = pos;
 		int op = (buf[pos] >> 1) & 0x07;
 		int w =   buf[pos] & 0x01;
+
+		if (op == 0) {
+			out.append("MOV " + ", ");
+		}
+		if (op == 1) {
+			out.append("MOV " + ", ");
+		}
+		if (op == 2) {
+			if (w == 0) {
+				out.append("MOVSB " + ", ");
+			} else {
+				out.append("MOVSW " + ", ");
+			}
+		}
+		if (op == 3) {
+			if (w == 0) {
+				out.append("CMPSB " + ", ");
+			} else {
+				out.append("CMPSW " + ", ");
+			}
+		}
+		if (op == 4) {
+			out.append("TEST " + ", ");
+		}
+		if (op == 5) {
+			if (w == 0) {
+				out.append("STOSB " + ", ");
+			} else {
+				out.append("STOSW " + ", ");
+			}
+		}
+		if (op == 6) {
+			if (w == 0) {
+				out.append("LODSB " + ", ");
+			} else {
+				out.append("LODSW " + ", ");
+			}
+		}
+		if (op == 7) {
+			if (w == 0) {
+				out.append("SCASB " + ", ");
+			} else {
+				out.append("SCASW " + ", ");
+			}
+		}
 		out.append("\n");
 		int len = pos - start;
 		// System.out.printf("len=" + len);
@@ -836,6 +813,50 @@ MOV Reg,Mem 1000101woorrrmmm
 		int start = pos;
 		int op = (buf[pos] >> 1) & 0x07;
 		int w =   buf[pos] & 0x01;
+
+		if (op == 0x00) {
+			out.append("MOV " + ", ");
+
+		}
+		if (op == 0x01) {
+			out.append("RET " + ", ");
+
+		}
+		if (op == 0x02) {
+			out.append(((buf[pos] & 0x01) == 0x01 ? "LDS " : "LES "));
+			pos ++;
+			pos = get_w_oo_rrr_mmm_dir(buf, pos, w, 0, out);
+		}
+
+		if (op == 0x03) {
+			int q = (buf[pos + 1] >> 3) & 0x07;
+			if (q == 0) {
+				out.append("MOV ");
+				pos ++;
+				pos = get_oo_mmm_dir(buf, pos, 0, out);
+			} else {
+				System.out.println("!!!WARNING!!!" + UInteger.fmtHex(buf[pos], 2) + " " + UInteger.fmtHex(buf[pos + 1], 2));
+				pos ++;
+			}
+		}
+
+		if (op == 0x04) {
+			out.append("ENTER " + ", ");
+
+		}
+		if (op == 0x05) {
+			out.append("RET " + ", ");
+
+		}
+		if (op == 0x06) {
+			out.append("INT " + ", ");
+
+		}
+		if (op == 0x07) {
+			out.append("INTO " + ", ");
+
+		}
+
 		out.append("\n");
 		int len = pos - start;
 		// System.out.printf("len=" + len);
@@ -853,6 +874,52 @@ MOV Reg,Mem 1000101woorrrmmm
 		int start = pos;
 		int op = (buf[pos] >> 1) & 0x07;
 		int w =   buf[pos] & 0x01;
+
+		if (op == 0 || op == 1) {
+			int v = (buf[pos + 1] >> 3) & 0x07;
+			if (v == 0) {
+				out.append("ROL ");
+			}
+			if (v == 1) {
+				out.append("ROR ");
+			}
+			if (v == 2) {
+				out.append("RCL ");
+			}
+			if (v == 3) {
+				out.append("RCR ");
+			}
+			if (v == 4) {
+				out.append("SAL ");
+			}
+			if (v == 5) {
+				out.append("SHR ");
+			}
+//			if (v == 6) {
+//				System.out.println(
+//						Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
+//						Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "ROL ");
+//			}
+			if (v == 7) {
+				out.append("SAR ");
+			}
+		}
+
+		if (op == 2) {
+			if (w == 0) {
+				out.append("AAD ");
+			} else {
+				out.append("AAM");
+			}
+		}
+		if (op == 3) {
+			if (w == 0) {
+				out.append("SALC ");
+			} else {
+				out.append("XLAT ");
+			}
+		}
+
 		out.append("\n");
 		int len = pos - start;
 		// System.out.printf("len=" + len);
@@ -994,6 +1061,122 @@ MOV Reg,Mem 1000101woorrrmmm
 		int start = pos;
 		int op = (buf[pos] >> 1) & 0x07;
 		int w =   buf[pos] & 0x01;
+
+		if (op == 0x00) {
+			out.append("LOCK ");
+		}
+		if (op == 0x01) {
+			if (w == 0) {
+				out.append("REPE ");
+			} else {
+				out.append("REPNE ");
+			}
+		}
+		if (op == 0x02) {
+			if (w == 0) {
+				out.append("HLT ");
+			} else {
+				out.append("CMC ");
+			}
+		}
+		if (op == 0x03) {
+			int q = (buf[pos + 1] >> 3) & 0x07;
+			if (q == 0) {
+				out.append("TEST ");
+				pos ++;
+				pos = get_oo_mmm_dir(buf, pos, 0 , out);
+			}
+			if (q == 2) {
+				out.append("NOT ");
+				pos ++;
+				pos = get_oo_mmm_dir(buf, pos, 0 , out);
+			}
+			if (q == 3) {
+				out.append("NEG ");
+				pos ++;
+				pos = get_oo_mmm_dir(buf, pos, 0 , out);
+			}
+			if (q == 4) {
+				out.append("MUL ");
+				pos ++;
+				pos = get_oo_mmm_dir(buf, pos, 0 , out);
+			}
+			if (q == 5) {
+				out.append("IMUL ");
+				pos ++;
+				pos = get_oo_mmm_dir(buf, pos, 0 , out);
+			}
+			if (q == 6) {
+				out.append("DIV ");
+				pos ++;
+				pos = get_oo_mmm_dir(buf, pos, 0 , out);
+			}
+			if (q == 7) {
+				out.append("IDIV ");
+				pos ++;
+				pos = get_oo_mmm_dir(buf, pos, 0 , out);
+			}
+		}
+		if (op == 0x04) {
+			if (w == 0) {
+				out.append("CLC ");
+			} else {
+				out.append("STC ");
+			}
+		}
+		if (op == 0x05) {
+			if (w == 0) {
+				out.append("CLI ");
+			} else {
+				out.append("STI ");
+			}
+		}
+		if (op == 0x06) {
+			if (w == 0) {
+				out.append("CLD ");
+			} else {
+				out.append("STD ");
+			}
+		}
+		if (op == 0x07) {
+			int q = (buf[pos + 1] >> 3) & 0x07;
+			if (q == 0) {
+				out.append("INC ");
+				pos ++;
+				pos = get_oo_mmm_dir(buf, pos, 0 , out);
+			}
+			if (q == 1) {
+				out.append("DEC ");
+				pos ++;
+				pos = get_oo_mmm_dir(buf, pos, 0 , out);
+			}
+			if (q == 2) {
+				out.append("CALL ");
+				pos ++;
+				pos = get_oo_mmm_dir(buf, pos, 0 , out);
+			}
+			if (q == 3) {
+				out.append("CALL ");
+				pos ++;
+				pos = get_oo_mmm_dir(buf, pos, 0 , out);
+			}
+			if (q == 4) {
+				out.append("JMP ");
+				pos ++;
+				pos = get_oo_mmm_dir(buf, pos, 0 , out);
+			}
+			if (q == 5) {
+				out.append("JMP ");
+				pos ++;
+				pos = get_oo_mmm_dir(buf, pos, 0 , out);
+			}
+			if (q == 6) {
+				out.append("PUSH ");
+				pos ++;
+				pos = get_oo_mmm_dir(buf, pos, 0 , out);
+			}
+		}
+
 		out.append("\n");
 		int len = pos - start;
 		// System.out.printf("len=" + len);
@@ -1057,16 +1240,9 @@ MOV Reg,Mem 1000101woorrrmmm
 				System.out.print(sbf);
 			} else if (hight4 == 0x02) {
 				/* TODO:0x2* */
-				int w = (buf[i]) & 0x0F;
-				if (w < 0x03) {
-					System.out.println(
-						Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-						Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "AND ");
-				} else {
-					System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "SUB ");
-				}
+				StringBuffer sbf = new StringBuffer();
+				i = proc_0x2(buf, i, core, sbf);
+				System.out.print(sbf);
 			} else if (hight4 == 0x03) {
 				/* TODO:0x3* */
 				StringBuffer sbf = new StringBuffer();
@@ -1074,31 +1250,24 @@ MOV Reg,Mem 1000101woorrrmmm
 				System.out.print(sbf);
 			} else if (hight4 == 0x04) {
 				/* TODO:0x4* */
-				/* INC DEC */
-				int w = (buf[i] >> 3) & 0x1;
-				System.out.println(
-					Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-					Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + (( w == 0) ? "INC " : "DEC ") + rrrw1[buf[i] & 0x7]);}
-			else if (hight4 == 0x05) {
+				StringBuffer sbf = new StringBuffer();
+				i = proc_0x4(buf, i, core, sbf);
+				System.out.print(sbf);
+			} else if (hight4 == 0x05) {
 				/* TODO:0x5* */
-				/* PUSH POP */
-				int w = (buf[i] >> 3) & 0x1;
-				System.out.println(
-					Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-					Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + (( w == 0) ? "PUSH " : "POP ") + rrrw1[buf[i] & 0x7]);
+				StringBuffer sbf = new StringBuffer();
+				i = proc_0x5(buf, i, core, sbf);
+				System.out.print(sbf);
 			} else if (hight4 == 0x06) {
 				/* TODO:0x6* */
-				System.out.println("!!!8086!!!");
+				StringBuffer sbf = new StringBuffer();
+				i = proc_0x6(buf, i, core, sbf);
+				System.out.print(sbf);
 			} else if (hight4 == 0x07) {
 				/* TODO:0x7* */
-				/* Jcccc */
-				byte[] tmp = new byte[2];
-				System.arraycopy(buf, i, tmp, 0, tmp.length);
-				System.out.println(
-					Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-					Strings.format2(UBytes.toHexString(tmp).toUpperCase(), 18, ' ') + "J" + cccc[buf[i] & 0x0F] + " SHORT " +
-					Strings.format(Integer.toHexString(i + 2 + buf[i + 1]).toUpperCase(), 8, '0')); i ++;
-
+				StringBuffer sbf = new StringBuffer();
+				i = proc_0x7(buf, i, core, sbf);
+				System.out.print(sbf);
 			} else if (hight4 == 0x08) {
 				/* TODO:0x8* */
 				StringBuffer sbf = new StringBuffer();
@@ -1111,78 +1280,9 @@ MOV Reg,Mem 1000101woorrrmmm
 				System.out.print(sbf);
 			} else if (hight4 == 0x0A) {
 				/* TODO:0xA* */
-				int p = (buf[i] >> 1) & 0x07;
-				int w = (buf[i]) & 0x01;
-				if (p == 0) {
-					System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "MOV " + ", ");
-				}
-				if (p == 1) {
-					System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "MOV " + ", ");
-				}
-				if (p == 2) {
-					if (w == 0) {
-						System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "MOVSB " + ", ");
-					} else {
-						System.out.println(
-								Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-								Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "MOVSW " + ", ");
-					}
-				}
-				if (p == 3) {
-					if (w == 0) {
-						System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UInteger.fmtHex(buf[i], 2), 18, ' ') + "CMPSB " + ", ");
-					} else {
-						System.out.println(
-								Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-								Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "CMPSW " + ", ");
-					}
-				}
-				if (p == 4) {
-					System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "TEST " + ", ");
-				}
-				if (p == 5) {
-					if (w == 0) {
-						System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "STOSB " + ", ");
-					} else {
-						System.out.println(
-								Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-								Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "STOSW " + ", ");
-					}
-				}
-				if (p == 6) {
-					if (w == 0) {
-						System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UInteger.fmtHex(buf[i], 2), 18, ' ') + "LODSB " + ", ");
-					} else {
-						System.out.println(
-								Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-								Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "LODSW " + ", ");
-					}
-				}
-				if (p == 7) {
-					if (w == 0) {
-						System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "SCASB " + ", ");
-					} else {
-						System.out.println(
-								Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-								Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "SCASW " + ", ");
-					}
-				}
+				StringBuffer sbf = new StringBuffer();
+				i = proc_0xA(buf, i, core, sbf);
+				System.out.print(sbf);
 			} else if (hight4 == 0x0B) {
 				/* TODO:0xB* */
 				StringBuffer sbf = new StringBuffer();
@@ -1190,143 +1290,14 @@ MOV Reg,Mem 1000101woorrrmmm
 				System.out.print(sbf);
 			} else if (hight4 == 0x0C) {
 				/* TODO:0xC* */
-				int p = (buf[i] >> 1) & 0x7;
-				if (p == 0x00) {
-					System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "MOV " + ", ");
-
-				}
-				if (p == 0x01) {
-					System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "RET " + ", ");
-
-				}
-				if (p == 0x02) {
-					byte[] tmp = new byte[3];
-					System.arraycopy(buf, i, tmp, 0, tmp.length);
-					System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UBytes.toHexString(tmp).toUpperCase(), 18, ' ') + ((buf[i] & 0x01) == 0x01 ? "LDS " : "LES ") +
-							get_w_oo_rrr_mmm(1, (buf[i + 1] >> 6) & 0x03, (buf[i + 1] >> 3) & 0x07, buf[i + 1] & 0x07, 0) +
-							Strings.format(Integer.toHexString(buf[i + 2]).toUpperCase(), 2, '0'));
-					i += 2;
-				}
-
-				if (p == 0x03) {
-					int q = (buf[i + 1] >> 3) & 0x07;
-					if (q == 0) {
-						byte[] tmp = new byte[4];
-						System.arraycopy(buf, i, tmp, 0, tmp.length);
-						System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UBytes.toHexString(tmp).toUpperCase(), 18, ' ') + "MOV " +
-							get_oo_mmm((buf[i + 1] >> 6) & 0x03, buf[i + 1] & 0x07, 0));
-						i += 3;
-					} else {
-						System.out.println("!!!WARNING!!!" + UInteger.fmtHex(buf[i], 2) + " " + UInteger.fmtHex(buf[i + 1], 2));
-						i ++;
-					}
-				}
-
-				if (p == 0x04) {
-					System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "ENTER " + ", ");
-
-				}
-				if (p == 0x05) {
-					System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "RET " + ", ");
-
-				}
-				if (p == 0x06) {
-					System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "INT " + ", ");
-
-				}
-				if (p == 0x07) {
-					System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "INTO " + ", ");
-
-				}
+				StringBuffer sbf = new StringBuffer();
+				i = proc_0xC(buf, i, core, sbf);
+				System.out.print(sbf);
 			} else if (hight4 == 0x0D) {
 				/* TODO:0xD* */
-				int p = (buf[i] >> 1) & 0x07;
-				int w = (buf[i]) & 0x01;
-				if (p == 0 || p == 1) {
-					int v = (buf[i + 1] >> 3) & 0x07;
-					if (v == 0) {
-						System.out.println(
-								Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-								Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "ROL ");
-					}
-					if (v == 1) {
-						System.out.println(
-								Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-								Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "ROR ");
-					}
-					if (v == 2) {
-						System.out.println(
-								Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-								Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "RCL ");
-					}
-					if (v == 3) {
-						System.out.println(
-								Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-								Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "RCR ");
-					}
-					if (v == 4) {
-						System.out.println(
-								Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-								Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "SAL ");
-					}
-					if (v == 5) {
-						System.out.println(
-								Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-								Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "SHR ");
-					}
-//					if (v == 6) {
-//						System.out.println(
-//								Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-//								Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "ROL ");
-//					}
-					if (v == 7) {
-						System.out.println(
-								Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-								Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "SAR ");
-					}
-				}
-
-				if (p == 2) {
-					byte[] tmp = new byte[2];
-					System.arraycopy(buf, i, tmp, 0, tmp.length);
-					if (w == 0) {
-						System.out.println(
-								Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-								Strings.format2(UBytes.toHexString(tmp).toUpperCase(), 18, ' ') + "AAD ");
-					} else {
-						System.out.println(
-								Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-								Strings.format2(UBytes.toHexString(tmp).toUpperCase(), 18, ' ') + "AAM");
-					}
-					i ++;
-				}
-				if (p == 3) {
-					if (w == 0) {
-						System.out.println(
-								Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-								Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "SALC ");
-					} else {
-						System.out.println(
-								Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-								Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "XLAT ");
-					}
-				}
+				StringBuffer sbf = new StringBuffer();
+				i = proc_0xD(buf, i, core, sbf);
+				System.out.print(sbf);
 			} else if (hight4 == 0x0E) {
 				/* TODO:0xE* */
 				StringBuffer sbf = new StringBuffer();
@@ -1334,200 +1305,9 @@ MOV Reg,Mem 1000101woorrrmmm
 				System.out.print(sbf);
 			} else if (hight4 == 0x0F) {
 				/* TODO:0xF* */
-				int p = (buf[i] >> 1) & 0x07;
-				int w = (buf[i]) & 0x01;
-				if (p == 0x00) {
-					System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "LOCK ");
-				}
-				if (p == 0x01) {
-					if (w == 0) {
-						System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "REPE ");
-					} else {
-						System.out.println(
-								Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-								Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "REPNE ");
-					}
-				}
-				if (p == 0x02) {
-					if (w == 0) {
-						System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UInteger.fmtHex(buf[i], 2), 18, ' ') + "HLT ");
-					} else {
-						System.out.println(
-								Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-								Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "CMC ");
-					}
-				}
-				if (p == 0x03) {
-					int q = (buf[i + 1] >> 3) & 0x07;
-					if (q == 0) {
-						byte[] tmp = new byte[2];
-						System.arraycopy(buf, i, tmp, 0, tmp.length);
-						System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UBytes.toHexString(tmp).toUpperCase(), 18, ' ') + "TEST " +
-							get_oo_mmm((buf[i + 1] >> 6) & 0x03, buf[i + 1] & 0x07, 0));
-						i ++;
-					}
-					if (q == 2) {
-						byte[] tmp = new byte[2];
-						System.arraycopy(buf, i, tmp, 0, tmp.length);
-						System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UBytes.toHexString(tmp).toUpperCase(), 18, ' ') + "NOT " +
-							get_oo_mmm((buf[i + 1] >> 6) & 0x03, buf[i + 1] & 0x07, 0));
-						i ++;
-					}
-					if (q == 3) {
-						byte[] tmp = new byte[2];
-						System.arraycopy(buf, i, tmp, 0, tmp.length);
-						System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UBytes.toHexString(tmp).toUpperCase(), 18, ' ') + "NEG " +
-							get_oo_mmm((buf[i + 1] >> 6) & 0x03, buf[i + 1] & 0x07, 0));
-						i ++;
-					}
-					if (q == 4) {
-						byte[] tmp = new byte[2];
-						System.arraycopy(buf, i, tmp, 0, tmp.length);
-						System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UBytes.toHexString(tmp).toUpperCase(), 18, ' ') + "MUL " +
-							get_oo_mmm((buf[i + 1] >> 6) & 0x03, buf[i + 1] & 0x07, 0));
-						i ++;
-					}
-					if (q == 5) {
-						byte[] tmp = new byte[2];
-						System.arraycopy(buf, i, tmp, 0, tmp.length);
-						System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UBytes.toHexString(tmp).toUpperCase(), 18, ' ') + "IMUL " +
-							get_oo_mmm((buf[i + 1] >> 6) & 0x03, buf[i + 1] & 0x07, 0));
-						i ++;
-					}
-					if (q == 6) {
-						byte[] tmp = new byte[2];
-						System.arraycopy(buf, i, tmp, 0, tmp.length);
-						System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UBytes.toHexString(tmp).toUpperCase(), 18, ' ') + "DIV " +
-							get_oo_mmm((buf[i + 1] >> 6) & 0x03, buf[i + 1] & 0x07, 0));
-						i ++;
-					}
-					if (q == 7) {
-						byte[] tmp = new byte[2];
-						System.arraycopy(buf, i, tmp, 0, tmp.length);
-						System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UBytes.toHexString(tmp).toUpperCase(), 18, ' ') + "IDIV " +
-							get_oo_mmm((buf[i + 1] >> 6) & 0x03, buf[i + 1] & 0x07, 0));
-						i ++;
-					}
-				}
-				if (p == 0x04) {
-					if (w == 0) {
-						System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "CLC ");
-					} else {
-						System.out.println(
-								Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-								Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "STC ");
-					}
-				}
-				if (p == 0x05) {
-					if (w == 0) {
-						System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "CLI ");
-					} else {
-						System.out.println(
-								Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-								Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "STI ");
-					}
-				}
-				if (p == 0x06) {
-					if (w == 0) {
-						System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UInteger.fmtHex(buf[i], 2), 18, ' ') + "CLD ");
-					} else {
-						System.out.println(
-								Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-								Strings.format2(UInteger.fmtHex(buf[i], 2).toUpperCase(), 18, ' ') + "STD ");
-					}
-				}
-				if (p == 0x07) {
-					int q = (buf[i + 1] >> 3) & 0x07;
-					if (q == 0) {
-						byte[] tmp = new byte[2];
-						System.arraycopy(buf, i, tmp, 0, tmp.length);
-						System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UBytes.toHexString(tmp).toUpperCase(), 18, ' ') + "INC " +
-							get_oo_mmm((buf[i + 1] >> 6) & 0x03, buf[i + 1] & 0x07, 0));
-						i ++;
-					}
-					if (q == 1) {
-						byte[] tmp = new byte[2];
-						System.arraycopy(buf, i, tmp, 0, tmp.length);
-						System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UBytes.toHexString(tmp).toUpperCase(), 18, ' ') + "DEC " +
-							get_oo_mmm((buf[i + 1] >> 6) & 0x03, buf[i + 1] & 0x07, 0));
-						i ++;
-					}
-					if (q == 2) {
-						byte[] tmp = new byte[2];
-						System.arraycopy(buf, i, tmp, 0, tmp.length);
-						System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UBytes.toHexString(tmp).toUpperCase(), 18, ' ') + "CALL " +
-							get_oo_mmm((buf[i + 1] >> 6) & 0x03, buf[i + 1] & 0x07, 0));
-						i ++;
-					}
-					if (q == 3) {
-						byte[] tmp = new byte[2];
-						System.arraycopy(buf, i, tmp, 0, tmp.length);
-						System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UBytes.toHexString(tmp).toUpperCase(), 18, ' ') + "CALL " +
-							get_oo_mmm((buf[i + 1] >> 6) & 0x03, buf[i + 1] & 0x07, 0));
-						i ++;
-					}
-					if (q == 4) {
-						byte[] tmp = new byte[2];
-						System.arraycopy(buf, i, tmp, 0, tmp.length);
-						System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UBytes.toHexString(tmp).toUpperCase(), 18, ' ') + "JMP " +
-							get_oo_mmm((buf[i + 1] >> 6) & 0x03, buf[i + 1] & 0x07, 0));
-						i ++;
-					}
-					if (q == 5) {
-						byte[] tmp = new byte[2];
-						System.arraycopy(buf, i, tmp, 0, tmp.length);
-						System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UBytes.toHexString(tmp).toUpperCase(), 18, ' ') + "JMP " +
-							get_oo_mmm((buf[i + 1] >> 6) & 0x03, buf[i + 1] & 0x07, 0));
-						i ++;
-					}
-					if (q == 6) {
-						byte[] tmp = new byte[2];
-						System.arraycopy(buf, i, tmp, 0, tmp.length);
-						System.out.println(
-							Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +
-							Strings.format2(UBytes.toHexString(tmp).toUpperCase(), 18, ' ') + "PUSH " +
-							get_oo_mmm((buf[i + 1] >> 6) & 0x03, buf[i + 1] & 0x07, 0));
-						i ++;
-					}
-				}
+				StringBuffer sbf = new StringBuffer();
+				i = proc_0xF(buf, i, core, sbf);
+				System.out.print(sbf);
 			} else {
 				System.out.println(
 					Strings.format(Integer.toHexString(i).toUpperCase(), 8, '0') + " " +

@@ -1,0 +1,201 @@
+>>----- main begin -----
+./obj/startup.obj size is 366 bytes.
+print the information of the COFF header.
+
+Target Machine           =0X014C.Intel 386 or later.
+Number Of Sections       =  0003
+Time & Date Stamp (After 1970/1/1 0:00:00) =0
+PointerTo Symbol Table   =0X009F
+Number Of Symbols        =  0010
+Size   Of Optional Header=  0000
+Characteristics(usFlags) =0X0000
+the pos is before Optional Header:0X000014.
+optional header not exist.
+
+the pos is before Section Header:0X000014.
+print the information of the section header.
+
+1 Section Header ----------
+Section Name           =.text
+Virtual Size           =  0000
+Virtual Address        =0X0000
+Size    Of RawData     =  0009
+Pointer To RawData     =0X008C
+Pointer To Relocations =0X0095
+Pointer To Linenumbers =0X0000
+Number  Of Relocations =  0001
+Number  Of Linenumbers =  0000
+Section Flags          =0X60100020
+Section Type           =STYP_TEXT
+Section Type           =STYP_Section can be executed as code
+Section Type           =STYP_Section can be read.
+print the information of the section header.
+
+2 Section Header ----------
+Section Name           =.data
+Virtual Size           =  0000
+Virtual Address        =0X0000
+Size    Of RawData     =  0000
+Pointer To RawData     =0X0000
+Pointer To Relocations =0X0000
+Pointer To Linenumbers =0X0000
+Number  Of Relocations =  0000
+Number  Of Linenumbers =  0000
+Section Flags          =0XC0100040
+Section Type           =STYP_DATA
+Section Type           =STYP_Section can be read.
+Section Type           =STYP_Section can be written to.
+print the information of the section header.
+
+3 Section Header ----------
+Section Name           =.bss
+Virtual Size           =  0000
+Virtual Address        =0X0000
+Size    Of RawData     =  0000
+Pointer To RawData     =0X0000
+Pointer To Relocations =0X0000
+Pointer To Linenumbers =0X0000
+Number  Of Relocations =  0000
+Number  Of Linenumbers =  0000
+Section Flags          =0XC0100080
+Section Type           =STYP_BSS
+Section Type           =STYP_Section can be read.
+Section Type           =STYP_Section can be written to.
+the pos is before Raw Data:0X00008C.
+!!!WARNING the Raw Data is skiped.
+
+the pos is before Relocation Entries:0X000095.
+print the information of the relocation entry.
+
+1 Relocation Entry ----------
+Reference Address    =0005
+Symbol    Index      =0008
+Type   Of Relocation =0014
+the pos is before Line Number Entries:0X00009F.
+sizeof(LINENO)=6.
+line_num_table_size=0.
+line no not exist.
+
+the pos is before Symbol Table:0X00009F.
+sizeof(SYMENT)=18.
+sizeof(SYMENT_offset)=8.
+print the information of the symbol table.
+
+1 Symbol Table ----------
+Symbol Name     =.file
+Value of Symbol =0000
+Section Number  =0XFFFFFFFE
+Section Number  =N_DEBUG?:A debug? symbol.
+Symbol Type     =  0000
+Storage Class   =0X0067
+Auxiliary Count =0X0001
+print the information of the symbol table.
+
+2 Symbol Table ----------
+Symbol Name     =startup.
+Value of Symbol =24931
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0000
+Storage Class   =0X0000
+Storage Class   =C_NULL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+3 Symbol Table ----------
+Symbol Name     =.text
+Value of Symbol =0000
+Section Number  =0X0001
+Section Number  =N_ABS:An absolute symbol. This means that the value of the n_value field is an absolute value.
+Symbol Type     =  0000
+Storage Class   =0X0003
+Storage Class   =C_STAT:STATIC
+Auxiliary Count =0X0001
+print the information of the symbol table.
+
+4 Symbol Table ----------
+Symbol Name     =	
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0000
+Storage Class   =0X0000
+Storage Class   =C_NULL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+5 Symbol Table ----------
+Symbol Name     =.data
+Value of Symbol =0000
+Section Number  =0X0002
+Section Number  =N_DEBUG:A debugging symbol. In the example below, information about the file has been put into a symbol like this.
+Symbol Type     =  0000
+Storage Class   =0X0003
+Storage Class   =C_STAT:STATIC
+Auxiliary Count =0X0001
+print the information of the symbol table.
+
+6 Symbol Table ----------
+Symbol Name    =0
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0000
+Storage Class   =0X0000
+Storage Class   =C_NULL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+7 Symbol Table ----------
+Symbol Name     =.bss
+Value of Symbol =0000
+Section Number  =0X0003
+Symbol Type     =  0000
+Storage Class   =0X0003
+Storage Class   =C_STAT:STATIC
+Auxiliary Count =0X0001
+print the information of the symbol table.
+
+8 Symbol Table ----------
+Symbol Name    =0
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0000
+Storage Class   =0X0000
+Storage Class   =C_NULL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+9 Symbol Table ----------
+Symbol Name    =4
+Value of Symbol =0000
+Section Number  =0X0000
+Section Number  =N_UNDEF:An undefined external symbol.
+Symbol Type     =  0000
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+print the information of the symbol table.
+
+10 Symbol Table ----------
+Symbol Name    =14
+Value of Symbol =0000
+Section Number  =0X0001
+Section Number  =N_ABS:An absolute symbol. This means that the value of the n_value field is an absolute value.
+Symbol Type     =  0000
+Storage Class   =0X0002
+Storage Class   =C_EXT:EXTERNAL
+Auxiliary Count =0X0000
+the pos is before String Table:0X000153.
+String Table Offset is :153
+String Table Size is :27(readed).
+String Table Size is :23(file).
+String Table Size is :27
+print the information of the string table.
+
+1 String Table ----------
+_HariMain
+_HariStartup
+
+----- main end -----<<

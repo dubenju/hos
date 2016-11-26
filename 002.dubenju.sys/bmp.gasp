@@ -1,0 +1,181 @@
+	.file	"bmp.c"
+	.data
+LC0:
+	.ascii "/screen.bmp\0"
+	.text
+	.balign 2
+.globl _bmp_conv
+	.def	_bmp_conv;	.scl	2;	.type	32;	.endef
+_bmp_conv:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	pushl	%ebx
+	movl	$4, %ebx
+	subl	$116, %esp
+	movl	8(%ebp), %esi
+	movl	4068, %ecx
+	movl	%esi, %eax
+	movl	%ecx, -124(%ebp)
+	cltd
+	idivl	%ebx
+	movl	%ebx, %eax
+	subl	%edx, %eax
+	cltd
+	idivl	%ebx
+	leal	(%edx,%esi), %edx
+	movl	%edx, %ebx
+	movl	%edx, -116(%ebp)
+	imull	12(%ebp), %ebx
+	imull	$3, %ebx, %ebx
+	pushl	%ebx
+	pushl	$3932160
+	call	_memman_alloc_4k
+	popl	%edx
+	movl	%eax, %edi
+	movl	%esi, -72(%ebp)
+	leal	54(%ebx), %eax
+	movl	%ebx, -56(%ebp)
+	movl	%eax, -24(%ebp)
+	popl	%ecx
+	movl	12(%ebp), %eax
+	movl	$0, -112(%ebp)
+	movw	$19778, -26(%ebp)
+	movw	$0, -20(%ebp)
+	movw	$0, -18(%ebp)
+	movl	$54, -16(%ebp)
+	movl	$40, -76(%ebp)
+	movl	%eax, -68(%ebp)
+	cmpl	%eax, -112(%ebp)
+	movw	$1, -64(%ebp)
+	movw	$24, -62(%ebp)
+	movl	$0, -60(%ebp)
+	movl	$0, -52(%ebp)
+	movl	$0, -48(%ebp)
+	movl	$0, -44(%ebp)
+	movl	$0, -40(%ebp)
+	jge	L19
+L16:
+	xorl	%esi, %esi
+	cmpl	-72(%ebp), %esi
+	jge	L21
+L10:
+	movl	-112(%ebp), %eax
+	movl	-124(%ebp), %edx
+	notl	%eax
+	addl	-68(%ebp), %eax
+	movl	-112(%ebp), %ecx
+	imull	8(%edx), %ecx
+	imull	-116(%ebp), %eax
+	addl	%esi, %eax
+	addl	%esi, %ecx
+	imull	$3, %eax, %ebx
+	movl	16(%ebp), %eax
+	incl	%esi
+	movw	(%eax,%ecx,2), %dx
+	movl	%edx, %eax
+	shrw	$2, %ax
+	andl	$7, %eax
+	leal	(%eax,%edx,8), %eax
+	movb	%al, (%ebx,%edi)
+	movl	16(%ebp), %edx
+	movw	(%edx,%ecx,2), %ax
+	shrw	$3, %ax
+	movb	%al, %dl
+	shrw	$6, %ax
+	andl	$3, %eax
+	andl	$-4, %edx
+	addl	%eax, %edx
+	movb	%dl, 1(%ebx,%edi)
+	movl	16(%ebp), %eax
+	movl	16(%ebp), %edx
+	movw	(%eax,%ecx,2), %ax
+	movw	%ax, -126(%ebp)
+	movb	1(%edx,%ecx,2), %al
+	movw	-126(%ebp), %dx
+	andl	$-8, %eax
+	shrw	$13, %dx
+	addl	%edx, %eax
+	movb	%al, 2(%ebx,%edi)
+	cmpl	-72(%ebp), %esi
+	jl	L10
+L21:
+	movl	-72(%ebp), %esi
+	cmpl	-116(%ebp), %esi
+	jge	L23
+L15:
+	movl	-112(%ebp), %eax
+	notl	%eax
+	addl	-68(%ebp), %eax
+	imull	-116(%ebp), %eax
+	addl	%esi, %eax
+	incl	%esi
+	imull	$3, %eax, %ebx
+	movb	$0, (%ebx,%edi)
+	movb	$0, 1(%ebx,%edi)
+	movb	$0, 2(%ebx,%edi)
+	cmpl	-116(%ebp), %esi
+	jl	L15
+L23:
+	incl	-112(%ebp)
+	movl	-112(%ebp), %ecx
+	cmpl	-68(%ebp), %ecx
+	jl	L16
+L19:
+	pushl	_u_fat
+	leal	-108(%ebp), %ebx
+	pushl	%ebx
+	pushl	$16
+	pushl	$LC0
+	call	_hrb_api_fopen
+	addl	$16, %esp
+	testl	%eax, %eax
+	jne	L24
+L17:
+	pushl	_u_fat
+	pushl	%ebx
+	call	_hrb_api_fclose
+	movl	-116(%ebp), %eax
+	imull	12(%ebp), %eax
+	movl	%eax, -116(%ebp)
+	imull	$3, %eax, %eax
+	pushl	%eax
+	pushl	%edi
+	pushl	$3932160
+	call	_memman_free_4k
+	leal	-12(%ebp), %esp
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	ret
+L24:
+	pushl	_u_fat
+	pushl	%ebx
+	leal	-26(%ebp), %eax
+	pushl	$14
+	pushl	%eax
+	call	_hrb_api_fwrite
+	leal	-76(%ebp), %eax
+	pushl	_u_fat
+	pushl	%ebx
+	pushl	$40
+	pushl	%eax
+	call	_hrb_api_fwrite
+	movl	-116(%ebp), %eax
+	imull	12(%ebp), %eax
+	imull	$3, %eax, %eax
+	addl	$32, %esp
+	pushl	_u_fat
+	pushl	%ebx
+	pushl	%eax
+	pushl	%edi
+	call	_hrb_api_fwrite
+	addl	$16, %esp
+	jmp	L17
+	.def	_memman_free_4k;	.scl	2;	.type	32;	.endef
+	.def	_hrb_api_fclose;	.scl	2;	.type	32;	.endef
+	.def	_hrb_api_fwrite;	.scl	2;	.type	32;	.endef
+	.def	_hrb_api_fopen;	.scl	2;	.type	32;	.endef
+	.def	_memman_alloc_4k;	.scl	2;	.type	32;	.endef

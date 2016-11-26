@@ -1,0 +1,62 @@
+An ar file begins with a global header, followed by a header and data section 
+for each file stored within the ar file.
+Each data section is 2 byte aligned. If it would end on an odd offset, a newline
+ ('\n', 0x0A) is used as filler.
+
+File signature
+The file signature is a single field containing the magic ASCII string "!<arch>" 
+followed by a single LF control character (0x0A).
+
+File header
+Each file stored in a ar archive includes a file header to store information 
+about the file. The common format is as follows. Numeric values are encoded in 
+ASCII and all values right-padded with ASCII spaces (0x20).
+
+Offset	Length	Name	Format
+0	16	File identifier	ASCII
+16	12	File modification timestamp	Decimal
+28	6	Owner ID	Decimal
+34	6	Group ID	Decimal
+40	8	File mode	Octal
+48	10	File size in bytes	Decimal
+58	2	Ending characters	0x60 0x0A
+
+As the headers only include printable ASCII characters and line feeds, an archive containing only text files therefore still appears to be a text file itself.
+
+The members are aligned to even byte boundaries. "Each archive file member begins on an even byte boundary; a newline is inserted between files if necessary. Nevertheless, the size given reflects the actual size of the file exclusive of padding."
+Due to the limitations of file name length and format, both the GNU and BSD variants devised different methods of storing long filenames. Although the common format does not suffer from the year 2038 problem, many implementations of the ar utility do and may need to be modified in the future to handle correctly timestamps in excess of 2147483647.
+
+BSD variant
+BSD ar stores filenames right-padded with ASCII spaces. This causes issues with spaces inside filenames. 4.4BSD ar stores extended filenames by placing the string "#1/" followed by the file name length in the file name field, and storing the real filename in front of the data section.[5]
+
+BSD ar utility traditionally does not handle the building of a global symbol lookup table, and delegates this task to a separate utility named ranlib,[7] which inserts an architecture-specific file named __.SYMDEF at the beginning of the archive.[8]
+
+System V (or GNU) variant[edit]
+System V ar uses a '/' character (0x2F) to mark the end of the filename; this allows for the use of spaces without the use of an extended filename. Then it stores multiple extended filenames in the data section of a file with the name "//", this record is referred to by future headers. A header references an extended filename by storing a "/" followed by a decimal offset to the start of the filename in the extended filename data section. The format of this "//" file itself is simply a list of the long filenames, each separated by one or more LF characters. Note that the decimal offsets are number of characters, not line or string number within the "//" file.
+
+System V ar uses the special filename "/" to denote that the following data entry contains a symbol lookup table, which is used in ar libraries to speed up access. This symbol table is built in three parts which are recorded together as contiguous data.
+
+A 32-bit big endian integer, giving the number of entries in the table.
+A set of 32-bit big endian integers. One for each symbol, recording the position within the archive of the header for the file containing this symbol.
+A set of Zero-terminated strings. Each is a symbol name, and occurs in the same order as the list of positions in part 2.
+The special file "/" is not terminated with a specific sequence; the end is assumed once the last symbol name has been read.
+
+The Windows variation adds a second special "/" which stores an extended symbol cross-reference table,[4] stored sorted and using little-endian integers.
+
+
+To create an archive from files class1.o, class2.o, class3.o, the following command would be used:
+
+ar rcs libclass.a class1.o class2.o class3.o
+Unix linkers, usually invoked through the C compiler cc, can read ar files and extract object files from them, so if libclass.a is an archive containing class1.o, class2.o and class3.o, then
+
+cc main.c libclass.a
+or (if libclass.a is placed in standard library path, like /usr/local/lib)
+
+cc main.c -lclass
+or (during linking)
+
+ld ... main.o -lclass ...
+is the same as:
+
+cc main.c class1.o class2.o class3.o
+

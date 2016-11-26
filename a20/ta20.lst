@@ -1,0 +1,86 @@
+     1                                  ; NASM
+     2                                  [bits 16]
+     3                                   
+     4                                  org 0x7c00
+     5                                   
+     6 00000000 8CC8                        mov ax, cs
+     7 00000002 8ED8                        mov ds, ax
+     8 00000004 8EC0                        mov es, ax
+     9                                   
+    10 00000006 E81B00                      call check_a20
+    11 00000009 85C0                        test ax, ax
+    12 0000000B B8[6000]                    mov ax, A20On
+    13 0000000E 7503                        jnz Print           ; Enabled
+    14 00000010 B8[7100]                    mov ax, A20Off
+    15                                   
+    16                                  Print:
+    17 00000013 89C5                        mov bp, ax
+    18 00000015 B91000                      mov cx, 16
+    19 00000018 B80113                      mov ax, 0x1301
+    20 0000001B BB0C00                      mov bx, 0x000c
+    21 0000001E B200                        mov dl, 0
+    22 00000020 CD10                        int 0x10
+    23                                      
+    24 00000022 FA                          cli                 ; Shutdown
+    25 00000023 F4                          hlt
+    26                                   
+    27                                   
+    28                                   
+    29                                  check_a20:
+    30 00000024 1E                          push ds
+    31 00000025 06                          push es
+    32 00000026 57                          push di
+    33 00000027 56                          push si
+    34                                   
+    35 00000028 FA                          cli
+    36                                   
+    37 00000029 31C0                        xor ax, ax ; ax = 0
+    38 0000002B 8EC0                        mov es, ax
+    39                                   
+    40 0000002D F7D0                        not ax ; ax = 0xFFFF
+    41 0000002F 8ED8                        mov ds, ax
+    42                                   
+    43 00000031 BF0005                      mov di, 0x0500
+    44 00000034 BE1005                      mov si, 0x0510
+    45                                   
+    46 00000037 268A05                      mov al, byte [es:di]
+    47 0000003A 50                          push ax
+    48                                   
+    49 0000003B 3E8A04                      mov al, byte [ds:si]
+    50 0000003E 50                          push ax
+    51                                   
+    52 0000003F 26C60500                    mov byte [es:di], 0x00
+    53 00000043 3EC604FF                    mov byte [ds:si], 0xFF
+    54                                   
+    55 00000047 26803DFF                    cmp byte [es:di], 0xFF
+    56                                   
+    57 0000004B 58                          pop ax
+    58 0000004C 3E8804                      mov byte [ds:si], al
+    59                                   
+    60 0000004F 58                          pop ax
+    61 00000050 268805                      mov byte [es:di], al
+    62                                   
+    63 00000053 B80000                      mov ax, 0
+    64 00000056 7403                        je check_a20__exit
+    65                                   
+    66 00000058 B80100                      mov ax, 1
+    67                                   
+    68                                  check_a20__exit:
+    69 0000005B 5E                          pop si
+    70 0000005C 5F                          pop di
+    71 0000005D 07                          pop es
+    72 0000005E 1F                          pop ds
+    73                                   
+    74 0000005F C3                          ret
+    75                                   
+    76                                  A20On:
+    77 00000060 413230206973204F6E-         db "A20 is On        "
+    78 00000069 2020202020202020   
+    79                                  A20Off:
+    80 00000071 413230206973204F66-         db "A20 is Off       "
+    81 0000007A 6620202020202020   
+    82                                   
+    83 00000082 00<rept>                times 510-($-$$) db 0
+    84                                   
+    85 000001FE 55                      db 0x55
+    86 000001FF AA                      db 0xaa

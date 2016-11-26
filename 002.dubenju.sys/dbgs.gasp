@@ -1,0 +1,410 @@
+	.file	"dbgs.c"
+	.data
+LC0:
+	.ascii "Debug Window\0"
+	.text
+	.balign 2
+.globl _dbg_init
+	.def	_dbg_init;	.scl	2;	.type	32;	.endef
+_dbg_init:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	$179
+	pushl	$240
+	pushl	$400
+	movl	8(%ebp), %eax
+	pushl	$200
+	movl	%eax, _dbg
+	pushl	$12
+	pushl	%eax
+	movl	$179, _dbg+4
+	movl	$12, _dbg+8
+	movl	$200, _dbg+12
+	movl	$0, _dbg+16
+	movl	$0, _dbg+20
+	movl	$400, _dbg+24
+	movl	$240, _dbg+28
+	call	_make_textbox8
+	pushl	$12
+	pushl	$LC0
+	pushl	_dbg+4
+	pushl	$7
+	pushl	_dbg+12
+	pushl	_dbg+8
+	pushl	_dbg
+	call	_putfonts8_asc_sht
+	movl	_dbg+8, %edx
+	movl	_dbg+12, %ecx
+	addl	$52, %esp
+	movl	%ecx, %eax
+	subl	$3, %ecx
+	addl	_dbg+28, %eax
+	addl	$3, %eax
+	pushl	%eax
+	movl	%edx, %eax
+	addl	_dbg+24, %eax
+	subl	$3, %edx
+	addl	$3, %eax
+	pushl	%eax
+	pushl	%ecx
+	pushl	%edx
+	pushl	_dbg
+	call	_sheet_refresh
+	movb	$1, _dbg+32
+	leave
+	ret
+	.data
+LC1:
+	.ascii " \0"
+	.text
+	.balign 2
+.globl _dbg_putchar
+	.def	_dbg_putchar;	.scl	2;	.type	32;	.endef
+_dbg_putchar:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%ebx
+	pushl	%ecx
+	movl	8(%ebp), %eax
+	movl	12(%ebp), %ebx
+	movb	%al, -6(%ebp)
+	cmpb	$9, %al
+	movb	$0, -5(%ebp)
+	je	L4
+	cmpb	$10, %al
+	je	L17
+	cmpb	$13, %al
+	je	L2
+	movl	_dbg, %edx
+	testl	%edx, %edx
+	jne	L18
+L15:
+	movl	_dbg+16, %eax
+	addl	$8, %eax
+	movl	%eax, _dbg+16
+	cmpl	_dbg+24, %eax
+	je	L17
+L2:
+	movl	-4(%ebp), %ebx
+	leave
+	ret
+L17:
+	pushl	$_dbg
+	call	_dbg_newline
+	popl	%eax
+	jmp	L2
+L18:
+	pushl	$1
+	leal	-6(%ebp), %eax
+	pushl	%eax
+	movl	_dbg+20, %eax
+	pushl	_dbg+4
+	addl	_dbg+12, %eax
+	pushl	%ebx
+	pushl	%eax
+	movl	_dbg+16, %eax
+	addl	_dbg+8, %eax
+	pushl	%eax
+	pushl	%edx
+	call	_putfonts8_asc_sht
+	addl	$28, %esp
+	jmp	L15
+L4:
+	movl	_dbg, %edx
+	testl	%edx, %edx
+	jne	L19
+L7:
+	movl	_dbg+16, %eax
+	addl	$8, %eax
+	movl	%eax, _dbg+16
+	cmpl	_dbg+24, %eax
+	je	L20
+L8:
+	testb	$31, _dbg+16
+	jne	L4
+	jmp	L2
+L20:
+	pushl	$_dbg
+	call	_dbg_newline
+	popl	%edx
+	jmp	L8
+L19:
+	pushl	$1
+	movl	_dbg+20, %eax
+	pushl	$LC1
+	addl	_dbg+12, %eax
+	pushl	_dbg+4
+	pushl	%ebx
+	pushl	%eax
+	movl	_dbg+16, %eax
+	addl	_dbg+8, %eax
+	pushl	%eax
+	pushl	%edx
+	call	_putfonts8_asc_sht
+	addl	$28, %esp
+	jmp	L7
+	.balign 2
+.globl _dbg_newline
+	.def	_dbg_newline;	.scl	2;	.type	32;	.endef
+_dbg_newline:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	pushl	%ebx
+	subl	$56, %esp
+	movl	8(%ebp), %esi
+	movl	28(%esi), %edx
+	movl	(%esi), %eax
+	movl	%eax, -16(%ebp)
+	movl	%edx, -20(%ebp)
+	movl	%edx, %eax
+	movl	20(%esi), %edx
+	subl	$16, %eax
+	movl	$0, 16(%esi)
+	cmpl	%eax, %edx
+	jge	L22
+	leal	16(%edx), %eax
+	movl	%eax, 20(%esi)
+L21:
+	leal	-12(%ebp), %esp
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	ret
+L22:
+	cmpl	$0, -16(%ebp)
+	je	L21
+	movl	12(%esi), %ebx
+	movl	-20(%ebp), %ecx
+	movl	%ebx, -44(%ebp)
+	leal	-16(%ecx,%ebx), %eax
+	cmpl	%eax, %ebx
+	jge	L46
+L34:
+	movl	8(%esi), %ecx
+	movl	24(%esi), %edi
+	movl	%ecx, -24(%ebp)
+	movl	%edi, -40(%ebp)
+	leal	(%edi,%ecx), %eax
+	cmpl	%eax, %ecx
+	jge	L48
+	movl	-16(%ebp), %eax
+	movl	-16(%ebp), %edx
+	movl	4(%eax), %eax
+	movl	(%edx), %edi
+	movl	%eax, -52(%ebp)
+L33:
+	leal	16(%ebx), %eax
+	movl	-52(%ebp), %edx
+	imull	-52(%ebp), %eax
+	imull	%ebx, %edx
+	leal	(%eax,%ecx), %eax
+	leal	(%edx,%ecx), %edx
+	incl	%ecx
+	movw	(%edi,%eax,2), %ax
+	movw	%ax, (%edi,%edx,2)
+	movl	-24(%ebp), %eax
+	addl	-40(%ebp), %eax
+	cmpl	%eax, %ecx
+	jl	L33
+L48:
+	movl	-44(%ebp), %ecx
+	movl	-20(%ebp), %edi
+	incl	%ebx
+	leal	-16(%edi,%ecx), %eax
+	cmpl	%eax, %ebx
+	jl	L34
+L46:
+	movl	12(%esi), %eax
+	movl	28(%esi), %edx
+	movl	%eax, -28(%ebp)
+	movl	%edx, -32(%ebp)
+	leal	-16(%edx,%eax), %ebx
+L44:
+	movl	8(%esi), %ecx
+	movl	24(%esi), %edi
+	movl	%ecx, -36(%ebp)
+	movl	%edi, -68(%ebp)
+	leal	(%edi,%ecx), %eax
+	cmpl	%eax, %ecx
+	jge	L52
+	movl	-16(%ebp), %eax
+	movl	-16(%ebp), %edx
+	movl	4(%eax), %eax
+	movl	(%edx), %edx
+	movl	%eax, -48(%ebp)
+	movl	%edx, -56(%ebp)
+L43:
+	movl	-48(%ebp), %eax
+	movl	4(%esi), %edx
+	imull	%ebx, %eax
+	movw	_table_8_565(%edx,%edx), %dx
+	movl	-56(%ebp), %edi
+	leal	(%eax,%ecx), %eax
+	incl	%ecx
+	movw	%dx, (%edi,%eax,2)
+	movl	-36(%ebp), %eax
+	addl	-68(%ebp), %eax
+	cmpl	%eax, %ecx
+	jl	L43
+L52:
+	movl	-28(%ebp), %eax
+	incl	%ebx
+	addl	-32(%ebp), %eax
+	cmpl	%eax, %ebx
+	jl	L44
+	movl	12(%esi), %ecx
+	movl	%ecx, %eax
+	addl	28(%esi), %eax
+	pushl	%eax
+	movl	8(%esi), %edx
+	movl	%edx, %eax
+	addl	24(%esi), %eax
+	pushl	%eax
+	pushl	%ecx
+	pushl	%edx
+	pushl	-16(%ebp)
+	call	_sheet_refresh
+	addl	$20, %esp
+	jmp	L21
+	.balign 2
+.globl _dbg_putstr0
+	.def	_dbg_putstr0;	.scl	2;	.type	32;	.endef
+_dbg_putstr0:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%esi
+	pushl	%ebx
+	movl	12(%ebp), %esi
+	movl	8(%ebp), %ebx
+	cmpb	$1, _dbg+32
+	je	L61
+L53:
+	leal	-8(%ebp), %esp
+	popl	%ebx
+	popl	%esi
+	popl	%ebp
+	ret
+L61:
+	cmpb	$0, (%ebx)
+	je	L53
+L59:
+	pushl	%esi
+	movsbl	(%ebx),%eax
+	pushl	%eax
+	incl	%ebx
+	call	_dbg_putchar
+	popl	%eax
+	popl	%edx
+	cmpb	$0, (%ebx)
+	jne	L59
+	jmp	L53
+	.balign 2
+.globl _dbg_putstr1
+	.def	_dbg_putstr1;	.scl	2;	.type	32;	.endef
+_dbg_putstr1:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	pushl	%ebx
+	movl	12(%ebp), %esi
+	xorl	%ebx, %ebx
+	movl	16(%ebp), %edi
+	cmpl	%esi, %ebx
+	jl	L67
+L69:
+	leal	-12(%ebp), %esp
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	ret
+L67:
+	movl	8(%ebp), %edx
+	pushl	%edi
+	movsbl	(%ebx,%edx),%eax
+	pushl	%eax
+	incl	%ebx
+	call	_dbg_putchar
+	cmpl	%esi, %ebx
+	popl	%ecx
+	popl	%eax
+	jl	L67
+	jmp	L69
+	.data
+LC2:
+	.ascii "/ztext.txt\0"
+LC3:
+	.ascii "[log]%s\12\0"
+	.text
+	.balign 2
+.globl _out_log
+	.def	_out_log;	.scl	2;	.type	32;	.endef
+_out_log:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	pushl	%ebx
+	subl	$288, %esp
+	cmpb	$0, _fat_flag
+	jne	L72
+L70:
+	leal	-12(%ebp), %esp
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	ret
+L72:
+	pushl	_u_fat
+	leal	-44(%ebp), %esi
+	leal	-300(%ebp), %edi
+	pushl	%esi
+	leal	-300(%ebp), %ebx
+	pushl	$0
+	pushl	$LC2
+	call	_hrb_api_fopen
+	xorl	%eax, %eax
+	cld
+	movl	$64, %ecx
+	rep
+	stosl
+	pushl	8(%ebp)
+	pushl	$LC3
+	movl	%ebx, %edi
+	pushl	%ebx
+	call	_sprintf
+	xorl	%eax, %eax
+	pushl	_u_fat
+	cld
+	pushl	%esi
+	orl	$-1, %ecx
+	repne
+	scasb
+	notl	%ecx
+	decl	%ecx
+	pushl	%ecx
+	pushl	%ebx
+	call	_hrb_api_fwrite
+	addl	$44, %esp
+	pushl	_u_fat
+	pushl	%esi
+	call	_hrb_api_fclose
+	jmp	L70
+.globl _dbg
+	.data
+	.balign 16
+_dbg:
+	.space 36
+	.def	_hrb_api_fclose;	.scl	2;	.type	32;	.endef
+	.def	_hrb_api_fwrite;	.scl	2;	.type	32;	.endef
+	.def	_sprintf;	.scl	2;	.type	32;	.endef
+	.def	_hrb_api_fopen;	.scl	2;	.type	32;	.endef
+	.def	_dbg_newline;	.scl	2;	.type	32;	.endef
+	.def	_sheet_refresh;	.scl	2;	.type	32;	.endef
+	.def	_putfonts8_asc_sht;	.scl	2;	.type	32;	.endef
+	.def	_make_textbox8;	.scl	2;	.type	32;	.endef
