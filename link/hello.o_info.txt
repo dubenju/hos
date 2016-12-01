@@ -1,0 +1,17 @@
+
+hello.o:     ファイル形式 pe-i386
+
+セクション:
+索引名          サイズ      VMA       LMA       File off  Algn
+  0 .text         00000024  00000000  00000000  00000104  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, CODE
+  1 .data         00000000  00000000  00000000  00000000  2**2
+                  ALLOC, LOAD, DATA
+  2 .bss          00000000  00000000  00000000  00000000  2**2
+                  ALLOC
+  3 .rdata        0000000c  00000000  00000000  00000128  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  4 .rdata$zzz    00000014  00000000  00000000  00000134  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  5 .eh_frame     00000038  00000000  00000000  00000148  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, DATA

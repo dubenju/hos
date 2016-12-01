@@ -7,6 +7,9 @@ public class UInteger {
 		if (lena > len) {
 			a = a.substring(lena - len, lena);
 		}
+		if (lena < len) {
+			a = Strings.format(a, len, '0');
+		}
 		return a;
 	}
 }

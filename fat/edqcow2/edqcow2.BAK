@@ -817,6 +817,13 @@ int write_l1(QCOW2_FILE * qcow2File, FILE * pFile) {
         printf("file write error(%d != %d).\n", writecnt, qcow2File->l1_size);
         goto err_write_l1;
     }
+    for (idx = 0; idx < qcow2File->l1_size; idx ++) {
+        value = *(qcow2File->pL1Table + idx);
+        if (value == 0) { continue; }
+        value = be64_to_cpu(value);
+        value = value & 0x3FFFFFFFFFFFFFFF;
+        memcpy(qcow2File->pL1Table + idx, &value, sizeof(value));
+    }
 
     goto end_write_l1;
 err_write_l1:
@@ -898,6 +905,7 @@ int write_qcow2(QCOW2_FILE * qcow2File, FILE * pFile, uint64_t sector_no, void *
     size_t out_size;
     int write_cnt;
     size_t total_size;
+    int l1_update_flag;
     int l2_update_flag;
 
     /* 变量初始化 */
@@ -905,6 +913,7 @@ int write_qcow2(QCOW2_FILE * qcow2File, FILE * pFile, uint64_t sector_no, void *
     write_size = 0;
     write_cnt = 0;
     total_size = buf_size;
+    l1_update_flag = 0;
     l2_update_flag = 0;
 
     /* 处理开始 */
@@ -913,6 +922,7 @@ int write_qcow2(QCOW2_FILE * qcow2File, FILE * pFile, uint64_t sector_no, void *
     printf("缓冲区大小%d.\n", buf_size);
     sec_idx = ((uint32_t) sector_no);
     do {
+        l1_update_flag = 0;
         l2_update_flag = 0;
         printf("-----------------------------------.\n");
         printf("%d◆扇区索引%d.\n",write_cnt, sec_idx);
@@ -936,6 +946,23 @@ int write_qcow2(QCOW2_FILE * qcow2File, FILE * pFile, uint64_t sector_no, void *
         printf("表1偏移:%lld %X.\n", l1_offset, l1_offset);
         if (l1_offset == 0LL) {
             /* create L2 Table */
+            l1_offset = *(qcow2File->pRefcountTable) + qcow2File->clustor_size;
+            int i = 0;
+            for (i = 0; i < qcow2File->refcount_cnt; i ++) {
+                if (*(qcow2File->pRefcountBlock + i) == 0) {
+                    break;
+                }
+            }
+            *(qcow2File->pL1Table + l1_idx) = l1_offset;
+            *(qcow2File->pRefcountBlock + i) = 1; /* 引用计数块更新 */
+            l1_update_flag = 1;
+            if (qcow2File->pL2Table == NULL) {
+                qcow2File->pL2Table = (uint64_t *) malloc(sizeof(uint64_t) * qcow2File->l1_size * qcow2File->clustor_size / 8);
+                if (qcow2File->pL2Table == NULL) {
+                    goto err_write_qcow2;
+                }
+                memset(qcow2File->pL2Table, 0, sizeof(uint64_t) * qcow2File->l1_size * qcow2File->clustor_size / 8);
+            }
         }
         l2_offset = *(qcow2File->pL2Table + l1_idx * 512 + l2_idx);
         printf("表2偏移:%lld %X.\n", l2_offset, l2_offset);
@@ -954,7 +981,6 @@ int write_qcow2(QCOW2_FILE * qcow2File, FILE * pFile, uint64_t sector_no, void *
             l2_update_flag = 1;
         } else {
             printf("更新原有的簇.:%lld %X.\n", l2_offset, l2_offset);
-            l2_update_flag = 0;
         }
         write_offset = l2_offset + cl_idx;
         printf("簇内偏移:%lld %X.\n", write_offset, write_offset);
@@ -980,6 +1006,11 @@ int write_qcow2(QCOW2_FILE * qcow2File, FILE * pFile, uint64_t sector_no, void *
         printf("%d◆累计成功写入区域大小%d.\n",write_cnt,  write_size);
         printf("%d◆成功写入区域大小%d.\n", write_cnt, out_size);
         write_cnt ++;
+        if (l1_update_flag == 1) {
+            if (write_l1(qcow2File, pFile) != 0) {
+                returnCode = 1; goto err_write_qcow2; }
+            l1_update_flag = 0;
+        }
         if (l2_update_flag == 1) {
             if (write_l2(qcow2File, l1_idx, pFile, l1_offset) != 0) {
                 returnCode = 1; goto err_write_qcow2; }
@@ -1299,51 +1330,6 @@ void print_qcow2_file(QCOW2_FILE * qcow2) {
     printf("----- print_qcow2_file -----<<.\n");
 }
 
-
-int write_sector_to_image(uint32_t sector_no, const char * buf, QCOW2_FILE * qcow2File, FILE * pFile, uint64_t write_offset) {
-    /* 变量定义 */
-    int returnCode;
-    uint32_t l1_idx;
-    uint32_t l2_idx;
-
-    /* 变量初始化 */
-    returnCode = 0;
-
-    /* 处理开始 */
-    printf("sector_no=%d.\n", sector_no);
-    printf("write_offset=%lld.%X.\n", write_offset, write_offset);
-    if (fseek(pFile, write_offset, SEEK_SET)) {
-        printf("fseek error(%lld).\n", write_offset);
-        goto err_write_sector_to_image;
-    }
-    int writecnt = fwrite(buf, 1, 512, pFile);
-    if (writecnt != 512) {
-        printf("file write error(%d != 512).\n", writecnt);
-        goto err_write_sector_to_image;
-    }
-    
-    /* 更新表2 */
-    l1_idx = get_l1_index(sector_no, 4096, 512); // TODO:
-    l2_idx = get_l2_index(sector_no);
-    printf("l1=%d.l2=%d.\n", l1_idx, l2_idx);
-    uint64_t cluster_addr = write_offset & 0xFFFFFFFFFFFFF000LL;
-    printf("簇地址:%llu.%X\n", cluster_addr, cluster_addr);
-    *(qcow2File->pL2Table + l2_idx) = cluster_addr;
-/*    *(qcow2File->pL2Table + l2_idx) = *(qcow2File->pL2Table + l2_idx) + 0x8000000000000000LL;
-    *(qcow2File->pL2Table + l2_idx) = cpu_to_be64(*(qcow2File->pL2Table + l2_idx));*/
-
-    printf("引用计数表大小:%d\n", qcow2File->refcount_table_cnt);
-    printf("引用计数块大小:%d\n", qcow2File->refcount_cnt);
-    int idx_refcount = cluster_addr / 4096;
-    *(qcow2File->pRefcountBlock + idx_refcount) = 1;
-
-    goto end_write_sector_to_image;
-err_write_sector_to_image:
-end_write_sector_to_image:
-    /* 处理结束 */
-    return returnCode;
-}
-
 uint64_t get_l2_offset(QCOW2_FILE * qcow2File, uint32_t sector_no) {
     printf(">>----- get_l2_offset -----.\n");
     int idx = 0;
@@ -1356,9 +1342,6 @@ uint64_t get_l2_offset(QCOW2_FILE * qcow2File, uint32_t sector_no) {
     uint32_t l1_size = (qcow2File->pHeader->l1_size);
     printf("l1 offset:%lld. %X.\n", l1_offset, l1_offset);
     printf("size:%d.\n", l1_size);
-    for (idx = 0; idx < l1_size; idx ++) {
-        printf("%d %llu.\n", idx,  *(qcow2File->pL1Table + idx));
-    }
     if (*(qcow2File->pL1Table + l1_idx) == 0LL) {
         int i = 0;
         // TODO: DEBUG
@@ -1385,18 +1368,6 @@ uint64_t get_l2_offset(QCOW2_FILE * qcow2File, uint32_t sector_no) {
             }
             memset(qcow2File->pL2Table, 0, 4096);
             qcow2File->l2_size += 512;
-            /*
-            print_header(qcow2File->pHeader);
-            QCowHeader * ph = qcow2File->pHeader;
-            print_header(ph);
-            uint64_t size = ph->size;
-            printf("BEF____:%d.\n", size);
-            size = be64_to_cpu(size);
-            printf("BEF:%d.\n", size);
-            size = size + 4096;
-            printf("AFT:%d.\n", size);
-            qcow2File->pHeader->size = cpu_to_be64(size);
-            */
         }
         *(qcow2File->pL2Table + l2_idx) = 0x5000;
         printf("----- get_l2_offset -----<<.\n");
@@ -1474,7 +1445,7 @@ uint64_t total_size, char * mbrfile, const char * fmt) {
     printf("cluster_size = %ld\n", cluster_size);
     printf("size= %lld\n", qcow2File->pHeader->size);
     printf("----- QCOW2 HEADER -----.\n");
-    // print_header(qcow2File->pHeader);
+
     if (total_size == 0) {
         total_size = qcow2File->pHeader->size / (16 * 63 * 512);
         total_size *= (16 * 63 * 512);
@@ -1618,13 +1589,6 @@ uint64_t total_size, char * mbrfile, const char * fmt) {
         print_list(pe_table);
         printf("----- Partition Table -----<<\n");
         printf("\n");
-
-        /* VBRs *//*
-        printf(">>----- VBR Table -----\n");
-        print_vbr(pe_table, l2_table, l2_size, pFile);
-        printf("----- VBR Table -----<<\n");
-        printf("\n");
-*/
     } else {
     }
 
@@ -1633,39 +1597,34 @@ uint64_t total_size, char * mbrfile, const char * fmt) {
     /* 输出F6 */
     int max_write_cnt = 10;
     int cur_write_cnt = 1;
-    int s = (total_size - 512) / 1048576;
+    printf("fmt=%s.\n", fmt);
+    int s = (total_size) / 1048576;
     printf("分区大小:%d.\n", s);
-    if (s >= 16) {
-        max_write_cnt = 11;
+    if (s >= 24) {
+        max_write_cnt = 11 + (s - 24) / 16;
+    } else if (s >= 16) {
+        max_write_cnt = 10 + (s - 16) / 8;
     }
     if (memcmp(fmt, "fat32", 5) == 0) {
         max_write_cnt = 42;
     }
     sector_no = 0;
-    uint64_t offset = get_l2_offset(qcow2File, sector_no);
-    uint64_t write_offset = offset;
     printf("max_sector_cnt = %d.\n", max_sector_cnt);
     for (idx = 0, sector_no = 63; ; idx ++, sector_no += 63) {
         printf(" %03d ", idx);
-        printf(" %X ", offset);
         printf("sector no = %d.", sector_no);
-        printf("%d >= %d.\n", cur_write_cnt, max_write_cnt);
-        if (cur_write_cnt >= max_write_cnt) {
+        printf("%d > %d.\n", cur_write_cnt, max_write_cnt);
+        if (cur_write_cnt > max_write_cnt) {
             break ;
         }
         if (sector_no > max_sector_cnt) {
             break;
         }
-        // if (sector_no > 576) {
-        //     break;
-        // }
-        printf("clustor%d, %d.", sector_no / 8, sector_no % 8);
-        printf("%X ", 0x200 * ( sector_no % 8 ));
-        write_offset = offset + 0x200 * ( sector_no % 8 );
-        printf(" out=%X.\n", write_offset);
 
-        write_sector_to_image(sector_no, buf, qcow2File, pFile, write_offset);
-        offset += 0x1000;
+        if (write_qcow2(qcow2File, pFile, sector_no, buf, sizeof(buf)) != 0) {
+            returnCode = 1;
+            goto err_create_partition;
+        }
         cur_write_cnt ++;
     }
     printf("\n");
@@ -1742,7 +1701,6 @@ uint64_t total_size, char * mbrfile, const char * fmt) {
         goto err_create_partition;
     }
     print_partition_entry(&pe);
-    sector_no = 1;
     printf("mbr:%s.\n", mbrfile);
     FILE * pMbrFile = fopen(mbrfile, "rb");
     if (pMbrFile == NULL) {
@@ -1762,9 +1720,10 @@ uint64_t total_size, char * mbrfile, const char * fmt) {
     memset(buf + 462, 0, 48);
     buf[510]= 0x55;
     buf[511]= 0xAA;
-    printf("%X.\n", offset);
-    write_sector_to_image(sector_no, buf, qcow2File, pFile, offset);
-
+    if (write_qcow2(qcow2File, pFile, 0, buf, sizeof(buf)) != 0) {
+        returnCode = 1;
+        goto err_create_partition;
+    }
 
     print_qcow2_file(qcow2File);
 
@@ -1775,15 +1734,7 @@ uint64_t total_size, char * mbrfile, const char * fmt) {
     /* 输出表1 */
     debug_print_table_64(qcow2File->pL1Table, l1_size);
 
-    if (fseek(pFile, l1_table_offset, SEEK_SET)) {
-        printf("fseek error(%lld).\n", l1_table_offset);
-        goto err_create_partition;
-    }
-    writecnt = fwrite(qcow2File->pL1Table, sizeof(uint64_t), l1_size, pFile);
-    if (writecnt != l1_size) {
-        printf("file write error(%d != %d).\n", writecnt, l1_size);
-        goto err_create_partition;
-    }
+    write_l1(qcow2File, pFile);
 
     /* 引用计数表 */
     if (fseek(pFile, refcount_table_offset, SEEK_SET)) {

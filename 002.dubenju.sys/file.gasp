@@ -1388,7 +1388,7 @@ _file_inittbl:
 	movl	%esp, %ebp
 	pushl	%edi
 	pushl	%eax
-	cmpb	$0, 4080
+	cmpb	$0, 1520
 	jle	L276
 L274:
 	xorl	%edx, %edx
@@ -1399,7 +1399,7 @@ L273:
 	movl	$262143, _i_sta(,%eax,4)
 	jle	L273
 	incl	%ecx
-	movsbl	4080,%eax
+	movsbl	1520,%eax
 	cmpl	%eax, %ecx
 	jl	L274
 L276:

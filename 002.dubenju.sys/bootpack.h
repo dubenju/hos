@@ -7,7 +7,7 @@ struct BOOTINFO {           /* 0x0ff0-0x0fff */
 	short scrnx, scrny; /* ‰æ–Ê‰ð‘œ“x */
 	char *vram;
 };
-#define ADR_BOOTINFO 0x00000ff0
+#define ADR_BOOTINFO 0x000005f0
 #define ADR_DISKIMG  0x00100000
 #define ADR_DMABUF   0x00268000
 #define MAX_ENTRY    4096

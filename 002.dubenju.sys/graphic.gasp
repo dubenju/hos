@@ -60,7 +60,7 @@ _init_palette:
 	pushl	%esi
 	pushl	%ebx
 	subl	$692, %esp
-	cmpb	$8, 4082
+	cmpb	$8, 1522
 	je	L59
 	xorl	%ecx, %ecx
 	xorl	%esi, %esi
@@ -1553,7 +1553,7 @@ L334:
 	addl	%esi, %eax
 	movl	-40(%ebp), %ecx
 	addl	%eax, %ebx
-	movsbl	4082,%eax
+	movsbl	1522,%eax
 	pushl	%eax
 	pushl	%edi
 	pushl	%esi

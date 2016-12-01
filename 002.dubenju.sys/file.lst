@@ -1381,7 +1381,7 @@
   1379 00000C9C 89 E5                           	MOV	EBP,ESP
   1380 00000C9E 57                              	PUSH	EDI
   1381 00000C9F 50                              	PUSH	EAX
-  1382 00000CA0 80 3D 00000FF0 00               	CMP	BYTE [4080],0
+  1382 00000CA0 80 3D 000005F0 00               	CMP	BYTE [1520],0
   1383 00000CA7 7E 22                           	JLE	L276
   1384 00000CA9                                 L274:
   1385 00000CA9 31 D2                           	XOR	EDX,EDX
@@ -1392,7 +1392,7 @@
   1390 00000CB2 C7 04 85 [00000040] 0003FFFF    	MOV	DWORD [_i_sta+EAX*4],262143
   1391 00000CBD 7E EC                           	JLE	L273
   1392 00000CBF 41                              	INC	ECX
-  1393 00000CC0 0F BE 05 00000FF0               	MOVSX	EAX,BYTE [4080]
+  1393 00000CC0 0F BE 05 000005F0               	MOVSX	EAX,BYTE [1520]
   1394 00000CC7 39 C1                           	CMP	ECX,EAX
   1395 00000CC9 7C DE                           	JL	L274
   1396 00000CCB                                 L276:

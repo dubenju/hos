@@ -6,6 +6,7 @@ public class UBytes {
 		for (byte by : in) {
 			//System.out.println("by" + by);
 			String str = Strings.format(Integer.toHexString(by).toUpperCase(), 2, '0');
+			str = Strings.format2(str, 2, '0');
 			buf.append(str);
 			buf.append(" ");
 		}

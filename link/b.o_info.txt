@@ -1,0 +1,15 @@
+
+b.o:     ファイル形式 pe-i386
+
+セクション:
+索引名          サイズ      VMA       LMA       File off  Algn
+  0 .text         0000003c  00000000  00000000  000000dc  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .data         00000004  00000000  00000000  00000118  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .bss          00000000  00000000  00000000  00000000  2**2
+                  ALLOC
+  3 .rdata$zzz    00000014  00000000  00000000  0000011c  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  4 .eh_frame     00000038  00000000  00000000  00000130  2**2
+                  CONTENTS, ALLOC, LOAD, RELOC, READONLY, DATA

@@ -1,0 +1,180 @@
+参数[0]=C:\Users\DBJ\git\hos\fat\edqcow2\edqcow2.
+参数[1]=C:\Users\DBJ\git\hos\tools\qemu\qemu_img\fdisk\qcow2_524663K_fdisk.qcow2.
+参数[2]=info.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~info.
+this option will display the information of the partition on qcow2(C:\Users\DBJ\git\hos\tools\qemu\qemu_img\fdisk\qcow2_524663K_fdisk.qcow2).
+
+!!!WARNING!!! 现在的代码是不支持超过2GB的文件的!!!
+
+__STRICT_ANSI__ undefined.
+file's size=192512.
+sizeof(header)=72
+readed count=72
+
+>>----- Header -----
+头信息在镜像文件中的位置[(0, 0X0000)-(4096, 0X1000))
+QCOW2_MAGIC                  (4) = 0XFB494651,QCOW magic string.
+QCOW2_version                (4) = 0X2000000,Version number (valid values are 2 and 3).
+QCOW2_backing_file_offset    (8) = 0X0,Offset into the image file at which the backing file name is stored (NB: The string is not null terminated). 0 if the image doesn't have a backing file.
+QCOW2_backing_file_size      (4) = 0X0,Length of the backing file name in bytes. Must not be longer than 1023 bytes. Undefined if the image doesn't have a backing file.
+QCOW2_cluster_bits           (4) = 0XC000000,Number of bits that are used for addressing an offset within a cluster (1 << cluster_bits is the cluster size). Must not be less than 9 (i.e. 512 byte clusters).
+QCOW2_size                   (8) = 61930129873436672,0X0000000000,Virtual disk size in bytes.
+                                        十六进制的值有不正确的可能。
+QCOW2_crypt_method           (4) = 0X0,0 for no encryption;1 for AES encryption.
+QCOW2_l1_size                (4) = 0X1010000 16842752,Number of entries in the active L1 table(MAX).
+*QCOW2_l1_table_offset       (8) = 0X0,Offset into the image file at which the active L1 table starts. Must be aligned to a cluster boundary.
+*QCOW2_refcount_table_offset (8) = 0X0,Offset into the image file at which the refcount table starts. Must be aligned to a cluster boundary.
+QCOW2_refcount_table_clusters(4) = 0X1000000,Number of clusters that the refcount table occupies.
+QCOW2_nb_snapshots           (4) = 0X0,Number of snapshots contained in the image.
+QCOW2_snapshots_offset       (8) = 0X0,Offset into the image file at which the snapshot table starts. Must be aligned to a cluster boundary.
+cluster_size = 4096
+----- Header -----<<
+
+>>----- Level 1 Table -----
+表1在镜像文件中的位置[(4096, 0X1000)-(8192, 0X2000))
+l1_table_offset=4096,0X1000.
+l1_table_size=257,0X101.
+l1[0]=16384. 0X4000.
+table[00000]=0000016384, 0X0000004000 
+----- Level 1 Table -----<<
+
+>>----- Refcount Table -----
+refcount_table_cnt=1.
+refcount table offset=8192, 0X2000.
+refcount[0]=0X3000.
+引用计数表在镜像文件中的位置[(8192, 0X2000)-(12288, 0X3000))
+table[00000]=0000012288, 0X0000003000 
+----- Refcount Table -----<<
+
+>>----- Refcount Block -----
+!!!引用计数块在镜像文件中似乎不是连续存储的，那么1个引用计数块的大小应该是1个簇。
+引用计数块在镜像文件中的位置[(12288, 0X3000)-(16384, 0X4000))
+refcount_cnt=2048.
+refcount block offset=12288, 0X3000, count=0.
+table[00000]=1. table[00001]=1. table[00002]=1. table[00003]=1. table[00004]=1. table[00005]=1. table[00006]=1. table[00007]=1. 
+table[00008]=1. table[00009]=1. table[00010]=1. table[00011]=1. table[00012]=1. table[00013]=1. table[00014]=1. table[00015]=1. 
+table[00016]=1. table[00017]=1. table[00018]=1. table[00019]=1. table[00020]=1. table[00021]=1. table[00022]=1. table[00023]=1. 
+table[00024]=1. table[00025]=1. table[00026]=1. table[00027]=1. table[00028]=1. table[00029]=1. table[00030]=1. table[00031]=1. 
+table[00032]=1. table[00033]=1. table[00034]=1. table[00035]=1. table[00036]=1. table[00037]=1. table[00038]=1. table[00039]=1. 
+table[00040]=1. table[00041]=1. table[00042]=1. table[00043]=1. table[00044]=1. table[00045]=1. table[00046]=1. 
+----- Refcount Block -----<<
+
+>>----- Level 2 Table -----
+L2 Table offset=16384, 0X4000.
+
+表2在镜像文件中的最初位置[(16384, 0X4000)-(20480, 0X5000)).
+offset[00000]=16384, 0X4000 
+l2[000]=0000000188416. 0X000002E000.l2[007]=0000000020480. 0X0000005000.l2[015]=0000000024576. 0X0000006000.l2[023]=0000000028672. 0X0000007000.l2[031]=0000000032768. 0X0000008000.l2[039]=0000000036864. 0X0000009000.l2[047]=0000000040960. 0X000000A000.l2[055]=0000000045056. 0X000000B000.
+l2[063]=0000000049152. 0X000000C000.l2[070]=0000000053248. 0X000000D000.l2[078]=0000000057344. 0X000000E000.l2[086]=0000000061440. 0X000000F000.l2[094]=0000000065536. 0X0000010000.l2[102]=0000000069632. 0X0000011000.l2[110]=0000000073728. 0X0000012000.l2[118]=0000000077824. 0X0000013000.
+l2[126]=0000000081920. 0X0000014000.l2[133]=0000000086016. 0X0000015000.l2[141]=0000000090112. 0X0000016000.l2[149]=0000000094208. 0X0000017000.l2[157]=0000000098304. 0X0000018000.l2[165]=0000000102400. 0X0000019000.l2[173]=0000000106496. 0X000001A000.l2[181]=0000000110592. 0X000001B000.
+l2[189]=0000000114688. 0X000001C000.l2[196]=0000000118784. 0X000001D000.l2[204]=0000000122880. 0X000001E000.l2[212]=0000000126976. 0X000001F000.l2[220]=0000000131072. 0X0000020000.l2[228]=0000000135168. 0X0000021000.l2[236]=0000000139264. 0X0000022000.l2[244]=0000000143360. 0X0000023000.
+l2[252]=0000000147456. 0X0000024000.l2[259]=0000000151552. 0X0000025000.l2[267]=0000000155648. 0X0000026000.l2[275]=0000000159744. 0X0000027000.l2[283]=0000000163840. 0X0000028000.l2[291]=0000000167936. 0X0000029000.l2[299]=0000000172032. 0X000002A000.l2[307]=0000000176128. 0X000002B000.
+l2[315]=0000000180224. 0X000002C000.l2[322]=0000000184320. 0X000002D000.
+
+L2 size:131584.
+table[00000]=0000188416, 0X000002E000 table[00007]=0000020480, 0X0000005000 table[00015]=0000024576, 0X0000006000 table[00023]=0000028672, 0X0000007000 table[00031]=0000032768, 0X0000008000 table[00039]=0000036864, 0X0000009000 table[00047]=0000040960, 0X000000A000 table[00055]=0000045056, 0X000000B000 
+table[00063]=0000049152, 0X000000C000 table[00070]=0000053248, 0X000000D000 table[00078]=0000057344, 0X000000E000 table[00086]=0000061440, 0X000000F000 table[00094]=0000065536, 0X0000010000 table[00102]=0000069632, 0X0000011000 table[00110]=0000073728, 0X0000012000 table[00118]=0000077824, 0X0000013000 
+table[00126]=0000081920, 0X0000014000 table[00133]=0000086016, 0X0000015000 table[00141]=0000090112, 0X0000016000 table[00149]=0000094208, 0X0000017000 table[00157]=0000098304, 0X0000018000 table[00165]=0000102400, 0X0000019000 table[00173]=0000106496, 0X000001A000 table[00181]=0000110592, 0X000001B000 
+table[00189]=0000114688, 0X000001C000 table[00196]=0000118784, 0X000001D000 table[00204]=0000122880, 0X000001E000 table[00212]=0000126976, 0X000001F000 table[00220]=0000131072, 0X0000020000 table[00228]=0000135168, 0X0000021000 table[00236]=0000139264, 0X0000022000 table[00244]=0000143360, 0X0000023000 
+table[00252]=0000147456, 0X0000024000 table[00259]=0000151552, 0X0000025000 table[00267]=0000155648, 0X0000026000 table[00275]=0000159744, 0X0000027000 table[00283]=0000163840, 0X0000028000 table[00291]=0000167936, 0X0000029000 table[00299]=0000172032, 0X000002A000 table[00307]=0000176128, 0X000002B000 
+table[00315]=0000180224, 0X000002C000 table[00322]=0000184320, 0X000002D000 
+----- Level 2 Table -----<<
+
+>>----- Partition Table -----
+----- drv1 mbr info -----
+>>----- get_l1_index 0 4096 512-----.
+----- get_l1_index 0 4096 512-----<<.
+>>----- get_l1_index 0 4096 512-----.
+----- get_l1_index 0 4096 512-----<<.
+起始扇区号：0 (l1=0， l2=0, cluster=0), 在镜像文件中的位置[(1188416. 0X2E000)-.(188928, 0X2E200)).
+0X55, 0XAA.
+DOS 3.0+ FAT16.
+80 01 00 01 04 0f 0f 3f 63 1048257 511.87MB 
+   01 00 01 0f 0f 3f 
+Empty.
+00 00 00 00 00 00 00 00 0 0 0.00MB 
+   00 00 00 00 00 00 
+Empty.
+00 00 00 00 00 00 00 00 0 0 0.00MB 
+   00 00 00 00 00 00 
+Empty.
+00 00 00 00 00 00 00 00 0 0 0.00MB 
+   00 00 00 00 00 00 
+
+
+========= this is a test for list.
+flag=1 扇区LBA_NO=0 DOS 3.0+ FAT16.
+80 01 00 01 04 0f 0f 3f 63 1048257 511.87MB 
+   01 00 01 0f 0f 3f 
+========= this is a test for list.
+----- Partition Table -----<<
+
+>>----- VBR Table -----
+drv1 flag=1 sector_index=0 start_sector_no=63 >>----- get_l1_index 63 4096 512-----.
+----- get_l1_index 63 4096 512-----<<.
+起始扇区号：63 (l1 =0, l2=7, cluster=3584), 
+>>----- get_l1_index 63 4096 512-----.
+----- get_l1_index 63 4096 512-----<<.
+在镜像文件中的位置[(24064 0X5E00)-(24576 0X6000)).
+启动扇区:F6, F6 type:4.
+bpb_BytesPerSector=512.
+bpb_SectorsPerCluster=8.
+bpb_ReservedSectorst=1.
+bpb_FatCopies=2.
+bpb_NumSectors=1048257.
+bpb_SectorsPerFAT=512.
+
+DOS 3.0+ FAT16.
+80 01 00 01 04 0f 0f 3f 63 1048257 511.87MB 
+   01 00 01 0f 0f 3f 
+----- VBR Table -----<<
+
+>>----- F6 Sector -----
+L2 Size:131584.
+00000.offset:00188416.=0002E000 sector_no=000000.(CHS)=(0000 000 01) sector offset:0000 AA
+00007.offset:00020480.=00005000 sector_no=000063.(CHS)=(0000 001 01) sector offset:0E00 F6
+00015.offset:00024576.=00006000 sector_no=000126.(CHS)=(0000 002 01) sector offset:0C00 F6
+00023.offset:00028672.=00007000 sector_no=000189.(CHS)=(0000 003 01) sector offset:0A00 F6
+00031.offset:00032768.=00008000 sector_no=000252.(CHS)=(0000 004 01) sector offset:0800 F6
+00039.offset:00036864.=00009000 sector_no=000315.(CHS)=(0000 005 01) sector offset:0600 F6
+00047.offset:00040960.=0000A000 sector_no=000378.(CHS)=(0000 006 01) sector offset:0400 F6
+00055.offset:00045056.=0000B000 sector_no=000441.(CHS)=(0000 007 01) sector offset:0200 F6
+00063.offset:00049152.=0000C000 sector_no=000504.(CHS)=(0000 008 01) sector offset:0000 F6
+00070.offset:00053248.=0000D000 sector_no=000567.(CHS)=(0000 009 01) sector offset:0E00 F6
+00078.offset:00057344.=0000E000 sector_no=000630.(CHS)=(0000 010 01) sector offset:0C00 F6
+00086.offset:00061440.=0000F000 sector_no=000693.(CHS)=(0000 011 01) sector offset:0A00 F6
+00094.offset:00065536.=00010000 sector_no=000756.(CHS)=(0000 012 01) sector offset:0800 F6
+00102.offset:00069632.=00011000 sector_no=000819.(CHS)=(0000 013 01) sector offset:0600 F6
+00110.offset:00073728.=00012000 sector_no=000882.(CHS)=(0000 014 01) sector offset:0400 F6
+00118.offset:00077824.=00013000 sector_no=000945.(CHS)=(0000 015 01) sector offset:0200 F6
+00126.offset:00081920.=00014000 sector_no=001008.(CHS)=(0001 000 01) sector offset:0000 F6
+00133.offset:00086016.=00015000 sector_no=001071.(CHS)=(0001 001 01) sector offset:0E00 F6
+00141.offset:00090112.=00016000 sector_no=001134.(CHS)=(0001 002 01) sector offset:0C00 F6
+00149.offset:00094208.=00017000 sector_no=001197.(CHS)=(0001 003 01) sector offset:0A00 F6
+00157.offset:00098304.=00018000 sector_no=001260.(CHS)=(0001 004 01) sector offset:0800 F6
+00165.offset:00102400.=00019000 sector_no=001323.(CHS)=(0001 005 01) sector offset:0600 F6
+00173.offset:00106496.=0001A000 sector_no=001386.(CHS)=(0001 006 01) sector offset:0400 F6
+00181.offset:00110592.=0001B000 sector_no=001449.(CHS)=(0001 007 01) sector offset:0200 F6
+00189.offset:00114688.=0001C000 sector_no=001512.(CHS)=(0001 008 01) sector offset:0000 F6
+00196.offset:00118784.=0001D000 sector_no=001575.(CHS)=(0001 009 01) sector offset:0E00 F6
+00204.offset:00122880.=0001E000 sector_no=001638.(CHS)=(0001 010 01) sector offset:0C00 F6
+00212.offset:00126976.=0001F000 sector_no=001701.(CHS)=(0001 011 01) sector offset:0A00 F6
+00220.offset:00131072.=00020000 sector_no=001764.(CHS)=(0001 012 01) sector offset:0800 F6
+00228.offset:00135168.=00021000 sector_no=001827.(CHS)=(0001 013 01) sector offset:0600 F6
+00236.offset:00139264.=00022000 sector_no=001890.(CHS)=(0001 014 01) sector offset:0400 F6
+00244.offset:00143360.=00023000 sector_no=001953.(CHS)=(0001 015 01) sector offset:0200 F6
+00252.offset:00147456.=00024000 sector_no=002016.(CHS)=(0002 000 01) sector offset:0000 F6
+00259.offset:00151552.=00025000 sector_no=002079.(CHS)=(0002 001 01) sector offset:0E00 F6
+00267.offset:00155648.=00026000 sector_no=002142.(CHS)=(0002 002 01) sector offset:0C00 F6
+00275.offset:00159744.=00027000 sector_no=002205.(CHS)=(0002 003 01) sector offset:0A00 F6
+00283.offset:00163840.=00028000 sector_no=002268.(CHS)=(0002 004 01) sector offset:0800 F6
+00291.offset:00167936.=00029000 sector_no=002331.(CHS)=(0002 005 01) sector offset:0600 F6
+00299.offset:00172032.=0002A000 sector_no=002394.(CHS)=(0002 006 01) sector offset:0400 F6
+00307.offset:00176128.=0002B000 sector_no=002457.(CHS)=(0002 007 01) sector offset:0200 F6
+00315.offset:00180224.=0002C000 sector_no=002520.(CHS)=(0002 008 01) sector offset:0000 F6
+00322.offset:00184320.=0002D000 sector_no=002583.(CHS)=(0002 009 01) sector offset:0E00 F6
+idx=100000.
+----- F6 Sector -----<<
+
+clearList函数执行，链表已经清除
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ END.
