@@ -806,6 +806,7 @@ int write_l1(QCOW2_FILE * qcow2File, FILE * pFile) {
         value += (1LL << 63);
         *(qcow2File->pL1Table + idx) = cpu_to_be64(value);
     }
+    printf("\n");
     debug_print_table_64(qcow2File->pL1Table, qcow2File->l1_size);
 
     if (fseek(pFile, qcow2File->pHeader->l1_table_offset, SEEK_SET)) {
@@ -824,6 +825,8 @@ int write_l1(QCOW2_FILE * qcow2File, FILE * pFile) {
         value = value & 0x3FFFFFFFFFFFFFFF;
         memcpy(qcow2File->pL1Table + idx, &value, sizeof(value));
     }
+    printf("\n");
+    debug_print_table_64(qcow2File->pL1Table, qcow2File->l1_size);
 
     goto end_write_l1;
 err_write_l1:
@@ -853,8 +856,8 @@ int write_l2(QCOW2_FILE * qcow2File, uint32_t l1_idx, FILE * pFile, uint64_t l2_
         returnCode = 1; goto err_write_l2;
     }
     memset(l2_buf, 0, qcow2File->clustor_size);
-    memcpy(l2_buf, qcow2File->pL2Table + l1_idx * (qcow2File->clustor_size / 512), qcow2File->clustor_size);
-    printf("变换前.\n");
+    memcpy(l2_buf, qcow2File->pL2Table + l1_idx * qcow2File->clustor_size, qcow2File->clustor_size);
+    printf("变换前l1_idx=%d,l2_size=%d.\n", l1_idx, l2_size);
     debug_print_table_64(l2_buf, l2_size);
     printf("\n");
 
@@ -876,10 +879,14 @@ int write_l2(QCOW2_FILE * qcow2File, uint32_t l1_idx, FILE * pFile, uint64_t l2_
         goto err_write_l2;
     }
     int writecnt = fwrite(l2_buf, sizeof(uint64_t), l2_size, pFile);
+    printf("write l2 @0x%x", l2_offset);
+    printf("-%d(%d).\n", writecnt, l2_size);
     if (writecnt != l2_size) {
         printf("file write error(%d != %d).\n", writecnt, l2_size);
         goto err_write_l2;
     }
+    printf("\n");
+    debug_print_table_64(qcow2File->pL2Table + l1_idx * qcow2File->clustor_size, l2_size);
 
     goto end_write_l2;
 err_write_l2:
@@ -946,13 +953,16 @@ int write_qcow2(QCOW2_FILE * qcow2File, FILE * pFile, uint64_t sector_no, void *
         printf("表1偏移:%lld %X.\n", l1_offset, l1_offset);
         if (l1_offset == 0LL) {
             /* create L2 Table */
-            l1_offset = *(qcow2File->pRefcountTable) + qcow2File->clustor_size;
+            printf("l1_idx=%d.\n", l1_idx);
+            // l1_offset = *(qcow2File->pRefcountTable) + qcow2File->clustor_size;
             int i = 0;
             for (i = 0; i < qcow2File->refcount_cnt; i ++) {
                 if (*(qcow2File->pRefcountBlock + i) == 0) {
                     break;
                 }
             }
+            l1_offset = 1LL * i * qcow2File->clustor_size;
+            printf("l1_offset=0X%X.\n", l1_offset);
             *(qcow2File->pL1Table + l1_idx) = l1_offset;
             *(qcow2File->pRefcountBlock + i) = 1; /* 引用计数块更新 */
             l1_update_flag = 1;
@@ -964,7 +974,7 @@ int write_qcow2(QCOW2_FILE * qcow2File, FILE * pFile, uint64_t sector_no, void *
                 memset(qcow2File->pL2Table, 0, sizeof(uint64_t) * qcow2File->l1_size * qcow2File->clustor_size / 8);
             }
         }
-        l2_offset = *(qcow2File->pL2Table + l1_idx * 512 + l2_idx);
+        l2_offset = *(qcow2File->pL2Table + l1_idx * qcow2File->clustor_size + l2_idx);
         printf("表2偏移:%lld %X.\n", l2_offset, l2_offset);
         if (l2_offset == 0LL) {
             /* 分配新簇 */
@@ -975,9 +985,9 @@ int write_qcow2(QCOW2_FILE * qcow2File, FILE * pFile, uint64_t sector_no, void *
                 }
             }
             l2_offset = i * qcow2File->clustor_size;
-            *(qcow2File->pL2Table + l1_idx * 512 + l2_idx) = l2_offset;
+            *(qcow2File->pL2Table + l1_idx * qcow2File->clustor_size + l2_idx) = l2_offset;
             *(qcow2File->pRefcountBlock + i) = 1; /* 引用计数块更新 */
-            printf("新规表2偏移:%lld %X.\n", l2_offset, l2_offset);
+            printf("新建表2偏移:%lld %X.\n", l2_offset, l2_offset);
             l2_update_flag = 1;
         } else {
             printf("更新原有的簇.:%lld %X.\n", l2_offset, l2_offset);
@@ -1012,6 +1022,9 @@ int write_qcow2(QCOW2_FILE * qcow2File, FILE * pFile, uint64_t sector_no, void *
             l1_update_flag = 0;
         }
         if (l2_update_flag == 1) {
+            printf("l1_offset=0X%X.\n", l1_offset);
+            printf("l2_offset=0X%X.\n", l2_offset);
+            printf("l1_idx   =%d.\n", l1_idx);
             if (write_l2(qcow2File, l1_idx, pFile, l1_offset) != 0) {
                 returnCode = 1; goto err_write_qcow2; }
             l2_update_flag = 0;
@@ -1257,7 +1270,7 @@ int create(const char * filename, uint64_t total_size, size_t cluster_size) {
     return 0;
 }
 
-int get_cylinder(int sector_no) {
+int get_cylinder(int sector_no, uint8_t n) {
     /* 变量定义 */
     int returnCode;
     uint8_t CS=0;
@@ -1268,7 +1281,7 @@ int get_cylinder(int sector_no) {
 
     /* 变量初始化 */
     /* printf("扇区索引：%d.", sector_no); */
-    int sh = PS * PH;
+    int sh = PS * ( PH * n );
     returnCode = sector_no / sh;
     /* 处理开始 */
     /* printf("柱面：%d.\n", returnCode); */
@@ -1280,7 +1293,35 @@ end_cylinder:
     return returnCode;
 }
 
-int get_header(int sector_no) {
+int get_n(int cylinder) {
+    /* 变量定义 */
+    int returnCode;
+
+
+    /* 变量初始化 */
+    returnCode = 1;
+
+    /* 处理开始 */
+    if (1 < cylinder && cylinder <= 1024) {
+        returnCode = 1;
+    } else if (1024 < cylinder && cylinder <= 2048) {
+        returnCode = 2;
+    } else if (2048 < cylinder && cylinder <= 4096) {
+        returnCode = 4;
+    } else if (4096 < cylinder && cylinder <= 8192) {
+        returnCode = 8;
+    } else if (8192 < cylinder && cylinder <= 16384) {
+        returnCode = 16;
+    }
+    goto end_get_n;
+err_get_n:
+end_get_n:
+    /* 处理结束 */
+    return returnCode;
+}
+
+
+int get_header(int sector_no, uint8_t n) {
     /* 变量定义 */
     int returnCode;
     uint8_t CS=0;
@@ -1290,7 +1331,7 @@ int get_header(int sector_no) {
     uint8_t PH=16;
 
     /* 变量初始化 */
-    returnCode = ( sector_no / (PS) ) % PH;
+    returnCode = ( sector_no / (PS) ) % (PH * n);
     /* 处理开始 */
 
     goto end_header;
@@ -1307,7 +1348,7 @@ int get_sector(int sector_no) {
     uint8_t HS=0;
     uint8_t SS=1;
     uint8_t PS=63;
-    uint8_t PH=18;
+    /* uint8_t PH=16; */
 
     /* 变量初始化 */
     returnCode = ( sector_no % (PS) ) + 1;
@@ -1330,52 +1371,52 @@ void print_qcow2_file(QCOW2_FILE * qcow2) {
     printf("----- print_qcow2_file -----<<.\n");
 }
 
-uint64_t get_l2_offset(QCOW2_FILE * qcow2File, uint32_t sector_no) {
-    printf(">>----- get_l2_offset -----.\n");
-    int idx = 0;
-    printf("簇大小：%d.\n", qcow2File->clustor_size);
-    uint32_t l1_idx = get_l1_index(sector_no, qcow2File->clustor_size, 512);
-    uint32_t l2_idx = get_l2_index(sector_no);
-    printf("sector_no=%d.l1_idx=%d.l2_idx=%d.\n", sector_no, l1_idx, l2_idx);
-
-    uint64_t l1_offset = (qcow2File->pHeader->l1_table_offset);
-    uint32_t l1_size = (qcow2File->pHeader->l1_size);
-    printf("l1 offset:%lld. %X.\n", l1_offset, l1_offset);
-    printf("size:%d.\n", l1_size);
-    if (*(qcow2File->pL1Table + l1_idx) == 0LL) {
-        int i = 0;
-        // TODO: DEBUG
-        uint64_t a;
-        for(i = 0; i < 64; i ++) {
-            a = 1LL << i;
-            printf("%02d.a=%llu.%X.\n", i, a, a);
-        }
-
-        uint64_t cluster_addr = 0x4000 & 0xFFFFFFFFFFFFF000LL;
-        int idx_refcount = cluster_addr / 4096;
-        *(qcow2File->pRefcountBlock + idx_refcount) = 1;
-
-        a = a + 0x4000;
-        printf("%02d.a=%llu.%X.\n", i, a, a);
-        *(qcow2File->pL1Table + l1_idx) = cpu_to_be64(a);
-        printf("L2 TABLE=%X.\n", qcow2File->pL2Table);
-
-        if (qcow2File->pL2Table == NULL) {
-            
-            qcow2File->pL2Table = (uint64_t *) malloc(4096);
-            if (qcow2File->pL2Table == NULL) {
-                printf("memory alloc error.\n");
-            }
-            memset(qcow2File->pL2Table, 0, 4096);
-            qcow2File->l2_size += 512;
-        }
-        *(qcow2File->pL2Table + l2_idx) = 0x5000;
-        printf("----- get_l2_offset -----<<.\n");
-        return 0x5000;
-    }
-    printf("----- get_l2_offset -----<<.\n");
-    return 0x5000;
-}
+// uint64_t get_l2_offset(QCOW2_FILE * qcow2File, uint32_t sector_no) {
+//     printf(">>----- get_l2_offset -----.\n");
+//     int idx = 0;
+//     printf("簇大小：%d.\n", qcow2File->clustor_size);
+//     uint32_t l1_idx = get_l1_index(sector_no, qcow2File->clustor_size, 512);
+//     uint32_t l2_idx = get_l2_index(sector_no);
+//     printf("sector_no=%d.l1_idx=%d.l2_idx=%d.\n", sector_no, l1_idx, l2_idx);
+// 
+//     uint64_t l1_offset = (qcow2File->pHeader->l1_table_offset);
+//     uint32_t l1_size = (qcow2File->pHeader->l1_size);
+//     printf("l1 offset:%lld. %X.\n", l1_offset, l1_offset);
+//     printf("size:%d.\n", l1_size);
+//     if (*(qcow2File->pL1Table + l1_idx) == 0LL) {
+//         int i = 0;
+//         // TODO: DEBUG
+//         uint64_t a;
+//         for(i = 0; i < 64; i ++) {
+//             a = 1LL << i;
+//             printf("%02d.a=%llu.%X.\n", i, a, a);
+//         }
+// 
+//         uint64_t cluster_addr = 0x4000 & 0xFFFFFFFFFFFFF000LL;
+//         int idx_refcount = cluster_addr / 4096;
+//         *(qcow2File->pRefcountBlock + idx_refcount) = 1;
+// 
+//         a = a + 0x4000;
+//         printf("%02d.a=%llu.%X.\n", i, a, a);
+//         *(qcow2File->pL1Table + l1_idx) = cpu_to_be64(a);
+//         printf("L2 TABLE=%X.\n", qcow2File->pL2Table);
+// 
+//         if (qcow2File->pL2Table == NULL) {
+//             
+//             qcow2File->pL2Table = (uint64_t *) malloc(4096);
+//             if (qcow2File->pL2Table == NULL) {
+//                 printf("memory alloc error.\n");
+//             }
+//             memset(qcow2File->pL2Table, 0, 4096);
+//             qcow2File->l2_size += 512;
+//         }
+//         *(qcow2File->pL2Table + l2_idx) = 0x5000;
+//         printf("----- get_l2_offset -----<<.\n");
+//         return 0x5000;
+//     }
+//     printf("----- get_l2_offset -----<<.\n");
+//     return 0x5000;
+// }
 
 /*
  * 磁盘分区的最小单位是柱面(Cylinder)
@@ -1413,6 +1454,7 @@ uint64_t total_size, char * mbrfile, const char * fmt) {
     uint32_t   l2_size = 0;
     PartitionEntryItem * pe_table = NULL;
     int writecnt;
+    char file_sys[6];
 
     /* 变量初始化 */
     returnCode = 0;
@@ -1420,6 +1462,7 @@ uint64_t total_size, char * mbrfile, const char * fmt) {
     pFile = NULL;
     l1_item = 0LL;
     memset(buf, 0xF6, sizeof(buf));
+    memset(file_sys, 0, sizeof(file_sys));
 
     /* 处理开始 */
     printf(">>----- create_partition begin -----\n");
@@ -1598,19 +1641,57 @@ uint64_t total_size, char * mbrfile, const char * fmt) {
     int max_write_cnt = 10;
     int cur_write_cnt = 1;
     printf("fmt=%s.\n", fmt);
+    memcpy(file_sys, "fat12", 5);
+    if (memcmp(fmt, "auto_", 5) != 0) {
+        memset(file_sys, 0, sizeof(file_sys));
+        memcpy(file_sys, fmt, sizeof(file_sys));
+    }
     int s = (total_size) / 1048576;
     printf("分区大小:%d.\n", s);
-    if (s >= 24) {
+    int k = (qcow2File->pHeader->size) / 1024;
+    if (k > 2096128) {
+        /* 2047M */
+        total_size = 2146927104;
+        max_sector_cnt = total_size / 512;
+        max_write_cnt = 536;
+        if (memcmp(fmt, "auto_", 5) == 0) {
+            memcpy(file_sys, "fat32", 5);
+        }
+    } else if (k >= 546336) {
+        max_write_cnt = 152 + 2 * ((k - 546336) / 8064);
+        if (memcmp(fmt, "auto_", 5) == 0) {
+            memcpy(file_sys, "fat32", 5);
+        }
+    } else if (k >= 537768) {
+        max_write_cnt = 152;
+        if (memcmp(fmt, "auto_", 5) == 0) {
+            memcpy(file_sys, "fat32", 5);
+        }
+    } else if (k >= 530208) {
+        max_write_cnt = 150;
+        if (memcmp(fmt, "auto_", 5) == 0) {
+            memcpy(file_sys, "fat32", 5);
+        }
+    } else if (k >  524663) {
+        max_write_cnt = 148;
+        if (memcmp(fmt, "auto_", 5) == 0) {
+            memcpy(file_sys, "fat32", 5);
+        }
+    } else if (s >= 24) {
         max_write_cnt = 11 + (s - 24) / 16;
+        if (memcmp(fmt, "auto_", 5) == 0) {
+            memcpy(file_sys, "fat16", 5);
+        }
     } else if (s >= 16) {
         max_write_cnt = 10 + (s - 16) / 8;
+        if (memcmp(fmt, "auto_", 5) == 0) {
+            memcpy(file_sys, "fat16", 5);
+        }
     }
-    if (memcmp(fmt, "fat32", 5) == 0) {
-        max_write_cnt = 42;
-    }
+
     sector_no = 0;
     printf("max_sector_cnt = %d.\n", max_sector_cnt);
-    for (idx = 0, sector_no = 63; ; idx ++, sector_no += 63) {
+    for (idx = 0, sector_no = 63; ; idx ++) {
         printf(" %03d ", idx);
         printf("sector no = %d.", sector_no);
         printf("%d > %d.\n", cur_write_cnt, max_write_cnt);
@@ -1626,7 +1707,21 @@ uint64_t total_size, char * mbrfile, const char * fmt) {
             goto err_create_partition;
         }
         cur_write_cnt ++;
-    }
+        if (max_write_cnt >= 148) {
+            sector_no += 6;
+            if (sector_no > max_sector_cnt) {
+                break;
+            }
+            if (write_qcow2(qcow2File, pFile, sector_no, buf, sizeof(buf)) != 0) {
+                returnCode = 1;
+                goto err_create_partition;
+            }
+            cur_write_cnt ++;
+            sector_no += 57;
+        } else {
+            sector_no += 63;
+        }
+    } /* for */
     printf("\n");
 
     printf("file=%s.\n", filename);
@@ -1643,20 +1738,26 @@ uint64_t total_size, char * mbrfile, const char * fmt) {
         /* PrimaryPartition */
         pe.status = 0x80;
         pe.start_sector_no = 0x3F;
-        pe.start_head = get_header(pe.start_sector_no);
+        pe.start_head = get_header(pe.start_sector_no, 1);
         sector = get_sector(pe.start_sector_no);
-        cylinder = get_cylinder(pe.start_sector_no);
+        cylinder = get_cylinder(pe.start_sector_no, 1);
         pe.start_sector = (( cylinder & 0x3FF ) >> 2) | sector;
         pe.start_cylinder = cylinder & 0xFF;
         pe.type   = 0x0E; /* WIN95 FAT16 */
-        pe.type   = 0x04; /* DOS 3.0+ FAT16 */
-        if (memcmp(fmt, "fat32", 5) == 0) {
+        // pe.type   = 0x04; /* DOS 3.0+ FAT16 */
+        if (memcmp(file_sys, "fat32", 5) == 0) {
             pe.type   = 0x0C;
         }
         pe.sector_total = total_size / 512;
-        pe.end_head = get_header(pe.start_sector_no + pe.sector_total - 1);
+        pe.end_head = get_header(pe.start_sector_no + pe.sector_total - 1, 1);
         sector      = get_sector(pe.start_sector_no + pe.sector_total - 1);
-        cylinder    = get_cylinder(pe.start_sector_no + pe.sector_total - 1);
+        cylinder    = get_cylinder(pe.start_sector_no + pe.sector_total - 1, 1);
+        int an = get_n(cylinder);
+        printf("cylinder=%d.\n", cylinder);
+        printf("pe.end_head=%d.\n", pe.end_head);
+        printf("an=%d.\n", an);
+        pe.end_head = get_header(pe.start_sector_no + pe.sector_total - 1, an);
+        cylinder    = get_cylinder(pe.start_sector_no + pe.sector_total - 1, an);
         pe.end_sector = (( cylinder & 0x3FF ) >> 2) | sector;
         pe.end_cylinder = cylinder & 0xFF;
 
@@ -1666,14 +1767,16 @@ uint64_t total_size, char * mbrfile, const char * fmt) {
         pe.start_sector_no = 0x3F;
         pe.sector_total = total_size / 512;
         sector = get_sector(pe.start_sector_no);
-        cylinder = get_cylinder(pe.start_sector_no);
-        pe.start_head = get_header(pe.start_sector_no);
+        cylinder = get_cylinder(pe.start_sector_no, 1);
+        int an = get_n(cylinder);
+        pe.start_head = get_header(pe.start_sector_no, an);
         pe.start_sector = (( cylinder & 0x3FF ) >> 2) | sector;
         pe.start_cylinder = cylinder & 0xFF;
         pe.type   = 0x05;
         sector = get_sector(pe.start_sector_no + pe.sector_total - 1);
-        cylinder = get_cylinder(pe.start_sector_no + pe.sector_total - 1);
-        pe.end_head = get_header(pe.start_sector_no + pe.sector_total - 1);
+        cylinder = get_cylinder(pe.start_sector_no + pe.sector_total - 1, 1);
+        an = get_n(cylinder);
+        pe.end_head = get_header(pe.start_sector_no + pe.sector_total - 1, an);
         pe.end_sector = get_sector(pe.start_sector_no + pe.sector_total - 1);
         pe.end_cylinder = cylinder & 0xFF;
 
@@ -1683,17 +1786,19 @@ uint64_t total_size, char * mbrfile, const char * fmt) {
         pe.start_sector_no = 0x3F;
         pe.sector_total = total_size / 512;
         sector = get_sector(pe.start_sector_no);
-        cylinder = get_cylinder(pe.start_sector_no);
-        pe.start_head = get_header(pe.start_sector_no);
+        cylinder = get_cylinder(pe.start_sector_no, 1);
+        int an = get_n(cylinder);
+        pe.start_head = get_header(pe.start_sector_no, an);
         pe.start_sector = (( cylinder & 0x3FF ) >> 2) | sector;
         pe.start_cylinder = cylinder & 0xFF;
         pe.type   = 0x06; /* DOS 3.31 FAT16 */
-        if (memcmp(fmt, "fat32", 5) == 0) {
+        if (memcmp(file_sys, "fat32", 5) == 0) {
             pe.type   = 0x0C;
         }
         sector = get_sector(pe.start_sector_no + pe.sector_total - 1);
-        cylinder = get_cylinder(pe.start_sector_no + pe.sector_total - 1);
-        pe.end_head = get_header(pe.start_sector_no + pe.sector_total - 1);
+        cylinder = get_cylinder(pe.start_sector_no + pe.sector_total - 1, 1);
+        an = get_n(cylinder);
+        pe.end_head = get_header(pe.start_sector_no + pe.sector_total - 1, an);
         pe.end_sector = get_sector(pe.start_sector_no + pe.sector_total - 1);
         pe.end_cylinder = cylinder & 0xFF;
 
@@ -1764,33 +1869,33 @@ uint64_t total_size, char * mbrfile, const char * fmt) {
         goto err_create_partition;
     }
 
-    /* 输出表2 */
-    memcpy(&l1_item, qcow2File->pL1Table, sizeof(l1_item));
-    printf("L2 OFFSET:%llu,%X.\n", l1_item, l1_item);
-    l1_item = be64_to_cpu(l1_item);
-    l1_item = l1_item & 0x3FFFFFFFFFFFFFFF;
-    printf("L2 OFFSET:%llu,%X.\n", l1_item, l1_item);
-    if (fseek(pFile, l1_item, SEEK_SET)) {
-        printf("fseek error(%lld).\n", refcount_table_offset);
-        goto err_create_partition;
-    }
-    l2_size = qcow2File->l2_size;
-    printf("L2 size:%d.\n", l2_size);
-    debug_print_table_64(qcow2File->pL2Table, l2_size);
-    for(idx = 0; idx < l2_size; idx ++) {
-        l1_item = *(qcow2File->pL2Table + idx);
-        if (l1_item != 0LL) {
-            l1_item += (1LL << 63);
-            *(qcow2File->pL2Table + idx) = cpu_to_be64(l1_item);
-        }
-    }
-    debug_print_table_64(qcow2File->pL2Table, l2_size);
-    writecnt = fwrite(qcow2File->pL2Table, sizeof(uint64_t), l2_size, pFile);
-    if (writecnt != l2_size) {
-        printf("file write error(%d != %d).\n", writecnt, l2_size);
-        goto err_create_partition;
-    }
-    printf("引用计数块大小:%d.\n", refcount_cnt);
+    // /* 输出表2 */
+    // memcpy(&l1_item, qcow2File->pL1Table, sizeof(l1_item));
+    // printf("L2 OFFSET:%llu,%X.\n", l1_item, l1_item);
+    // l1_item = be64_to_cpu(l1_item);
+    // l1_item = l1_item & 0x3FFFFFFFFFFFFFFF;
+    // printf("L2 OFFSET:%llu,%X.\n", l1_item, l1_item);
+    // if (fseek(pFile, l1_item, SEEK_SET)) {
+    //     printf("fseek error(%lld).\n", refcount_table_offset);
+    //     goto err_create_partition;
+    // }
+    // l2_size = qcow2File->l2_size;
+    // printf("L2 size:%d.\n", l2_size);
+    // debug_print_table_64(qcow2File->pL2Table, l2_size);
+    // for(idx = 0; idx < l2_size; idx ++) {
+    //     l1_item = *(qcow2File->pL2Table + idx);
+    //     if (l1_item != 0LL) {
+    //         l1_item += (1LL << 63);
+    //         *(qcow2File->pL2Table + idx) = cpu_to_be64(l1_item);
+    //     }
+    // }
+    // debug_print_table_64(qcow2File->pL2Table, l2_size);
+    // writecnt = fwrite(qcow2File->pL2Table, sizeof(uint64_t), l2_size, pFile);
+    // if (writecnt != l2_size) {
+    //     printf("file write error(%d != %d).\n", writecnt, l2_size);
+    //     goto err_create_partition;
+    // }
+    // printf("引用计数块大小:%d.\n", refcount_cnt);
 
     fseek(pFile, 0, SEEK_END);
     int pos = ftell(pFile);
@@ -3213,6 +3318,9 @@ void debug_print_table_64(const uint64_t * table, const uint32_t size) {
         idz ++;
         if (idz % 8 ==0) { printf("\n"); }
     }
+    if (idz == 0) {
+        printf("ALL ZERO.\n");
+    }
     printf("\n");
     /* 处理结束 */
 }
@@ -3725,7 +3833,7 @@ int print_f6_sector(PartitionEntryItem * pe_table, const uint64_t * table2, cons
         }
         printf("%05d.offset:%08llu.=", idx, offset);
         printf("%08X ", offset);
-        printf("sector_no=%06d.(CHS)=(%04d %03d %02d)", sector_no, get_cylinder(sector_no), get_header(sector_no), get_sector(sector_no));
+        printf("sector_no=%06d.(CHS)=(%04d %03d %02d)", sector_no, get_cylinder(sector_no, 1), get_header(sector_no, 1), get_sector(sector_no));
         // 4096
         offset += 0x200 * ( sector_no % 8 );
         printf(" sector offset:%04X ", 0x200 * ( sector_no % 8 ));
@@ -3752,7 +3860,7 @@ int print_f6_sector(PartitionEntryItem * pe_table, const uint64_t * table2, cons
                     printf("%05d.offset:%08llu.=", idx, offset);
                     printf("%08X ", offset);
                     sector_no += 6;
-                    printf("sector_no=%06d.(CHS)=(%04d %03d %02d)", sector_no, get_cylinder(sector_no), get_header(sector_no), get_sector(sector_no));
+                    printf("sector_no=%06d.(CHS)=(%04d %03d %02d)", sector_no, get_cylinder(sector_no, 1), get_header(sector_no, 1), get_sector(sector_no));
                     // 4096
                     offset += 0x200 * ( sector_no % 8 );
                     printf(" sector offset:%04X ", 0x200 * ( sector_no % 8 ));

@@ -4,7 +4,7 @@
 [INSTRSET "i486p"]				; 486の命令まで使いたいという記述
 
 ;VBEMODE EQU 0x101 ;  640 x  480 x 8bit Color
-VBEMODE EQU 0x114
+VBEMODE EQU 0x111
 ;VBEMODE EQU 0x111 ; 640 x  480 x 16bit Color
 ;  0x100 :  640 x  400 x 8bit Color
 ;  0x101 :  640 x  480 x 8bit Color
@@ -302,14 +302,14 @@ VRAM	EQU		0x05f8			; グラフィックバッファの開始番地
 ;		MOV		BYTE [VMODE],8
 		MOV		BYTE [VMODE],16
 		MOV		AX,[ES:DI+0x12]  ; width in pixels (graphics) or characters (text)
-;		MOV		[SCRNX],AX
-		MOV		WORD [SCRNX],640
+		MOV		[SCRNX],AX
+;		MOV		WORD [SCRNX],640
 		MOV		AX,[ES:DI+0x14]  ; height in pixels (graphics) or characters (text)
-;		MOV		[SCRNY],AX
-		MOV		WORD [SCRNY],480
+		MOV		[SCRNY],AX
+;		MOV		WORD [SCRNY],480
 		MOV		EAX, [ES:DI+0x28] ; physical address of linear video buffer
-;		MOV		[VRAM], EAX
-		MOV		DWORD [VRAM], 000A0000H
+		MOV		[VRAM], EAX
+;		MOV		DWORD [VRAM], 000A0000H
 
 
 ;INT 10 - VESA SuperVGA BIOS - SET SuperVGA VIDEO MODE
@@ -352,8 +352,9 @@ VRAM	EQU		0x05f8			; グラフィックバッファの開始番地
 		MOV		BX, VBEMODE; + 4000H
 		MOV		AX,4F02H
 		INT		10H
-;		CMP		AX, 004FH
-;		JNE		fin
+		CMP		AX, 004FH
+;		JE		fin
+		JE		scrn640
 
 ;#04083
 ;Format of VESA VBE CRTC Information Block:
@@ -396,7 +397,7 @@ scrn640:
 		MOV		WORD [SCRNX],640
 		MOV		WORD [SCRNY],480
 		MOV		DWORD [VRAM],000A0000H
-
+;		JMP		keystatus
 keystatus:
 
 

@@ -1,0 +1,245 @@
+	.file	"mac.c"
+	.text
+	.def	_printf;	.scl	3;	.type	32;	.endef
+_printf:
+LFB4:
+	.cfi_startproc
+	pushl	%ebp
+	.cfi_def_cfa_offset 8
+	.cfi_offset 5, -8
+	movl	%esp, %ebp
+	.cfi_def_cfa_register 5
+	pushl	%ebx
+	subl	$36, %esp
+	.cfi_offset 3, -12
+	leal	12(%ebp), %eax
+	movl	%eax, -12(%ebp)
+	movl	-12(%ebp), %eax
+	movl	%eax, 4(%esp)
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	call	___mingw_vprintf
+	movl	%eax, %ebx
+	movl	%ebx, %eax
+	addl	$36, %esp
+	popl	%ebx
+	.cfi_restore 3
+	popl	%ebp
+	.cfi_restore 5
+	.cfi_def_cfa 4, 4
+	ret
+	.cfi_endproc
+LFE4:
+	.def	_sprintf;	.scl	3;	.type	32;	.endef
+_sprintf:
+LFB5:
+	.cfi_startproc
+	pushl	%ebp
+	.cfi_def_cfa_offset 8
+	.cfi_offset 5, -8
+	movl	%esp, %ebp
+	.cfi_def_cfa_register 5
+	pushl	%ebx
+	subl	$36, %esp
+	.cfi_offset 3, -12
+	leal	16(%ebp), %eax
+	movl	%eax, -12(%ebp)
+	movl	-12(%ebp), %eax
+	movl	%eax, 8(%esp)
+	movl	12(%ebp), %eax
+	movl	%eax, 4(%esp)
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	call	___mingw_vsprintf
+	movl	%eax, %ebx
+	movl	%ebx, %eax
+	addl	$36, %esp
+	popl	%ebx
+	.cfi_restore 3
+	popl	%ebp
+	.cfi_restore 5
+	.cfi_def_cfa 4, 4
+	ret
+	.cfi_endproc
+LFE5:
+	.section .rdata,"dr"
+	.align 4
+LC0:
+	.ascii "The NCBENUM return adapter number is: %d \12 \0"
+LC1:
+	.ascii "%02X%02X%02X%02X%02X%02X \0"
+	.text
+	.globl	_getMac
+	.def	_getMac;	.scl	2;	.type	32;	.endef
+_getMac:
+LFB13:
+	.cfi_startproc
+	pushl	%ebp
+	.cfi_def_cfa_offset 8
+	.cfi_offset 5, -8
+	movl	%esp, %ebp
+	.cfi_def_cfa_register 5
+	pushl	%edi
+	pushl	%esi
+	pushl	%ebx
+	subl	$972, %esp
+	.cfi_offset 7, -12
+	.cfi_offset 6, -16
+	.cfi_offset 3, -20
+	movl	$0, -28(%ebp)
+	movl	$64, 8(%esp)
+	movl	$0, 4(%esp)
+	leal	-696(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_memset
+	movb	$55, -696(%ebp)
+	leal	-952(%ebp), %eax
+	movl	%eax, -692(%ebp)
+	movw	$256, -688(%ebp)
+	leal	-696(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_Netbios@4
+	subl	$4, %esp
+	movb	%al, -29(%ebp)
+	movzbl	-952(%ebp), %eax
+	movzbl	%al, %eax
+	movl	%eax, 4(%esp)
+	movl	$LC0, (%esp)
+	call	_printf
+	movl	$0, -28(%ebp)
+	jmp	L6
+L8:
+	movl	$64, 8(%esp)
+	movl	$0, 4(%esp)
+	leal	-696(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_memset
+	movb	$50, -696(%ebp)
+	leal	-951(%ebp), %edx
+	movl	-28(%ebp), %eax
+	addl	%edx, %eax
+	movzbl	(%eax), %eax
+	movb	%al, -648(%ebp)
+	leal	-696(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_Netbios@4
+	subl	$4, %esp
+	movb	%al, -29(%ebp)
+	movl	$64, 8(%esp)
+	movl	$0, 4(%esp)
+	leal	-696(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_memset
+	movb	$51, -696(%ebp)
+	leal	-951(%ebp), %edx
+	movl	-28(%ebp), %eax
+	addl	%edx, %eax
+	movzbl	(%eax), %eax
+	movb	%al, -648(%ebp)
+	leal	-696(%ebp), %eax
+	addl	$10, %eax
+	movw	$8234, (%eax)
+	movb	$0, 2(%eax)
+	leal	-632(%ebp), %eax
+	movl	%eax, -692(%ebp)
+	movw	$600, -688(%ebp)
+	leal	-696(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_Netbios@4
+	subl	$4, %esp
+	movb	%al, -29(%ebp)
+	cmpb	$0, -29(%ebp)
+	jne	L7
+	movzbl	-627(%ebp), %eax
+	movzbl	%al, %edi
+	movzbl	-628(%ebp), %eax
+	movzbl	%al, %esi
+	movzbl	-629(%ebp), %eax
+	movzbl	%al, %ebx
+	movzbl	-630(%ebp), %eax
+	movzbl	%al, %ecx
+	movzbl	-631(%ebp), %eax
+	movzbl	%al, %edx
+	movzbl	-632(%ebp), %eax
+	movzbl	%al, %eax
+	movl	%edi, 28(%esp)
+	movl	%esi, 24(%esp)
+	movl	%ebx, 20(%esp)
+	movl	%ecx, 16(%esp)
+	movl	%edx, 12(%esp)
+	movl	%eax, 8(%esp)
+	movl	$LC1, 4(%esp)
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_sprintf
+L7:
+	addl	$1, -28(%ebp)
+L6:
+	movzbl	-952(%ebp), %eax
+	movzbl	%al, %eax
+	cmpl	-28(%ebp), %eax
+	jg	L8
+	nop
+	leal	-12(%ebp), %esp
+	popl	%ebx
+	.cfi_restore 3
+	popl	%esi
+	.cfi_restore 6
+	popl	%edi
+	.cfi_restore 7
+	popl	%ebp
+	.cfi_restore 5
+	.cfi_def_cfa 4, 4
+	ret
+	.cfi_endproc
+LFE13:
+	.def	___main;	.scl	2;	.type	32;	.endef
+	.section .rdata,"dr"
+LC2:
+	.ascii "%s\12 \0"
+LC3:
+	.ascii "PAUSE> NUL \0"
+	.text
+	.globl	_main
+	.def	_main;	.scl	2;	.type	32;	.endef
+_main:
+LFB14:
+	.cfi_startproc
+	pushl	%ebp
+	.cfi_def_cfa_offset 8
+	.cfi_offset 5, -8
+	movl	%esp, %ebp
+	.cfi_def_cfa_register 5
+	andl	$-16, %esp
+	subl	$32, %esp
+	call	___main
+	movl	$32, (%esp)
+	call	_malloc
+	movl	%eax, 28(%esp)
+	movl	28(%esp), %eax
+	movl	%eax, (%esp)
+	call	_getMac
+	movl	28(%esp), %eax
+	movl	%eax, 4(%esp)
+	movl	$LC2, (%esp)
+	call	_printf
+	movl	28(%esp), %eax
+	movl	%eax, (%esp)
+	call	_free
+	movl	$LC3, (%esp)
+	call	_system
+	movl	$0, %eax
+	leave
+	.cfi_restore 5
+	.cfi_def_cfa 4, 4
+	ret
+	.cfi_endproc
+LFE14:
+	.ident	"GCC: (GNU) 5.3.0"
+	.def	___mingw_vprintf;	.scl	2;	.type	32;	.endef
+	.def	___mingw_vsprintf;	.scl	2;	.type	32;	.endef
+	.def	_memset;	.scl	2;	.type	32;	.endef
+	.def	_Netbios@4;	.scl	2;	.type	32;	.endef
+	.def	_malloc;	.scl	2;	.type	32;	.endef
+	.def	_free;	.scl	2;	.type	32;	.endef
+	.def	_system;	.scl	2;	.type	32;	.endef

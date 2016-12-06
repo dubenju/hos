@@ -1,4 +1,8 @@
-OBJS_BOOTPACK = bootpack.obj naskfunc.obj 
+OBJS_BOOTPACK = bootpack.obj naskfunc.obj hankaku.obj graphic.obj dsctbl.obj \
+		dbgs.obj int.obj fifo.obj keyboard.obj mouse.obj memory.obj \
+		sheet.obj timer.obj mtask.obj window.obj menu.obj rtc.obj \
+		bmp.obj jpeg.obj console.obj tasksmgr.obj file.obj tek.obj \
+		dma.obj fdc.obj sb16.obj browser.obj
 
 #TOOL_PATH = ../tools/
 TOOL_PATH = C:/Users/DBJ/git/hos/tools/

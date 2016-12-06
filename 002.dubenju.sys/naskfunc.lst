@@ -13,12 +13,12 @@
     13 00000000                                 		GLOBAL	_load_gdtr, _load_idtr
     14 00000000                                 		GLOBAL	_load_cr0, _store_cr0
     15 00000000                                 		GLOBAL	_load_tr
-    16 00000000                                 		GLOBAL	_inthandler20, _inthandler21, _inthandler26
-    17 00000000                                 		GLOBAL	_inthandler2c, _inthandler0c
-    18 00000000                                 		GLOBAL	_inthandler0d, _end_app
+    16 00000000                                 		GLOBAL	_asm_inthandler20, _asm_inthandler21, _asm_inthandler26
+    17 00000000                                 		GLOBAL	_asm_inthandler2c, _asm_inthandler0c
+    18 00000000                                 		GLOBAL	_asm_inthandler0d, _asm_end_app
     19 00000000                                 		GLOBAL	_memtest_sub
     20 00000000                                 		GLOBAL	_farjmp, _farcall
-    21 00000000                                 		GLOBAL	_hrb_api, _start_app, _write_mem8
+    21 00000000                                 		GLOBAL	_asm_hrb_api, _start_app
     22 00000000                                 		EXTERN	_inthandler20, _inthandler21, _inthandler26
     23 00000000                                 		EXTERN	_inthandler2c, _inthandler0d
     24 00000000                                 		EXTERN	_inthandler0c
@@ -114,7 +114,7 @@
    114 0000007B 0F 00 5C 24 04                  		LTR		[ESP+4]			; tr
    115 00000080 C3                              		RET
    116 00000081                                 
-   117 00000081                                 _inthandler20:
+   117 00000081                                 _asm_inthandler20:
    118 00000081 06                              		PUSH	ES
    119 00000082 1E                              		PUSH	DS
    120 00000083 60                              		PUSHAD
@@ -123,14 +123,14 @@
    123 00000087 66 8C D0                        		MOV		AX,SS
    124 0000008A 8E D8                           		MOV		DS,AX
    125 0000008C 8E C0                           		MOV		ES,AX
-   126 0000008E E8 FFFFFFEE                     		CALL	_inthandler20
+   126 0000008E E8 [00000000]                   		CALL	_inthandler20
    127 00000093 58                              		POP		EAX
    128 00000094 61                              		POPAD
    129 00000095 1F                              		POP		DS
    130 00000096 07                              		POP		ES
    131 00000097 CF                              		IRETD
    132 00000098                                 
-   133 00000098                                 _inthandler21:
+   133 00000098                                 _asm_inthandler21:
    134 00000098 06                              		PUSH	ES
    135 00000099 1E                              		PUSH	DS
    136 0000009A 60                              		PUSHAD
@@ -139,7 +139,7 @@
    139 0000009E 66 8C D0                        		MOV		AX,SS
    140 000000A1 8E D8                           		MOV		DS,AX
    141 000000A3 8E C0                           		MOV		ES,AX
-   142 000000A5 E8 FFFFFFEE                     		CALL	_inthandler21
+   142 000000A5 E8 [00000000]                   		CALL	_inthandler21
    143 000000AA 58                              		POP		EAX
    144 000000AB 61                              		POPAD
    145 000000AC 1F                              		POP		DS
@@ -147,7 +147,7 @@
    147 000000AE CF                              		IRETD
    148 000000AF                                 
    149 000000AF                                 
-   150 000000AF                                 _inthandler26:   ; （これは_inthandler20等とほとんど同じ）
+   150 000000AF                                 _asm_inthandler26:   ; （これは_asm_inthandler20等とほとんど同じ）
    151 000000AF 06                              		PUSH	ES
    152 000000B0 1E                              		PUSH	DS
    153 000000B1 60                              		PUSHAD
@@ -156,14 +156,14 @@
    156 000000B5 66 8C D0                        		MOV		AX,SS
    157 000000B8 8E D8                           		MOV		DS,AX
    158 000000BA 8E C0                           		MOV		ES,AX
-   159 000000BC E8 FFFFFFEE                     		CALL	_inthandler26
+   159 000000BC E8 [00000000]                   		CALL	_inthandler26
    160 000000C1 58                              		POP		EAX
    161 000000C2 61                              		POPAD
    162 000000C3 1F                              		POP		DS
    163 000000C4 07                              		POP		ES
    164 000000C5 CF                              		IRETD
    165 000000C6                                 
-   166 000000C6                                 _inthandler2c:
+   166 000000C6                                 _asm_inthandler2c:
    167 000000C6 06                              		PUSH	ES
    168 000000C7 1E                              		PUSH	DS
    169 000000C8 60                              		PUSHAD
@@ -172,14 +172,14 @@
    172 000000CC 66 8C D0                        		MOV		AX,SS
    173 000000CF 8E D8                           		MOV		DS,AX
    174 000000D1 8E C0                           		MOV		ES,AX
-   175 000000D3 E8 FFFFFFEE                     		CALL	_inthandler2c
+   175 000000D3 E8 [00000000]                   		CALL	_inthandler2c
    176 000000D8 58                              		POP		EAX
    177 000000D9 61                              		POPAD
    178 000000DA 1F                              		POP		DS
    179 000000DB 07                              		POP		ES
    180 000000DC CF                              		IRETD
    181 000000DD                                 
-   182 000000DD                                 _inthandler0c:
+   182 000000DD                                 _asm_inthandler0c:
    183 000000DD FB                              		STI
    184 000000DE 06                              		PUSH	ES
    185 000000DF 1E                              		PUSH	DS
@@ -189,9 +189,9 @@
    189 000000E4 66 8C D0                        		MOV		AX,SS
    190 000000E7 8E D8                           		MOV		DS,AX
    191 000000E9 8E C0                           		MOV		ES,AX
-   192 000000EB E8 FFFFFFED                     		CALL	_inthandler0c
+   192 000000EB E8 [00000000]                   		CALL	_inthandler0c
    193 000000F0 83 F8 00                        		CMP		EAX,0
-   194 000000F3 0F 85 00000091                  		JNE		_end_app
+   194 000000F3 0F 85 00000091                  		JNE		_asm_end_app
    195 000000F9 58                              		POP		EAX
    196 000000FA 61                              		POPAD
    197 000000FB 1F                              		POP		DS
@@ -199,7 +199,7 @@
    199 000000FD 83 C4 04                        		ADD		ESP,4			; INT 0x0c でも、これが必要
    200 00000100 CF                              		IRETD
    201 00000101                                 
-   202 00000101                                 _inthandler0d:
+   202 00000101                                 _asm_inthandler0d:
    203 00000101 FB                              		STI
    204 00000102 06                              		PUSH	ES
    205 00000103 1E                              		PUSH	DS
@@ -209,9 +209,9 @@
    209 00000108 66 8C D0                        		MOV		AX,SS
    210 0000010B 8E D8                           		MOV		DS,AX
    211 0000010D 8E C0                           		MOV		ES,AX
-   212 0000010F E8 FFFFFFED                     		CALL	_inthandler0d
+   212 0000010F E8 [00000000]                   		CALL	_inthandler0d
    213 00000114 83 F8 00                        		CMP		EAX,0			; ここだけ違う
-   214 00000117 75 71                           		JNE		_end_app	; ここだけ違う
+   214 00000117 75 71                           		JNE		_asm_end_app	; ここだけ違う
    215 00000119 58                              		POP		EAX
    216 0000011A 61                              		POPAD
    217 0000011B 1F                              		POP		DS
@@ -260,7 +260,7 @@
    260 00000168 FF 5C 24 04                     		CALL	FAR	[ESP+4]				; eip, cs
    261 0000016C C3                              		RET
    262 0000016D                                 
-   263 0000016D                                 _hrb_api:
+   263 0000016D                                 _asm_hrb_api:
    264 0000016D FB                              		STI
    265 0000016E 1E                              		PUSH	DS
    266 0000016F 06                              		PUSH	ES
@@ -269,15 +269,15 @@
    269 00000172 66 8C D0                        		MOV		AX,SS
    270 00000175 8E D8                           		MOV		DS,AX		; OS用のセグメントをDSとESにも入れる
    271 00000177 8E C0                           		MOV		ES,AX
-   272 00000179 E8 FFFFFFEF                     		CALL	_hrb_api
+   272 00000179 E8 [00000000]                   		CALL	_hrb_api
    273 0000017E 83 F8 00                        		CMP		EAX,0		; EAXが0でなければアプリ終了処理
-   274 00000181 75 07                           		JNE		_end_app
+   274 00000181 75 07                           		JNE		_asm_end_app
    275 00000183 83 C4 20                        		ADD		ESP,32
    276 00000186 61                              		POPAD
    277 00000187 07                              		POP		ES
    278 00000188 1F                              		POP		DS
    279 00000189 CF                              		IRETD
-   280 0000018A                                 _end_app:
+   280 0000018A                                 _asm_end_app:
    281 0000018A                                 ;	EAXはtss.esp0の番地
    282 0000018A 8B 20                           		MOV		ESP,[EAX]
    283 0000018C C7 40 04 00000000               		MOV		DWORD [EAX+4],0

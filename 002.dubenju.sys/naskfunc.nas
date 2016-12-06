@@ -13,12 +13,12 @@
 		GLOBAL	_load_gdtr, _load_idtr
 		GLOBAL	_load_cr0, _store_cr0
 		GLOBAL	_load_tr
-		GLOBAL	_inthandler20, _inthandler21, _inthandler26
-		GLOBAL	_inthandler2c, _inthandler0c
-		GLOBAL	_inthandler0d, _end_app
+		GLOBAL	_asm_inthandler20, _asm_inthandler21, _asm_inthandler26
+		GLOBAL	_asm_inthandler2c, _asm_inthandler0c
+		GLOBAL	_asm_inthandler0d, _asm_end_app
 		GLOBAL	_memtest_sub
 		GLOBAL	_farjmp, _farcall
-		GLOBAL	_hrb_api, _start_app, _write_mem8
+		GLOBAL	_asm_hrb_api, _start_app
 		EXTERN	_inthandler20, _inthandler21, _inthandler26
 		EXTERN	_inthandler2c, _inthandler0d
 		EXTERN	_inthandler0c
@@ -114,7 +114,7 @@ _load_tr:		; void load_tr(int tr);
 		LTR		[ESP+4]			; tr
 		RET
 
-_inthandler20:
+_asm_inthandler20:
 		PUSH	ES
 		PUSH	DS
 		PUSHAD
@@ -130,7 +130,7 @@ _inthandler20:
 		POP		ES
 		IRETD
 
-_inthandler21:
+_asm_inthandler21:
 		PUSH	ES
 		PUSH	DS
 		PUSHAD
@@ -147,7 +147,7 @@ _inthandler21:
 		IRETD
 
 
-_inthandler26:   ; （これは_inthandler20等とほとんど同じ）
+_asm_inthandler26:   ; （これは_asm_inthandler20等とほとんど同じ）
 		PUSH	ES
 		PUSH	DS
 		PUSHAD
@@ -163,7 +163,7 @@ _inthandler26:   ; （これは_inthandler20等とほとんど同じ）
 		POP		ES
 		IRETD
 
-_inthandler2c:
+_asm_inthandler2c:
 		PUSH	ES
 		PUSH	DS
 		PUSHAD
@@ -179,7 +179,7 @@ _inthandler2c:
 		POP		ES
 		IRETD
 
-_inthandler0c:
+_asm_inthandler0c:
 		STI
 		PUSH	ES
 		PUSH	DS
@@ -191,7 +191,7 @@ _inthandler0c:
 		MOV		ES,AX
 		CALL	_inthandler0c
 		CMP		EAX,0
-		JNE		_end_app
+		JNE		_asm_end_app
 		POP		EAX
 		POPAD
 		POP		DS
@@ -199,7 +199,7 @@ _inthandler0c:
 		ADD		ESP,4			; INT 0x0c でも、これが必要
 		IRETD
 
-_inthandler0d:
+_asm_inthandler0d:
 		STI
 		PUSH	ES
 		PUSH	DS
@@ -211,7 +211,7 @@ _inthandler0d:
 		MOV		ES,AX
 		CALL	_inthandler0d
 		CMP		EAX,0			; ここだけ違う
-		JNE		_end_app	; ここだけ違う
+		JNE		_asm_end_app	; ここだけ違う
 		POP		EAX
 		POPAD
 		POP		DS
@@ -260,7 +260,7 @@ _farcall:		; void farcall(int eip, int cs);
 		CALL	FAR	[ESP+4]				; eip, cs
 		RET
 
-_hrb_api:
+_asm_hrb_api:
 		STI
 		PUSH	DS
 		PUSH	ES
@@ -271,13 +271,13 @@ _hrb_api:
 		MOV		ES,AX
 		CALL	_hrb_api
 		CMP		EAX,0		; EAXが0でなければアプリ終了処理
-		JNE		_end_app
+		JNE		_asm_end_app
 		ADD		ESP,32
 		POPAD
 		POP		ES
 		POP		DS
 		IRETD
-_end_app:
+_asm_end_app:
 ;	EAXはtss.esp0の番地
 		MOV		ESP,[EAX]
 		MOV		DWORD [EAX+4],0

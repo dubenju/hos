@@ -1,11 +1,11 @@
 /* asmhead.nas */
 struct BOOTINFO {           /* 0x0ff0-0x0fff */
-	char cyls;          /* ブートセクタはどこまでディスクを読んだのか */
-	char leds;          /* ブート時のキーボードのLEDの状態 */
-	char vmode;         /* ビデオモード  何ビットカラーか */
-	char reserve;
-	short scrnx, scrny; /* 画面解像度 */
-	char *vram;
+    char cyls;          /* ブートセクタはどこまでディスクを読んだのか */
+    char leds;          /* ブート時のキーボードのLEDの状態 */
+    char vmode;         /* ビデオモード  何ビットカラーか */
+    char reserve;
+    short scrnx, scrny; /* 画面解像度 */
+    char * vram;
 };
 #define ADR_BOOTINFO 0x000005f0
 #define ADR_DISKIMG  0x00100000
@@ -338,8 +338,8 @@ void set_console_title(struct CONSOLE *cons, char * title);
 
 int cmd_app(struct CONSOLE *cons, int *fat, char *cmdline);
 int *hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int eax);
-int *inthandler0d(int *esp);
 int *inthandler0c(int *esp);
+int *inthandler0d(int *esp);
 void hrb_api_linewin(struct SHEET *sht, int x0, int y0, int x1, int y1, int col);
 
 /* browser.c */

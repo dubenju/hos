@@ -1,0 +1,230 @@
+	.file	"macw.c"
+	.text
+	.def	_printf;	.scl	3;	.type	32;	.endef
+_printf:
+LFB4:
+	.cfi_startproc
+	pushl	%ebp
+	.cfi_def_cfa_offset 8
+	.cfi_offset 5, -8
+	movl	%esp, %ebp
+	.cfi_def_cfa_register 5
+	pushl	%ebx
+	subl	$36, %esp
+	.cfi_offset 3, -12
+	leal	12(%ebp), %eax
+	movl	%eax, -12(%ebp)
+	movl	-12(%ebp), %eax
+	movl	%eax, 4(%esp)
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	call	___mingw_vprintf
+	movl	%eax, %ebx
+	movl	%ebx, %eax
+	addl	$36, %esp
+	popl	%ebx
+	.cfi_restore 3
+	popl	%ebp
+	.cfi_restore 5
+	.cfi_def_cfa 4, 4
+	ret
+	.cfi_endproc
+LFE4:
+	.globl	_byte2Hex
+	.def	_byte2Hex;	.scl	2;	.type	32;	.endef
+_byte2Hex:
+LFB13:
+	.cfi_startproc
+	pushl	%ebp
+	.cfi_def_cfa_offset 8
+	.cfi_offset 5, -8
+	movl	%esp, %ebp
+	.cfi_def_cfa_register 5
+	subl	$20, %esp
+	movl	8(%ebp), %eax
+	movb	%al, -20(%ebp)
+	movzbl	-20(%ebp), %eax
+	shrb	$4, %al
+	movzbl	%al, %eax
+	movl	%eax, -4(%ebp)
+	movzbl	-20(%ebp), %eax
+	andl	$15, %eax
+	movl	%eax, -8(%ebp)
+	cmpl	$9, -4(%ebp)
+	jg	L4
+	movl	-4(%ebp), %eax
+	addl	$48, %eax
+	jmp	L5
+L4:
+	movl	-4(%ebp), %eax
+	addl	$55, %eax
+L5:
+	movl	12(%ebp), %edx
+	movb	%al, (%edx)
+	movl	12(%ebp), %eax
+	leal	1(%eax), %edx
+	cmpl	$9, -8(%ebp)
+	jg	L6
+	movl	-8(%ebp), %eax
+	addl	$48, %eax
+	jmp	L7
+L6:
+	movl	-8(%ebp), %eax
+	addl	$55, %eax
+L7:
+	movb	%al, (%edx)
+	nop
+	leave
+	.cfi_restore 5
+	.cfi_def_cfa 4, 4
+	ret
+	.cfi_endproc
+LFE13:
+	.globl	_getLocalMac
+	.def	_getLocalMac;	.scl	2;	.type	32;	.endef
+_getLocalMac:
+LFB14:
+	.cfi_startproc
+	pushl	%ebp
+	.cfi_def_cfa_offset 8
+	.cfi_offset 5, -8
+	movl	%esp, %ebp
+	.cfi_def_cfa_register 5
+	subl	$56, %esp
+	movl	$0, -28(%ebp)
+	movl	$0, -12(%ebp)
+	movl	$0, -24(%ebp)
+	leal	-28(%ebp), %eax
+	movl	%eax, 4(%esp)
+	movl	-12(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_GetAdaptersInfo@8
+	subl	$8, %esp
+	movl	%eax, -24(%ebp)
+	movl	-28(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_malloc
+	movl	%eax, -12(%ebp)
+	leal	-28(%ebp), %eax
+	movl	%eax, 4(%esp)
+	movl	-12(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_GetAdaptersInfo@8
+	subl	$8, %esp
+	movl	%eax, -24(%ebp)
+	movl	$0, -16(%ebp)
+	jmp	L9
+L14:
+	movl	$0, -20(%ebp)
+	jmp	L10
+L13:
+	movl	-16(%ebp), %edx
+	movl	8(%ebp), %eax
+	addl	%eax, %edx
+	movl	-12(%ebp), %ecx
+	movl	-20(%ebp), %eax
+	addl	%ecx, %eax
+	addl	$404, %eax
+	movzbl	(%eax), %eax
+	movzbl	%al, %eax
+	movl	%edx, 4(%esp)
+	movl	%eax, (%esp)
+	call	_byte2Hex
+	addl	$2, -16(%ebp)
+	movl	-12(%ebp), %eax
+	movl	400(%eax), %eax
+	subl	$1, %eax
+	cmpl	-20(%ebp), %eax
+	jle	L11
+	movl	-16(%ebp), %eax
+	leal	1(%eax), %edx
+	movl	%edx, -16(%ebp)
+	movl	%eax, %edx
+	movl	8(%ebp), %eax
+	addl	%edx, %eax
+	movb	$58, (%eax)
+	jmp	L12
+L11:
+	movl	-16(%ebp), %eax
+	leal	1(%eax), %edx
+	movl	%edx, -16(%ebp)
+	movl	%eax, %edx
+	movl	8(%ebp), %eax
+	addl	%edx, %eax
+	movb	$35, (%eax)
+L12:
+	addl	$1, -20(%ebp)
+L10:
+	movl	-12(%ebp), %eax
+	movl	400(%eax), %eax
+	cmpl	-20(%ebp), %eax
+	jg	L13
+	movl	-12(%ebp), %eax
+	movl	(%eax), %eax
+	movl	%eax, -12(%ebp)
+L9:
+	cmpl	$0, -12(%ebp)
+	jne	L14
+	cmpl	$0, -16(%ebp)
+	jle	L15
+	subl	$1, -16(%ebp)
+	movl	-16(%ebp), %edx
+	movl	8(%ebp), %eax
+	addl	%edx, %eax
+	movb	$0, (%eax)
+	movl	-16(%ebp), %eax
+	jmp	L17
+L15:
+	movl	$-1, %eax
+L17:
+	leave
+	.cfi_restore 5
+	.cfi_def_cfa 4, 4
+	ret
+	.cfi_endproc
+LFE14:
+	.def	___main;	.scl	2;	.type	32;	.endef
+	.section .rdata,"dr"
+LC0:
+	.ascii "mac-%s\12\0"
+LC1:
+	.ascii "invoke getMAC error!\12\0"
+	.text
+	.globl	_main
+	.def	_main;	.scl	2;	.type	32;	.endef
+_main:
+LFB15:
+	.cfi_startproc
+	pushl	%ebp
+	.cfi_def_cfa_offset 8
+	.cfi_offset 5, -8
+	movl	%esp, %ebp
+	.cfi_def_cfa_register 5
+	andl	$-16, %esp
+	subl	$1040, %esp
+	call	___main
+	leal	16(%esp), %eax
+	movl	%eax, (%esp)
+	call	_getLocalMac
+	testl	%eax, %eax
+	jle	L19
+	leal	16(%esp), %eax
+	movl	%eax, 4(%esp)
+	movl	$LC0, (%esp)
+	call	_printf
+	jmp	L20
+L19:
+	movl	$LC1, (%esp)
+	call	_printf
+L20:
+	movl	$0, %eax
+	leave
+	.cfi_restore 5
+	.cfi_def_cfa 4, 4
+	ret
+	.cfi_endproc
+LFE15:
+	.ident	"GCC: (GNU) 5.3.0"
+	.def	___mingw_vprintf;	.scl	2;	.type	32;	.endef
+	.def	_GetAdaptersInfo@8;	.scl	2;	.type	32;	.endef
+	.def	_malloc;	.scl	2;	.type	32;	.endef

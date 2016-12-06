@@ -1,0 +1,118 @@
+	.file	"ipw.c"
+	.text
+	.def	_printf;	.scl	3;	.type	32;	.endef
+_printf:
+LFB1:
+	.cfi_startproc
+	pushl	%ebp
+	.cfi_def_cfa_offset 8
+	.cfi_offset 5, -8
+	movl	%esp, %ebp
+	.cfi_def_cfa_register 5
+	pushl	%ebx
+	subl	$36, %esp
+	.cfi_offset 3, -12
+	leal	12(%ebp), %eax
+	movl	%eax, -12(%ebp)
+	movl	-12(%ebp), %eax
+	movl	%eax, 4(%esp)
+	movl	8(%ebp), %eax
+	movl	%eax, (%esp)
+	call	___mingw_vprintf
+	movl	%eax, %ebx
+	movl	%ebx, %eax
+	addl	$36, %esp
+	popl	%ebx
+	.cfi_restore 3
+	popl	%ebp
+	.cfi_restore 5
+	.cfi_def_cfa 4, 4
+	ret
+	.cfi_endproc
+LFE1:
+	.section .rdata,"dr"
+LC0:
+	.ascii "%s\12\0"
+	.text
+	.globl	_CheckIP
+	.def	_CheckIP;	.scl	2;	.type	32;	.endef
+_CheckIP:
+LFB13:
+	.cfi_startproc
+	pushl	%ebp
+	.cfi_def_cfa_offset 8
+	.cfi_offset 5, -8
+	movl	%esp, %ebp
+	.cfi_def_cfa_register 5
+	subl	$696, %esp
+	leal	-416(%ebp), %eax
+	movl	%eax, 4(%esp)
+	movl	$2, (%esp)
+	call	_WSAStartup@8
+	subl	$8, %esp
+	testl	%eax, %eax
+	jne	L6
+	movl	$255, 4(%esp)
+	leal	-671(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_gethostname@8
+	subl	$8, %esp
+	testl	%eax, %eax
+	jne	L5
+	leal	-671(%ebp), %eax
+	movl	%eax, (%esp)
+	call	_gethostbyname@4
+	subl	$4, %esp
+	movl	%eax, -12(%ebp)
+	cmpl	$0, -12(%ebp)
+	je	L5
+	movl	-12(%ebp), %eax
+	movl	12(%eax), %eax
+	movl	(%eax), %eax
+	movl	(%eax), %eax
+	movl	%eax, (%esp)
+	call	_inet_ntoa@4
+	subl	$4, %esp
+	movl	%eax, -16(%ebp)
+	movl	-16(%ebp), %eax
+	movl	%eax, 4(%esp)
+	movl	$LC0, (%esp)
+	call	_printf
+L5:
+	call	_WSACleanup@0
+L6:
+	nop
+	leave
+	.cfi_restore 5
+	.cfi_def_cfa 4, 4
+	ret
+	.cfi_endproc
+LFE13:
+	.def	___main;	.scl	2;	.type	32;	.endef
+	.globl	_main
+	.def	_main;	.scl	2;	.type	32;	.endef
+_main:
+LFB14:
+	.cfi_startproc
+	pushl	%ebp
+	.cfi_def_cfa_offset 8
+	.cfi_offset 5, -8
+	movl	%esp, %ebp
+	.cfi_def_cfa_register 5
+	andl	$-16, %esp
+	call	___main
+	call	_CheckIP
+	movl	$0, %eax
+	leave
+	.cfi_restore 5
+	.cfi_def_cfa 4, 4
+	ret
+	.cfi_endproc
+LFE14:
+	.ident	"GCC: (GNU) 5.3.0"
+	.def	___mingw_vprintf;	.scl	2;	.type	32;	.endef
+	.def	_WSAStartup@8;	.scl	2;	.type	32;	.endef
+	.def	_gethostname@8;	.scl	2;	.type	32;	.endef
+	.def	_gethostbyname@4;	.scl	2;	.type	32;	.endef
+	.def	_inet_ntoa@4;	.scl	2;	.type	32;	.endef
+	.def	_WSACleanup@0;	.scl	2;	.type	32;	.endef
