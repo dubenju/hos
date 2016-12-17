@@ -1,0 +1,24 @@
+int    a  = 0;                  00407020.全局变量
+char * p1;                      00407078.全局变量
+int main(int argc, char * argv[]) {
+    int    b;                   0027FEEC.局部变量
+    char   s[] = "abc";         0027FEE8.局部变量
+    char   s[] = "abc";         0040515D.常量
+
+    char   s[] = "abc";         0027FEE8.常量
+
+    char * p2;                  0027FEE4.局部变量
+    char * p3 = "123456";       0027FEE0.局部变量
+    char * p3 = "123456";       00405064.常量
+
+    char * p3 = "123456";       00405064.常量
+
+    static int c = 0;           00407024.
+    p1 = (char *) malloc(10);   00407078.
+    p1 = (char *) malloc(10);   00AA3FA8.
+    p2 = (char *) malloc(20);   0027FEE4.
+    p2 = (char *) malloc(20);   00AA3FC0.
+    strcpy(p1, "123456");       00407078.
+    strcpy(p1, "123456");       00AA3FA8.
+    return 0;
+}

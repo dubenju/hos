@@ -8,7 +8,7 @@
 
 extern char current_path[256];          /* bootpack,c */
 extern int * u_fat;                     /* *.c */
-extern unsigned short table_8_565[256]; /* graphic.c */
+extern unsigned short table_16_65536[65536]; /* graphic.c */
 extern struct TASKCTL * taskctl;        /* mtask.c */
 extern struct TIMERCTL timerctl;        /* time.c */
 
@@ -1034,7 +1034,7 @@ int *hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
   } else if (edx == 11) {
     sht = (struct SHEET *) (ebx & 0xfffffffe);
     /* sht->buf[sht->bxsize * edi + esi] = eax; */
-    sht->buf[sht->bxsize * edi + esi] = table_8_565[eax];
+    sht->buf[sht->bxsize * edi + esi] = table_16_65536[eax];
     if ((ebx & 1) == 0) {
       sheet_refresh(sht, esi, edi, esi + 1, edi + 1);
     }
@@ -1044,7 +1044,7 @@ int *hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
   } else if (edx == 13) {
     sht = (struct SHEET *) (ebx & 0xfffffffe);
     /* hrb_api_linewin(sht, eax, ecx, esi, edi, ebp); */
-    hrb_api_linewin(sht, eax, ecx, esi, edi, table_8_565[ebp]);
+    hrb_api_linewin(sht, eax, ecx, esi, edi, table_16_65536[ebp]);
     if ((ebx & 1) == 0) {
       if (eax > esi) {
         i = eax;

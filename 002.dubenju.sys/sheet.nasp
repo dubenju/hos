@@ -5,7 +5,7 @@
 [BITS 32]
 	EXTERN	_memman_alloc_4k
 	EXTERN	_memman_free_4k
-	EXTERN	_table_8_565
+	EXTERN	_table_16_65536
 [FILE "sheet.c"]
 [SECTION .text]
 	GLOBAL	_shtctl_init
@@ -102,7 +102,7 @@ _sheet_setbuf:
 	MOV	EAX,DWORD [20+EBP]
 	MOV	DWORD [8+EDX],EAX
 	JE	L23
-	MOVZX	EAX,WORD [_table_8_565+ECX+ECX*1]
+	MOVZX	EAX,WORD [_table_16_65536+ECX+ECX*1]
 	MOV	DWORD [20+EDX],EAX
 L22:
 	POP	EBP

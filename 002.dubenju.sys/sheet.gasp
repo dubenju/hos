@@ -100,7 +100,7 @@ _sheet_setbuf:
 	movl	20(%ebp), %eax
 	movl	%eax, 8(%edx)
 	je	L23
-	movzwl	_table_8_565(%ecx,%ecx), %eax
+	movzwl	_table_16_65536(%ecx,%ecx), %eax
 	movl	%eax, 20(%edx)
 L22:
 	popl	%ebp

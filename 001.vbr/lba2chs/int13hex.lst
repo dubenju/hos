@@ -1,0 +1,74 @@
+     1                                  ; NASM
+     2                                  [bits 16]
+     3                                  org 0x7c00
+     4 00000000 8CC8                        mov ax, cs
+     5 00000002 8ED8                        mov ds, ax
+     6 00000004 8EC0                        mov es, ax
+     7 00000006 E81B00                      call check_int13hex
+     8 00000009 85C0                        test ax, ax
+     9 0000000B B8[4E00]                    mov ax, A20On
+    10 0000000E 7503                        jnz Print           ; Enabled
+    11 00000010 B8[5F00]                    mov ax, A20Off
+    12                                  Print:
+    13 00000013 89C5                        mov bp, ax
+    14 00000015 B91000                      mov cx, 16
+    15 00000018 B80113                      mov ax, 0x1301
+    16 0000001B BB0C00                      mov bx, 0x000c
+    17 0000001E B200                        mov dl, 0
+    18 00000020 CD10                        int 0x10
+    19                                      
+    20 00000022 FA                          cli                 ; Shutdown
+    21 00000023 F4                          hlt
+    22                                   
+    23                                  check_int13hex:
+    24 00000024 1E                          push ds
+    25 00000025 06                          push es
+    26 00000026 57                          push di
+    27 00000027 56                          push si
+    28 00000028 FA                          cli
+    29 00000029 31C0                        xor ax, ax ; ax = 0
+    30 0000002B B441                        mov ah, 0x41
+    31 0000002D BBAA55                      mov bx, 0x55aa
+    32 00000030 B280                        mov dl, 0x80
+    33 00000032 CD13                        int 13h
+    34 00000034 7210                        jc none
+    35 00000036 F7C355AA                    test bx, 0xaa55
+    36 0000003A 750A                        jnz none
+    37 0000003C 83F904                      cmp cx, 0x04
+    38 0000003F 7505                        jne none
+    39                                  ;    mov es, ax
+    40                                  ;    not ax ; ax = 0xFFFF
+    41                                  ;    mov ds, ax
+    42                                  ;    mov di, 0x0500
+    43                                  ;    mov si, 0x0510
+    44                                  ;    mov al, byte [es:di]
+    45                                  ;    push ax
+    46                                  ;    mov al, byte [ds:si]
+    47                                  ;    push ax
+    48                                  ;    mov byte [es:di], 0x00
+    49                                  ;    mov byte [ds:si], 0xFF
+    50                                  ;    cmp byte [es:di], 0xFF
+    51                                  ;    pop ax
+    52                                  ;    mov byte [ds:si], al
+    53                                  ;    pop ax
+    54                                  ;    mov byte [es:di], al
+    55                                  
+    56 00000041 B80000                      mov ax, 0
+    57 00000044 7403                        je check_int13hex__exit
+    58                                  none:
+    59 00000046 B80100                      mov ax, 1
+    60                                  check_int13hex__exit:
+    61 00000049 5E                          pop si
+    62 0000004A 5F                          pop di
+    63 0000004B 07                          pop es
+    64 0000004C 1F                          pop ds
+    65 0000004D C3                          ret
+    66                                  A20On:
+    67 0000004E 494E54203133482045-         db "INT 13H Ex is On "
+    68 00000057 78206973204F6E20   
+    69                                  A20Off:
+    70 0000005F 494E54203133482045-         db "INT 13H Ex is Off "
+    71 00000068 78206973204F666620 
+    72 00000071 00<rept>                times 510-($-$$) db 0
+    73 000001FE 55                      db 0x55
+    74 000001FF AA                      db 0xaa

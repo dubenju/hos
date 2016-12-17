@@ -2,7 +2,7 @@
 
 #include "bootpack.h"
 
-extern unsigned short table_8_565[256];
+extern unsigned short table_16_65536[65536];
 
 void make_window8(unsigned short *buf, int xsize, int ysize, char *title, char act) {
   boxfill8(buf, xsize, COL8_C6C6C6, 0,         0,         xsize - 1, 0        );
@@ -94,7 +94,7 @@ void make_wtitle8(unsigned short *buf, int xsize, char *title, char act) {
       } else {
         c = COL8_FFFFFF;
       }
-      buf[(5 + y) * xsize + (xsize - 21 + x)] = table_8_565[c];
+      buf[(5 + y) * xsize + (xsize - 21 + x)] = table_16_65536[c];
     }
   }
 
@@ -111,7 +111,7 @@ void make_wtitle8(unsigned short *buf, int xsize, char *title, char act) {
       } else {
         c = COL8_FFFFFF;
       }
-      buf[(5 + y) * xsize + (xsize - 38 + x)] = table_8_565[c];
+      buf[(5 + y) * xsize + (xsize - 38 + x)] = table_16_65536[c];
     }
   }
 
@@ -128,7 +128,7 @@ void make_wtitle8(unsigned short *buf, int xsize, char *title, char act) {
       } else {
         c = COL8_FFFFFF;
       }
-      buf[(5 + y) * xsize + (xsize - 55 + x)] = table_8_565[c];
+      buf[(5 + y) * xsize + (xsize - 55 + x)] = table_16_65536[c];
     }
   }
   return;
@@ -179,10 +179,10 @@ void change_wtitle8(struct SHEET *sht, char act) {
   for (y = 3; y <= 20; y++) {
     for (x = 3; x <= xsize - 4; x++) {
       c565 = buf[y * xsize + x];
-      if (c565 == table_8_565[tc_old] && x <= xsize - 22) {
-        c565 = table_8_565[tc_new];
-      } else if (c565 == table_8_565[tbc_old]) {
-        c565 = table_8_565[tbc_new];
+      if (c565 == table_16_65536[tc_old] && x <= xsize - 22) {
+        c565 = table_16_65536[tc_new];
+      } else if (c565 == table_16_65536[tbc_old]) {
+        c565 = table_16_65536[tbc_new];
       }
       buf[y * xsize + x] = c565;
     }
@@ -198,7 +198,7 @@ void set_title(struct SHEET * sht, char * title) {
   for (y = 3; y <= 20; y ++) {
     for (x = 3; x <= xsize - 22; x ++) {
       c565 = buf[y * xsize + x];
-      c565 = table_8_565[16 + 1 + 2 * 6 + 5 * 36];
+      c565 = table_16_65536[16 + 1 + 2 * 6 + 5 * 36];
       buf[y * xsize + x] = c565;
     }
   }
@@ -274,7 +274,7 @@ void make_h_scroll(struct SHEET *sht, int x1, int y1, int w) {
       } else {
         c = COL8_FFFFFF;
       }
-      sht->buf[( y1 + y ) * sht->bxsize + x1 + x] = table_8_565[c];
+      sht->buf[( y1 + y ) * sht->bxsize + x1 + x] = table_16_65536[c];
     }
   }
   /* for rightbtn */
@@ -290,14 +290,14 @@ void make_h_scroll(struct SHEET *sht, int x1, int y1, int w) {
       } else {
         c = COL8_FFFFFF;
       }
-      sht->buf[( y1 + y ) * sht->bxsize + x1 + w - 16 + x] = table_8_565[c];
+      sht->buf[( y1 + y ) * sht->bxsize + x1 + w - 16 + x] = table_16_65536[c];
     }
   }
 
   for (y = 0; y < 14; y++) {
     for(x = 0; x < (w - 32); x ++) {
       c = COL8_C6C6C6;
-      sht->buf[(y1+y)*sht->bxsize + x1 + 16 + x] = table_8_565[c];
+      sht->buf[(y1+y)*sht->bxsize + x1 + 16 + x] = table_16_65536[c];
     }
   }
 }
@@ -357,7 +357,7 @@ void make_v_scroll(struct SHEET *sht, int x1, int y1, int h) {
       } else {
         c = COL8_FFFFFF;
       }
-      sht->buf[( y1 + y ) * sht->bxsize + x1 + x] = table_8_565[c];
+      sht->buf[( y1 + y ) * sht->bxsize + x1 + x] = table_16_65536[c];
     }
   }
   /* for botbtn */
@@ -373,14 +373,14 @@ void make_v_scroll(struct SHEET *sht, int x1, int y1, int h) {
       } else {
         c = COL8_FFFFFF;
       }
-      sht->buf[( y1 + h - 14 + y ) * sht->bxsize + x1 + x] = table_8_565[c];
+      sht->buf[( y1 + h - 14 + y ) * sht->bxsize + x1 + x] = table_16_65536[c];
     }
   }
 
   for (y = 0; y < (h - 28); y++) {
     for(x = 0; x < 16; x ++) {
       c = COL8_C6C6C6;
-      sht->buf[(y1+14+y)*sht->bxsize + x1 + x] = table_8_565[c];
+      sht->buf[(y1+14+y)*sht->bxsize + x1 + x] = table_16_65536[c];
     }
   }
 /*  make_v_scrollbtn(sht, x1, y1, h, 100); */
@@ -409,7 +409,7 @@ void make_v_scrollbtn(struct SHEET * sht, int x1, int y1, int h, int p) {
       } else {
         c = COL8_FFFFFF;
       }
-      sht->buf[( y1 +  14 + y ) * sht->bxsize + x1 + x] = table_8_565[c];
+      sht->buf[( y1 +  14 + y ) * sht->bxsize + x1 + x] = table_16_65536[c];
 
     }
   }
@@ -426,7 +426,7 @@ void make_v_scrollbtn(struct SHEET * sht, int x1, int y1, int h, int p) {
       } else {
         c = COL8_FFFFFF;
       }
-      sht->buf[( y1 + 14 + y ) * sht->bxsize + x1 + x] = table_8_565[c];
+      sht->buf[( y1 + 14 + y ) * sht->bxsize + x1 + x] = table_16_65536[c];
     }
   }
 
@@ -442,7 +442,7 @@ void make_v_scrollbtn(struct SHEET * sht, int x1, int y1, int h, int p) {
       } else {
         c = COL8_FFFFFF;
       }
-      sht->buf[( y1 +  12 + h + y ) * sht->bxsize + x1 + x] = table_8_565[c];
+      sht->buf[( y1 +  12 + h + y ) * sht->bxsize + x1 + x] = table_16_65536[c];
     }
   }
 
@@ -457,7 +457,7 @@ void make_progress(struct SHEET * sht, int x1, int y1, int w, int h, int flag) {
   }
   for(y = 0; y < h; y ++) {
     for (x =0; x < w; x ++) {
-      sht->buf[(y1+h+y)*sht->bxsize + x1 + x]= table_8_565[c];
+      sht->buf[(y1+h+y)*sht->bxsize + x1 + x]= table_16_65536[c];
     }
   }
 }

@@ -2,7 +2,8 @@
 
 #include "bootpack.h"
 
-unsigned short table_8_565[256];
+/* 5:6:5 */
+unsigned short table_16_65536[65536];
 
 extern int * u_fat;
 
@@ -29,61 +30,94 @@ void init_palette(void) {
 
   int r, g, b;
   int i;
-  struct BOOTINFO * binfo = (struct BOOTINFO *) ADR_BOOTINFO;
-  if (binfo->vmode == 8) {
-    for (i = 0; i < 16; i ++) {
-      table_8_565[i] = i;
-    }
-    set_palette(0, 15, table_rgb);
+    struct BOOTINFO * binfo = (struct BOOTINFO *) ADR_BOOTINFO;
+    if (binfo->vmode == 8) {
+        //for (i = 0; i < 16; i ++) {
+        //    table_8_565[i] = i;
+        //}
+        set_palette(0, 15, table_rgb);
 
-    unsigned char table2[216 * 3];
-    for (b = 0; b < 6; b++) {
-      for (g = 0; g < 6; g++) {
-        for (r = 0; r < 6; r++) {
-          table2[(r + g * 6 + b * 36) * 3 + 0] = r * 51;
-          table2[(r + g * 6 + b * 36) * 3 + 1] = g * 51;
-          table2[(r + g * 6 + b * 36) * 3 + 2] = b * 51;
-          table_8_565[r + g * 6 + b * 36 + 16] = r + g * 6 + b * 36 + 16;
+        unsigned char table2[216 * 3];
+        for (b = 0; b < 6; b++) {
+            for (g = 0; g < 6; g++) {
+                for (r = 0; r < 6; r++) {
+                    table2[(r + g * 6 + b * 36) * 3 + 0] = r * 51;
+                    table2[(r + g * 6 + b * 36) * 3 + 1] = g * 51;
+                    table2[(r + g * 6 + b * 36) * 3 + 2] = b * 51;
+                    //table_8_565[r + g * 6 + b * 36 + 16] = r + g * 6 + b * 36 + 16;
+                }
+            }
         }
-      }
-    }
-    set_palette(16, 231, table2);
-  } else {
-    for (i = 0; i < 16; i++) {
-      r = table_rgb[i * 3 + 0];
-      g = table_rgb[i * 3 + 1];
-      b = table_rgb[i * 3 + 2];
-      table_8_565[i] = (unsigned short) (((r << 8) & 0xf800) | ((g << 3) & 0x07e0) | ((b >> 3)) & 0x001f);
-    }
+        set_palette(16, 231, table2);
+    } else if (binfo->vmode == 16) {
+        int o = 0;
+        for (b = 0; b < 32; b++) {
+            for (g = 0; g < 64; g++) {
+                for (r = 0; r < 32; r++) {
+                    table_16_65536[o] = (unsigned short) (((r << 11) & 0xf800) | ((g << 4) & 0x07e0) | (b & 0x001f));
+                    o ++;
+                }
+            }
+        }
+        for (o = 0; o < 16; o ++) {
+            table_16_65536[o] = (unsigned short) (((table_rgb[o * 3] << 11) & 0xf800) | ((table_rgb[o * 3 + 1] << 4) & 0x07e0) | (table_rgb[o * 3 + 2] & 0x001f));
+        }
+//        set_palette(0, 256, table_8_565);
+//        set_palette(0, 15, table_rgb);
 
-     for (b = 0; b < 6; b++) {
-      for (g = 0; g < 6; g++) {
-        for (r = 0; r < 6; r++) {
-          table_8_565[r + g * 6 + b * 36 + 16] = (unsigned short) ((((r * 51) << 8) & 0xf800) | (((g * 51) << 3) & 0x07e0) | (((b * 51) >> 3) & 0x001f));
+//        set_palette(0, 15, table_rgb);
+//
+//        unsigned char table2[216 * 3];
+//        for (b = 0; b < 6; b++) {
+//            for (g = 0; g < 6; g++) {
+//                for (r = 0; r < 6; r++) {
+//                    table2[(r + g * 6 + b * 36) * 3 + 0] = r * 51;
+//                    table2[(r + g * 6 + b * 36) * 3 + 1] = g * 51;
+//                    table2[(r + g * 6 + b * 36) * 3 + 2] = b * 51;
+//                    // table_8_565[r + g * 6 + b * 36 + 16] = r + g * 6 + b * 36 + 16;
+//                }
+//            }
+//        }
+//        set_palette(16, 231, table2);
+//
+    } else if (binfo->vmode == 24) {
+        int o = 0;
+        for (b = 0; b < 32; b++) {
+            for (g = 0; g < 64; g++) {
+                for (r = 0; r < 32; r++) {
+                    table_16_65536[o] = (unsigned short) (((r << 11) & 0xf800) | ((g << 4) & 0x07e0) | (b & 0x001f));
+                    o ++;
+                }
+            }
         }
-      }
-    }
-  }
-  return;
+        for (o = 0; o < 16; o ++) {
+            table_16_65536[o] = (unsigned short) (((table_rgb[o * 3] << 11) & 0xf800) | ((table_rgb[o * 3 + 1] << 4) & 0x07e0) | (table_rgb[o * 3 + 2] & 0x001f));
+        }
+    } /* if */
+
+//    boxfill8c((unsigned char *)0xa0000, 320, COL8_FF0000, 10, 20, 20 - 1, 48 - 1);
+    return;
 }
 
-void set_palette(int start, int end, unsigned char *rgb) {
-  int i, eflags;
-  eflags = io_load_eflags();	/* 割り込み許可フラグの値を記録する */
-  io_cli(); 					/* 許可フラグを0にして割り込み禁止にする */
-  io_out8(0x03c8, start);
-  for (i = start; i <= end; i++) {
-    io_out8(0x03c9, rgb[0] / 4);
-    io_out8(0x03c9, rgb[1] / 4);
-    io_out8(0x03c9, rgb[2] / 4);
-    rgb += 3;
-  }
-  io_store_eflags(eflags);	/* 割り込み許可フラグを元に戻す */
-  return;
+void set_palette(int start, int end, unsigned char * rgb) {
+    int i, eflags;
+
+    eflags = io_load_eflags();  /* 割り込み許可フラグの値を記録する */
+    io_cli();                   /* 許可フラグを0にして割り込み禁止にする */
+    io_out8(0x03c6, 0xff);      /* Mask all registers so we can update any of them */
+    io_out8(0x03c8, start);     /* Register Write */
+    for (i = start; i <= end; i++) {
+        io_out8(0x03c9, rgb[0] / 4);    /* Data Port */
+        io_out8(0x03c9, rgb[1] / 4);
+        io_out8(0x03c9, rgb[2] / 4);
+        rgb += 3;
+    }
+    io_store_eflags(eflags);	/* 割り込み許可フラグを元に戻す */
+    return;
 }
 
-void drawpixel8(unsigned short *vram, int xsize, int color, int x, int y) {
-  vram[y * xsize + x] = table_8_565[color];
+void drawpixel8(unsigned short * vram, int xsize, int color, int x, int y) {
+  vram[y * xsize + x] = table_16_65536[color];
   return ;
 }
 
@@ -124,7 +158,15 @@ void boxfill8(unsigned short *vram, int xsize, unsigned char c, int x0, int y0, 
   }
   return;
 }
-
+void boxfill8c(unsigned char * vram, int xsize, unsigned char c, int x0, int y0, int x1, int y1) {
+    int x, y;
+    for (y = y0; y <= y1; y++) {
+        for (x = x0; x <= x1; x++) {
+            vram[y * xsize + x] = c;
+        }
+    }
+    return;
+}
 void init_screen8(short *vram, int x, int y) {
   // ----+----1----+----2----+----3----+----4----
   static char logo[13][44] = {
@@ -147,7 +189,7 @@ void init_screen8(short *vram, int x, int y) {
 
   boxfill8(vram, x, COL8_008484,  0,     0,      x -  1, y - 29);
 
-  read_picture(u_fat, vram, x, y);
+//  read_picture(u_fat, vram, x, y);
 
   boxfill8(vram, x, COL8_C6C6C6,  0,     y - 28, x -  1, y - 28);
   boxfill8(vram, x, COL8_FFFFFF,  0,     y - 27, x -  1, y - 27);
@@ -177,7 +219,7 @@ void init_screen8(short *vram, int x, int y) {
       }
       if (c != 0xff) {
         /* vram[(y - 18 + j) * x + (10 + i)] = c; */
-        vram[(y - 18 + j) * x + (10 + i)] = table_8_565[c];
+        vram[(y - 18 + j) * x + (10 + i)] = table_16_65536[c];
       }
     }
   }
@@ -200,7 +242,7 @@ void putfont8(short *vram, int xsize, int x, int y, unsigned char c, char scl, c
       if ((d & mask) != 0) {
         for (k = 0; k < scl; k ++) {
           for (l = 0; l < scl; l ++) {
-            p[k * xsize + l] = table_8_565[c];
+            p[k * xsize + l] = table_16_65536[c];
           }
         }
       }
@@ -314,13 +356,13 @@ void init_mouse_cursor81(short *mouse, unsigned char bc) {
   for (y = 0; y < 16; y++) {
     for (x = 0; x < 16; x++) {
       if (cursor[y][x] == '*') {
-        mouse[y * 16 + x] =  table_8_565[COL8_000000];
+        mouse[y * 16 + x] =  table_16_65536[COL8_000000];
       }
       if (cursor[y][x] == 'O') {
-        mouse[y * 16 + x] = table_8_565[COL8_FFFFFF];
+        mouse[y * 16 + x] = table_16_65536[COL8_FFFFFF];
       }
       if (cursor[y][x] == '.') {
-        mouse[y * 16 + x] = table_8_565[bc];
+        mouse[y * 16 + x] = table_16_65536[bc];
       }
     }
   }
@@ -351,13 +393,13 @@ void init_mouse_cursor8(short *mouse, unsigned char bc) {
   for (y = 0; y < 16; y++) {
     for (x = 0; x < 16; x++) {
       if (cursor[y][x] == '*') {
-        mouse[y * 16 + x] =  table_8_565[COL8_000000];
+        mouse[y * 16 + x] =  table_16_65536[COL8_000000];
       }
       if (cursor[y][x] == 'O') {
-        mouse[y * 16 + x] = table_8_565[COL8_FFFFFF];
+        mouse[y * 16 + x] = table_16_65536[COL8_FFFFFF];
       }
       if (cursor[y][x] == '.') {
-        mouse[y * 16 + x] = table_8_565[bc];
+        mouse[y * 16 + x] = table_16_65536[bc];
       }
     }
   }
@@ -388,13 +430,13 @@ void set_mouse_cursorl8(short *mouse, unsigned char bc) {
   for (y = 0; y < 16; y++) {
     for (x = 0; x < 16; x++) {
       if (cursor[y][x] == '*') {
-        mouse[y * 16 + x] =  table_8_565[COL8_000000];
+        mouse[y * 16 + x] =  table_16_65536[COL8_000000];
       }
       if (cursor[y][x] == 'O') {
-        mouse[y * 16 + x] = table_8_565[COL8_FFFFFF];
+        mouse[y * 16 + x] = table_16_65536[COL8_FFFFFF];
       }
       if (cursor[y][x] == '.') {
-        mouse[y * 16 + x] = table_8_565[bc];
+        mouse[y * 16 + x] = table_16_65536[bc];
       }
     }
   }
@@ -425,13 +467,13 @@ void set_mouse_cursorh8(short *mouse, unsigned char bc) {
   for (y = 0; y < 16; y++) {
     for (x = 0; x < 16; x++) {
       if (cursor[y][x] == '*') {
-        mouse[y * 16 + x] =  table_8_565[COL8_000000];
+        mouse[y * 16 + x] =  table_16_65536[COL8_000000];
       }
       if (cursor[y][x] == 'O') {
-        mouse[y * 16 + x] = table_8_565[COL8_FFFFFF];
+        mouse[y * 16 + x] = table_16_65536[COL8_FFFFFF];
       }
       if (cursor[y][x] == '.') {
-        mouse[y * 16 + x] = table_8_565[bc];
+        mouse[y * 16 + x] = table_16_65536[bc];
       }
     }
   }
@@ -462,13 +504,13 @@ void set_mouse_cursorlt8(short *mouse, unsigned char bc) {
   for (y = 0; y < 16; y++) {
     for (x = 0; x < 16; x++) {
       if (cursor[y][x] == '*') {
-        mouse[y * 16 + x] =  table_8_565[COL8_000000];
+        mouse[y * 16 + x] =  table_16_65536[COL8_000000];
       }
       if (cursor[y][x] == 'O') {
-        mouse[y * 16 + x] = table_8_565[COL8_FFFFFF];
+        mouse[y * 16 + x] = table_16_65536[COL8_FFFFFF];
       }
       if (cursor[y][x] == '.') {
-        mouse[y * 16 + x] = table_8_565[bc];
+        mouse[y * 16 + x] = table_16_65536[bc];
       }
     }
   }
@@ -499,13 +541,13 @@ void set_mouse_cursorrb8(short *mouse, unsigned char bc) {
   for (y = 0; y < 16; y++) {
     for (x = 0; x < 16; x++) {
       if (cursor[y][x] == '*') {
-        mouse[y * 16 + x] =  table_8_565[COL8_000000];
+        mouse[y * 16 + x] =  table_16_65536[COL8_000000];
       }
       if (cursor[y][x] == 'O') {
-        mouse[y * 16 + x] = table_8_565[COL8_FFFFFF];
+        mouse[y * 16 + x] = table_16_65536[COL8_FFFFFF];
       }
       if (cursor[y][x] == '.') {
-        mouse[y * 16 + x] = table_8_565[bc];
+        mouse[y * 16 + x] = table_16_65536[bc];
       }
     }
   }
@@ -519,7 +561,7 @@ void putblock8_8(short *vram, int vxsize, int pxsize,
   for (y = 0; y < pysize; y++) {
     for (x = 0; x < pxsize; x++) {
       /* vram[(py0 + y) * vxsize + (px0 + x)] = buf[y * bxsize + x]; */
-      vram[(py0 + y) * vxsize + (px0 + x)] = table_8_565[buf[y * bxsize + x]];
+      vram[(py0 + y) * vxsize + (px0 + x)] = table_16_65536[buf[y * bxsize + x]];
     }
   }
   return;

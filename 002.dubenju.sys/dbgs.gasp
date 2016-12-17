@@ -240,7 +240,7 @@ L43:
 	movl	-48(%ebp), %eax
 	movl	4(%esi), %edx
 	imull	%ebx, %eax
-	movw	_table_8_565(%edx,%edx), %dx
+	movw	_table_16_65536(%edx,%edx), %dx
 	movl	-56(%ebp), %edi
 	leal	(%eax,%ecx), %eax
 	incl	%ecx

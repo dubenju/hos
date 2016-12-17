@@ -3,7 +3,7 @@
 #include "bootpack.h"
 
 struct DBGWIN dbg;
-extern unsigned short table_8_565[256];
+extern unsigned short table_16_65536[65536];
 extern int * u_fat;
 extern char fat_flag;
 
@@ -72,7 +72,7 @@ void dbg_newline(struct DBGWIN *dbg) {
       }
       for (y = dbg->y0 + dbg->ht - 16; y < dbg->y0 + dbg->ht; y++) {
         for (x = dbg->x0; x < dbg->x0 + dbg->wd; x++) {
-          sht->buf[x + y * sht->bxsize] = table_8_565[dbg->bc];
+          sht->buf[x + y * sht->bxsize] = table_16_65536[dbg->bc];
         }
       }
       sheet_refresh(sht, dbg->x0, dbg->y0, dbg->x0 + dbg->wd, dbg->y0 + dbg->ht);

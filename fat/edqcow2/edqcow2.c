@@ -101,12 +101,20 @@ int show_usage(void) {
     /* 变量初始化 */
 
     /* 处理开始 */
-    printf("edqcow2 <qcow2 img file> create [size]\n");
-    printf("edqcow2 <qcow2 img file> fdisk <num> [size1, size2]\n");
-    printf("edqcow2 <qcow2 img file> format <filesystem fat etc.>\n");
-    printf("edqcow2 <qcow2 img file> init fat12 1474560.\n");
-    printf("edqcow2 <qcow2 img file> write file <file> to disk H-C-S\n");
-    printf("edqcow2 <qcow2 img file> write file <file> to dir <file>\n");
+    printf("QCOW2 File Editor version 0.0.1 comiled on %s.\n", __DATE__);
+    printf("\n");
+    printf("usage:\n");
+    printf("edqcow2 <qcow2 img file> create [size] -cs cluster_size\n");
+    printf("edqcow2 <qcow2 img file> fdisk <num> [size1, size2]\n"); /* */
+    printf("edqcow2 <qcow2 img file> fdisk create PrimaryPartition size  -cs cluster_size -m <mbs file>\n");
+    printf("edqcow2 <qcow2 img file> fdisk create PrimaryPartition size  -cs cluster_size -m <mbs file>\n");
+    printf("edqcow2 <qcow2 img file> fdisk create PrimaryPartition size  -cs cluster_size -m <mbs file>\n");
+    printf("edqcow2 <qcow2 img file> format -f <filesystem fat etc.> drvn  -m <vbs file>\n");
+    printf("edqcow2 <qcow2 img file> info\n");
+    printf("edqcow2 <qcow2 img file> init fat12 1474560.\n"); /* */
+    printf("edqcow2 <qcow2 img file> write file <file> to disk H-C-S\n"); /* */
+    printf("edqcow2 <qcow2 img file> write file <file> to dir <file>\n"); /* */
+    printf("edqcow2 <qcow2 img file> write copy <file> to <file>\n");
 
     /* 处理结束 */
     return -1;
@@ -1744,7 +1752,7 @@ uint64_t total_size, char * mbrfile, const char * fmt) {
         pe.start_sector = (( cylinder & 0x3FF ) >> 2) | sector;
         pe.start_cylinder = cylinder & 0xFF;
         pe.type   = 0x0E; /* WIN95 FAT16 */
-        // pe.type   = 0x04; /* DOS 3.0+ FAT16 */
+        pe.type   = 0x04; /* DOS 3.0+ FAT16 */
         if (memcmp(file_sys, "fat32", 5) == 0) {
             pe.type   = 0x0C;
         }

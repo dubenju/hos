@@ -1,0 +1,47 @@
+	.file	"stack01.c"
+	.globl	_a
+	.bss
+	.align 4
+_a:
+	.space 4
+	.comm	_p1, 4, 2
+	.def	___main;	.scl	2;	.type	32;	.endef
+	.section .rdata,"dr"
+LC0:
+	.ascii "123456\0"
+	.text
+	.globl	_main
+	.def	_main;	.scl	2;	.type	32;	.endef
+_main:
+LFB0:
+	.cfi_startproc
+	pushl	%ebp
+	.cfi_def_cfa_offset 8
+	.cfi_offset 5, -8
+	movl	%esp, %ebp
+	.cfi_def_cfa_register 5
+	andl	$-16, %esp
+	subl	$32, %esp
+	call	___main
+	movl	$6513249, 20(%esp)
+	movl	$LC0, 28(%esp)
+	movl	$10, (%esp)
+	call	_malloc
+	movl	%eax, _p1
+	movl	$20, (%esp)
+	call	_malloc
+	movl	%eax, 24(%esp)
+	movl	_p1, %eax
+	movl	$875770417, (%eax)
+	movw	$13877, 4(%eax)
+	movb	$0, 6(%eax)
+	movl	$0, %eax
+	leave
+	.cfi_restore 5
+	.cfi_def_cfa 4, 4
+	ret
+	.cfi_endproc
+LFE0:
+.lcomm _c.1701,4,4
+	.ident	"GCC: (GNU) 5.3.0"
+	.def	_malloc;	.scl	2;	.type	32;	.endef

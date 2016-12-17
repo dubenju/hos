@@ -6,7 +6,7 @@
      6 00000000                                 	EXTERN	_make_textbox8
      7 00000000                                 	EXTERN	_putfonts8_asc_sht
      8 00000000                                 	EXTERN	_sheet_refresh
-     9 00000000                                 	EXTERN	_table_8_565
+     9 00000000                                 	EXTERN	_table_16_65536
     10 00000000                                 	EXTERN	_fat_flag
     11 00000000                                 	EXTERN	_u_fat
     12 00000000                                 	EXTERN	_hrb_api_fopen
@@ -250,7 +250,7 @@
    249 00000296 8B 45 D0                        	MOV	EAX,DWORD [-48+EBP]
    250 00000299 8B 56 04                        	MOV	EDX,DWORD [4+ESI]
    251 0000029C 0F AF C3                        	IMUL	EAX,EBX
-   252 0000029F 66 8B 94 12 [00000000]          	MOV	DX,WORD [_table_8_565+EDX+EDX*1]
+   252 0000029F 66 8B 94 12 [00000000]          	MOV	DX,WORD [_table_16_65536+EDX+EDX*1]
    253 000002A7 8B 7D C8                        	MOV	EDI,DWORD [-56+EBP]
    254 000002AA 8D 04 08                        	LEA	EAX,DWORD [EAX+ECX*1]
    255 000002AD 41                              	INC	ECX

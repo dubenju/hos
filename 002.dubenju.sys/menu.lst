@@ -5,7 +5,7 @@
      5 00000000                                 [BITS 32]
      6 00000000                                 	EXTERN	_boxfill8
      7 00000000                                 	EXTERN	_putfonts8_asc
-     8 00000000                                 	EXTERN	_table_8_565
+     8 00000000                                 	EXTERN	_table_16_65536
      9 00000000                                 	EXTERN	_sheet_refresh
     10 00000000                                 [FILE "menu.c"]
     11                                          [SECTION .text]
@@ -279,11 +279,11 @@
    279 00000257 66 8B 14 50                     	MOV	DX,WORD [EAX+EDX*2]
    280 0000025B 0F B6 45 F1                     	MOVZX	EAX,BYTE [-15+EBP]
    281 0000025F 66 89 55 E6                     	MOV	WORD [-26+EBP],DX
-   282 00000263 66 3B 94 00 [00000000]          	CMP	DX,WORD [_table_8_565+EAX+EAX*1]
+   282 00000263 66 3B 94 00 [00000000]          	CMP	DX,WORD [_table_16_65536+EAX+EAX*1]
    283 0000026B 74 67                           	JE	L43
    284 0000026D 0F B6 45 F0                     	MOVZX	EAX,BYTE [-16+EBP]
    285 00000271 66 8B 55 E6                     	MOV	DX,WORD [-26+EBP]
-   286 00000275 66 3B 94 00 [00000000]          	CMP	DX,WORD [_table_8_565+EAX+EAX*1]
+   286 00000275 66 3B 94 00 [00000000]          	CMP	DX,WORD [_table_16_65536+EAX+EAX*1]
    287 0000027D 74 43                           	JE	L44
    288 0000027F                                 L34:
    289 0000027F 66 8B 55 E6                     	MOV	DX,WORD [-26+EBP]
@@ -319,7 +319,7 @@
    319 000002C2                                 L44:
    320 000002C2 0F B6 45 F2                     	MOVZX	EAX,BYTE [-14+EBP]
    321 000002C6                                 L42:
-   322 000002C6 66 8B 84 00 [00000000]          	MOV	AX,WORD [_table_8_565+EAX+EAX*1]
+   322 000002C6 66 8B 84 00 [00000000]          	MOV	AX,WORD [_table_16_65536+EAX+EAX*1]
    323 000002CE 66 89 45 E6                     	MOV	WORD [-26+EBP],AX
    324 000002D2 EB AB                           	JMP	L34
    325 000002D4                                 L43:

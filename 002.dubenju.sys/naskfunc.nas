@@ -6,7 +6,7 @@
 [BITS 32]						; 32ビットモード用の機械語を作らせる
 [FILE "naskfunc.nas"]			; ソースファイル名情報
 
-		GLOBAL	_io_hlt, _io_cli, _io_sti, _io_stihlt
+		GLOBAL	_io_hlt, _io_cli, _io_sti, _io_stihlt, _io_loop
 		GLOBAL	_io_in8,  _io_in16,  _io_in32
 		GLOBAL	_io_out8, _io_out16, _io_out32
 		GLOBAL	_io_load_eflags, _io_store_eflags
@@ -43,6 +43,9 @@ _io_stihlt:	; void io_stihlt(void);
 		HLT
 		RET
 
+_io_loop:	; void io_loop(void);
+		JMP _io_loop
+		RET
 _io_in8:	; int io_in8(int port);
 		MOV		EDX,[ESP+4]		; port
 		MOV		EAX,0

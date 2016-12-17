@@ -1,14 +1,14 @@
-               org 0700H
-               cpu 8086
-[BITS 16]
-              section .data align=16
+               org 7F00H
+;               cpu 8086
+;[BITS 16]
+;              section .data align=16
                JMP LBL_START
 TIMES 59 DB 0
 LBL_START:
                CLI
                XOR AX,AX
                MOV SS,AX
-               MOV SP,0X0700
+               MOV SP,7F00H
                STI
                PUSH AX
                POP  ES
@@ -32,3 +32,5 @@ LBL_HANGU:
            jmp LBL_HANGU
 
 MSG1     DB 'This is a test by dubenju.', 0
+
+times 4 * 512 - ($ - $$) DB 0AAH

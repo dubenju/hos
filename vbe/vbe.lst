@@ -1,0 +1,46 @@
+     1                                                      ORG 0x7F00
+     2 00000000 E90102                                      JMP VBE_START
+     3 00000003 90                                          NOP
+     4 00000004 00000000                vbei_signature      DD  00H
+     5 00000008 0000                    vbei_version        DW  00H
+     6 0000000A 00000000                vbei_oem            DD  00H
+     7 0000000E 00000000                vbei_capabilities   DD  00H
+     8 00000012 00000000                vbei_video_modes    DD  00H
+     9 00000016 0000                    vbei_video_memory   DW  00H
+    10 00000018 0000                    vbei_software_rev   DW  00H
+    11 0000001A 00000000                vbei_vendor         DD  00H
+    12 0000001E 00000000                vbei_product_name   DD  00H
+    13 00000022 00000000                vbei_product_rev    DD  00H
+    14 00000026 00<rept>                vbei_reserved TIMES 222 DB 00H
+    15 00000104 00<rept>                vbei_oem_data TIMES 256 DB 00H
+    16                                  
+    17                                  VBE_START:
+    18 00000204 31C0                                        XOR AX, AX
+    19 00000206 8EC0                                        MOV ES, AX
+    20 00000208 BF047F                                      MOV DI, 7F04H
+    21 0000020B B8004F                                      MOV AX, 4F00H       ; Get VESA mode information
+    22 0000020E CD10                                        INT 10H
+    23 00000210 83F84F                                      CMP AX, 004FH
+    24                                  
+    25 00000213 B8014F                                      MOV AX, 4F01H       ; Get VESA mode information
+    26 00000216 B91101                                      MOV CX, 0111H
+    27 00000219 BF0005                                      MOV DI, 0500H
+    28 0000021C CD10                                        INT 10H
+    29 0000021E 83F84F                                      CMP AX, 004FH
+    30                                  ;                    JMP FIN
+    31                                  
+    32 00000221 B8034F                                      MOV AX, 4F03H       ; Get current VBE mode
+    33 00000224 CD10                                        INT 10H
+    34 00000226 83F84F                                      CMP AX, 004FH
+    35                                  
+    36 00000229 B8024F                                      MOV AX, 4F02H       ; Set VBE mode
+    37 0000022C BB1141                                      MOV BX, 0111H + 4000H
+    38 0000022F CD10                                        INT 10H
+    39 00000231 83F84F                                      CMP AX, 004FH
+    40                                  
+    41 00000234 B8034F                                      MOV AX, 4F03H       ; Get current VBE mode
+    42 00000237 CD10                                        INT 10H
+    43 00000239 83F84F                                      CMP AX, 004FH
+    44                                  
+    45                                  FIN:
+    46 0000023C EBFE                                        JMP FIN

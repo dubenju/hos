@@ -6,7 +6,7 @@
 	EXTERN	_make_textbox8
 	EXTERN	_putfonts8_asc_sht
 	EXTERN	_sheet_refresh
-	EXTERN	_table_8_565
+	EXTERN	_table_16_65536
 	EXTERN	_fat_flag
 	EXTERN	_u_fat
 	EXTERN	_hrb_api_fopen
@@ -249,7 +249,7 @@ L43:
 	MOV	EAX,DWORD [-48+EBP]
 	MOV	EDX,DWORD [4+ESI]
 	IMUL	EAX,EBX
-	MOV	DX,WORD [_table_8_565+EDX+EDX*1]
+	MOV	DX,WORD [_table_16_65536+EDX+EDX*1]
 	MOV	EDI,DWORD [-56+EBP]
 	LEA	EAX,DWORD [EAX+ECX*1]
 	INC	ECX

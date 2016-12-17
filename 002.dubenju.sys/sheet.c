@@ -4,58 +4,59 @@
 
 #define SHEET_USE		1
 
-extern unsigned short table_8_565[256];
+extern unsigned short table_16_65536[65536];
 
-struct SHTCTL *shtctl_init(struct MEMMAN *memman, unsigned char *vram, int xsize, int ysize) {
-  struct SHTCTL *ctl;
-  int i;
-  ctl = (struct SHTCTL *) memman_alloc_4k(memman, sizeof (struct SHTCTL));
-  if (ctl == 0) {
-    goto err;
-  }
-  ctl->map = (unsigned char *) memman_alloc_4k(memman, xsize * ysize);
-  if (ctl->map == 0) {
-    memman_free_4k(memman, (int) ctl, sizeof (struct SHTCTL));
-    ctl = 0;
-    goto err;
-  }
-  ctl->vram = vram;
-  ctl->xsize = xsize;
-  ctl->ysize = ysize;
-  ctl->top = -1; /* シートは一枚もない */
-  for (i = 0; i < MAX_SHEETS; i++) {
-    ctl->sheets0[i].flags = 0; /* 未使用マーク */
-    ctl->sheets0[i].ctl = ctl; /* 所属を記録 */
-  }
+struct SHTCTL * shtctl_init(struct MEMMAN * memman, unsigned char * vram, int xsize, int ysize) {
+    struct SHTCTL *ctl;
+    int i;
+    ctl = (struct SHTCTL *) memman_alloc_4k(memman, sizeof (struct SHTCTL));
+    if (ctl == 0) {
+        goto err;
+    }
+    ctl->map = (unsigned char *) memman_alloc_4k(memman, xsize * ysize);
+    if (ctl->map == 0) {
+        memman_free_4k(memman, (int) ctl, sizeof (struct SHTCTL));
+        ctl = 0;
+        goto err;
+    }
+    ctl->vram = vram;
+    ctl->xsize = xsize;
+    ctl->ysize = ysize;
+    ctl->top = -1; /* シートは一枚もない */
+    for (i = 0; i < MAX_SHEETS; i++) {
+        ctl->sheets0[i].flags = 0; /* 未使用マーク */
+        ctl->sheets0[i].ctl = ctl; /* 所属を記録 */
+    }
 err:
-  return ctl;
+    return ctl;
 }
 
 struct SHEET *sheet_alloc(struct SHTCTL *ctl) {
-  struct SHEET *sht;
-  int i;
-  for (i = 0; i < MAX_SHEETS; i++) {
-    if (ctl->sheets0[i].flags == 0) {
-      sht = &ctl->sheets0[i];
-      sht->flags = SHEET_USE; /* 使用中マーク */
-      sht->height = -1;       /* 非表示中 */
-      sht->task = 0;	      /* 自動で閉じる機能を使わない */
-      return sht;
+    struct SHEET *sht;
+    int i;
+    for (i = 0; i < MAX_SHEETS; i++) {
+        if (ctl->sheets0[i].flags == 0) {
+            sht = &ctl->sheets0[i];
+            sht->flags = SHEET_USE; /* 使用中マーク */
+            sht->height = -1;       /* 非表示中 */
+            sht->task = 0;	        /* 自動で閉じる機能を使わない */
+            return sht;
+        }
     }
-  }
-  return 0;	              /* 全てのシートが使用中だった */
+    return 0;                       /* 全てのシートが使用中だった */
 }
 
 void sheet_setbuf(struct SHEET *sht, unsigned short *buf, int xsize, int ysize, int col_inv) {
-  sht->buf = buf;
-  sht->bxsize = xsize;
-  sht->bysize = ysize;
-  if (col_inv != -1) {
-    sht->col_inv = table_8_565[col_inv];
-  } else {
-    sht->col_inv = col_inv;
-  }
-  return;
+    sht->buf = buf;
+    sht->bxsize = xsize;
+    sht->bysize = ysize;
+    if (col_inv != -1) {
+        sht->col_inv = table_16_65536[col_inv];
+        //    sht->col_inv = table_rgb[col_inv];
+    } else {
+        sht->col_inv = col_inv;
+    }
+    return;
 }
 
 void sheet_refreshmap(struct SHTCTL *ctl, int vx0, int vy0, int vx1, int vy1, int h0) {

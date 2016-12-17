@@ -3,7 +3,7 @@
 
 #include "bootpack.h"
 
-extern unsigned short table_8_565[256];
+extern unsigned short table_16_65536[65536];
 
 void make_menu8(unsigned short * buf, int xsize, int ysize, char * title, struct MENU * menu, int num) {
   int i;
@@ -75,10 +75,10 @@ void change_mtitle8(struct SHEET * sht, int level, int mn_flg, char act) {
   for (y = 0; y < 22; y++) {
     for (x = 5; x <= xsize - 6; x++) {
       c565 = buf[(yp + y) * xsize + x];
-      if (c565 == table_8_565[tc_old]) {
-        c565 = table_8_565[tc_new];
-      } else if (c565 == table_8_565[tbc_old]) {
-        c565 = table_8_565[tbc_new];
+      if (c565 == table_16_65536[tc_old]) {
+        c565 = table_16_65536[tc_new];
+      } else if (c565 == table_16_65536[tbc_old]) {
+        c565 = table_16_65536[tbc_new];
       }
       buf[(yp + y) * xsize + x] = c565;
     }

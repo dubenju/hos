@@ -276,11 +276,11 @@ L36:
 	movw	(%eax,%edx,2), %dx
 	movzbl	-15(%ebp), %eax
 	movw	%dx, -26(%ebp)
-	cmpw	_table_8_565(%eax,%eax), %dx
+	cmpw	_table_16_65536(%eax,%eax), %dx
 	je	L43
 	movzbl	-16(%ebp), %eax
 	movw	-26(%ebp), %dx
-	cmpw	_table_8_565(%eax,%eax), %dx
+	cmpw	_table_16_65536(%eax,%eax), %dx
 	je	L44
 L34:
 	movw	-26(%ebp), %dx
@@ -316,7 +316,7 @@ L41:
 L44:
 	movzbl	-14(%ebp), %eax
 L42:
-	movw	_table_8_565(%eax,%eax), %ax
+	movw	_table_16_65536(%eax,%eax), %ax
 	movw	%ax, -26(%ebp)
 	jmp	L34
 L43:

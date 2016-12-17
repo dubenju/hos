@@ -5,7 +5,7 @@
      5 00000000                                 [BITS 32]
      6 00000000                                 	EXTERN	_memman_alloc_4k
      7 00000000                                 	EXTERN	_memman_free_4k
-     8 00000000                                 	EXTERN	_table_8_565
+     8 00000000                                 	EXTERN	_table_16_65536
      9 00000000                                 [FILE "sheet.c"]
     10                                          [SECTION .text]
     11 00000000                                 	GLOBAL	_shtctl_init
@@ -102,7 +102,7 @@
    102 000000D7 8B 45 14                        	MOV	EAX,DWORD [20+EBP]
    103 000000DA 89 42 08                        	MOV	DWORD [8+EDX],EAX
    104 000000DD 74 0D                           	JE	L23
-   105 000000DF 0F B7 84 09 [00000000]          	MOVZX	EAX,WORD [_table_8_565+ECX+ECX*1]
+   105 000000DF 0F B7 84 09 [00000000]          	MOVZX	EAX,WORD [_table_16_65536+ECX+ECX*1]
    106 000000E7 89 42 14                        	MOV	DWORD [20+EDX],EAX
    107 000000EA                                 L22:
    108 000000EA 5D                              	POP	EBP

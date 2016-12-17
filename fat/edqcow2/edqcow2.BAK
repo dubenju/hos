@@ -101,12 +101,20 @@ int show_usage(void) {
     /* 变量初始化 */
 
     /* 处理开始 */
-    printf("edqcow2 <qcow2 img file> create [size]\n");
-    printf("edqcow2 <qcow2 img file> fdisk <num> [size1, size2]\n");
-    printf("edqcow2 <qcow2 img file> format <filesystem fat etc.>\n");
-    printf("edqcow2 <qcow2 img file> init fat12 1474560.\n");
-    printf("edqcow2 <qcow2 img file> write file <file> to disk H-C-S\n");
-    printf("edqcow2 <qcow2 img file> write file <file> to dir <file>\n");
+    printf("QCOW2 File Editor version 0.0.1 comiled on %s.\n", __DATE__);
+    printf("\n");
+    printf("usage:\n");
+    printf("edqcow2 <qcow2 img file> create [size] -cs cluster_size\n");
+    printf("edqcow2 <qcow2 img file> fdisk <num> [size1, size2]\n"); /* */
+    printf("edqcow2 <qcow2 img file> fdisk create PrimaryPartition size  -cs cluster_size -m <mbs file>\n");
+    printf("edqcow2 <qcow2 img file> fdisk create PrimaryPartition size  -cs cluster_size -m <mbs file>\n");
+    printf("edqcow2 <qcow2 img file> fdisk create PrimaryPartition size  -cs cluster_size -m <mbs file>\n");
+    printf("edqcow2 <qcow2 img file> format -f <filesystem fat etc.> drvn  -m <vbs file>\n");
+    printf("edqcow2 <qcow2 img file> info\n");
+    printf("edqcow2 <qcow2 img file> init fat12 1474560.\n"); /* */
+    printf("edqcow2 <qcow2 img file> write file <file> to disk H-C-S\n"); /* */
+    printf("edqcow2 <qcow2 img file> write file <file> to dir <file>\n"); /* */
+    printf("edqcow2 <qcow2 img file> write copy <file> to <file>\n");
 
     /* 处理结束 */
     return -1;
@@ -1788,7 +1796,7 @@ uint64_t total_size, char * mbrfile, const char * fmt) {
         sector = get_sector(pe.start_sector_no);
         cylinder = get_cylinder(pe.start_sector_no, 1);
         int an = get_n(cylinder);
-        pe.start_head = get_header(pe.start_sector_no, 1);
+        pe.start_head = get_header(pe.start_sector_no, an);
         pe.start_sector = (( cylinder & 0x3FF ) >> 2) | sector;
         pe.start_cylinder = cylinder & 0xFF;
         pe.type   = 0x06; /* DOS 3.31 FAT16 */
@@ -1798,7 +1806,7 @@ uint64_t total_size, char * mbrfile, const char * fmt) {
         sector = get_sector(pe.start_sector_no + pe.sector_total - 1);
         cylinder = get_cylinder(pe.start_sector_no + pe.sector_total - 1, 1);
         an = get_n(cylinder);
-        pe.end_head = get_header(pe.start_sector_no + pe.sector_total - 1, 1);
+        pe.end_head = get_header(pe.start_sector_no + pe.sector_total - 1, an);
         pe.end_sector = get_sector(pe.start_sector_no + pe.sector_total - 1);
         pe.end_cylinder = cylinder & 0xFF;
 

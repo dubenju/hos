@@ -1,5 +1,5 @@
 /* asmhead.nas */
-struct BOOTINFO {           /* 0x0ff0-0x0fff */
+struct BOOTINFO {       /* 0x05f0-0x05ff */
     char cyls;          /* ブートセクタはどこまでディスクを読んだのか */
     char leds;          /* ブート時のキーボードのLEDの状態 */
     char vmode;         /* ビデオモード  何ビットカラーか */
@@ -54,6 +54,7 @@ int fifo32_status(struct FIFO32 *fifo);
 void init_palette(void);
 void set_palette(int start, int end, unsigned char *rgb);
 void boxfill8(unsigned short *vram, int xsize, unsigned char c, int x0, int y0, int x1, int y1);
+void boxfill8c(unsigned char * vram, int xsize, unsigned char c, int x0, int y0, int x1, int y1);
 void init_screen8(short *vram, int x, int y);
 void putfont8(short *vram, int xsize, int x, int y, unsigned char c, char scl, char *font);
 void putfonts8_asc(short *vram, int xsize, int x, int y, unsigned char c, char scl, unsigned char *s);
@@ -192,7 +193,7 @@ struct SHEET {
   fp callback;
 };
 struct SHTCTL {
-  unsigned char *vram, *map;
+  unsigned char * vram, *map;
   int xsize, ysize, top;
   struct SHEET *sheets[MAX_SHEETS];
   struct SHEET sheets0[MAX_SHEETS];

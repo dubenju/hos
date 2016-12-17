@@ -3335,7 +3335,7 @@ L522:
 	call	_sheet_free
 	jmp	L504
 L521:
-	movzwl	_table_8_565(%esi,%esi), %eax
+	movzwl	_table_16_65536(%esi,%esi), %eax
 	pushl	%eax
 	movl	24(%ebp), %edi
 	pushl	8(%ebp)
@@ -3389,7 +3389,7 @@ L519:
 	andl	$-2, %edi
 	movl	36(%ebp), %eax
 	imull	4(%edi), %edx
-	movw	_table_8_565(%eax,%eax), %ax
+	movw	_table_16_65536(%eax,%eax), %ax
 	addl	12(%ebp), %edx
 	movl	(%edi), %ecx
 	testl	$1, 24(%ebp)

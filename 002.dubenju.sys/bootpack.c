@@ -24,88 +24,88 @@ void init_taskbar(unsigned char * buf, int xsize, int ysize, int color);
 void init_menu(struct MNLV * mnlv, struct MENU ** menu);
 
 void HariMain(void) {
-  struct BOOTINFO *binfo = (struct BOOTINFO *) ADR_BOOTINFO; /* 0x00000ff0 */
+    struct BOOTINFO *binfo = (struct BOOTINFO *) ADR_BOOTINFO; /* 0x000005f0 */
+// 
+//   char s[40];
+// 
+//   struct FIFO32 fifo;
+//   int fifobuf[128];
+// 
+//   struct FIFO32 keycmd;
+//   int keycmd_buf[32];
 
-  char s[40];
+    int mx, my; /* for mouse's position */
+//   int i;
+//   int new_mx = -1, new_my = 0, new_wx = 0x7fffffff, new_wy = 0;
+    unsigned int memtotal;
+//   struct MOUSE_DEC mdec;
+    struct MEMMAN *memman = (struct MEMMAN *) MEMMAN_ADDR; /* 0x003c0000 */
 
-  struct FIFO32 fifo;
-  int fifobuf[128];
+    unsigned short *buf_back;      /* background */
+    unsigned short buf_mouse[256]; /* mouse      */
+//   unsigned short *buf_browser;   /* browser    */
 
-  struct FIFO32 keycmd;
-  int keycmd_buf[32];
-
-  int mx, my; /* for mouse's position */
-  int i;
-  int new_mx = -1, new_my = 0, new_wx = 0x7fffffff, new_wy = 0;
-  unsigned int memtotal;
-  struct MOUSE_DEC mdec;
-  struct MEMMAN *memman = (struct MEMMAN *) MEMMAN_ADDR; /* 0x003c0000 */
-
-  unsigned short *buf_back;      /* background */
-  unsigned short buf_mouse[256]; /* mouse      */
-  unsigned short *buf_browser;   /* browser    */
-
-  struct SHTCTL *shtctl;         /* sheets control */
-  struct SHEET *sht_back;
-  struct SHEET *sht_mouse;
-  struct SHEET *key_win;
-  struct SHEET *sht_browser;
-
-  struct SHEET *sht = 0;         /* moves sheet */
-  struct SHEET *sht2;
-
-  struct TASK *task_a;
-  struct TASK *task;
-
-  static char keytable0[0x80] = {
-     0,   0,  '1', '2',  '3', '4', '5', '6', '7', '8', '9', '0', '-', '^', 0x08,  0,
-    'Q', 'W', 'E', 'R',  'T', 'Y', 'U', 'I', 'O', 'P', '@', '[', 0x0a, 0,   'A', 'S',
-    'D', 'F', 'G', 'H',  'J', 'K', 'L', ';', ':',  0,   0,  ']', 'Z', 'X',  'C', 'V',
-    'B', 'N', 'M', ',',  '.', '/',  0,  '*',  0,  ' ',  0,   0,   0,   0,    0,   0,
-     0,   0,   0,   0,    0,   0,   0,  '7', '8', '9', '-', '4', '5', '6',  '+', '1',
-    '2', '3', '0', '.',   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,    0,   0,
-     0,   0,   0,   0,    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,    0,   0,
-     0,   0,   0,   0x5c, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0x5c, 0,   0
-  };
-  static char keytable1[0x80] = {
-     0,   0,  '!', 0x22, '#', '$', '%', '&', 0x27, '(', ')', '~',  '=',   '~', 0x08,  0,
-    'Q', 'W', 'E',  'R', 'T', 'Y', 'U', 'I',  'O', 'P', '`', '{', 0x0a,    0,   'A', 'S',
-    'D', 'F', 'G',  'H', 'J', 'K', 'L', '+',  '*', 0,    0,  '}',   'Z',  'X',  'C', 'V',
-    'B', 'N', 'M',  '<', '>', '?',  0,  '*',   0,  ' ',  0,   0,     0,    0,    0,   0,
-     0,   0,   0,    0,   0,   0,   0,  '7',  '8', '9', '-', '4',   '5',  '6',  '+', '1',
-    '2', '3', '0',  '.',  0,   0,   0,   0,    0,   0,   0,   0,     0,    0,    0,   0,
-     0,   0,   0,    0,   0,   0,   0,   0,    0,   0,   0,   0,     0,    0,    0,   0,
-     0,   0,   0,   '_',  0,   0,   0,   0,    0,   0,   0,   0,     0,   '|',   0,   0
-  };
-  int key_shift = 0, key_leds = (binfo->leds >> 4) & 7, keycmd_wait = -1;
-  int j, x, y, mmx = -1, mmy = -1, mmx2 = 0;
-
-  /* *** menu *** */
-  int fw_flg = 0;
-  int mn_flg = -1;
-  int rc;
-  struct MENU * menu;
-  struct MNLV mnlv[MAX_MNLV];
-
-  /* *** font *** */
-  unsigned char *nihongo;
-  struct FILEINFO *finfo;
-  extern char hankaku[4096]; /* *.c */
-
-  /* *** debug *** */
-  char dbg_msg[41];
-  fat_flag = 0;
-
-  /* *** ************** ******** *** */
-  /* *** Initialization hardware *** */
-  /* *** ************** ******** *** */
-
-  /* *** interrupt *** */
-  /*
-   * ■processor management(i386-i586)
-   * protected mode:set gdt, idt
-   */
-    init_gdtidt();                           /* dsctbl.c */
+    struct SHTCTL *shtctl;         /* sheets control */
+    struct SHEET *sht_back;
+    struct SHEET *sht_mouse;
+//   struct SHEET *key_win;
+//   struct SHEET *sht_browser;
+// 
+//   struct SHEET *sht = 0;         /* moves sheet */
+//   struct SHEET *sht2;
+// 
+//   struct TASK *task_a;
+//   struct TASK *task;
+// 
+//   static char keytable0[0x80] = {
+//      0,   0,  '1', '2',  '3', '4', '5', '6', '7', '8', '9', '0', '-', '^', 0x08,  0,
+//     'Q', 'W', 'E', 'R',  'T', 'Y', 'U', 'I', 'O', 'P', '@', '[', 0x0a, 0,   'A', 'S',
+//     'D', 'F', 'G', 'H',  'J', 'K', 'L', ';', ':',  0,   0,  ']', 'Z', 'X',  'C', 'V',
+//     'B', 'N', 'M', ',',  '.', '/',  0,  '*',  0,  ' ',  0,   0,   0,   0,    0,   0,
+//      0,   0,   0,   0,    0,   0,   0,  '7', '8', '9', '-', '4', '5', '6',  '+', '1',
+//     '2', '3', '0', '.',   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,    0,   0,
+//      0,   0,   0,   0,    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,    0,   0,
+//      0,   0,   0,   0x5c, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0x5c, 0,   0
+//   };
+//   static char keytable1[0x80] = {
+//      0,   0,  '!', 0x22, '#', '$', '%', '&', 0x27, '(', ')', '~',  '=',   '~', 0x08,  0,
+//     'Q', 'W', 'E',  'R', 'T', 'Y', 'U', 'I',  'O', 'P', '`', '{', 0x0a,    0,   'A', 'S',
+//     'D', 'F', 'G',  'H', 'J', 'K', 'L', '+',  '*', 0,    0,  '}',   'Z',  'X',  'C', 'V',
+//     'B', 'N', 'M',  '<', '>', '?',  0,  '*',   0,  ' ',  0,   0,     0,    0,    0,   0,
+//      0,   0,   0,    0,   0,   0,   0,  '7',  '8', '9', '-', '4',   '5',  '6',  '+', '1',
+//     '2', '3', '0',  '.',  0,   0,   0,   0,    0,   0,   0,   0,     0,    0,    0,   0,
+//      0,   0,   0,    0,   0,   0,   0,   0,    0,   0,   0,   0,     0,    0,    0,   0,
+//      0,   0,   0,   '_',  0,   0,   0,   0,    0,   0,   0,   0,     0,   '|',   0,   0
+//   };
+//   int key_shift = 0, key_leds = (binfo->leds >> 4) & 7, keycmd_wait = -1;
+//    int j, x, y, mmx = -1, mmy = -1, mmx2 = 0;
+// 
+//   /* *** menu *** */
+//   int fw_flg = 0;
+//   int mn_flg = -1;
+//   int rc;
+//   struct MENU * menu;
+//   struct MNLV mnlv[MAX_MNLV];
+// 
+//   /* *** font *** */
+//   unsigned char *nihongo;
+//   struct FILEINFO *finfo;
+//   extern char hankaku[4096]; /* *.c */
+// 
+//   /* *** debug *** */
+//   char dbg_msg[41];
+//   fat_flag = 0;
+// 
+//   /* *** ************** ******** *** */
+//   /* *** Initialization hardware *** */
+//   /* *** ************** ******** *** */
+// 
+//   /* *** interrupt *** */
+//   /*
+//    * ■processor management(i386-i586)
+//    * protected mode:set gdt, idt
+//    */
+//     init_gdtidt();                           /* dsctbl.c */
 //   init_pic();                              /* int.c 8259A */
 //   /* init_RTC */
 //                                            /* IDT/PICの初期化が終わったのでCPUの割り込み禁止を解除 */
@@ -120,16 +120,16 @@ void HariMain(void) {
 //   io_out8(PIC0_IMR, 0xb8);                 /* naskfunc.nas FDC,PITとPIC1とキーボードを許可(10111000) */
 //   io_out8(PIC1_IMR, 0xef);                 /* naskfunc.nas マウスを許可(11101111) */
 //   fifo32_init(&keycmd, 32, keycmd_buf, 0); /* fifo.c */
-// 
-//   /* *** ************** ******** *** */
-//   /* *** Initialization memory   *** */
-//   /* *** ************** ******** *** */
-//   /* ■memory management */
-//   memtotal = memtest(0x00400000, 0xbfffffff);              /* memory.c */
-//   memman_init(memman);                                     /* memory.c */
-//   memman_free(memman, 0x00001000, 0x0009e000);             /* 0x00001000 - 0x0009efff */
-//   memman_free(memman, 0x00400000, memtotal - 0x00400000);  /* memory.c */
-// 
+ 
+    /* *** ************** ******** *** */
+    /* *** Initialization memory   *** */
+    /* *** ************** ******** *** */
+    /* ■memory management */
+    memtotal = memtest(0x00400000, 0xbfffffff);              /* memory.c */
+    memman_init(memman);                                     /* memory.c */
+    memman_free(memman, 0x00010000, 0x0009e000);             /* 0x00001000 - 0x0009efff */
+    memman_free(memman, 0x00400000, memtotal - 0x00400000);  /* memory.c */
+
 // 
 //   /* **** */
 //   /* initialization dma after memory */
@@ -147,26 +147,36 @@ void HariMain(void) {
 //   strcpy(current_path, "/");
 //       fat_flag = 1;
 //       out_log("[filesystem]file system is installed.");
-// 
-//   /* *** ************** ******** *** */
-//   /* *** Initialization gdi      *** */
-//   /* *** ************** ******** *** */
-// 
-//   /* *** gdi *** */
-//   init_palette();                                                        /* graphic.c */
-//   shtctl = shtctl_init(memman, binfo->vram, binfo->scrnx, binfo->scrny); /* sheet.c */
+
+    /* *** ************** ******** *** */
+    /* *** Initialization gdi      *** */
+    /* *** ************** ******** *** */
+ 
+    /* *** gdi *** */
+    init_palette();                                                        /* graphic.c */
+    shtctl = shtctl_init(memman, binfo->vram, binfo->scrnx, binfo->scrny); /* sheet.c */
 //   /* ■processes management */
-//   task_a = task_init(memman);     /* task_a = system initial all task */ /* mtask.c */
+//    task_a = task_init(memman);     /* task_a = system initial all task */ /* mtask.c */
 //   fifo.task = task_a;                                                    /* keyboard & mouse */
 //   task_run(task_a, 1, 2);                                                /* mtask.c */
 //   *((int *) 0x0fe4) = (int) shtctl;                                      /* ■Save to memmory */
 //   task_a->langmode = 0;                                                  /* 0:ASCII Mode,1:SHIFTJIS,2:EUC */
-// 
-//   /* sht_back (★background) */
-//   sht_back  = sheet_alloc(shtctl);                                       /* sheet.c */
-//   buf_back  = (unsigned short *) memman_alloc_4k(memman, binfo->scrnx * binfo->scrny * 2); /* memory.c */
-//   sheet_setbuf(sht_back, buf_back, binfo->scrnx, binfo->scrny, -1);      /* sheet.c 透明色なし */
-//   init_screen8(buf_back, binfo->scrnx, binfo->scrny);                    /* graphic.c */
+ 
+    /* sht_back (★background) */
+    sht_back  = sheet_alloc(shtctl);                                       /* sheet.c */
+    buf_back  = (unsigned short *) memman_alloc_4k(memman, binfo->scrnx * binfo->scrny * 2); /* memory.c */
+    sheet_setbuf(sht_back, buf_back, binfo->scrnx, binfo->scrny, -1);      /* sheet.c 透明色なし */
+    init_screen8(buf_back, binfo->scrnx, binfo->scrny);                    /* graphic.c */
+    // idc = 0;
+    // istep = 20;
+    // for (ida = 0; ida < 640; ida += istep) {
+    //     for (idb = 0; idb < 960; idb += istep) {
+    //         boxfill8(binfo->vram, binfo->scrnx, idc, ida, idb, ida + istep - 1, idb + istep - 1);
+    //         idc += 1;
+    //         idc %= 16;
+    //     }
+    // }
+
 //   sht_back->callback = NULL;
 // 
 //       dbg_init(sht_back);
@@ -208,12 +218,12 @@ void HariMain(void) {
 //       dbg_putstr0("Open Console\n", COL8_FFFFFF);
 // /* browser */
 // 
-//   /* sht_mouse (★mouse) */
-//   sht_mouse = sheet_alloc(shtctl);
-//   /* buf_mouse = 16 * 16 = 256 */
-//   sheet_setbuf(sht_mouse, buf_mouse, 16, 16, 99);
-//   init_mouse_cursor8(buf_mouse, 99);
-// 
+    /* sht_mouse (★mouse) */
+    sht_mouse = sheet_alloc(shtctl);
+    /* buf_mouse = 16 * 16 = 256 */
+    sheet_setbuf(sht_mouse, buf_mouse, 16, 16, 99);
+    init_mouse_cursor8(buf_mouse, 99);
+
 //   sht_browser = sheet_alloc(shtctl);
 //   buf_browser  = (unsigned short *) memman_alloc_4k(memman, 600 * 400 * 2); /* memory.c */
 //   sheet_setbuf(sht_browser, buf_browser, 600, 400, 99);
@@ -234,22 +244,22 @@ void HariMain(void) {
 //  task_run(sht_browser->task, 3, 2);/* level=3, priority=2 */
 //   fifo32_init(&(sht_browser->task->fifo), 128, browser_fifo, sht_browser->task);
 //   sht_browser->callback = brow_callback;
-// 
-//   /* for mouse */
-//   mx = (binfo->scrnx - 16) / 2; /* 画面中央になるように座標計算 */
-//   my = (binfo->scrny - 28 - 16) / 2;
-// 
-//   /* set sheet's position show it by sheetlst cmd */
-//   sheet_slide(sht_back,    0, 0);
+
+    /* for mouse */
+    mx = (binfo->scrnx - 16) / 2; /* 画面中央になるように座標計算 */
+    my = (binfo->scrny - 28 - 16) / 2;
+
+    /* set sheet's position show it by sheetlst cmd */
+    sheet_slide(sht_back,    0, 0);
 //   sheet_slide(key_win,     8, 16); /* cosole position */
-//   sheet_slide(sht_mouse,  mx, my);
+    sheet_slide(sht_mouse,  mx, my);
 //   sheet_slide(sht_browser,  4, 8);
-// 
-//   /* set sheet's layer */
-//   sheet_updown(sht_back,    0);
+
+     /* set sheet's layer */
+    sheet_updown(sht_back,    0);
 //   sheet_updown(sht_browser, 1);
 //   sheet_updown(key_win,     2);
-//   sheet_updown(sht_mouse,   3);
+    sheet_updown(sht_mouse,   3);
 // 
 //   keywin_on(key_win);
 // 
@@ -706,6 +716,10 @@ void HariMain(void) {
 //       }
 //     }
 //   }
+    for (;;) {
+        //io_hlt();
+        io_loop();
+    }
 }
 
 /*

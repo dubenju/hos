@@ -9,7 +9,7 @@ REM C:\Users\DBJ\git\hos\fat\edqcow2\edqcow2 C:\Users\DBJ\git\hos\001.vbr\vbs\qc
 
 REM FORMAT
 copy C:\Users\DBJ\git\hos\001.vbr\vbs\qcow2_20m_fdisk.qcow2 C:\Users\DBJ\git\hos\001.vbr\vbs\qcow2_20m_fmt.qcow2 > crtimg.log
-C:\Users\DBJ\git\hos\fat\edqcow2\edqcow2 C:\Users\DBJ\git\hos\001.vbr\vbs\qcow2_20m_fmt.qcow2 format -f fat16 drv1 -m C:\Users\DBJ\git\hos\001.vbr\vbs\vbs.bin >> crtimg.log
+C:\Users\DBJ\git\hos\fat\edqcow2\edqcow2 C:\Users\DBJ\git\hos\001.vbr\vbs\qcow2_20m_fmt.qcow2 format -f fat16 drv1 -m C:\Users\DBJ\git\hos\001.vbr\vbs\vbs.bin >> crtimg_rt_fmt.log
 REM C:\Users\DBJ\git\hos\fat\edqcow2\edqcow2 C:\Users\DBJ\git\hos\001.vbr\vbs\qcow2_20m_fmt.qcow2 format -f fat16 drv1 -m C:\Users\DBJ\git\hos\001.vbr\dosvbsh_vbr.bin >> crtimg.log
 REM C:\Users\DBJ\git\hos\fat\edqcow2\edqcow2 C:\Users\DBJ\git\hos\001.vbr\vbs\qcow2_20m_fmt.qcow2 format -f fat16 drv1 -m C:\Users\DBJ\git\hos\001.vbr\win98vbs.bin >> crtimg.log
 

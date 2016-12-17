@@ -59,68 +59,14 @@ _init_palette:
 	pushl	%edi
 	pushl	%esi
 	pushl	%ebx
-	subl	$692, %esp
-	cmpb	$8, 1522
-	je	L59
-	xorl	%ecx, %ecx
-	xorl	%esi, %esi
-L28:
-	movzbl	_table_rgb.0(%esi), %ebx
-	movzbl	_table_rgb.0+1(%esi), %edi
-	movzbl	_table_rgb.0+2(%esi), %eax
-	sall	$8, %ebx
-	movl	%eax, -672(%ebp)
-	leal	0(,%edi,8), %edx
-	movl	%ebx, %eax
-	andw	$2016, %dx
-	addl	$3, %esi
-	andw	$-2048, %ax
-	orl	%edx, %eax
-	movl	-672(%ebp), %edx
-	shrl	$3, %edx
-	orl	%edx, %eax
-	movw	%ax, _table_8_565(%ecx,%ecx)
-	incl	%ecx
-	cmpl	$15, %ecx
-	jle	L28
-	movl	$0, -672(%ebp)
-	movl	$0, -684(%ebp)
-	movl	$0, -688(%ebp)
-L43:
-	xorl	%edi, %edi
-	movl	$0, -676(%ebp)
-	movl	$0, -680(%ebp)
-L42:
-	xorl	%ebx, %ebx
-	xorl	%esi, %esi
-L41:
-	movl	%esi, %edx
-	movl	-676(%ebp), %eax
-	andw	$2016, %ax
-	movl	-688(%ebp), %ecx
-	andw	$-2048, %dx
-	addl	$13056, %esi
-	orl	%eax, %edx
-	addl	-680(%ebp), %ecx
-	movl	-684(%ebp), %eax
-	sarl	$3, %eax
-	addl	%ebx, %ecx
-	andl	$31, %eax
-	incl	%ebx
-	orl	%eax, %edx
-	cmpl	$5, %ebx
-	movw	%dx, _table_8_565+32(%ecx,%ecx)
-	jle	L41
-	incl	%edi
-	addl	$408, -676(%ebp)
-	addl	$6, -680(%ebp)
-	cmpl	$5, %edi
-	jle	L42
-	incl	-672(%ebp)
-	addl	$51, -684(%ebp)
-	addl	$36, -688(%ebp)
-	cmpl	$5, -672(%ebp)
-	jle	L43
+	subl	$684, %esp
+	movb	1522, %al
+	cmpb	$8, %al
+	je	L82
+	cmpb	$16, %al
+	je	L83
+	cmpb	$24, %al
+	je	L84
 L1:
 	leal	-12(%ebp), %esp
 	popl	%ebx
@@ -128,58 +74,145 @@ L1:
 	popl	%edi
 	popl	%ebp
 	ret
-L59:
+L84:
+	xorl	%ebx, %ebx
+	movl	$0, -672(%ebp)
+L56:
+	xorl	%edi, %edi
+	movl	$0, -676(%ebp)
+L55:
+	xorl	%esi, %esi
+	movl	$31, %ecx
+L54:
+	movl	%esi, %eax
+	movl	-676(%ebp), %edx
+	andw	$2016, %dx
+	addl	$2048, %esi
+	andw	$-2048, %ax
+	orl	%edx, %eax
+	movl	-672(%ebp), %edx
+	andl	$31, %edx
+	orl	%edx, %eax
+	movw	%ax, _table_16_65536(%ebx,%ebx)
+	incl	%ebx
+	decl	%ecx
+	jns	L54
+	incl	%edi
+	addl	$16, -676(%ebp)
+	cmpl	$63, %edi
+	jle	L55
+	incl	-672(%ebp)
+	cmpl	$31, -672(%ebp)
+	jle	L56
+	xorl	%ebx, %ebx
 	xorl	%ecx, %ecx
-L7:
-	movw	%cx, _table_8_565(%ecx,%ecx)
-	incl	%ecx
-	cmpl	$15, %ecx
-	jle	L7
+L61:
+	movzbl	_table_rgb.0+1(%ecx), %eax
+	movzbl	_table_rgb.0(%ecx), %edx
+	sall	$4, %eax
+	andw	$2016, %ax
+	sall	$11, %edx
+	orl	%eax, %edx
+	movb	_table_rgb.0+2(%ecx), %al
+	andl	$31, %eax
+	addl	$3, %ecx
+	movzbw	%al, %ax
+	orl	%eax, %edx
+	movw	%dx, _table_16_65536(%ebx,%ebx)
+	incl	%ebx
+	cmpl	$15, %ebx
+	jle	L61
+	jmp	L1
+L83:
+	xorl	%ebx, %ebx
+	movl	$0, -672(%ebp)
+L34:
+	xorl	%edi, %edi
+	movl	$0, -680(%ebp)
+L33:
+	xorl	%esi, %esi
+	movl	$31, %ecx
+L32:
+	movl	%esi, %eax
+	movl	-680(%ebp), %edx
+	andw	$2016, %dx
+	addl	$2048, %esi
+	andw	$-2048, %ax
+	orl	%edx, %eax
+	movl	-672(%ebp), %edx
+	andl	$31, %edx
+	orl	%edx, %eax
+	movw	%ax, _table_16_65536(%ebx,%ebx)
+	incl	%ebx
+	decl	%ecx
+	jns	L32
+	incl	%edi
+	addl	$16, -680(%ebp)
+	cmpl	$63, %edi
+	jle	L33
+	incl	-672(%ebp)
+	cmpl	$31, -672(%ebp)
+	jle	L34
+	xorl	%ebx, %ebx
+	xorl	%ecx, %ecx
+L39:
+	movzbl	_table_rgb.0+1(%ecx), %eax
+	movzbl	_table_rgb.0(%ecx), %edx
+	sall	$4, %eax
+	andw	$2016, %ax
+	sall	$11, %edx
+	orl	%eax, %edx
+	movb	_table_rgb.0+2(%ecx), %al
+	andl	$31, %eax
+	addl	$3, %ecx
+	movzbw	%al, %ax
+	orl	%eax, %edx
+	movw	%dx, _table_16_65536(%ebx,%ebx)
+	incl	%ebx
+	cmpl	$15, %ebx
+	jle	L39
+	jmp	L1
+L82:
 	pushl	$_table_rgb.0
 	pushl	$15
 	pushl	$0
 	call	_set_palette
 	addl	$12, %esp
 	movl	$0, -672(%ebp)
-	movl	$0, -696(%ebp)
-	movl	$0, -700(%ebp)
-L22:
+	movl	$0, -684(%ebp)
+	movl	$0, -688(%ebp)
+L17:
 	xorl	%edi, %edi
 	xorl	%esi, %esi
-	movl	$0, -692(%ebp)
-L21:
 	xorl	%ebx, %ebx
+L16:
 	xorl	%ecx, %ecx
-L20:
-	movl	-700(%ebp), %edx
-	addl	%esi, %edx
-	addl	%ebx, %edx
-	imull	$3, %edx, %eax
-	movl	%edx, -704(%ebp)
-	movb	%cl, -668(%ebp,%eax)
-	addl	$51, %ecx
-	movb	-692(%ebp), %dl
-	movb	%dl, -667(%ebp,%eax)
+	movl	$0, -696(%ebp)
+L15:
+	movl	-688(%ebp), %eax
 	movb	-696(%ebp), %dl
+	addl	%ebx, %eax
+	addl	%ecx, %eax
+	incl	%ecx
+	imull	$3, %eax, %eax
+	movb	%dl, -668(%ebp,%eax)
+	movl	%esi, %edx
+	movb	%dl, -667(%ebp,%eax)
+	movb	-684(%ebp), %dl
 	movb	%dl, -666(%ebp,%eax)
-	movl	-700(%ebp), %edx
-	leal	(%edx,%esi), %eax
-	movl	-704(%ebp), %edx
-	leal	16(%ebx,%eax), %eax
-	incl	%ebx
-	movw	%ax, _table_8_565+32(%edx,%edx)
-	cmpl	$5, %ebx
-	jle	L20
-	incl	%edi
-	addl	$6, %esi
-	addl	$51, -692(%ebp)
-	cmpl	$5, %edi
-	jle	L21
-	incl	-672(%ebp)
 	addl	$51, -696(%ebp)
-	addl	$36, -700(%ebp)
+	cmpl	$5, %ecx
+	jle	L15
+	incl	%edi
+	addl	$51, %esi
+	addl	$6, %ebx
+	cmpl	$5, %edi
+	jle	L16
+	incl	-672(%ebp)
+	addl	$51, -684(%ebp)
+	addl	$36, -688(%ebp)
 	cmpl	$5, -672(%ebp)
-	jle	L22
+	jle	L17
 	leal	-668(%ebp), %eax
 	pushl	%eax
 	pushl	$231
@@ -196,21 +229,23 @@ _set_palette:
 	pushl	%edi
 	pushl	%esi
 	pushl	%ebx
-	pushl	%ecx
+	pushl	%eax
 	movl	8(%ebp), %ebx
 	movl	12(%ebp), %edi
 	movl	16(%ebp), %esi
 	call	_io_load_eflags
 	movl	%eax, -16(%ebp)
 	call	_io_cli
+	pushl	$255
+	pushl	$966
+	call	_io_out8
 	pushl	%ebx
 	pushl	$968
 	call	_io_out8
+	addl	$16, %esp
 	cmpl	%edi, %ebx
-	popl	%eax
-	popl	%edx
-	jle	L65
-L67:
+	jle	L90
+L92:
 	movl	-16(%ebp), %eax
 	movl	%eax, 8(%ebp)
 	leal	-12(%ebp), %esp
@@ -219,7 +254,7 @@ L67:
 	popl	%edi
 	popl	%ebp
 	jmp	_io_store_eflags
-L65:
+L90:
 	movb	(%esi), %al
 	incl	%ebx
 	shrb	$2, %al
@@ -242,8 +277,8 @@ L65:
 	call	_io_out8
 	addl	$24, %esp
 	cmpl	%edi, %ebx
-	jle	L65
-	jmp	L67
+	jle	L90
+	jmp	L92
 	.balign 2
 .globl _drawpixel8
 	.def	_drawpixel8;	.scl	2;	.type	32;	.endef
@@ -253,7 +288,7 @@ _drawpixel8:
 	movl	24(%ebp), %edx
 	movl	16(%ebp), %eax
 	imull	12(%ebp), %edx
-	movw	_table_8_565(%eax,%eax), %cx
+	movw	_table_16_65536(%eax,%eax), %cx
 	addl	20(%ebp), %edx
 	movl	8(%ebp), %eax
 	movw	%cx, (%eax,%edx,2)
@@ -268,12 +303,12 @@ _DDAline:
 	movl	28(%ebp), %edx
 	movl	20(%ebp), %eax
 	cmpl	%edx, %eax
-	jg	L76
-L74:
+	jg	L101
+L99:
 	incl	%eax
 	cmpl	%edx, %eax
-	jle	L74
-L76:
+	jle	L99
+L101:
 	popl	%ebp
 	ret
 	.balign 2
@@ -285,29 +320,29 @@ _boxfill8:
 	pushl	%edi
 	pushl	%esi
 	pushl	%ebx
-	pushl	%ebx
+	pushl	%edx
 	movl	32(%ebp), %edi
 	movb	16(%ebp), %al
 	movl	24(%ebp), %esi
 	movb	%al, -13(%ebp)
 	cmpl	%edi, %esi
-	jg	L89
-L87:
+	jg	L114
+L112:
 	movl	20(%ebp), %ebx
 	cmpl	28(%ebp), %ebx
-	jle	L86
-L91:
+	jle	L111
+L116:
 	incl	%esi
 	cmpl	%edi, %esi
-	jle	L87
-L89:
+	jle	L112
+L114:
 	leal	-12(%ebp), %esp
 	popl	%ebx
 	popl	%esi
 	popl	%edi
 	popl	%ebp
 	ret
-L86:
+L111:
 	pushl	%esi
 	pushl	%ebx
 	incl	%ebx
@@ -318,8 +353,57 @@ L86:
 	call	_drawpixel8
 	addl	$20, %esp
 	cmpl	28(%ebp), %ebx
-	jle	L86
-	jmp	L91
+	jle	L111
+	jmp	L116
+	.balign 2
+.globl _boxfill8c
+	.def	_boxfill8c;	.scl	2;	.type	32;	.endef
+_boxfill8c:
+	pushl	%ebp
+	movl	%esp, %ebp
+	pushl	%edi
+	pushl	%esi
+	pushl	%ebx
+	pushl	%esi
+	pushl	%esi
+	movb	16(%ebp), %al
+	movl	24(%ebp), %ecx
+	movl	28(%ebp), %edi
+	movb	%al, -13(%ebp)
+	cmpl	32(%ebp), %ecx
+	jg	L129
+	movl	12(%ebp), %ebx
+	imull	%ecx, %ebx
+L127:
+	movl	20(%ebp), %edx
+	cmpl	%edi, %edx
+	jg	L131
+	movl	8(%ebp), %esi
+	addl	%ebx, %esi
+	addl	%edx, %esi
+	movl	%esi, -20(%ebp)
+L126:
+	movl	-20(%ebp), %esi
+	movb	-13(%ebp), %al
+	incl	%edx
+	movb	%al, (%esi)
+	incl	%esi
+	movl	%esi, -20(%ebp)
+	cmpl	%edi, %edx
+	jle	L126
+L131:
+	incl	%ecx
+	addl	12(%ebp), %ebx
+	cmpl	32(%ebp), %ecx
+	jle	L127
+L129:
+	popl	%ecx
+	popl	%ebx
+	popl	%ebx
+	popl	%esi
+	popl	%edi
+	popl	%ebp
+	ret
 	.data
 _logo.1:
 	.ascii "..............................****....***.*."
@@ -345,7 +429,7 @@ _init_screen8:
 	pushl	%edi
 	pushl	%esi
 	pushl	%ebx
-	subl	$16, %esp
+	subl	$24, %esp
 	movl	16(%ebp), %eax
 	movl	12(%ebp), %ebx
 	subl	$29, %eax
@@ -358,13 +442,7 @@ _init_screen8:
 	pushl	12(%ebp)
 	pushl	8(%ebp)
 	call	_boxfill8
-	pushl	16(%ebp)
-	pushl	12(%ebp)
-	pushl	8(%ebp)
-	pushl	_u_fat
-	call	_read_picture
 	movl	16(%ebp), %eax
-	addl	$44, %esp
 	subl	$28, %eax
 	pushl	%eax
 	pushl	%ebx
@@ -375,6 +453,7 @@ _init_screen8:
 	pushl	8(%ebp)
 	call	_boxfill8
 	movl	16(%ebp), %eax
+	addl	$56, %esp
 	subl	$27, %eax
 	pushl	%eax
 	pushl	%ebx
@@ -385,7 +464,6 @@ _init_screen8:
 	pushl	8(%ebp)
 	call	_boxfill8
 	movl	16(%ebp), %eax
-	addl	$56, %esp
 	decl	%eax
 	pushl	%eax
 	movl	16(%ebp), %eax
@@ -397,28 +475,30 @@ _init_screen8:
 	pushl	12(%ebp)
 	pushl	8(%ebp)
 	call	_boxfill8
-	movl	16(%ebp), %edi
-	subl	$24, %edi
-	pushl	%edi
+	movl	16(%ebp), %eax
+	addl	$56, %esp
+	subl	$24, %eax
+	movl	%eax, -16(%ebp)
+	pushl	%eax
 	pushl	$59
-	pushl	%edi
+	pushl	%eax
 	pushl	$3
 	pushl	$7
 	pushl	12(%ebp)
 	pushl	8(%ebp)
 	call	_boxfill8
-	movl	16(%ebp), %eax
-	addl	$56, %esp
-	subl	$4, %eax
-	movl	%eax, -20(%ebp)
-	pushl	%eax
+	movl	16(%ebp), %edx
+	subl	$4, %edx
+	pushl	%edx
+	movl	%edx, -20(%ebp)
 	pushl	$2
-	pushl	%edi
+	pushl	-16(%ebp)
 	pushl	$2
 	pushl	$7
 	pushl	12(%ebp)
 	pushl	8(%ebp)
 	call	_boxfill8
+	addl	$56, %esp
 	pushl	-20(%ebp)
 	pushl	$59
 	pushl	-20(%ebp)
@@ -427,53 +507,51 @@ _init_screen8:
 	pushl	12(%ebp)
 	pushl	8(%ebp)
 	call	_boxfill8
+	movl	16(%ebp), %esi
 	movl	16(%ebp), %eax
-	addl	$56, %esp
+	subl	$23, %esi
 	subl	$5, %eax
+	movl	%esi, -24(%ebp)
 	pushl	%eax
-	movl	16(%ebp), %eax
 	pushl	$59
-	subl	$23, %eax
-	pushl	%eax
-	movl	%eax, -24(%ebp)
+	pushl	%esi
 	pushl	$59
 	pushl	$15
 	pushl	12(%ebp)
 	pushl	8(%ebp)
 	call	_boxfill8
-	movl	16(%ebp), %eax
-	subl	$3, %eax
-	pushl	%eax
-	movl	%eax, -28(%ebp)
+	movl	16(%ebp), %esi
+	addl	$56, %esp
+	subl	$3, %esi
+	pushl	%esi
 	pushl	$59
-	pushl	%eax
+	pushl	%esi
 	pushl	$2
 	pushl	$0
 	pushl	12(%ebp)
 	pushl	8(%ebp)
 	call	_boxfill8
-	addl	$56, %esp
-	pushl	-28(%ebp)
+	pushl	%esi
 	pushl	$60
-	pushl	%edi
+	pushl	-16(%ebp)
 	pushl	$60
 	pushl	$0
 	pushl	12(%ebp)
 	pushl	8(%ebp)
 	call	_boxfill8
 	movl	12(%ebp), %ebx
-	movl	12(%ebp), %esi
-	pushl	%edi
-	subl	$4, %esi
+	addl	$56, %esp
+	movl	12(%ebp), %edi
+	pushl	-16(%ebp)
+	subl	$4, %edi
 	subl	$47, %ebx
-	pushl	%esi
 	pushl	%edi
+	pushl	-16(%ebp)
 	pushl	%ebx
 	pushl	$15
 	pushl	12(%ebp)
 	pushl	8(%ebp)
 	call	_boxfill8
-	addl	$56, %esp
 	pushl	-20(%ebp)
 	pushl	%ebx
 	pushl	-24(%ebp)
@@ -482,21 +560,21 @@ _init_screen8:
 	pushl	12(%ebp)
 	pushl	8(%ebp)
 	call	_boxfill8
-	pushl	-28(%ebp)
+	addl	$56, %esp
 	pushl	%esi
-	xorl	%esi, %esi
-	pushl	-28(%ebp)
+	pushl	%edi
+	xorl	%edi, %edi
+	pushl	%esi
 	pushl	%ebx
 	pushl	$7
 	pushl	12(%ebp)
 	pushl	8(%ebp)
 	call	_boxfill8
 	movl	12(%ebp), %eax
-	addl	$56, %esp
+	pushl	%esi
 	subl	$3, %eax
-	pushl	-28(%ebp)
 	pushl	%eax
-	pushl	%edi
+	pushl	-16(%ebp)
 	pushl	%eax
 	pushl	$7
 	pushl	12(%ebp)
@@ -504,47 +582,48 @@ _init_screen8:
 	call	_boxfill8
 	movl	16(%ebp), %ecx
 	subl	$18, %ecx
-	addl	$28, %esp
+	addl	$56, %esp
 	imull	12(%ebp), %ecx
-	movl	$0, -16(%ebp)
-L107:
+	movl	$0, -36(%ebp)
+L147:
 	xorl	%ebx, %ebx
-L106:
-	movb	_logo.1(%ebx,%esi), %dl
+L146:
+	movl	-36(%ebp), %eax
+	movb	_logo.1(%ebx,%eax), %dl
 	cmpb	$42, %dl
-	je	L112
+	je	L152
 	cmpb	$48, %dl
-	je	L113
+	je	L153
 	movb	$-1, %dl
-L102:
+L142:
 	cmpb	$-1, %dl
-	je	L99
+	je	L139
 	movzbl	%dl, %edx
-	leal	(%ebx,%ecx), %eax
-	movl	8(%ebp), %edi
-	movw	_table_8_565(%edx,%edx), %dx
-	movw	%dx, 20(%edi,%eax,2)
-L99:
+	leal	(%ebx,%ecx), %esi
+	movl	8(%ebp), %eax
+	movw	_table_16_65536(%edx,%edx), %dx
+	movw	%dx, 20(%eax,%esi,2)
+L139:
 	incl	%ebx
 	cmpl	$43, %ebx
-	jle	L106
-	incl	-16(%ebp)
-	addl	$44, %esi
+	jle	L146
+	incl	%edi
 	addl	12(%ebp), %ecx
-	cmpl	$12, -16(%ebp)
-	jle	L107
+	addl	$44, -36(%ebp)
+	cmpl	$12, %edi
+	jle	L147
 	leal	-12(%ebp), %esp
 	popl	%ebx
 	popl	%esi
 	popl	%edi
 	popl	%ebp
 	ret
-L113:
+L153:
 	movb	$7, %dl
-	jmp	L102
-L112:
+	jmp	L142
+L152:
 	movb	$4, %dl
-	jmp	L102
+	jmp	L142
 	.balign 2
 .globl _putfont8
 	.def	_putfont8;	.scl	2;	.type	32;	.endef
@@ -560,14 +639,14 @@ _putfont8:
 	movb	%al, -13(%ebp)
 	movb	%dl, -14(%ebp)
 	movl	$0, -20(%ebp)
-L135:
+L175:
 	movl	32(%ebp), %eax
 	movl	-20(%ebp), %edx
 	movb	(%edx,%eax), %al
 	movb	%al, -25(%ebp)
 	movb	$-128, -33(%ebp)
 	movl	$0, -32(%ebp)
-L134:
+L174:
 	movsbl	-14(%ebp),%ecx
 	movl	-20(%ebp), %eax
 	movl	-32(%ebp), %edx
@@ -584,38 +663,38 @@ L134:
 	movsbl	-25(%ebp),%edx
 	movzbl	-33(%ebp), %eax
 	testl	%eax, %edx
-	je	L123
+	je	L163
 	xorl	%esi, %esi
 	cmpl	%ecx, %esi
-	jge	L123
+	jge	L163
 	xorl	%edi, %edi
-L133:
+L173:
 	xorl	%ecx, %ecx
 	cmpl	%ebx, %ecx
-	jge	L142
+	jge	L182
 	movl	-24(%ebp), %eax
 	leal	(%eax,%edi,2), %edx
-L132:
+L172:
 	movzbl	-13(%ebp), %eax
 	incl	%ecx
-	movw	_table_8_565(%eax,%eax), %ax
+	movw	_table_16_65536(%eax,%eax), %ax
 	movw	%ax, (%edx)
 	addl	$2, %edx
 	cmpl	%ebx, %ecx
-	jl	L132
-L142:
+	jl	L172
+L182:
 	incl	%esi
 	addl	12(%ebp), %edi
 	cmpl	%ebx, %esi
-	jl	L133
-L123:
+	jl	L173
+L163:
 	incl	-32(%ebp)
 	shrb	-33(%ebp)
 	cmpl	$7, -32(%ebp)
-	jle	L134
+	jle	L174
 	incl	-20(%ebp)
 	cmpl	$15, -20(%ebp)
-	jle	L135
+	jle	L175
 	addl	$24, %esp
 	popl	%ebx
 	popl	%esi
@@ -701,42 +780,42 @@ _putfonts8_asc:
 	movl	-1044(%ebp), %edx
 	addl	$16, %esp
 	cmpb	$0, 188(%edx)
-	jne	L144
+	jne	L184
 	movl	32(%ebp), %eax
 	cmpb	$0, (%eax)
-	jne	L149
-L144:
+	jne	L189
+L184:
 	movl	-1044(%ebp), %eax
 	cmpb	$1, 188(%eax)
-	je	L180
-L150:
+	je	L220
+L190:
 	movl	-1044(%ebp), %edx
 	cmpb	$2, 188(%edx)
-	je	L181
-L143:
+	je	L221
+L183:
 	leal	-12(%ebp), %esp
 	popl	%ebx
 	popl	%esi
 	popl	%edi
 	popl	%ebp
 	ret
-L181:
+L221:
 	movl	32(%ebp), %eax
 	cmpb	$0, (%eax)
-	je	L143
-L176:
+	je	L183
+L216:
 	movl	-1044(%ebp), %edx
 	movb	189(%edx), %al
 	testb	%al, %al
-	jne	L172
+	jne	L212
 	movl	32(%ebp), %eax
 	movb	(%eax), %dl
 	leal	127(%edx), %eax
 	cmpb	$125, %al
-	ja	L173
+	ja	L213
 	movl	-1044(%ebp), %eax
 	movb	%dl, 189(%eax)
-L175:
+L215:
 	movsbl	-1038(%ebp),%eax
 	movl	16(%ebp), %edx
 	incl	32(%ebp)
@@ -744,9 +823,9 @@ L175:
 	movl	32(%ebp), %eax
 	movl	%edx, 16(%ebp)
 	cmpb	$0, (%eax)
-	jne	L176
-	jmp	L143
-L173:
+	jne	L216
+	jmp	L183
+L213:
 	movzbl	%dl, %eax
 	sall	$4, %eax
 	addl	-1048(%ebp), %eax
@@ -761,8 +840,8 @@ L173:
 	pushl	8(%ebp)
 	call	_putfont8
 	addl	$28, %esp
-	jmp	L175
-L172:
+	jmp	L215
+L212:
 	movzbl	%al, %ebx
 	imull	$94, %ebx, %ebx
 	movl	32(%ebp), %edx
@@ -795,8 +874,8 @@ L172:
 	pushl	8(%ebp)
 	call	_putfont8
 	addl	$56, %esp
-	jmp	L175
-L180:
+	jmp	L215
+L220:
 	pushl	$LC6
 	leal	-1036(%ebp), %ebx
 	pushl	%ebx
@@ -808,24 +887,24 @@ L180:
 	movl	32(%ebp), %edx
 	addl	$20, %esp
 	cmpb	$0, (%edx)
-	je	L150
-L166:
+	je	L190
+L206:
 	movl	-1044(%ebp), %eax
 	movb	189(%eax), %dl
 	testb	%dl, %dl
-	jne	L155
+	jne	L195
 	movl	32(%ebp), %eax
 	movb	(%eax), %dl
 	leal	127(%edx), %eax
 	cmpb	$30, %al
-	jbe	L157
+	jbe	L197
 	leal	32(%edx), %eax
 	cmpb	$28, %al
-	ja	L156
-L157:
+	ja	L196
+L197:
 	movl	-1044(%ebp), %eax
 	movb	%dl, 189(%eax)
-L159:
+L199:
 	movsbl	-1038(%ebp),%eax
 	movl	16(%ebp), %edx
 	incl	32(%ebp)
@@ -833,9 +912,9 @@ L159:
 	movl	32(%ebp), %eax
 	movl	%edx, 16(%ebp)
 	cmpb	$0, (%eax)
-	jne	L166
-	jmp	L150
-L156:
+	jne	L206
+	jmp	L190
+L196:
 	movzbl	%dl, %eax
 	sall	$4, %eax
 	addl	-1048(%ebp), %eax
@@ -850,22 +929,22 @@ L156:
 	pushl	8(%ebp)
 	call	_putfont8
 	addl	$28, %esp
-	jmp	L159
-L155:
+	jmp	L199
+L195:
 	leal	127(%edx), %eax
 	cmpb	$30, %al
-	ja	L160
+	ja	L200
 	movzbl	%dl, %eax
 	leal	-258(%eax,%eax), %ecx
-L161:
+L201:
 	movl	32(%ebp), %eax
 	movb	(%eax), %dl
 	leal	-64(%edx), %eax
 	cmpb	$62, %al
-	ja	L162
+	ja	L202
 	movzbl	%dl, %eax
 	subl	$64, %eax
-L163:
+L203:
 	imull	$94, %ecx, %ebx
 	movl	-1044(%ebp), %edx
 	addl	%eax, %ebx
@@ -895,24 +974,24 @@ L163:
 	pushl	8(%ebp)
 	call	_putfont8
 	addl	$56, %esp
-	jmp	L159
-L162:
+	jmp	L199
+L202:
 	leal	-128(%edx), %eax
 	cmpb	$30, %al
-	ja	L164
+	ja	L204
 	movzbl	%dl, %eax
 	subl	$65, %eax
-	jmp	L163
-L164:
+	jmp	L203
+L204:
 	movzbl	%dl, %eax
 	subl	$159, %eax
 	incl	%ecx
-	jmp	L163
-L160:
+	jmp	L203
+L200:
 	movzbl	%dl, %eax
 	leal	-386(%eax,%eax), %ecx
-	jmp	L161
-L149:
+	jmp	L201
+L189:
 	movl	32(%ebp), %edx
 	movzbl	(%edx), %eax
 	sall	$4, %eax
@@ -933,8 +1012,8 @@ L149:
 	leal	(%eax,%esi,8), %eax
 	movl	%eax, 16(%ebp)
 	cmpb	$0, (%edx)
-	jne	L149
-	jmp	L144
+	jne	L189
+	jmp	L184
 	.data
 _cursor.2:
 	.ascii "*..............."
@@ -962,52 +1041,52 @@ _init_mouse_cursor81:
 	movl	%esp, %ebp
 	pushl	%edi
 	pushl	%esi
-	pushl	%ebx
 	xorl	%esi, %esi
-	pushl	%edi
+	pushl	%ebx
 	xorl	%ebx, %ebx
+	pushl	%eax
 	movb	12(%ebp), %al
 	movl	8(%ebp), %edi
 	movb	%al, -13(%ebp)
-L195:
+L235:
 	xorl	%ecx, %ecx
-L194:
+L234:
 	leal	(%ecx,%ebx), %edx
 	cmpb	$42, _cursor.2(%edx)
-	je	L200
-L191:
+	je	L240
+L231:
 	cmpb	$79, _cursor.2(%edx)
-	je	L201
-L192:
+	je	L241
+L232:
 	cmpb	$46, _cursor.2(%edx)
-	je	L202
-L189:
+	je	L242
+L229:
 	incl	%ecx
 	cmpl	$15, %ecx
-	jle	L194
+	jle	L234
 	incl	%esi
 	addl	$16, %ebx
 	cmpl	$15, %esi
-	jle	L195
-	popl	%esi
+	jle	L235
+	popl	%edi
 	popl	%ebx
 	popl	%esi
 	popl	%edi
 	popl	%ebp
 	ret
-L202:
+L242:
 	movzbl	-13(%ebp), %eax
-	movw	_table_8_565(%eax,%eax), %ax
+	movw	_table_16_65536(%eax,%eax), %ax
 	movw	%ax, (%edi,%edx,2)
-	jmp	L189
-L201:
-	movw	_table_8_565+14, %ax
+	jmp	L229
+L241:
+	movw	_table_16_65536+14, %ax
 	movw	%ax, (%edi,%edx,2)
-	jmp	L192
-L200:
-	movw	_table_8_565, %ax
+	jmp	L232
+L240:
+	movw	_table_16_65536, %ax
 	movw	%ax, (%edi,%edx,2)
-	jmp	L191
+	jmp	L231
 	.data
 _cursor.3:
 	.ascii ".**............."
@@ -1042,45 +1121,45 @@ _init_mouse_cursor8:
 	movb	12(%ebp), %al
 	movl	8(%ebp), %edi
 	movb	%al, -13(%ebp)
-L216:
+L256:
 	xorl	%ecx, %ecx
-L215:
+L255:
 	leal	(%ecx,%ebx), %edx
 	cmpb	$42, _cursor.3(%edx)
-	je	L221
-L212:
+	je	L261
+L252:
 	cmpb	$79, _cursor.3(%edx)
-	je	L222
-L213:
+	je	L262
+L253:
 	cmpb	$46, _cursor.3(%edx)
-	je	L223
-L210:
+	je	L263
+L250:
 	incl	%ecx
 	cmpl	$15, %ecx
-	jle	L215
+	jle	L255
 	incl	%esi
 	addl	$16, %ebx
 	cmpl	$15, %esi
-	jle	L216
+	jle	L256
 	popl	%eax
 	popl	%ebx
 	popl	%esi
 	popl	%edi
 	popl	%ebp
 	ret
-L223:
+L263:
 	movzbl	-13(%ebp), %eax
-	movw	_table_8_565(%eax,%eax), %ax
+	movw	_table_16_65536(%eax,%eax), %ax
 	movw	%ax, (%edi,%edx,2)
-	jmp	L210
-L222:
-	movw	_table_8_565+14, %ax
+	jmp	L250
+L262:
+	movw	_table_16_65536+14, %ax
 	movw	%ax, (%edi,%edx,2)
-	jmp	L213
-L221:
-	movw	_table_8_565, %ax
+	jmp	L253
+L261:
+	movw	_table_16_65536, %ax
 	movw	%ax, (%edi,%edx,2)
-	jmp	L212
+	jmp	L252
 	.data
 _cursor.4:
 	.ascii "...*........*..."
@@ -1115,45 +1194,45 @@ _set_mouse_cursorl8:
 	movb	12(%ebp), %al
 	movl	8(%ebp), %edi
 	movb	%al, -13(%ebp)
-L237:
+L277:
 	xorl	%ecx, %ecx
-L236:
+L276:
 	leal	(%ecx,%ebx), %edx
 	cmpb	$42, _cursor.4(%edx)
-	je	L242
-L233:
+	je	L282
+L273:
 	cmpb	$79, _cursor.4(%edx)
-	je	L243
-L234:
+	je	L283
+L274:
 	cmpb	$46, _cursor.4(%edx)
-	je	L244
-L231:
+	je	L284
+L271:
 	incl	%ecx
 	cmpl	$15, %ecx
-	jle	L236
+	jle	L276
 	incl	%esi
 	addl	$16, %ebx
 	cmpl	$15, %esi
-	jle	L237
+	jle	L277
 	popl	%eax
 	popl	%ebx
 	popl	%esi
 	popl	%edi
 	popl	%ebp
 	ret
-L244:
+L284:
 	movzbl	-13(%ebp), %eax
-	movw	_table_8_565(%eax,%eax), %ax
+	movw	_table_16_65536(%eax,%eax), %ax
 	movw	%ax, (%edi,%edx,2)
-	jmp	L231
-L243:
-	movw	_table_8_565+14, %ax
+	jmp	L271
+L283:
+	movw	_table_16_65536+14, %ax
 	movw	%ax, (%edi,%edx,2)
-	jmp	L234
-L242:
-	movw	_table_8_565, %ax
+	jmp	L274
+L282:
+	movw	_table_16_65536, %ax
 	movw	%ax, (%edi,%edx,2)
-	jmp	L233
+	jmp	L273
 	.data
 _cursor.5:
 	.ascii "...*............"
@@ -1184,49 +1263,49 @@ _set_mouse_cursorh8:
 	xorl	%esi, %esi
 	pushl	%ebx
 	xorl	%ebx, %ebx
-	pushl	%eax
+	pushl	%edx
 	movb	12(%ebp), %al
 	movl	8(%ebp), %edi
 	movb	%al, -13(%ebp)
-L258:
+L298:
 	xorl	%ecx, %ecx
-L257:
+L297:
 	leal	(%ecx,%ebx), %edx
 	cmpb	$42, _cursor.5(%edx)
-	je	L263
-L254:
+	je	L303
+L294:
 	cmpb	$79, _cursor.5(%edx)
-	je	L264
-L255:
+	je	L304
+L295:
 	cmpb	$46, _cursor.5(%edx)
-	je	L265
-L252:
+	je	L305
+L292:
 	incl	%ecx
 	cmpl	$15, %ecx
-	jle	L257
+	jle	L297
 	incl	%esi
 	addl	$16, %ebx
 	cmpl	$15, %esi
-	jle	L258
+	jle	L298
 	popl	%eax
 	popl	%ebx
 	popl	%esi
 	popl	%edi
 	popl	%ebp
 	ret
-L265:
+L305:
 	movzbl	-13(%ebp), %eax
-	movw	_table_8_565(%eax,%eax), %ax
+	movw	_table_16_65536(%eax,%eax), %ax
 	movw	%ax, (%edi,%edx,2)
-	jmp	L252
-L264:
-	movw	_table_8_565+14, %ax
+	jmp	L292
+L304:
+	movw	_table_16_65536+14, %ax
 	movw	%ax, (%edi,%edx,2)
-	jmp	L255
-L263:
-	movw	_table_8_565, %ax
+	jmp	L295
+L303:
+	movw	_table_16_65536, %ax
 	movw	%ax, (%edi,%edx,2)
-	jmp	L254
+	jmp	L294
 	.data
 _cursor.6:
 	.ascii "*****..........."
@@ -1256,50 +1335,50 @@ _set_mouse_cursorlt8:
 	pushl	%esi
 	xorl	%esi, %esi
 	pushl	%ebx
+	pushl	%ebx
 	xorl	%ebx, %ebx
-	pushl	%ecx
 	movb	12(%ebp), %al
 	movl	8(%ebp), %edi
 	movb	%al, -13(%ebp)
-L279:
+L319:
 	xorl	%ecx, %ecx
-L278:
+L318:
 	leal	(%ecx,%ebx), %edx
 	cmpb	$42, _cursor.6(%edx)
-	je	L284
-L275:
+	je	L324
+L315:
 	cmpb	$79, _cursor.6(%edx)
-	je	L285
-L276:
+	je	L325
+L316:
 	cmpb	$46, _cursor.6(%edx)
-	je	L286
-L273:
+	je	L326
+L313:
 	incl	%ecx
 	cmpl	$15, %ecx
-	jle	L278
+	jle	L318
 	incl	%esi
 	addl	$16, %ebx
 	cmpl	$15, %esi
-	jle	L279
-	popl	%edx
+	jle	L319
+	popl	%ecx
 	popl	%ebx
 	popl	%esi
 	popl	%edi
 	popl	%ebp
 	ret
-L286:
+L326:
 	movzbl	-13(%ebp), %eax
-	movw	_table_8_565(%eax,%eax), %ax
+	movw	_table_16_65536(%eax,%eax), %ax
 	movw	%ax, (%edi,%edx,2)
-	jmp	L273
-L285:
-	movw	_table_8_565+14, %ax
+	jmp	L313
+L325:
+	movw	_table_16_65536+14, %ax
 	movw	%ax, (%edi,%edx,2)
-	jmp	L276
-L284:
-	movw	_table_8_565, %ax
+	jmp	L316
+L324:
+	movw	_table_16_65536, %ax
 	movw	%ax, (%edi,%edx,2)
-	jmp	L275
+	jmp	L315
 	.data
 _cursor.7:
 	.ascii "...........*****"
@@ -1328,51 +1407,51 @@ _set_mouse_cursorrb8:
 	pushl	%edi
 	pushl	%esi
 	pushl	%ebx
-	xorl	%ebx, %ebx
-	pushl	%esi
 	xorl	%esi, %esi
+	pushl	%edi
+	xorl	%ebx, %ebx
 	movb	12(%ebp), %al
 	movl	8(%ebp), %edi
 	movb	%al, -13(%ebp)
-L300:
+L340:
 	xorl	%ecx, %ecx
-L299:
+L339:
 	leal	(%ecx,%ebx), %edx
 	cmpb	$42, _cursor.7(%edx)
-	je	L305
-L296:
+	je	L345
+L336:
 	cmpb	$79, _cursor.7(%edx)
-	je	L306
-L297:
+	je	L346
+L337:
 	cmpb	$46, _cursor.7(%edx)
-	je	L307
-L294:
+	je	L347
+L334:
 	incl	%ecx
 	cmpl	$15, %ecx
-	jle	L299
+	jle	L339
 	incl	%esi
 	addl	$16, %ebx
 	cmpl	$15, %esi
-	jle	L300
-	popl	%ebx
+	jle	L340
+	popl	%esi
 	popl	%ebx
 	popl	%esi
 	popl	%edi
 	popl	%ebp
 	ret
-L307:
+L347:
 	movzbl	-13(%ebp), %eax
-	movw	_table_8_565(%eax,%eax), %ax
+	movw	_table_16_65536(%eax,%eax), %ax
 	movw	%ax, (%edi,%edx,2)
-	jmp	L294
-L306:
-	movw	_table_8_565+14, %ax
+	jmp	L334
+L346:
+	movw	_table_16_65536+14, %ax
 	movw	%ax, (%edi,%edx,2)
-	jmp	L297
-L305:
-	movw	_table_8_565, %ax
+	jmp	L337
+L345:
+	movw	_table_16_65536, %ax
 	movw	%ax, (%edi,%edx,2)
-	jmp	L296
+	jmp	L336
 	.balign 2
 .globl _putblock8_8
 	.def	_putblock8_8;	.scl	2;	.type	32;	.endef
@@ -1385,16 +1464,16 @@ _putblock8_8:
 	pushl	%ebx
 	subl	$12, %esp
 	cmpl	20(%ebp), %esi
-	jge	L320
+	jge	L360
 	xorl	%edi, %edi
-L318:
+L358:
 	xorl	%ebx, %ebx
 	cmpl	16(%ebp), %ebx
-	jge	L322
+	jge	L362
 	movl	32(%ebp), %eax
 	leal	(%eax,%edi,2), %eax
 	movl	%eax, -24(%ebp)
-L317:
+L357:
 	movl	28(%ebp), %edx
 	movl	24(%ebp), %eax
 	addl	%esi, %edx
@@ -1407,17 +1486,17 @@ L317:
 	movl	-20(%ebp), %ecx
 	movswl	(%edx),%eax
 	movl	8(%ebp), %edx
-	movw	_table_8_565(%eax,%eax), %ax
+	movw	_table_16_65536(%eax,%eax), %ax
 	addl	$2, -24(%ebp)
 	movw	%ax, (%edx,%ecx,2)
 	cmpl	16(%ebp), %ebx
-	jl	L317
-L322:
+	jl	L357
+L362:
 	incl	%esi
 	addl	36(%ebp), %edi
 	cmpl	20(%ebp), %esi
-	jl	L318
-L320:
+	jl	L358
+L360:
 	addl	$12, %esp
 	popl	%ebx
 	popl	%esi
@@ -1447,19 +1526,19 @@ _read_picture:
 	addl	$16, %esp
 	movl	%eax, %ebx
 	testl	%eax, %eax
-	je	L325
+	je	L365
 	testb	$24, 11(%eax)
-	je	L324
-L325:
+	je	L364
+L365:
 	orl	$-1, %eax
-L323:
+L363:
 	leal	-12(%ebp), %esp
 	popl	%ebx
 	popl	%esi
 	popl	%edi
 	popl	%ebp
 	ret
-L324:
+L364:
 	movl	28(%eax), %eax
 	xorl	%edi, %edi
 	pushl	%eax
@@ -1513,17 +1592,17 @@ L324:
 	idivl	%ecx
 	cmpl	-16(%ebp), %edi
 	movl	%eax, -60(%ebp)
-	jge	L337
-L335:
+	jge	L377
+L375:
 	xorl	%esi, %esi
 	movl	-20(%ebp), %eax
 	cmpl	%eax, %esi
-	jl	L334
-L339:
+	jl	L374
+L379:
 	incl	%edi
 	cmpl	-16(%ebp), %edi
-	jl	L335
-L337:
+	jl	L375
+L377:
 	pushl	-32(%ebp)
 	pushl	-36(%ebp)
 	pushl	$3932160
@@ -1540,8 +1619,8 @@ L337:
 	pushl	$3932160
 	call	_memman_free_4k
 	xorl	%eax, %eax
-	jmp	L323
-L334:
+	jmp	L363
+L374:
 	imull	%edi, %eax
 	movl	-60(%ebp), %ebx
 	addl	%esi, %eax
@@ -1570,8 +1649,8 @@ L334:
 	movw	%ax, (%edx,%ebx,2)
 	movl	-20(%ebp), %eax
 	cmpl	%eax, %esi
-	jl	L334
-	jmp	L339
+	jl	L374
+	jmp	L379
 	.data
 	.balign 4
 _table.8:
@@ -1596,7 +1675,7 @@ _rgb2pal:
 	movl	20(%ebp), %edx
 	movl	24(%ebp), %eax
 	cmpl	$8, 28(%ebp)
-	je	L343
+	je	L383
 	sall	$8, %ecx
 	leal	0(,%edi,8), %eax
 	andw	$2016, %ax
@@ -1606,14 +1685,14 @@ _rgb2pal:
 	orl	%eax, %edx
 	orl	%ebx, %edx
 	movzwl	%dx, %eax
-L340:
+L380:
 	addl	$20, %esp
 	popl	%ebx
 	popl	%esi
 	popl	%edi
 	popl	%ebp
 	ret
-L343:
+L383:
 	imull	$21, %ecx, %ecx
 	andl	$1, %edx
 	andl	$1, %eax
@@ -1656,12 +1735,12 @@ L343:
 	leal	(%eax,%ecx), %eax
 	leal	16(%edx,%eax), %eax
 	movzwl	%ax, %eax
-	jmp	L340
-.globl _table_8_565
+	jmp	L380
+.globl _table_16_65536
 	.data
 	.balign 16
-_table_8_565:
-	.space 512
+_table_16_65536:
+	.space 131072
 	.def	_memman_free_4k;	.scl	2;	.type	32;	.endef
 	.def	_rgb2pal;	.scl	2;	.type	32;	.endef
 	.def	_decode0_JPEG;	.scl	2;	.type	32;	.endef
@@ -1672,7 +1751,6 @@ _table_8_565:
 	.def	_out_log;	.scl	2;	.type	32;	.endef
 	.def	_sprintf;	.scl	2;	.type	32;	.endef
 	.def	_task_now;	.scl	2;	.type	32;	.endef
-	.def	_read_picture;	.scl	2;	.type	32;	.endef
 	.def	_io_store_eflags;	.scl	2;	.type	32;	.endef
 	.def	_io_out8;	.scl	2;	.type	32;	.endef
 	.def	_io_cli;	.scl	2;	.type	32;	.endef

@@ -1,7 +1,7 @@
-               org 0600H
-               cpu 8086
-[BITS 16]
-              section .data align=16
+               org 7C00H
+;               cpu 8086
+;[BITS 16]
+;              section .data align=16
                JMP LBL_START
 TIMES 59 DB 0
 LBL_START:

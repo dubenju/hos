@@ -1,7 +1,7 @@
-     1                                                 org 0600H
-     2                                                 cpu 8086
-     3                                  [BITS 16]
-     4                                                section .data align=16
+     1                                                 org 7C00H
+     2                                  ;               cpu 8086
+     3                                  ;[BITS 16]
+     4                                  ;              section .data align=16
      5 00000000 EB3B                                   JMP LBL_START
      6 00000002 00<rept>                TIMES 59 DB 0
      7                                  LBL_START:
