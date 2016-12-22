@@ -32,7 +32,7 @@ _shtctl_init:
 	movl	12(%ebp), %eax
 	movl	%edi, 8(%ebx)
 	movl	%eax, (%ebx)
-	leal	11220(%ebx), %edx
+	movl	$255, %edx
 	movl	20(%ebp), %eax
 	movl	%eax, 12(%ebx)
 	movl	%ebx, %eax
@@ -41,8 +41,8 @@ L9:
 	movl	$0, 1072(%eax)
 	movl	%ebx, 1076(%eax)
 	addl	$44, %eax
-	cmpl	%edx, %eax
-	jle	L9
+	decl	%edx
+	jns	L9
 L3:
 	leal	-12(%ebp), %esp
 	movl	%ebx, %eax

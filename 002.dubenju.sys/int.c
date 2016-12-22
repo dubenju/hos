@@ -1,26 +1,45 @@
-/* ���荞�݊֌W */
+/* 中断 */
 /* 8259A */
 
 #include "bootpack.h"
-#include <stdio.h>
 
-/* PIC�̏����� */
+/* PIC，Programmable Interrupt Controller，可编程中断控制器的初始化 */
+/*
+ * 主片8259
+ * IRQ0-8253/8254 Timer
+ * IRQ1-Keyboard
+ * IRQ2-Slave 8259A
+ * IRQ3-COM2/COM4
+ * IRQ4-COM1/CPM3
+ * IRQ5 LPT2
+ * IRQ6 软驱控制器
+ * IRQ7-LPT1
+ * 从片8259
+ * IRQ08-RTC
+ * IRQ09-NONE
+ * IRQ10-NONE
+ * IRQ11-NONE
+ * IRQ12-PS/2 Mouse
+ * IRQ13-数学协处理器
+ * IRQ14-硬盘控制器1
+ * IRQ15-硬盘控制器2
+ */
 void init_pic(void) {
-  io_out8(PIC0_IMR,  0xff  ); /* 0x0021:�S�Ă̊��荞�݂��󂯕t���Ȃ� */
-  io_out8(PIC1_IMR,  0xff  ); /* 0x00a1:�S�Ă̊��荞�݂��󂯕t���Ȃ� */
+    io_out8(PIC0_IMR,  0xff  ); /* 0x0021:屏蔽主片D7-D0,IR70IR0 */
+    io_out8(PIC1_IMR,  0xff  ); /* 0x00a1:屏蔽从片D7-D0,IR70IR0 */
 
-  io_out8(PIC0_ICW1, 0x11  ); /* 0x0020:�G�b�W�g���K���[�h */
-  io_out8(PIC0_ICW2, 0x20  ); /* 0x0021:IRQ0-7�́AINT20-27�Ŏ󂯂� */
-  io_out8(PIC0_ICW3, 1 << 2); /* 0x0021:PIC1��IRQ2�ɂĐڑ� */
-  io_out8(PIC0_ICW4, 0x01  ); /* 0x0021:�m���o�b�t�@���[�h */
+    io_out8(PIC0_ICW1, 0x11  ); /* 0x0020:00010001边沿触发模式 */
+    io_out8(PIC0_ICW2, 0x20  ); /* 0x0021:设置主片 IRQ0～IRQ7 对应从 0x20(32) 号中断开始INT20H-27H */
+    io_out8(PIC0_ICW3, 1 << 2); /* 0x0021:设置主片 PIC1IR2 引脚连接从片IRQ2 */
+    io_out8(PIC0_ICW4, 0x01  ); /* 0x0021:00000001非缓冲模式 */
 
-  io_out8(PIC1_ICW1, 0x11  ); /* 0x00a0:�G�b�W�g���K���[�h */
-  io_out8(PIC1_ICW2, 0x28  ); /* 0x00a1:IRQ8-15�́AINT28-2f�Ŏ󂯂� */
-  io_out8(PIC1_ICW3, 2     ); /* 0x00a1:PIC1��IRQ2�ɂĐڑ� */
-  io_out8(PIC1_ICW4, 0x01  ); /* 0x00a1:�m���o�b�t�@���[�h */
+    io_out8(PIC1_ICW1, 0x11  ); /* 0x00a0:00010001边沿触发模式 */
+    io_out8(PIC1_ICW2, 0x28  ); /* 0x00a1:设置从片 IRQ8～IRQ15 对应从 0x28(40) 号中断开始INT28H-2fH */
+    io_out8(PIC1_ICW3, 2     ); /* 0x00a1:告诉从片输出引脚和主片PIC1 IRQ2 号相连 */
+    io_out8(PIC1_ICW4, 0x01  ); /* 0x00a1:00000001非缓冲模式 */
 
-  io_out8(PIC0_IMR,  0xfb  ); /* 0x0021:11111011 PIC1�ȊO�͑S�ċ֎~ */
-  io_out8(PIC1_IMR,  0xff  ); /* 0x00a1:11111111 �S�Ă̊��荞�݂��󂯕t���Ȃ� */
+    io_out8(PIC0_IMR,  0xfb  ); /* 0x0021:11111011 除从片PIC1以外全屏蔽 */
+    io_out8(PIC1_IMR,  0xff  ); /* 0x00a1:11111111 屏蔽从片D7-D0,IR70IR0 */
 
-  return;
+    return;
 }

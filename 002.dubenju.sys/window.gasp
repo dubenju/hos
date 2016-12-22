@@ -77,11 +77,8 @@ _make_window8:
 	pushl	%ebx
 	pushl	%esi
 	call	_boxfill8
-	addl	$56, %esp
-	pushl	$8
-	pushl	-20(%ebp)
-	call	_dbg_putstr0
 	movl	-16(%ebp), %eax
+	addl	$56, %esp
 	subl	$3, %eax
 	pushl	%eax
 	leal	-3(%ebx), %eax
@@ -92,7 +89,6 @@ _make_window8:
 	pushl	%ebx
 	pushl	%esi
 	call	_boxfill8
-	addl	$36, %esp
 	pushl	%edi
 	pushl	-32(%ebp)
 	pushl	%edi
@@ -101,6 +97,7 @@ _make_window8:
 	pushl	%ebx
 	pushl	%esi
 	call	_boxfill8
+	addl	$56, %esp
 	pushl	-36(%ebp)
 	pushl	-28(%ebp)
 	pushl	-36(%ebp)
@@ -113,7 +110,7 @@ _make_window8:
 	movl	-24(%ebp), %eax
 	movl	%ebx, 12(%ebp)
 	movl	%eax, 20(%ebp)
-	addl	$56, %esp
+	addl	$28, %esp
 	movl	-20(%ebp), %eax
 	movl	%eax, 16(%ebp)
 	leal	-12(%ebp), %esp
@@ -1233,5 +1230,4 @@ L315:
 	.def	_task_now;	.scl	2;	.type	32;	.endef
 	.def	_putfonts8_asc;	.scl	2;	.type	32;	.endef
 	.def	_make_wtitle8;	.scl	2;	.type	32;	.endef
-	.def	_dbg_putstr0;	.scl	2;	.type	32;	.endef
 	.def	_boxfill8;	.scl	2;	.type	32;	.endef

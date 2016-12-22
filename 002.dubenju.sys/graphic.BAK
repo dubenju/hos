@@ -32,9 +32,9 @@ void init_palette(void) {
   int i;
     struct BOOTINFO * binfo = (struct BOOTINFO *) ADR_BOOTINFO;
     if (binfo->vmode == 8) {
-        //for (i = 0; i < 16; i ++) {
-        //    table_8_565[i] = i;
-        //}
+        for (i = 0; i < 16; i ++) {
+            table_16_65536[i] = i;
+        }
         set_palette(0, 15, table_rgb);
 
         unsigned char table2[216 * 3];
@@ -44,7 +44,7 @@ void init_palette(void) {
                     table2[(r + g * 6 + b * 36) * 3 + 0] = r * 51;
                     table2[(r + g * 6 + b * 36) * 3 + 1] = g * 51;
                     table2[(r + g * 6 + b * 36) * 3 + 2] = b * 51;
-                    //table_8_565[r + g * 6 + b * 36 + 16] = r + g * 6 + b * 36 + 16;
+                    table_16_65536[r + g * 6 + b * 36 + 16] = r + g * 6 + b * 36 + 16;
                 }
             }
         }
@@ -60,8 +60,25 @@ void init_palette(void) {
             }
         }
         for (o = 0; o < 16; o ++) {
-            table_16_65536[o] = (unsigned short) (((table_rgb[o * 3] << 11) & 0xf800) | ((table_rgb[o * 3 + 1] << 4) & 0x07e0) | (table_rgb[o * 3 + 2] & 0x001f));
+            //table_16_65536[o] = (unsigned short) (((table_rgb[o * 3] << 11) & 0xf800) | ((table_rgb[o * 3 + 1] << 4) & 0x07e0) | (table_rgb[o * 3 + 2] & 0x001f));
+            table_16_65536[o] = (unsigned short) (((table_rgb[o * 3 + 2] << 11) & 0xf800) | ((table_rgb[o * 3 + 1] << 4) & 0x07e0) | (table_rgb[o * 3 + 0] & 0x001f));
         }
+        table_16_65536[0] = 0; /* COL8_000000 */
+        table_16_65536[1] = 0xF800; /* COL8_FF0000 */
+        table_16_65536[2] = 0x07E0; /* COL8_00FF00 */
+        table_16_65536[3] = 0xFFE0; /* COL8_FFFF00 */
+        table_16_65536[4] = 0x001F; /* COL8_0000FF */
+        table_16_65536[5] = 0xF81F; /* COL8_FF00FF */
+        table_16_65536[6] = 0x07FF; /* COL8_00FFFF */
+        table_16_65536[7] = 0xFFFF; /* COL8_FFFFFF */
+        table_16_65536[8] = 0x31C6; /* COL8_C6C6C6 */
+        table_16_65536[9] = 0x3800; /* COL8_840000 */
+        table_16_65536[10] = 0x00E0; /* COL8_008400 */
+        table_16_65536[11] = 0x38E0; /* COL8_848400 */
+        table_16_65536[12] = 0x0007; /* COL8_000084 */
+        table_16_65536[13] = 0x3807; /* COL8_840084 */
+        table_16_65536[14] = 0x00E7; /* COL8_008484 */
+        table_16_65536[15] = 0x38E7; /* COL8_848484 */
 //        set_palette(0, 256, table_8_565);
 //        set_palette(0, 15, table_rgb);
 
@@ -80,7 +97,7 @@ void init_palette(void) {
 //        }
 //        set_palette(16, 231, table2);
 //
-    } else if (binfo->vmode == 16) {
+    } else if (binfo->vmode == 24) {
         int o = 0;
         for (b = 0; b < 32; b++) {
             for (g = 0; g < 64; g++) {
@@ -132,9 +149,9 @@ void DDAline(unsigned short *vram, int xsize, int color, int x0, int y0, int x1,
   k = dy / dx;
   z = y0;
   for (x = x0; x <= x1; x ++) {
-/*    drawpixel8(vram, xsize, color, x, (int)(y + 0.5));*/
+    //drawpixel8(vram, xsize, color, x, (int)(y + 0.5));
     y = z;
-/*    drawpixel8(vram, xsize, color, x, x); */
+    //drawpixel8(vram, xsize, color, x, x);
     z = z + k;
   }
 }
@@ -168,63 +185,64 @@ void boxfill8c(unsigned char * vram, int xsize, unsigned char c, int x0, int y0,
     return;
 }
 void init_screen8(short *vram, int x, int y) {
-  // ----+----1----+----2----+----3----+----4----
-  static char logo[13][44] = {
-    "..............................****....***.*.",
-    ".............................**00**..**0**.0",
-    "............................**00.**0.**0.*0.",
-    "............................**0..**0.**0..0.",
-    "...........................**00..**0..**....",
-    "...........................**0..**00..***...",
-    "...........................**0..**0.*..**0..",
-    "...........................**0.**00**0.**0..",
-    "............................****00.*0***00..",
-    ".............................0000...0.000...",
-    "............................................",
-    "............................................",
-    "............................................",
-  };
-  int i, j;
-  unsigned char c;
+    // ----+----1----+----2----+----3----+----4----
+    static char logo[13][44] = {
+        "..............................****....***.*.",
+        ".............................**00**..**0**.0",
+        "............................**00.**0.**0.*0.",
+        "............................**0..**0.**0..0.",
+        "...........................**00..**0..**....",
+        "...........................**0..**00..***...",
+        "...........................**0..**0.*..**0..",
+        "...........................**0.**00**0.**0..",
+        "............................****00.*0***00..",
+        ".............................0000...0.000...",
+        "............................................",
+        "............................................",
+        "............................................",
+    };
+    int i, j;
+    unsigned char c;
 
-  boxfill8(vram, x, COL8_008484,  0,     0,      x -  1, y - 29);
+    boxfill8(vram, x, COL8_008484,  0,     0,      x -  1, y - 29);
 
 //  read_picture(u_fat, vram, x, y);
 
-  boxfill8(vram, x, COL8_C6C6C6,  0,     y - 28, x -  1, y - 28);
-  boxfill8(vram, x, COL8_FFFFFF,  0,     y - 27, x -  1, y - 27);
-  boxfill8(vram, x, COL8_C6C6C6,  0,     y - 26, x -  1, y -  1);
+    boxfill8(vram, x, COL8_C6C6C6,  0,     y - 28, x -  1, y - 28);
+    boxfill8(vram, x, COL8_FFFFFF,  0,     y - 27, x -  1, y - 27);
+    boxfill8(vram, x, COL8_C6C6C6,  0,     y - 26, x -  1, y -  1);
 
-  boxfill8(vram, x, COL8_FFFFFF,  3,     y - 24, 59,     y - 24);
-  boxfill8(vram, x, COL8_FFFFFF,  2,     y - 24,  2,     y -  4);
-  boxfill8(vram, x, COL8_848484,  3,     y -  4, 59,     y -  4);
-  boxfill8(vram, x, COL8_848484, 59,     y - 23, 59,     y -  5);
-  boxfill8(vram, x, COL8_000000,  2,     y -  3, 59,     y -  3);
-  boxfill8(vram, x, COL8_000000, 60,     y - 24, 60,     y -  3);
+    boxfill8(vram, x, COL8_FFFFFF,  3,     y - 24, 59,     y - 24);
+    boxfill8(vram, x, COL8_FFFFFF,  2,     y - 24,  2,     y -  4);
+    boxfill8(vram, x, COL8_848484,  3,     y -  4, 59,     y -  4);
+    boxfill8(vram, x, COL8_848484, 59,     y - 23, 59,     y -  5);
+    boxfill8(vram, x, COL8_000000,  2,     y -  3, 59,     y -  3);
+    boxfill8(vram, x, COL8_000000, 60,     y - 24, 60,     y -  3);
 
-  boxfill8(vram, x, COL8_848484, x - 47, y - 24, x -  4, y - 24);
-  boxfill8(vram, x, COL8_848484, x - 47, y - 23, x - 47, y -  4);
-  boxfill8(vram, x, COL8_FFFFFF, x - 47, y -  3, x -  4, y -  3);
-  boxfill8(vram, x, COL8_FFFFFF, x -  3, y - 24, x -  3, y -  3);
+    boxfill8(vram, x, COL8_848484, x - 47, y - 24, x -  4, y - 24);
+    boxfill8(vram, x, COL8_848484, x - 47, y - 23, x - 47, y -  4);
+    boxfill8(vram, x, COL8_FFFFFF, x - 47, y -  3, x -  4, y -  3);
+    boxfill8(vram, x, COL8_FFFFFF, x -  3, y - 24, x -  3, y -  3);
 
-  for (j = 0; j < 13; j ++) {
-    for (i = 0; i < 44; i ++) {
-      c = logo[j][i];
-      if (c == '*') {
-        c = COL8_0000FF;
-      } else if (c == '0') {
-        c = COL8_FFFFFF;
-      } else {
-        c = 0xff;
-      }
-      if (c != 0xff) {
-        /* vram[(y - 18 + j) * x + (10 + i)] = c; */
-        vram[(y - 18 + j) * x + (10 + i)] = table_16_65536[c];
-      }
+    for (j = 0; j < 13; j ++) {
+        for (i = 0; i < 44; i ++) {
+            c = logo[j][i];
+            if (c == '*') {
+                c = COL8_0000FF;
+            } else if (c == '0') {
+                c = COL8_FFFFFF;
+            } else {
+                c = 0xff;
+                //c = COL8_FF00FF;
+            }
+            if (c != 0xff) {
+                //vram[(y - 18 + j) * x + (10 + i)] = c;
+                vram[(y - 18 + j) * x + (10 + i)] = table_16_65536[c];
+            }
+        }
     }
-  }
 
-  return;
+    return;
 }
 
 void putfont8(short *vram, int xsize, int x, int y, unsigned char c, char scl, char *font) {
@@ -255,19 +273,19 @@ void putfont8(short *vram, int xsize, int x, int y, unsigned char c, char scl, c
 void putfonts8_asc(short *vram, int xsize, int x, int y, unsigned char c, char scl, unsigned char *s) {
   extern char hankaku[4096];
   struct TASK *task = task_now();
-  char *nihongo = (char *) *((int *) 0x0fe8), *font;
+  char *nihongo = (char *) *((int *) ADR_LANG), *font;
   int k, t;
 
-  char dbg_buf[1024];
-  memset(dbg_buf, 0, sizeof(dbg_buf));
-  sprintf(dbg_buf, "vram:%p", vram);
-  sprintf(dbg_buf, "%s x:%d", dbg_buf, x);
-  sprintf(dbg_buf, "%s y:%d", dbg_buf, y);
-  sprintf(dbg_buf, "%s c:%d", dbg_buf, c);
-  sprintf(dbg_buf, "%s scl:%d", dbg_buf, scl);
-  sprintf(dbg_buf, "%s s:[%s]", dbg_buf, s);
+//  char dbg_buf[1024];
+//  memset(dbg_buf, 0, sizeof(dbg_buf));
+//  sprintf(dbg_buf, "vram:%p", vram);
+//  sprintf(dbg_buf, "%s x:%d", dbg_buf, x);
+//  sprintf(dbg_buf, "%s y:%d", dbg_buf, y);
+//  sprintf(dbg_buf, "%s c:%d", dbg_buf, c);
+//  sprintf(dbg_buf, "%s scl:%d", dbg_buf, scl);
+//  sprintf(dbg_buf, "%s s:[%s]", dbg_buf, s);
 
-  /* dbg_putstr0("putfonts8_asc\n", COL8_FFFFFF); */
+  // dbg_putstr0("putfonts8_asc\n", COL8_FFFFFF);
   if (task->langmode == 0) {
     for (; *s != 0x00; s++) {
       putfont8(vram, xsize, x, y, c, scl, hankaku + *s * 16);
@@ -275,8 +293,8 @@ void putfonts8_asc(short *vram, int xsize, int x, int y, unsigned char c, char s
     }
   }
   if (task->langmode == 1) {
-    sprintf(dbg_buf, "%s mode:%s", dbg_buf, "1");
-    out_log(dbg_buf);
+//    sprintf(dbg_buf, "%s mode:%s", dbg_buf, "1");
+//    out_log(dbg_buf);
     /* dbg_putstr0(dbg_buf, COL8_FF0000); */
 
     for (; *s != 0x00; s++) {

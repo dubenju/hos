@@ -10,7 +10,7 @@ _task_now:
 	popl	%ebp
 	movl	(%eax), %edx
 	imull	$408, %edx, %edx
-	leal	8(%edx,%eax), %eax
+	leal	5(%edx,%eax), %eax
 	movl	4(%eax), %edx
 	movl	8(%eax,%edx,4), %eax
 	ret
@@ -24,10 +24,10 @@ _task_add:
 	movl	8(%ecx), %edx
 	imull	$408, %edx, %edx
 	addl	_taskctl, %edx
-	movl	8(%edx), %eax
-	movl	%ecx, 16(%edx,%eax,4)
+	movl	5(%edx), %eax
+	movl	%ecx, 13(%edx,%eax,4)
 	incl	%eax
-	movl	%eax, 8(%edx)
+	movl	%eax, 5(%edx)
 	movl	$2, 4(%ecx)
 	popl	%ebp
 	ret
@@ -43,8 +43,8 @@ _task_remove:
 	movl	8(%ebx), %eax
 	imull	$408, %eax, %eax
 	addl	_taskctl, %eax
-	leal	8(%eax), %edx
-	cmpl	8(%eax), %ecx
+	leal	5(%eax), %edx
+	cmpl	5(%eax), %ecx
 	jge	L5
 L9:
 	cmpl	%ebx, 8(%edx,%ecx,4)
@@ -89,7 +89,7 @@ _task_switchsub:
 	movl	_taskctl, %eax
 	xorl	%edx, %edx
 L26:
-	cmpl	$0, 8(%eax,%edx)
+	cmpl	$0, 5(%eax,%edx)
 	jg	L22
 	incl	%ecx
 	addl	$408, %edx
@@ -128,7 +128,7 @@ _task_init:
 	xorl	%esi, %esi
 	pushl	%ecx
 	movl	$999, %ebx
-	pushl	$216096
+	pushl	$214093
 	pushl	8(%ebp)
 	call	_memman_alloc_4k
 	movl	%eax, _taskctl
@@ -138,13 +138,14 @@ L37:
 	movl	%edi, %edx
 	leal	24(%esi), %eax
 	addl	_taskctl, %edx
-	movl	%eax, 4088(%edx)
+	leal	4080(%edx), %ecx
+	movl	%eax, 5(%ecx)
 	leal	8024(%esi), %eax
-	movl	%eax, 4228(%edx)
+	movl	%eax, 4225(%edx)
 	leal	2555928(%esi), %eax
-	movl	$0, 4092(%edx)
+	movl	$0, 9(%ecx)
+	addl	$4129, %edx
 	pushl	$137
-	addl	$4132, %edx
 	pushl	%edx
 	pushl	$103
 	pushl	%eax
@@ -152,8 +153,8 @@ L37:
 	movl	_taskctl, %eax
 	addl	%edi, %eax
 	pushl	$130
-	addl	$4236, %eax
-	addl	$212, %edi
+	addl	$4233, %eax
+	addl	$210, %edi
 	pushl	%eax
 	leal	2563928(%esi), %eax
 	pushl	$15
@@ -163,18 +164,17 @@ L37:
 	addl	$32, %esp
 	decl	%ebx
 	jns	L37
-	movl	_taskctl, %edx
-	xorl	%ecx, %ecx
+	movl	_taskctl, %eax
+	xorl	%edx, %edx
 	movl	$9, %ebx
 L42:
-	leal	(%edx,%ecx), %eax
-	addl	$408, %ecx
+	movl	$0, 5(%eax,%edx)
+	movl	$0, 9(%eax,%edx)
+	addl	$408, %edx
 	decl	%ebx
-	movl	$0, 8(%eax)
-	movl	$0, 12(%eax)
 	jns	L42
-	movl	$0, 216088(%edx)
-	movl	$0, 216092(%edx)
+	movl	$0, 214085(%eax)
+	movl	$0, 214089(%eax)
 	movl	$LC0, %esi
 	call	_task_alloc
 	movl	%eax, %edi
@@ -187,7 +187,7 @@ L42:
 	movl	$0, 8(%eax)
 	rep
 	movsb
-	movl	$0, 208(%eax)
+	movl	$0, 206(%eax)
 	pushl	%eax
 	call	_task_add
 	call	_task_switchsub
@@ -217,7 +217,7 @@ L42:
 	movl	$8, 136(%ebx)
 	movl	$1701602409, 190(%ebx)
 	movb	$0, 194(%ebx)
-	movl	$0, 208(%ebx)
+	movl	$0, 206(%ebx)
 	pushl	$1
 	pushl	$9
 	pushl	%ebx
@@ -244,10 +244,10 @@ _task_alloc:
 L54:
 	movl	%ecx, %edx
 	addl	_taskctl, %edx
-	cmpl	$0, 4092(%edx)
+	cmpl	$0, 4089(%edx)
 	je	L57
 	incl	%eax
-	addl	$212, %ecx
+	addl	$210, %ecx
 	cmpl	$999, %eax
 	jle	L54
 	xorl	%eax, %eax
@@ -255,7 +255,7 @@ L47:
 	popl	%ebp
 	ret
 L57:
-	addl	$4088, %edx
+	addl	$4085, %edx
 	movb	$0, 188(%edx)
 	movb	$0, 189(%edx)
 	movl	_taskctl, %ecx
@@ -275,12 +275,12 @@ L57:
 	movl	$1073741824, 144(%edx)
 	movl	$0, 52(%edx)
 	movl	$LC2, 184(%edx)
-	cmpl	216088(%ecx), %eax
+	cmpl	214085(%ecx), %eax
 	jl	L53
 	incl	%eax
-	movl	%eax, 216088(%ecx)
+	movl	%eax, 214085(%ecx)
 L53:
-	incl	216092(%ecx)
+	incl	214089(%ecx)
 	movl	%edx, %eax
 	jmp	L47
 	.balign 2
@@ -373,12 +373,12 @@ _task_switch:
 	movl	(%ebx), %edx
 	imull	$408, %edx, %edx
 	leal	(%edx,%ebx), %edx
-	leal	8(%edx), %ecx
+	leal	5(%edx), %ecx
 	movl	4(%ecx), %eax
 	movl	8(%ecx,%eax,4), %esi
 	incl	%eax
 	movl	%eax, 4(%ecx)
-	cmpl	8(%edx), %eax
+	cmpl	5(%edx), %eax
 	je	L73
 L70:
 	cmpb	$0, 4(%ebx)
@@ -409,7 +409,7 @@ L74:
 	movl	_taskctl, %edx
 	movl	(%edx), %eax
 	imull	$408, %eax, %eax
-	leal	8(%eax,%edx), %ecx
+	leal	5(%eax,%edx), %ecx
 	jmp	L71
 L73:
 	movl	$0, 4(%ecx)
@@ -427,30 +427,30 @@ _task_free:
 	call	_io_sti
 	movl	_taskctl, %ecx
 	subl	%ecx, %ebx
-	leal	-4088(%ebx), %edx
-	sarl	$2, %edx
-	imull	$-1944890851, %edx, %edx
+	leal	-4085(%ebx), %edx
+	sarl	%edx
+	imull	$-654471207, %edx, %edx
 	leal	1(%edx), %eax
-	cmpl	216088(%ecx), %eax
+	cmpl	214085(%ecx), %eax
 	jl	L76
 	decl	%edx
 	js	L78
 	movl	%edx, %eax
-	imull	$212, %eax, %eax
-	leal	4092(%ecx,%eax), %eax
+	imull	$210, %eax, %eax
+	leal	4089(%ecx,%eax), %eax
 L82:
 	cmpl	$0, (%eax)
 	jne	L78
-	subl	$212, %eax
+	subl	$210, %eax
 	decl	%edx
 	jns	L82
 L78:
 	movl	_taskctl, %eax
 	incl	%edx
-	movl	%edx, 216088(%eax)
+	movl	%edx, 214085(%eax)
 L76:
 	movl	_taskctl, %eax
-	decl	216092(%eax)
+	decl	214089(%eax)
 	popl	%ebx
 	popl	%ebp
 	ret

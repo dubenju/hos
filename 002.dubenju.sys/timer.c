@@ -15,39 +15,40 @@ struct TIMERCTL timerctl;
 #define TIMER_FLAGS_TIMEOUT 3 /* 時間切れ */
 
 void init_pit(void) {
-  int i;
-  struct TIMER *t;
+    int i;
+    struct TIMER * t;
 
-  io_out8(PIT_CTRL, 0x34); /* 0x0043 */
-  io_out8(PIT_CNT0, 0x9c); /* 0x0040 */
-  io_out8(PIT_CNT0, 0x2e); /* 0x0040 */
+    io_out8(PIT_CTRL, 0x34); /* 0x0043 */
+    io_out8(PIT_CNT0, 0x9c); /* 0x0040 */
+    io_out8(PIT_CNT0, 0x2e); /* 0x0040 */
 
-  timerctl.count = 0;
-  for (i = 0; i < MAX_TIMER; i++) {
-    timerctl.timers0[i].flags = 0; /* 未使用 */
-  }
-  t = timer_alloc("pit"); /* 一つもらってくる */
-  t->timeout = 0xffffffff;
-  t->flags = TIMER_FLAGS_USING;
-  t->next = 0; /* 一番うしろ */
-  timerctl.t0 = t; /* 今は番兵しかいないので先頭でもある */
-  timerctl.next = 0xffffffff; /* 番兵しかいないので番兵の時刻 */
-  return;
+    timerctl.count = 0;
+    for (i = 0; i < MAX_TIMER; i++) {   /* 500 */
+        timerctl.timers0[i].flags = 0;  /* 未使用 */
+    }
+    t = timer_alloc("pit"); /* 一つもらってくる */
+    t->timeout  = 0xffffffff;
+    t->flags    = TIMER_FLAGS_USING;
+    t->next     = 0;        /* 一番うしろ */
+
+    timerctl.t0 = t;    /* 今は番兵しかいないので先頭でもある */
+    timerctl.next = 0xffffffff; /* 番兵しかいないので番兵の時刻 */
+    return;
 }
 
 /* Look for Unusing Timer to alloc */
 /* struct TIMER *timer_alloc(void) */
-struct TIMER *timer_alloc(const char * timer_name) {
-	int i;
-	for (i = 0; i < MAX_TIMER; i++) {
-		if (timerctl.timers0[i].flags == 0) {
-			timerctl.timers0[i].flags = TIMER_FLAGS_ALLOC;
-			timerctl.timers0[i].flags2 = 0;
-			sprintf(timerctl.timers0[i].name, "%-3sT%dinit", timer_name, i);
-			return &timerctl.timers0[i];
-		}
-	}
-	return 0; /* 見つからなかった */
+struct TIMER * timer_alloc(const char * timer_name) {
+    int i;
+    for (i = 0; i < MAX_TIMER; i++) {
+        if (timerctl.timers0[i].flags == 0) {
+            timerctl.timers0[i].flags = TIMER_FLAGS_ALLOC;
+            timerctl.timers0[i].flags2 = 0;
+            sprintf(timerctl.timers0[i].name, "%-3sT%dinit", timer_name, i);
+            return &timerctl.timers0[i];
+        }
+    }
+    return 0; /* 見つからなかった */
 }
 
 void timer_free(struct TIMER *timer)

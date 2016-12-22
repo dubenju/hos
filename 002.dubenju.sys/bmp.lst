@@ -25,7 +25,7 @@
     24 00000006 BB 00000004                     	MOV	EBX,4
     25 0000000B 83 EC 74                        	SUB	ESP,116
     26 0000000E 8B 75 08                        	MOV	ESI,DWORD [8+EBP]
-    27 00000011 8B 0D 00000FE4                  	MOV	ECX,DWORD [4068]
+    27 00000011 8B 0D 000005E4                  	MOV	ECX,DWORD [1508]
     28 00000017 89 F0                           	MOV	EAX,ESI
     29 00000019 89 4D 84                        	MOV	DWORD [-124+EBP],ECX
     30 0000001C 99                              	CDQ

@@ -4,8 +4,8 @@
 [OPTION 1]
 [BITS 32]
 	EXTERN	_make_textbox8
-	EXTERN	_putfonts8_asc_sht
 	EXTERN	_sheet_refresh
+	EXTERN	_putfonts8_asc_sht
 	EXTERN	_table_16_65536
 	EXTERN	_fat_flag
 	EXTERN	_u_fat
@@ -14,9 +14,6 @@
 	EXTERN	_hrb_api_fwrite
 	EXTERN	_hrb_api_fclose
 [FILE "dbgs.c"]
-[SECTION .data]
-LC0:
-	DB	"Debug Window",0x00
 [SECTION .text]
 	GLOBAL	_dbg_init
 _dbg_init:
@@ -38,17 +35,8 @@ _dbg_init:
 	MOV	DWORD [_dbg+24],400
 	MOV	DWORD [_dbg+28],240
 	CALL	_make_textbox8
-	PUSH	12
-	PUSH	LC0
-	PUSH	DWORD [_dbg+4]
-	PUSH	7
-	PUSH	DWORD [_dbg+12]
-	PUSH	DWORD [_dbg+8]
-	PUSH	DWORD [_dbg]
-	CALL	_putfonts8_asc_sht
 	MOV	EDX,DWORD [_dbg+8]
 	MOV	ECX,DWORD [_dbg+12]
-	ADD	ESP,52
 	MOV	EAX,ECX
 	SUB	ECX,3
 	ADD	EAX,DWORD [_dbg+28]
@@ -67,7 +55,7 @@ _dbg_init:
 	LEAVE
 	RET
 [SECTION .data]
-LC1:
+LC0:
 	DB	" ",0x00
 [SECTION .text]
 	GLOBAL	_dbg_putchar
@@ -142,7 +130,7 @@ L20:
 L19:
 	PUSH	1
 	MOV	EAX,DWORD [_dbg+20]
-	PUSH	LC1
+	PUSH	LC0
 	ADD	EAX,DWORD [_dbg+12]
 	PUSH	DWORD [_dbg+4]
 	PUSH	EBX
@@ -340,9 +328,9 @@ L67:
 	JL	L67
 	JMP	L69
 [SECTION .data]
-LC2:
+LC1:
 	DB	"/ztext.txt",0x00
-LC3:
+LC2:
 	DB	"[log]%s",0x0A,0x00
 [SECTION .text]
 	GLOBAL	_out_log
@@ -369,7 +357,7 @@ L72:
 	PUSH	ESI
 	LEA	EBX,DWORD [-300+EBP]
 	PUSH	0
-	PUSH	LC2
+	PUSH	LC1
 	CALL	_hrb_api_fopen
 	XOR	EAX,EAX
 	CLD
@@ -377,7 +365,7 @@ L72:
 	REP
 	STOSD
 	PUSH	DWORD [8+EBP]
-	PUSH	LC3
+	PUSH	LC2
 	MOV	EDI,EBX
 	PUSH	EBX
 	CALL	_sprintf
@@ -402,4 +390,4 @@ L72:
 [SECTION .data]
 	ALIGNB	16
 _dbg:
-	RESB	36
+	RESB	33

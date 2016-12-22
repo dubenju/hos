@@ -17,7 +17,7 @@ _console_task:
 	call	_task_now
 	movl	%eax, %edi
 	movl	%ebx, -44(%ebp)
-	movl	4072, %eax
+	movl	1512, %eax
 	testl	%ebx, %ebx
 	movl	%eax, -528(%ebp)
 	leal	-44(%ebp), %eax
@@ -1302,8 +1302,8 @@ _cmd_exit:
 	pushl	%eax
 	movl	8(%ebp), %ebx
 	call	_task_now
-	movl	4068, %esi
-	movl	4076, %edi
+	movl	1508, %esi
+	movl	1516, %edi
 	movl	%eax, -16(%ebp)
 	cmpl	$0, (%ebx)
 	je	L224
@@ -1335,9 +1335,9 @@ L227:
 L225:
 	movl	-16(%ebp), %eax
 	subl	_taskctl, %eax
-	subl	$4088, %eax
-	sarl	$2, %eax
-	imull	$-1944890851, %eax, %eax
+	subl	$4085, %eax
+	sarl	%eax
+	imull	$-654471207, %eax, %eax
 	addl	$1024, %eax
 	jmp	L230
 	.balign 2
@@ -1353,7 +1353,7 @@ _cmd_start:
 	pushl	%edi
 	movl	8(%ebp), %eax
 	movl	12(%ebp), %edi
-	movl	4068, %esi
+	movl	1508, %esi
 	movl	%eax, -16(%ebp)
 	pushl	16(%ebp)
 	pushl	%esi
@@ -2020,7 +2020,7 @@ _cmd_tasklst:
 	cld
 	movl	(%edx), %eax
 	imull	$408, %eax, %eax
-	leal	8(%eax,%edx), %eax
+	leal	5(%eax,%edx), %eax
 	movl	%eax, -116(%ebp)
 	leal	-92(%ebp), %eax
 	movl	%eax, -120(%ebp)
@@ -2085,20 +2085,21 @@ _cmd_tasklst:
 L295:
 	movl	%esi, %eax
 	addl	_taskctl, %eax
-	cmpl	$0, 4092(%eax)
+	addl	$4080, %eax
+	cmpl	$0, 9(%eax)
 	je	L289
 	movb	$0, -108(%ebp)
-	cmpl	$2, 4092(%eax)
+	cmpl	$2, 9(%eax)
 	je	L298
 L292:
 	movl	%esi, %eax
 	addl	_taskctl, %eax
-	cmpl	$1, 4092(%eax)
+	cmpl	$1, 4089(%eax)
 	je	L299
 L293:
 	movl	%esi, %eax
 	addl	_taskctl, %eax
-	cmpl	$0, 4092(%eax)
+	cmpl	$0, 4089(%eax)
 	je	L300
 L294:
 	leal	-92(%ebp), %edx
@@ -2112,19 +2113,19 @@ L294:
 	stosl
 	movl	%esi, %edx
 	addl	_taskctl, %edx
-	leal	4256(%edx), %ecx
-	movzbl	21(%ecx), %eax
+	movzbl	4274(%edx), %eax
 	pushl	%eax
-	movzbl	20(%ecx), %eax
+	movzbl	4273(%edx), %eax
 	pushl	%eax
 	leal	-108(%ebp), %eax
 	pushl	%eax
-	leal	4278(%edx), %eax
+	leal	4275(%edx), %eax
 	pushl	%eax
+	leal	4080(%edx), %eax
+	pushl	17(%eax)
+	pushl	13(%eax)
 	movl	-112(%ebp), %eax
-	pushl	4100(%edx)
-	pushl	4096(%edx)
-	pushl	4272(%edx)
+	pushl	4269(%edx)
 	incl	%eax
 	pushl	%eax
 	pushl	$LC70
@@ -2138,7 +2139,7 @@ L294:
 	popl	%eax
 L289:
 	incl	-112(%ebp)
-	addl	$212, %esi
+	addl	$210, %esi
 	cmpl	$999, -112(%ebp)
 	jle	L295
 	pushl	8(%ebp)
@@ -2240,13 +2241,13 @@ L303:
 L304:
 	movl	_timerctl+8, %eax
 	xorl	%esi, %esi
-	pushl	16(%eax)
+	pushl	14(%eax)
 	movsbl	9(%eax),%edx
 	pushl	%edx
 	leal	-108(%ebp), %edx
 	pushl	%edx
 	pushl	4(%eax)
-	addl	$20, %eax
+	addl	$18, %eax
 	pushl	%eax
 	pushl	$LC76
 	pushl	%ebx
@@ -2285,12 +2286,12 @@ L312:
 	leal	-92(%ebp), %ebx
 	rep
 	stosl
-	pushl	_timerctl+28(%esi)
+	pushl	_timerctl+26(%esi)
 	movsbl	_timerctl+21(%esi),%eax
 	pushl	%eax
 	leal	-108(%ebp), %eax
 	pushl	%eax
-	leal	_timerctl+32(%esi), %eax
+	leal	_timerctl+30(%esi), %eax
 	pushl	_timerctl+16(%esi)
 	pushl	%eax
 	pushl	$LC79
@@ -2301,7 +2302,7 @@ L312:
 	call	_cons_putstr0
 	addl	$36, %esp
 L307:
-	addl	$36, %esi
+	addl	$34, %esi
 	decl	-112(%ebp)
 	jns	L313
 	pushl	8(%ebp)
@@ -2394,11 +2395,11 @@ _cmd_sheetlst:
 	pushl	%esi
 	pushl	%ebx
 	leal	-92(%ebp), %ebx
-	subl	$100, %esp
+	subl	$104, %esp
 	pushl	$LC80
 	pushl	8(%ebp)
 	call	_cons_putstr0
-	movl	4068, %esi
+	movl	1508, %esi
 	movb	$0, -92(%ebp)
 	pushl	(%esi)
 	pushl	$LC81
@@ -2458,6 +2459,8 @@ L328:
 	cmpl	$0, 1072(%esi)
 	je	L335
 L329:
+	leal	1072(%esi), %eax
+	movl	%eax, -116(%ebp)
 	movl	1080(%esi), %eax
 	testl	%eax, %eax
 	jne	L336
@@ -2469,8 +2472,9 @@ L330:
 	leal	-92(%ebp), %ebx
 	rep
 	stosl
+	movl	-116(%ebp), %eax
+	pushl	12(%eax)
 	leal	-108(%ebp), %eax
-	pushl	1084(%esi)
 	pushl	%eax
 	movl	-112(%ebp), %eax
 	pushl	1060(%esi)
@@ -2844,7 +2848,7 @@ L382:
 	pushl	$4
 	pushl	$27
 	call	_start_app
-	movl	4068, %ebx
+	movl	1508, %ebx
 	addl	$20, %esp
 	addl	$1044, %ebx
 L372:
@@ -2943,13 +2947,13 @@ _hrb_api:
 	movl	16(%ebp), %esi
 	call	_task_now
 	cmpl	$1, %ebx
-	movl	4068, %ecx
+	movl	1508, %ecx
 	movl	%eax, -16(%ebp)
 	movl	%ecx, -24(%ebp)
 	movl	168(%eax), %eax
 	movl	-16(%ebp), %edx
 	movl	%eax, -20(%ebp)
-	movl	4076, %eax
+	movl	1516, %eax
 	movl	164(%edx), %edi
 	movl	%eax, -28(%ebp)
 	je	L509

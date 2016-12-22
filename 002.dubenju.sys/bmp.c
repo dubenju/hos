@@ -8,7 +8,8 @@ void bmp_conv(int xsize, int ysize, unsigned short *vram) {
   struct FILEHANDLE fh;
   int i, j, p, q;
   long fwidth = xsize + ((4 - (xsize % 4)) % 4);
-  struct SHTCTL *ctl = (struct SHTCTL *) *((int *) 0x0fe4);
+  //struct SHTCTL *ctl = (struct SHTCTL *) *((int *) 0x0fe4);
+    struct SHTCTL *ctl = (struct SHTCTL *) *((int *) ADR_SHTCTL);
   struct MEMMAN *memman = (struct MEMMAN *) MEMMAN_ADDR;
   unsigned char *bmpbuf = (unsigned char *) memman_alloc_4k(memman, fwidth * ysize * 3);
 

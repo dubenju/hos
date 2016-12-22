@@ -38,7 +38,7 @@ void console_task(struct SHEET *sheet, int memtotal) {
   struct CONSOLE cons;
   struct FILEHANDLE fhandle[8];
   char cmdline[256];  /* char cmdline[30]; */
-  unsigned char *nihongo = (char *) *((int *) 0x0fe8);
+  unsigned char *nihongo = (char *) *((int *) ADR_LANG);
   int i;
 
   cons.sht = sheet;
@@ -431,8 +431,8 @@ void cmd_dir(struct CONSOLE *cons) {
 void cmd_exit(struct CONSOLE *cons, int *fat) {
 /*  struct MEMMAN *memman = (struct MEMMAN *) MEMMAN_ADDR; */
   struct TASK *task = task_now();
-  struct SHTCTL *shtctl = (struct SHTCTL *) *((int *) 0x0fe4);
-  struct FIFO32 *fifo = (struct FIFO32 *) *((int *) 0x0fec);
+  struct SHTCTL *shtctl = (struct SHTCTL *) *((int *) ADR_SHTCTL);
+  struct FIFO32 *fifo = (struct FIFO32 *) *((int *) ADR_FIFO);
   if (cons->sht != 0) {
     timer_cancel(cons->timer);
   }
@@ -450,7 +450,7 @@ void cmd_exit(struct CONSOLE *cons, int *fat) {
 }
 
 void cmd_start(struct CONSOLE *cons, char *cmdline, int memtotal){
-  struct SHTCTL *shtctl = (struct SHTCTL *) *((int *) 0x0fe4);
+  struct SHTCTL *shtctl = (struct SHTCTL *) *((int *) ADR_SHTCTL);
   struct SHEET *sht = open_console(shtctl, memtotal);
   struct FIFO32 *fifo = &sht->task->fifo;
   int i;
@@ -762,7 +762,7 @@ void cmd_sheetlst(struct CONSOLE *cons, char *cmdline) {
 
 	cons_putstr0(cons, "Information of SHEETCTL:\n");
 
-	struct SHTCTL *ctl = (struct SHTCTL *) *((int *) 0x0fe4);
+	struct SHTCTL *ctl = (struct SHTCTL *) *((int *) ADR_SHTCTL);
 
 	msg[0]= 0;
 
@@ -936,7 +936,7 @@ int cmd_app(struct CONSOLE *cons, int *fat, char *cmdline) {
         q[esp + i] = p[dathrb + i];
       }
       start_app(0x1b, 0 * 8 + 4, esp, 1 * 8 + 4, &(task->tss.esp0));
-      shtctl = (struct SHTCTL *) *((int *) 0x0fe4);
+      shtctl = (struct SHTCTL *) *((int *) ADR_SHTCTL);
       for (i = 0; i < MAX_SHEETS; i++) {
         sht = &(shtctl->sheets0[i]);
         if ((sht->flags & 0x11) == 0x11 && sht->task == task) {
@@ -968,9 +968,9 @@ int *hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int 
   struct TASK *task = task_now();
   int ds_base = task->ds_base;
   struct CONSOLE *cons = task->cons;
-  struct SHTCTL *shtctl = (struct SHTCTL *) *((int *) 0x0fe4);
+  struct SHTCTL *shtctl = (struct SHTCTL *) *((int *) ADR_SHTCTL);
   struct SHEET *sht;
-  struct FIFO32 *sys_fifo = (struct FIFO32 *) *((int *) 0x0fec);
+  struct FIFO32 *sys_fifo = (struct FIFO32 *) *((int *) ADR_FIFO);
   int *reg = &eax + 1;	/* eax‚ÌŸ‚Ì”Ô’n */
     /* •Û‘¶‚Ì‚½‚ß‚ÌPUSHAD‚ğ‹­ˆø‚É‘‚«Š·‚¦‚é */
     /* reg[0] : EDI,   reg[1] : ESI,   reg[2] : EBP,   reg[3] : ESP */

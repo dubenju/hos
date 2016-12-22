@@ -1,7 +1,7 @@
 ; asm head
 ; TAB=4
 
-[INSTRSET "i486p"]				; 486の命令まで使いたいという記述
+[INSTRSET "i486p"]                      ; 486の命令まで使いたいという記述
 
 VBEMODE EQU 0x111
 ;  0x100 :  640 x  400 x 8bit Color
@@ -22,63 +22,63 @@ VBEMODE EQU 0x111
 ;#00083
 ;Values for VESA video mode:
 ; 00h-FFh OEM video modes (see #00010 at AH=00h)
-; 100h	640x400x256
-; 101h	640x480x256
-; 102h	800x600x16
-; 103h	800x600x256
-; 104h	1024x768x16
-; 105h	1024x768x256
-; 106h	1280x1024x16
-; 107h	1280x1024x256
-; 108h	80x60 text
-; 109h	132x25 text
-; 10Ah	132x43 text
-; 10Bh	132x50 text
-; 10Ch	132x60 text
+; 100h  640x400x256
+; 101h  640x480x256
+; 102h  800x600x16
+; 103h  800x600x256
+; 104h  1024x768x16
+; 105h  1024x768x256
+; 106h  1280x1024x16
+; 107h  1280x1024x256
+; 108h  80x60 text
+; 109h  132x25 text
+; 10Ah  132x43 text
+; 10Bh  132x50 text
+; 10Ch  132x60 text
 ;---VBE v1.2+ ---
-; 10Dh	320x200x32K
-; 10Eh	320x200x64K
-; 10Fh	320x200x16M
-; 110h	640x480x32K
-; 111h	640x480x64K
-; 112h	640x480x16M
-; 113h	800x600x32K
-; 114h	800x600x64K
-; 115h	800x600x16M
-; 116h	1024x768x32K
-; 117h	1024x768x64K
-; 118h	1024x768x16M
-; 119h	1280x1024x32K (1:5:5:5)
-; 11Ah	1280x1024x64K (5:6:5)
-; 11Bh	1280x1024x16M
+; 10Dh  320x200x32K
+; 10Eh  320x200x64K
+; 10Fh  320x200x16M
+; 110h  640x480x32K
+; 111h  640x480x64K
+; 112h  640x480x16M
+; 113h  800x600x32K
+; 114h  800x600x64K
+; 115h  800x600x16M
+; 116h  1024x768x32K
+; 117h  1024x768x64K
+; 118h  1024x768x16M
+; 119h  1280x1024x32K (1:5:5:5)
+; 11Ah  1280x1024x64K (5:6:5)
+; 11Bh  1280x1024x16M
 ;---VBE 2.0+ ---
-; 120h	1600x1200x256
-; 121h	1600x1200x32K
-; 122h	1600x1200x64K
-;81FFh	special full-memory access mode
-;Notes:	the special mode 81FFh preserves the contents of the video memory and
-;	  gives access to all of the memory; VESA recommends that the special
-;	  mode be a packed-pixel mode.	For VBE 2.0+, it is required that the
-;	  VBE implement the mode, but not place it in the list of available
-;	  modes (mode information for this mode can be queried directly,
-;	  however).
-;	as of VBE 2.0, VESA will no longer define video mode numbers
+; 120h  1600x1200x256
+; 121h  1600x1200x32K
+; 122h  1600x1200x64K
+
+;81FFh  special full-memory access mode
+;Notes: the special mode 81FFh preserves the contents of the video memory and
+;       gives access to all of the memory; VESA recommends that the special
+;       mode be a packed-pixel mode. For VBE 2.0+, it is required that the
+;       VBE implement the mode, but not place it in the list of available
+;       modes (mode information for this mode can be queried directly, however).
+;       as of VBE 2.0, VESA will no longer define video mode numbers
 
 
-BOTPAK	EQU		0x00280000		; bootpackのロード先
-DSKCAC	EQU		0x00100000		; ディスクキャッシュの場所
-DSKCAC0	EQU		0x00000900		; ディスクキャッシュの場所（リアルモード）
+BOTPAK  EQU     0x00280000      ; bootpackのロード先
+DSKCAC  EQU     0x00100000      ; disk cacheの場所
+DSKCAC0 EQU     0x00000600      ; disk cacheの場所（リアルモード）
 
 ; BOOT_INFO関係
-CYLS	EQU		0x05f0			; ブートセクタが設定する
-LEDS	EQU		0x05f1
-VMODE	EQU		0x05f2			; 色数に関する情報。何ビットカラーか？
-SCRNX	EQU		0x05f4			; 解像度のX
-SCRNY	EQU		0x05f6			; 解像度のY
-VRAM	EQU		0x05f8			; グラフィックバッファの開始番地
+CYLS    EQU     0x05f0          ; ブートセクタが設定する
+LEDS    EQU     0x05f1          ; 
+VMODE   EQU     0x05f2          ; 色数に関する情報。何ビットカラーか？
+SCRNX   EQU     0x05f4          ; 解像度のX
+SCRNY   EQU     0x05f6          ; 解像度のY
+VRAM    EQU     0x05f8          ; グラフィックバッファの開始番地
 
-		ORG		0x7F00
-		MOV		BYTE  [CYLS],1 
+        ORG     0x7F00
+        MOV     BYTE  [CYLS],1 
 
 ;INT 10 - VESA SuperVGA BIOS (VBE) - GET SuperVGA INFORMATION
 ;	AX = 4F00h
@@ -142,22 +142,22 @@ VRAM	EQU		0x05f8			; グラフィックバッファの開始番地
 ;	  modes is empty (consisting of a single word of FFFFh)
 
 
-		MOV		AX,9000H
-		MOV		ES,AX
-		MOV		DI,0000H
+        MOV		AX,9000H
+        MOV		ES,AX
+        MOV		DI,0000H
 ;Check VESA
-		MOV		AX,4F00H
-		INT		10H
-		CMP		AX,004FH
+        MOV     AX,4F00H                ; Get VESA mode information
+        INT     10H
+        CMP     AX,004FH
 ;		JNE		scrn320
-		JNE		scrn640 ; <>
+        JNE     scrn640 ; <>
 
 ;successful
 
-		MOV		AX,[ES:DI+04H] ; VESA version number
-		CMP		AX,0200H
+        MOV     AX,[ES:DI+04H]          ; VESA version number
+        CMP     AX,0200H
 ;		JB		scrn320
-		JB		scrn640 ; < 2.00
+        JB      scrn640                 ; < 2.00
 
 ;INT 10 - VESA SuperVGA BIOS - GET SuperVGA MODE INFORMATION
 ;
@@ -241,19 +241,20 @@ VRAM	EQU		0x05f8			; グラフィックバッファの開始番地
 ;	  should clear the buffer before calling
 
 
-		MOV		CX, VBEMODE
-		MOV		AX, 4F01H                ; Get VESA mode information
-		INT		10H
-		CMP		AX, 004FH
+        MOV     CX, VBEMODE
+        MOV     AX, 4F01H               ; Get VESA mode information
+        INT     10H
+        CMP     AX, 004FH
 ;		JNE		scrn320
-		JNE		scrn640 ; <>
+        JNE     scrn640                 ; <>
 
 ; successful
 
-;		CMP		BYTE [ES:DI+0x19], 08H   ;number of bits per pixel
-		CMP		BYTE [ES:DI+0x19], 10H
-;		JNE		scrn320
-		JNE		scrn640 ; <> 16 bit
+;;		CMP		BYTE [ES:DI+0x19], 08H  ; number of bits per pixel
+;        CMP     BYTE [ES:DI+0x19], 10H  ; number of bits per pixel
+;;		JNE		scrn320
+;        JNE     fin
+;        JNE     scrn640                 ; <> 16 bit
 
 ;#00082
 ;Values for VESA SuperVGA memory model type:
@@ -301,17 +302,16 @@ VRAM	EQU		0x05f8			; グラフィックバッファの開始番地
 ;		JZ		scrn320
 		JZ		scrn640
 
-;		MOV		BYTE [VMODE],8
-		MOV		BYTE [VMODE],16
-;		MOV		BYTE [VMODE],24
-		MOV		AX, [ES:DI+0x12]  ; width in pixels (graphics) or characters (text)
-		MOV		[SCRNX], AX
-		MOV		AX,[ES:DI+0x14]  ; height in pixels (graphics) or characters (text)
-		MOV		[SCRNY],AX
-		MOV		EAX, [ES:DI+0x28] ; physical address of linear video buffer
-		MOV		[VRAM], EAX
-;		MOV		DWORD [VRAM], 000A0000H
 
+        MOV     AL, [ES:DI+0x19]        ; number of bits per pixel Color depth
+        MOV     [VMODE], AL
+        MOV     AX, [ES:DI+0x12]  ; width in pixels (graphics) or characters (text)
+        MOV     [SCRNX], AX
+        MOV     AX,[ES:DI+0x14]  ; height in pixels (graphics) or characters (text)
+        MOV     [SCRNY],AX
+        MOV     EAX, [ES:DI+0x28] ; physical address of linear video buffer
+        MOV     [VRAM], EAX
+;       JMP     fin
 
 ;INT 10 - VESA SuperVGA BIOS - SET SuperVGA VIDEO MODE
 ;
@@ -350,12 +350,16 @@ VRAM	EQU		0x05f8			; グラフィックバッファの開始番地
 ;SeeAlso: #00083,#00191,#00732 at INT 1A/AX=B102h
 ;Index:	video modes;S3
 
-		MOV		BX, VBEMODE + 4000H
-		MOV		AX,4F02H          ; Set VBE mode
-		INT		10H
-		CMP		AX, 004FH
-;		JE		fin
-;		JE		scrn640           ; ★
+; Input: BX = 
+; Bits 0-13 mode number; 
+; bit 14 is the LFB bit: when set, it enables the linear framebuffer, when clear, software must use bank switching. 
+; Bit 15 is the DM bit: when set, the BIOS doesn't clear the screen. Bit 15 is usually ignored and should always be cleared.
+        MOV     BX, VBEMODE + 4000H
+        MOV     AX,4F02H                ; Set VBE mode
+        INT     10H
+        CMP     AX, 004FH
+;		JNE		fin
+        JNE     scrn640                 ; ★
 
 ;#04083
 ;Format of VESA VBE CRTC Information Block:
@@ -375,7 +379,10 @@ VRAM	EQU		0x05f8			; グラフィックバッファの開始番地
 ; 13h 40 BYTEs	reserved
 
 
-		JMP		keystatus
+
+
+
+        JMP     keystatus
 ;		jmp		fin
 
 ;scrn320:
@@ -403,73 +410,251 @@ scrn640:
 keystatus:
 
 
-		MOV		AH,02H
-		INT		16H			; keyboard BIOS
+        MOV     AH,02H
+        INT     16H                     ; keyboard BIOS
 ;H->L:Ins、Caps Lock、Num Lock、Scroll Lock、Alt、Ctrl、Left Shift、Right Shift
-		MOV		[LEDS],AL  ; 05f1
+        MOV     [LEDS],AL  ; 05f1
 
 ; PICが一切の割り込みを受け付けないようにする
 ;	AT互換機の仕様では、PICの初期化をするなら、
 ;	こいつをCLI前にやっておかないと、たまにハングアップする
 ;	PICの初期化はあとでやる
 
-		MOV		AL,0xff
-		OUT		0x21,AL
-		NOP						; OUT命令を連続させるとうまくいかない機種があるらしいので
-		OUT		0xa1,AL
+        MOV     AL,0FFH
+        OUT     21H,AL
+        NOP                             ; OUT命令を連続させるとうまくいかない機種があるらしいので
+        OUT     0A1H,AL
 
-		CLI						; さらにCPUレベルでも割り込み禁止
-
+        CLI                             ; さらにCPUレベルでも割り込み禁止
 ; CPUから1MB以上のメモリにアクセスできるように、A20GATEを設定
+        IN  AL , 92H
+        OR  AL , 02H     ; enable A20
+        OUT 92H, AL
 
-               IN  AL , 92H
-               OR  AL , 02H     ; enable A20
-               OUT 92H, AL
+;RD_FAT_TBL:
+;;先选择通道(Primary or Secondary), 并检查硬盘是否忙，忙则等待
+;      mov dx,0x1f7
+;     .waits:
+;         in al,dx
+;         and al,0x88
+;;jmp fin
+;         cmp al,0x80
+;         jz .waits
+;;jmp fin
+;
+;;往该通道的sector count寄存器中写入待操作的扇区数
+;            mov dx,0x1f2
+;            mov al,[7C16H] ;bsSECTORS_PER_FATF DW  ;1 个扇区 ??
+;            out dx,al
+;
+;;往该通道上的三个LBA寄存器写入扇区起始地址的低24位
+;;往device寄存器中写入LBA地址的24~27位, 并置第6位为1(LBA模式), 选择操作的硬盘(master or slave)
+;        mov dx,0x1f3
+;        mov al,[060CH] ;0x02                       ;
+;        out dx,al ;LBA 地址 7～0
+; 
+;        inc dx ;0x1f4
+;        mov al,[060DH]; 0x00                       ;
+;        out dx,al ;LBA 地址 15～8
+;
+;        inc dx ;0x1f5
+;        mov al,[060EH];                    ;
+;        out dx,al ;LBA 地址 23～16
+;
+;        inc dx ;0x1f6
+;                                        ;
+;        ;mov al,0xe0 ;LBA模式，主硬盘，以及 LBA 地址 27～24
+;        mov al,[060FH];                    ;
+;        OR AL, 0F0H
+;        AND AL, 0E0H
+;        out dx,al
+;
+;;往该通道上的command寄存器写入操作命令
+;       mov dx,0x1f7
+;       mov al,0x20   ;读命令
+;       out dx,al
+;
+;;读取该通道上的status寄存器, 判断硬盘工作是否完成
+;      mov dx,0x1f7
+;     .waits2:
+;         in al,dx
+;         and al,0x88
+;         cmp al,0x80
+;         jz .waits2
+;
+;;如果以上步骤是读硬盘, 进入下一个步骤。否则, 完工
+;;将硬盘数据读出DS:BX
+;push ds
+;        mov ax, 0000H
+;        mov es, ax
+;        mov ax, 1000H
+;        mov ds, ax
+;        mov ax, [es:7C16H] ; bsSECTORS_PER_FAT
+;;jmp fin
+;        mov BX, 0200H
+;        mov dx,0x1f0
+;    .readns:
+;push ax
+;        mov cx,512   ;总共要读取的字数
+;    .readw:
+;        in ax,dx
+;        mov  [bx],ax
+;        add bx,2
+;        loop .readw
+;;jmp fin
+;pop ax
+;        dec ax
+;        cmp ax, 00h
+;        jnz .readns
+;pop ds
 
+;;------------------------------------------------------;----------------
+;                            MOV  AX, [7C16H] ;bsSECTORS_PER_FAT
+;                            MOV  [7C42H], AX        ; dapSECTORS_READREAD FATTABLE SECTOR CUONT
+;                            MOV  DX,  [060EH]
+;                            MOV  AX,  [060CH]
+;                            MOV  WORD [7C44H], 0200H      ; dapOFFSET 0000:4800 FATTABLE
+;                            MOV  WORD [7C46H], 0100H      ; dapOFFSET 0000:4800 FATTABLE
+;                            MOV  [7C4AH], DX ; dapLHLBA
+;                            MOV  [7C48H], AX ; dapLLLBA
+;;jmp fin
+;                            CALL WORD READ_SECTOR             ; ES:BX0000:4800 = FATTABLE
+;
+;jmp fin
 
 
 ; プロテクトモード移行
-
-
-		LGDT	[GDTR0]			; 暫定GDTを設定
-		MOV		EAX,CR0
-		AND		EAX,0x7fffffff	; bit31を0にする（ページング禁止のため）
-		OR		EAX,0x00000001	; bit0を1にする（プロテクトモード移行のため）
-		MOV		CR0,EAX
-		JMP		pipelineflush
+        LGDT	[GDTR0]			; 暫定GDTを設定
+        MOV		EAX,CR0
+        AND		EAX,0x7fffffff	; bit31を0にする（ページング禁止のため）
+        OR		EAX,0x00000001	; bit0を1にする（プロテクトモード移行のため）
+        MOV		CR0,EAX
+        JMP		pipelineflush
 pipelineflush:
-		MOV		AX,1*8			;  読み書き可能セグメント32bit
-		MOV		DS,AX
-		MOV		ES,AX
-		MOV		FS,AX
-		MOV		GS,AX
-		MOV		SS,AX
+        MOV		AX,1*8			;  読み書き可能セグメント32bit
+        MOV		DS,AX
+        MOV		ES,AX
+        MOV		FS,AX
+        MOV		GS,AX
+        MOV		SS,AX
 
 ; bootpackの転送
 
-		MOV		ESI,bootpack	; 転送元
-		MOV		EDI,BOTPAK	; 転送先 0x00280000
-		MOV		ECX,512*1024/4
-		CALL	memcpy
+        MOV		ESI,bootpack	; 転送元
+        MOV		EDI,BOTPAK	; 転送先 0x00280000
+        MOV		ECX,512 * 1024 / 4
+        CALL	memcpy
+
+    mov cx, 2
+;    push ds
+;;    push es
+;;        mov ax, 0000H
+;;        mov es, ax
+;rd_bootpack:
+;;先选择通道(Primary or Secondary), 并检查硬盘是否忙，忙则等待
+;      mov dx,0x1f7
+;     .waitsbp:
+;         in al,dx
+;         and al,0x80
+;         cmp al,0x80
+;         jz .waitsbp
+;
+;
+;;往该通道的sector count寄存器中写入待操作的扇区数
+;            mov dx,0x1f2
+;            mov al,0FFH;[7C16H] ;bsSECTORS_PER_FATF DW  ;1 个扇区 ??
+;            out dx,al
+;
+;;往该通道上的三个LBA寄存器写入扇区起始地址的低24位
+;;往device寄存器中写入LBA地址的24~27位, 并置第6位为1(LBA模式), 选择操作的硬盘(master or slave)
+;        mov dx,0x1f3
+;        mov al,[es:0616H] ;0x02                       ;
+;        out dx,al ;LBA 地址 7～0
+; 
+;        inc dx ;0x1f4
+;        mov al,[es:0617H]; 0x00                       ;
+;        out dx,al ;LBA 地址 15～8
+;
+;        inc dx ;0x1f5
+;        mov al,[es:0618H];                    ;
+;        out dx,al ;LBA 地址 23～16
+;
+;        inc dx ;0x1f6
+;                                        ;
+;        ;mov al,0xe0 ;LBA模式，主硬盘，以及 LBA 地址 27～24
+;        mov al,[es:0619H];                    ;
+;        OR AL, 0F0H
+;        AND AL, 0E0H
+;        out dx,al
+;;jmp fin
+;;往该通道上的command寄存器写入操作命令
+;       mov dx,0x1f7
+;       mov al,0x20   ;读命令
+;       out dx,al
+;
+;;读取该通道上的status寄存器, 判断硬盘工作是否完成
+;      mov dx,0x1f7
+;     .waits2bp:
+;         in al,dx
+;         and al,0x80
+;;jmp fin
+;;         cmp al,0x80
+;         jnz .waits2bp
+;
+;;如果以上步骤是读硬盘, 进入下一个步骤。否则, 完工
+;;将硬盘数据读出DS:BX
+;push cx
+;
+;;        mov eax, 28000H
+;;        mov ds, eax
+;;jmp fin
+;        mov ax, 0FFH ;[es:7C16H] ;bsSECTORS_PER_FAT
+;
+;        mov EBX, 280000H
+;        mov dx,0x1f0
+;    .readnsbp:
+;push ax
+;        mov cx,256   ;总共要读取的字数
+;    .readwbp:
+;        in ax,dx
+;        mov  [bx],ax
+;        add bx,2
+;        loop .readwbp
+;jmp fin
+;pop ax
+;        dec ax
+;        cmp ax, 00h
+;        jnz .readnsbp
+;pop cx
+;
+;mov eax, [es:0616H]
+;;jmp fin
+;sub eax, 0FFH
+;mov [es:0616H], ax
+;;jmp fin
+;        loop rd_bootpack
+;        pop ds
+;;        pop es
 
 ; ついでにディスクデータも本来の位置へ転送
 
 ; まずはブートセクタから
 
-		MOV		ESI,0700H	; 転送元
-		MOV		EDI,DSKCAC	; 転送先 0x00100000
-		MOV		ECX,512/4
-		CALL	memcpy
+        MOV		ESI,0600H	; 転送元 0600-0700
+        MOV		EDI,DSKCAC	; 転送先 0x00100000
+        MOV		ECX,512 / 4
+        CALL	memcpy
 
 ; 残り全部
 
-		MOV		ESI,DSKCAC0+512	; 転送元 0x00008000 0x00000900
-		MOV		EDI,DSKCAC +512	; 転送先 0x00100000
-		MOV		ECX,0
-		MOV		CL,BYTE [CYLS]
-		IMUL	ECX,512*18*2/4	; シリンダ数からバイト数/4に変換
-		SUB		ECX,512/4		; IPLの分だけ差し引く
-		CALL	memcpy
+        MOV     ESI,DSKCAC0+512	; 転送元 0x00000800 0x00000900
+        MOV     EDI,DSKCAC +512	; 転送先 0x00100000 FAT
+        MOV     ECX,0
+        MOV      CL,BYTE [CYLS]
+        IMUL    ECX,512*18*2/4	; シリンダ数からバイト数/4に変換
+        SUB     ECX,512/4		; IPLの分だけ差し引く
+        CALL    memcpy
+
 
 ; asmheadでしなければいけないことは全部し終わったので、
 ;	あとはbootpackに任せる
@@ -506,10 +691,21 @@ memcpy:
 		RET
 ; memcpyはアドレスサイズプリフィクスを入れ忘れなければ、ストリング命令でも書ける
 
+;READ_SECTOR:
+;                            MOV AX, 00H
+;                            MOV DS, AX
+;                            MOV AH, 42H
+;                            MOV DL, [7C24H]       ;(DL)=驱动器号
+;                            MOV SI, [7C40H]
+;                            INT 13H
+;jmp fin
+;RETURN_PRC:
+;                            RET
 
-;fin:
+fin:
 ;		HLT
-;		JMP		fin
+;        MOV BX, 55H
+		JMP		fin
 
 
 		ALIGNB	16
@@ -525,5 +721,6 @@ GDTR0:
 		DW		8*3-1 ; limit 8 * n - 1
 		DD		GDT0  ; base
 
+TIMES 1024 - ( $ - $$) DB 00
 		ALIGNB	16
 bootpack:

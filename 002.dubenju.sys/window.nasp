@@ -4,7 +4,6 @@
 [OPTION 1]
 [BITS 32]
 	EXTERN	_boxfill8
-	EXTERN	_dbg_putstr0
 	EXTERN	_putfonts8_asc
 	EXTERN	_table_16_65536
 	EXTERN	_task_now
@@ -86,11 +85,8 @@ _make_window8:
 	PUSH	EBX
 	PUSH	ESI
 	CALL	_boxfill8
-	ADD	ESP,56
-	PUSH	8
-	PUSH	DWORD [-20+EBP]
-	CALL	_dbg_putstr0
 	MOV	EAX,DWORD [-16+EBP]
+	ADD	ESP,56
 	SUB	EAX,3
 	PUSH	EAX
 	LEA	EAX,DWORD [-3+EBX]
@@ -101,7 +97,6 @@ _make_window8:
 	PUSH	EBX
 	PUSH	ESI
 	CALL	_boxfill8
-	ADD	ESP,36
 	PUSH	EDI
 	PUSH	DWORD [-32+EBP]
 	PUSH	EDI
@@ -110,6 +105,7 @@ _make_window8:
 	PUSH	EBX
 	PUSH	ESI
 	CALL	_boxfill8
+	ADD	ESP,56
 	PUSH	DWORD [-36+EBP]
 	PUSH	DWORD [-28+EBP]
 	PUSH	DWORD [-36+EBP]
@@ -122,7 +118,7 @@ _make_window8:
 	MOV	EAX,DWORD [-24+EBP]
 	MOV	DWORD [12+EBP],EBX
 	MOV	DWORD [20+EBP],EAX
-	ADD	ESP,56
+	ADD	ESP,28
 	MOV	EAX,DWORD [-20+EBP]
 	MOV	DWORD [16+EBP],EAX
 	LEA	ESP,DWORD [-12+EBP]

@@ -15,7 +15,7 @@ _bmp_conv:
 	movl	$4, %ebx
 	subl	$116, %esp
 	movl	8(%ebp), %esi
-	movl	4068, %ecx
+	movl	1508, %ecx
 	movl	%esi, %eax
 	movl	%ecx, -124(%ebp)
 	cltd

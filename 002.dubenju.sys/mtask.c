@@ -65,59 +65,58 @@ void task_switchsub(void) {
   return;
 }
 
-void task_idle(void)
-{
-	for (;;) {
-		io_hlt();
-	}
+void task_idle(void) {
+    for (;;) {
+        io_hlt();
+    }
 }
 
 struct TASK *task_init(struct MEMMAN *memman) {
-  int i;
-  struct TASK *task, *idle;
-  struct SEGMENT_DESCRIPTOR *gdt = (struct SEGMENT_DESCRIPTOR *) ADR_GDT;
+    int i;
+    struct TASK *task, *idle;
+    struct SEGMENT_DESCRIPTOR *gdt = (struct SEGMENT_DESCRIPTOR *) ADR_GDT;
 
-  taskctl = (struct TASKCTL *) memman_alloc_4k(memman, sizeof (struct TASKCTL));
-  for (i = 0; i < MAX_TASKS; i++) {
-    taskctl->tasks0[i].flags = 0;
-    taskctl->tasks0[i].sel = (TASK_GDT0 + i) * 8;
-    taskctl->tasks0[i].tss.ldtr = (TASK_GDT0 + MAX_TASKS + i) * 8;
-    set_segmdesc(gdt + TASK_GDT0 + i, 103, (int) &taskctl->tasks0[i].tss, AR_TSS32);
-    set_segmdesc(gdt + TASK_GDT0 + MAX_TASKS + i, 15, (int) taskctl->tasks0[i].ldt, AR_LDT);
-  }
-  for (i = 0; i < MAX_TASKLEVELS; i++) {
-    taskctl->level[i].running = 0;
-    taskctl->level[i].now = 0;
-  }
-  taskctl->alloc = 0;
-  taskctl->alive = 0;
+    taskctl = (struct TASKCTL *) memman_alloc_4k(memman, sizeof (struct TASKCTL));
+    for (i = 0; i < MAX_TASKS; i++) {
+        taskctl->tasks0[i].flags = 0;
+        taskctl->tasks0[i].sel = (TASK_GDT0 + i) * 8;
+        taskctl->tasks0[i].tss.ldtr = (TASK_GDT0 + MAX_TASKS + i) * 8;
+        set_segmdesc(gdt + TASK_GDT0 + i, 103, (int) &taskctl->tasks0[i].tss, AR_TSS32);
+        set_segmdesc(gdt + TASK_GDT0 + MAX_TASKS + i, 15, (int) taskctl->tasks0[i].ldt, AR_LDT);
+    }
+    for (i = 0; i < MAX_TASKLEVELS; i++) {
+        taskctl->level[i].running = 0;
+        taskctl->level[i].now = 0;
+    }
+    taskctl->alloc = 0;
+    taskctl->alive = 0;
 
-  task = task_alloc();
-  task->flags = 2;	/* 動作中マーク */
-  task->priority = 2;     /* 0.02秒 */
-  task->level = 0;	/* 最高レベル */
-  strcpy(task->name, "system");
-  task->time = 0;
-  task_add(task);
-  task_switchsub();	/* レベル設定 */
-  load_tr(task->sel);
-  task_timer = timer_alloc("tsy");
-  timer_settime(task_timer, task->priority);
+    task = task_alloc();
+    task->flags = 2;        /* 動作中マーク */
+    task->priority = 2;     /* 0.02秒 */
+    task->level = 0;        /* 最高レベル */
+    strcpy(task->name, "system");
+    task->time = 0;
+    task_add(task);
+    task_switchsub();	/* レベル設定 */
+    load_tr(task->sel);
+    task_timer = timer_alloc("tsy");
+    timer_settime(task_timer, task->priority);
 
-  idle = task_alloc();
-  idle->tss.esp = memman_alloc_4k(memman, 64 * 1024) + 64 * 1024;
-  idle->tss.eip = (int) &task_idle;
-  idle->tss.es = 1 * 8;
-  idle->tss.cs = 2 * 8;
-  idle->tss.ss = 1 * 8;
-  idle->tss.ds = 1 * 8;
-  idle->tss.fs = 1 * 8;
-  idle->tss.gs = 1 * 8;
-  strcpy(idle->name, "idle");
-  idle->time = 0;
-  task_run(idle, MAX_TASKLEVELS - 1, 1);
+    idle = task_alloc();
+    idle->tss.esp = memman_alloc_4k(memman, 64 * 1024) + 64 * 1024;
+    idle->tss.eip = (int) &task_idle;
+    idle->tss.es = 1 * 8;
+    idle->tss.cs = 2 * 8;
+    idle->tss.ss = 1 * 8;
+    idle->tss.ds = 1 * 8;
+    idle->tss.fs = 1 * 8;
+    idle->tss.gs = 1 * 8;
+    strcpy(idle->name, "idle");
+    idle->time = 0;
+    task_run(idle, MAX_TASKLEVELS - 1, 1);
 
-  return task;
+    return task;
 }
 
 struct TASK *task_alloc(void) {

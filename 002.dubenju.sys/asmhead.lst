@@ -1,7 +1,7 @@
      1 00000000                                 ; asm head
      2 00000000                                 ; TAB=4
      3 00000000                                 
-     4 00000000                                 [INSTRSET "i486p"]				; 486の命令まで使いたいという記述
+     4 00000000                                 [INSTRSET "i486p"]                      ; 486の命令まで使いたいという記述
      5 00000000                                 
      6  = 00000111                              VBEMODE EQU 0x111
      7 00000000                                 ;  0x100 :  640 x  400 x 8bit Color
@@ -22,63 +22,63 @@
     22 00000000                                 ;#00083
     23 00000000                                 ;Values for VESA video mode:
     24 00000000                                 ; 00h-FFh OEM video modes (see #00010 at AH=00h)
-    25 00000000                                 ; 100h	640x400x256
-    26 00000000                                 ; 101h	640x480x256
-    27 00000000                                 ; 102h	800x600x16
-    28 00000000                                 ; 103h	800x600x256
-    29 00000000                                 ; 104h	1024x768x16
-    30 00000000                                 ; 105h	1024x768x256
-    31 00000000                                 ; 106h	1280x1024x16
-    32 00000000                                 ; 107h	1280x1024x256
-    33 00000000                                 ; 108h	80x60 text
-    34 00000000                                 ; 109h	132x25 text
-    35 00000000                                 ; 10Ah	132x43 text
-    36 00000000                                 ; 10Bh	132x50 text
-    37 00000000                                 ; 10Ch	132x60 text
+    25 00000000                                 ; 100h  640x400x256
+    26 00000000                                 ; 101h  640x480x256
+    27 00000000                                 ; 102h  800x600x16
+    28 00000000                                 ; 103h  800x600x256
+    29 00000000                                 ; 104h  1024x768x16
+    30 00000000                                 ; 105h  1024x768x256
+    31 00000000                                 ; 106h  1280x1024x16
+    32 00000000                                 ; 107h  1280x1024x256
+    33 00000000                                 ; 108h  80x60 text
+    34 00000000                                 ; 109h  132x25 text
+    35 00000000                                 ; 10Ah  132x43 text
+    36 00000000                                 ; 10Bh  132x50 text
+    37 00000000                                 ; 10Ch  132x60 text
     38 00000000                                 ;---VBE v1.2+ ---
-    39 00000000                                 ; 10Dh	320x200x32K
-    40 00000000                                 ; 10Eh	320x200x64K
-    41 00000000                                 ; 10Fh	320x200x16M
-    42 00000000                                 ; 110h	640x480x32K
-    43 00000000                                 ; 111h	640x480x64K
-    44 00000000                                 ; 112h	640x480x16M
-    45 00000000                                 ; 113h	800x600x32K
-    46 00000000                                 ; 114h	800x600x64K
-    47 00000000                                 ; 115h	800x600x16M
-    48 00000000                                 ; 116h	1024x768x32K
-    49 00000000                                 ; 117h	1024x768x64K
-    50 00000000                                 ; 118h	1024x768x16M
-    51 00000000                                 ; 119h	1280x1024x32K (1:5:5:5)
-    52 00000000                                 ; 11Ah	1280x1024x64K (5:6:5)
-    53 00000000                                 ; 11Bh	1280x1024x16M
+    39 00000000                                 ; 10Dh  320x200x32K
+    40 00000000                                 ; 10Eh  320x200x64K
+    41 00000000                                 ; 10Fh  320x200x16M
+    42 00000000                                 ; 110h  640x480x32K
+    43 00000000                                 ; 111h  640x480x64K
+    44 00000000                                 ; 112h  640x480x16M
+    45 00000000                                 ; 113h  800x600x32K
+    46 00000000                                 ; 114h  800x600x64K
+    47 00000000                                 ; 115h  800x600x16M
+    48 00000000                                 ; 116h  1024x768x32K
+    49 00000000                                 ; 117h  1024x768x64K
+    50 00000000                                 ; 118h  1024x768x16M
+    51 00000000                                 ; 119h  1280x1024x32K (1:5:5:5)
+    52 00000000                                 ; 11Ah  1280x1024x64K (5:6:5)
+    53 00000000                                 ; 11Bh  1280x1024x16M
     54 00000000                                 ;---VBE 2.0+ ---
-    55 00000000                                 ; 120h	1600x1200x256
-    56 00000000                                 ; 121h	1600x1200x32K
-    57 00000000                                 ; 122h	1600x1200x64K
-    58 00000000                                 ;81FFh	special full-memory access mode
-    59 00000000                                 ;Notes:	the special mode 81FFh preserves the contents of the video memory and
-    60 00000000                                 ;	  gives access to all of the memory; VESA recommends that the special
-    61 00000000                                 ;	  mode be a packed-pixel mode.	For VBE 2.0+, it is required that the
-    62 00000000                                 ;	  VBE implement the mode, but not place it in the list of available
-    63 00000000                                 ;	  modes (mode information for this mode can be queried directly,
-    64 00000000                                 ;	  however).
-    65 00000000                                 ;	as of VBE 2.0, VESA will no longer define video mode numbers
+    55 00000000                                 ; 120h  1600x1200x256
+    56 00000000                                 ; 121h  1600x1200x32K
+    57 00000000                                 ; 122h  1600x1200x64K
+    58 00000000                                 
+    59 00000000                                 ;81FFh  special full-memory access mode
+    60 00000000                                 ;Notes: the special mode 81FFh preserves the contents of the video memory and
+    61 00000000                                 ;       gives access to all of the memory; VESA recommends that the special
+    62 00000000                                 ;       mode be a packed-pixel mode. For VBE 2.0+, it is required that the
+    63 00000000                                 ;       VBE implement the mode, but not place it in the list of available
+    64 00000000                                 ;       modes (mode information for this mode can be queried directly, however).
+    65 00000000                                 ;       as of VBE 2.0, VESA will no longer define video mode numbers
     66 00000000                                 
     67 00000000                                 
-    68  = 00280000                              BOTPAK	EQU		0x00280000		; bootpackのロード先
-    69  = 00100000                              DSKCAC	EQU		0x00100000		; ディスクキャッシュの場所
-    70  = 00000900                              DSKCAC0	EQU		0x00000900		; ディスクキャッシュの場所（リアルモード）
+    68  = 00280000                              BOTPAK  EQU     0x00280000      ; bootpackのロード先
+    69  = 00100000                              DSKCAC  EQU     0x00100000      ; disk cacheの場所
+    70  = 00000600                              DSKCAC0 EQU     0x00000600      ; disk cacheの場所（リアルモード）
     71 00000000                                 
     72 00000000                                 ; BOOT_INFO関係
-    73  = 000005F0                              CYLS	EQU		0x05f0			; ブートセクタが設定する
-    74  = 000005F1                              LEDS	EQU		0x05f1
-    75  = 000005F2                              VMODE	EQU		0x05f2			; 色数に関する情報。何ビットカラーか？
-    76  = 000005F4                              SCRNX	EQU		0x05f4			; 解像度のX
-    77  = 000005F6                              SCRNY	EQU		0x05f6			; 解像度のY
-    78  = 000005F8                              VRAM	EQU		0x05f8			; グラフィックバッファの開始番地
+    73  = 000005F0                              CYLS    EQU     0x05f0          ; ブートセクタが設定する
+    74  = 000005F1                              LEDS    EQU     0x05f1          ; 
+    75  = 000005F2                              VMODE   EQU     0x05f2          ; 色数に関する情報。何ビットカラーか？
+    76  = 000005F4                              SCRNX   EQU     0x05f4          ; 解像度のX
+    77  = 000005F6                              SCRNY   EQU     0x05f6          ; 解像度のY
+    78  = 000005F8                              VRAM    EQU     0x05f8          ; グラフィックバッファの開始番地
     79 00000000                                 
-    80                                          		ORG		0x7F00
-    81 00007F00 C6 06 05F0 01                   		MOV		BYTE  [CYLS],1 
+    80                                                  ORG     0x7F00
+    81 00007F00 C6 06 05F0 01                           MOV     BYTE  [CYLS],1 
     82 00007F05                                 
     83 00007F05                                 ;INT 10 - VESA SuperVGA BIOS (VBE) - GET SuperVGA INFORMATION
     84 00007F05                                 ;	AX = 4F00h
@@ -142,22 +142,22 @@
    142 00007F05                                 ;	  modes is empty (consisting of a single word of FFFFh)
    143 00007F05                                 
    144 00007F05                                 
-   145 00007F05 B8 9000                         		MOV		AX,9000H
-   146 00007F08 8E C0                           		MOV		ES,AX
-   147 00007F0A BF 0000                         		MOV		DI,0000H
+   145 00007F05 B8 9000                                 MOV		AX,9000H
+   146 00007F08 8E C0                                   MOV		ES,AX
+   147 00007F0A BF 0000                                 MOV		DI,0000H
    148 00007F0D                                 ;Check VESA
-   149 00007F0D B8 4F00                         		MOV		AX,4F00H
-   150 00007F10 CD 10                           		INT		10H
-   151 00007F12 3D 004F                         		CMP		AX,004FH
+   149 00007F0D B8 4F00                                 MOV     AX,4F00H                ; Get VESA mode information
+   150 00007F10 CD 10                                   INT     10H
+   151 00007F12 3D 004F                                 CMP     AX,004FH
    152 00007F15                                 ;		JNE		scrn320
-   153 00007F15 75 55                           		JNE		scrn640 ; <>
+   153 00007F15 75 52                                   JNE     scrn640 ; <>
    154 00007F17                                 
    155 00007F17                                 ;successful
    156 00007F17                                 
-   157 00007F17 26 8B 45 04                     		MOV		AX,[ES:DI+04H] ; VESA version number
-   158 00007F1B 3D 0200                         		CMP		AX,0200H
+   157 00007F17 26 8B 45 04                             MOV     AX,[ES:DI+04H]          ; VESA version number
+   158 00007F1B 3D 0200                                 CMP     AX,0200H
    159 00007F1E                                 ;		JB		scrn320
-   160 00007F1E 72 4C                           		JB		scrn640 ; < 2.00
+   160 00007F1E 72 49                                   JB      scrn640                 ; < 2.00
    161 00007F20                                 
    162 00007F20                                 ;INT 10 - VESA SuperVGA BIOS - GET SuperVGA MODE INFORMATION
    163 00007F20                                 ;
@@ -241,289 +241,549 @@
    241 00007F20                                 ;	  should clear the buffer before calling
    242 00007F20                                 
    243 00007F20                                 
-   244 00007F20 B9 0111                         		MOV		CX, VBEMODE
-   245 00007F23 B8 4F01                         		MOV		AX, 4F01H                ; Get VESA mode information
-   246 00007F26 CD 10                           		INT		10H
-   247 00007F28 3D 004F                         		CMP		AX, 004FH
+   244 00007F20 B9 0111                                 MOV     CX, VBEMODE
+   245 00007F23 B8 4F01                                 MOV     AX, 4F01H               ; Get VESA mode information
+   246 00007F26 CD 10                                   INT     10H
+   247 00007F28 3D 004F                                 CMP     AX, 004FH
    248 00007F2B                                 ;		JNE		scrn320
-   249 00007F2B 75 3F                           		JNE		scrn640 ; <>
+   249 00007F2B 75 3C                                   JNE     scrn640                 ; <>
    250 00007F2D                                 
    251 00007F2D                                 ; successful
    252 00007F2D                                 
-   253 00007F2D                                 ;		CMP		BYTE [ES:DI+0x19], 08H   ;number of bits per pixel
-   254 00007F2D 26 80 7D 19 10                  		CMP		BYTE [ES:DI+0x19], 10H
-   255 00007F32                                 ;		JNE		scrn320
-   256 00007F32 75 38                           		JNE		scrn640 ; <> 16 bit
-   257 00007F34                                 
-   258 00007F34                                 ;#00082
-   259 00007F34                                 ;Values for VESA SuperVGA memory model type:
-   260 00007F34                                 ; 00h	text
-   261 00007F34                                 ; 01h	CGA graphics
-   262 00007F34                                 ; 02h	HGC graphics
-   263 00007F34                                 ; 03h	16-color (EGA) graphics
-   264 00007F34                                 ; 04h	packed pixel graphics
-   265 00007F34                                 ; 05h	"sequ 256" (non-chain 4) graphics
-   266 00007F34                                 ; 06h	direct color (HiColor, 24-bit color)
-   267 00007F34                                 ; 07h	YUV (luminance-chrominance, also called YIQ)
-   268 00007F34                                 ; 08h-0Fh reserved for VESA
-   269 00007F34                                 ; 10h-FFh OEM memory models
-   270 00007F34                                 
-   271 00007F34                                 ;		CMP		BYTE [ES:DI+0x1b],04H   ; memory model type (see #00082)
-   272 00007F34 26 80 7D 1B 06                  		CMP		BYTE [ES:DI+0x1b],06H
-   273 00007F39                                 ;		JNE		scrn320
-   274 00007F39 75 31                           		JNE		scrn640 ; <> 06h
-   275 00007F3B                                 
-   276 00007F3B                                 ;#00080
-   277 00007F3B                                 ;Bitfields for VESA SuperVGA mode attributes:
-   278 00007F3B                                 ;Bit(s)	Description	)
-   279 00007F3B                                 ; 0	mode supported by present hardware configuration
-   280 00007F3B                                 ; 1	optional information available (must be =1 for VBE v1.2+)
-   281 00007F3B                                 ; 2	BIOS output supported
-   282 00007F3B                                 ; 3	set if color, clear if monochrome
-   283 00007F3B                                 ; 4	set if graphics mode, clear if text mode
-   284 00007F3B                                 ;---VBE v2.0+ ---
-   285 00007F3B                                 ; 5	mode is not VGA-compatible
-   286 00007F3B                                 ; 6	bank-switched mode not supported
-   287 00007F3B                                 ; 7	linear framebuffer mode supported
-   288 00007F3B                                 ; 8	double-scan mode available (e.g. 320x200 and 320x240)
-   289 00007F3B                                 ;---VBE v3.0 ---
-   290 00007F3B                                 ; 9	interlaced mode available
-   291 00007F3B                                 ; 10	hardware supports triple buffering
-   292 00007F3B                                 ; 11	hardware supports stereoscopic display
-   293 00007F3B                                 ; 12	dual display start address support
-   294 00007F3B                                 ; 13-15	reserved
-   295 00007F3B                                 ;---VBE/AF v1.0P---
-   296 00007F3B                                 ; 9	application must call EnableDirectAccess before calling bank-switching
-   297 00007F3B                                 ;	  functions
-   298 00007F3B                                 
-   299 00007F3B 26 8B 05                        		MOV		AX,[ES:DI+00H]          ; mode attributes (see #00080)
-   300 00007F3E 25 0080                         		AND		AX,0080H                ; linear framebuffer mode supported
-   301 00007F41                                 ;		JZ		scrn320
-   302 00007F41 74 29                           		JZ		scrn640
-   303 00007F43                                 
-   304 00007F43                                 ;		MOV		BYTE [VMODE],8
-   305 00007F43 C6 06 05F2 10                   		MOV		BYTE [VMODE],16
-   306 00007F48                                 ;		MOV		BYTE [VMODE],24
-   307 00007F48 26 8B 45 12                     		MOV		AX, [ES:DI+0x12]  ; width in pixels (graphics) or characters (text)
-   308 00007F4C A3 05F4                         		MOV		[SCRNX], AX
-   309 00007F4F 26 8B 45 14                     		MOV		AX,[ES:DI+0x14]  ; height in pixels (graphics) or characters (text)
-   310 00007F53 A3 05F6                         		MOV		[SCRNY],AX
-   311 00007F56 66 26 8B 45 28                  		MOV		EAX, [ES:DI+0x28] ; physical address of linear video buffer
-   312 00007F5B 66 A3 05F8                      		MOV		[VRAM], EAX
-   313 00007F5F                                 ;		MOV		DWORD [VRAM], 000A0000H
-   314 00007F5F                                 
-   315 00007F5F                                 
-   316 00007F5F                                 ;INT 10 - VESA SuperVGA BIOS - SET SuperVGA VIDEO MODE
-   317 00007F5F                                 ;
-   318 00007F5F                                 ;	AX = 4F02h
-   319 00007F5F                                 ;	BX = new video mode (see #04082,#00083,#00084)
-   320 00007F5F                                 ;	ES:DI -> (VBE 3.0+) CRTC information block, bit mode bit 11 set
-   321 00007F5F                                 ;		  (see #04083)
-   322 00007F5F                                 ;Return: AL = 4Fh if function supported
-   323 00007F5F                                 ;	AH = status
-   324 00007F5F                                 ;	    00h successful
-   325 00007F5F                                 ;	    01h failed
-   326 00007F5F                                 ;Notes:	bit 13 may only be set if the video mode is present in the list of
-   327 00007F5F                                 ;	  accelerated video modes returned by AX=4F00h
-   328 00007F5F                                 ;	if the DAC supports both 8 bits per primary color and 6 bits, it will
-   329 00007F5F                                 ;	  be reset to 6 bits after a mode set; use AX=4F08h to restore 8 bits
-   330 00007F5F                                 ;SeeAlso: AX=4E03h,AX=4F00h,AX=4F01h,AX=4F03h,AX=4F08h
-   331 00007F5F                                 
-   332 00007F5F                                 ;#00084
-   333 00007F5F                                 ;Values for S3 OEM video mode:
-   334 00007F5F                                 ; 201h	640x480x256
-   335 00007F5F                                 ; 202h	800x600x16
-   336 00007F5F                                 ; 203h	800x600x256
-   337 00007F5F                                 ; 204h	1024x768x16
-   338 00007F5F                                 ; 205h	1024x768x256
-   339 00007F5F                                 ; 206h	1280x960x16
-   340 00007F5F                                 ; 207h	1152x864x256 (Diamond Stealth 64)
-   341 00007F5F                                 ; 208h	1280x1024x16
-   342 00007F5F                                 ; 209h	1152x864x32K
-   343 00007F5F                                 ; 20Ah	1152x864x64K (Diamond Stealth 64)
-   344 00007F5F                                 ; 20Bh	1152x864x4G
-   345 00007F5F                                 ; 211h	640x480x64K (Diamond Stealth 24)
-   346 00007F5F                                 ; 211h	640x400x4G  (Diamond Stealth64 Video / Stealth64 Graphics)
-   347 00007F5F                                 ; 212h	640x480x16M (Diamond Stealth 24)
-   348 00007F5F                                 ; 301h	640x480x32K
-   349 00007F5F                                 ;Note:	these modes are only available on video cards using S3's VESA driver
-   350 00007F5F                                 ;SeeAlso: #00083,#00191,#00732 at INT 1A/AX=B102h
-   351 00007F5F                                 ;Index:	video modes;S3
-   352 00007F5F                                 
-   353 00007F5F BB 4111                         		MOV		BX, VBEMODE + 4000H
-   354 00007F62 B8 4F02                         		MOV		AX,4F02H          ; Set VBE mode
-   355 00007F65 CD 10                           		INT		10H
-   356 00007F67 3D 004F                         		CMP		AX, 004FH
-   357 00007F6A                                 ;		JE		fin
-   358 00007F6A                                 ;		JE		scrn640           ; ★
-   359 00007F6A                                 
-   360 00007F6A                                 ;#04083
-   361 00007F6A                                 ;Format of VESA VBE CRTC Information Block:
-   362 00007F6A                                 ;Offset	Size	Description	)
-   363 00007F6A                                 ; 00h	WORD	total number of pixels horizontally
-   364 00007F6A                                 ; 02h	WORD	horizontal sync start (in pixels)
-   365 00007F6A                                 ; 04h	WORD	horizontal sync end (in pixels)
-   366 00007F6A                                 ; 06h	WORD	total number of scan lines
-   367 00007F6A                                 ; 08h	WORD	vertical sync start (in scan lines)
-   368 00007F6A                                 ; 0Ah	WORD	vertical sync end (in scan lines)
-   369 00007F6A                                 ; 0Ch	BYTE	flags (see #04084)
-   370 00007F6A                                 ; 0Dh	DWORD	pixel clock, in Hz
-   371 00007F6A                                 ; 11h	WORD	refresh rate, in 0.01 Hz units
-   372 00007F6A                                 ;		this field MUST be set to pixel_clock / (HTotal * VTotal),
-   373 00007F6A                                 ;		  even though it may not actually be used by the VBE
-   374 00007F6A                                 ;		  implementation
-   375 00007F6A                                 ; 13h 40 BYTEs	reserved
-   376 00007F6A                                 
-   377 00007F6A                                 
-   378 00007F6A EB 20                           		JMP		keystatus
-   379 00007F6C                                 ;		jmp		fin
-   380 00007F6C                                 
-   381 00007F6C                                 ;scrn320:
-   382 00007F6C                                 ;		MOV		AL,0x13	
-   383 00007F6C                                 ;		MOV		AH,0x00
-   384 00007F6C                                 ;		INT		0x10
-   385 00007F6C                                 ;		MOV		BYTE [VMODE],8
-   386 00007F6C                                 ;		MOV		WORD [SCRNX],320
-   387 00007F6C                                 ;		MOV		WORD [SCRNY],240
-   388 00007F6C                                 ;		MOV		DWORD [VRAM],000A0000H
-   389 00007F6C                                 ;		JMP		keystatus
-   390 00007F6C                                 ;
-   391 00007F6C                                 scrn640:
-   392 00007F6C                                 ; 画面モードを設定
-   393 00007F6C                                 
-   394 00007F6C B4 00                           		MOV		AH, 00H
-   395 00007F6E B0 13                           		MOV		AL, 13H			; VGAグラフィックス、13H：640×480 256色
-   396 00007F70 CD 10                           		INT		10H
-   397 00007F72                                 ;		MOV		BYTE [VMODE],16
-   398 00007F72 C6 06 05F2 08                   		MOV		BYTE [VMODE],8
-   399 00007F77 C7 06 05F4 0280                 		MOV		WORD [SCRNX],640
-   400 00007F7D C7 06 05F6 01E0                 		MOV		WORD [SCRNY],480
-   401 00007F83 66 C7 06 05F8 000A0000          		MOV		DWORD [VRAM],000A0000H
-   402 00007F8C                                 ;		JMP		keystatus
-   403 00007F8C                                 keystatus:
-   404 00007F8C                                 
-   405 00007F8C                                 
-   406 00007F8C B4 02                           		MOV		AH,02H
-   407 00007F8E CD 16                           		INT		16H			; keyboard BIOS
-   408 00007F90                                 ;H->L:Ins、Caps Lock、Num Lock、Scroll Lock、Alt、Ctrl、Left Shift、Right Shift
-   409 00007F90 A2 05F1                         		MOV		[LEDS],AL  ; 05f1
-   410 00007F93                                 
-   411 00007F93                                 ; PICが一切の割り込みを受け付けないようにする
-   412 00007F93                                 ;	AT互換機の仕様では、PICの初期化をするなら、
-   413 00007F93                                 ;	こいつをCLI前にやっておかないと、たまにハングアップする
-   414 00007F93                                 ;	PICの初期化はあとでやる
-   415 00007F93                                 
-   416 00007F93 B0 FF                           		MOV		AL,0xff
-   417 00007F95 E6 21                           		OUT		0x21,AL
-   418 00007F97 90                              		NOP						; OUT命令を連続させるとうまくいかない機種があるらしいので
-   419 00007F98 E6 A1                           		OUT		0xa1,AL
-   420 00007F9A                                 
-   421 00007F9A FA                              		CLI						; さらにCPUレベルでも割り込み禁止
-   422 00007F9B                                 
-   423 00007F9B                                 ; CPUから1MB以上のメモリにアクセスできるように、A20GATEを設定
-   424 00007F9B                                 
-   425 00007F9B E4 92                                          IN  AL , 92H
-   426 00007F9D 0C 02                                          OR  AL , 02H     ; enable A20
-   427 00007F9F E6 92                                          OUT 92H, AL
-   428 00007FA1                                 
-   429 00007FA1                                 
-   430 00007FA1                                 
-   431 00007FA1                                 ; プロテクトモード移行
-   432 00007FA1                                 
-   433 00007FA1                                 
-   434 00007FA1 0F 01 16 807A                   		LGDT	[GDTR0]			; 暫定GDTを設定
-   435 00007FA6 0F 20 C0                        		MOV		EAX,CR0
-   436 00007FA9 66 25 7FFFFFFF                  		AND		EAX,0x7fffffff	; bit31を0にする（ページング禁止のため）
-   437 00007FAF 66 83 C8 01                     		OR		EAX,0x00000001	; bit0を1にする（プロテクトモード移行のため）
-   438 00007FB3 0F 22 C0                        		MOV		CR0,EAX
-   439 00007FB6 EB 00                           		JMP		pipelineflush
-   440 00007FB8                                 pipelineflush:
-   441 00007FB8 B8 0008                         		MOV		AX,1*8			;  読み書き可能セグメント32bit
-   442 00007FBB 8E D8                           		MOV		DS,AX
-   443 00007FBD 8E C0                           		MOV		ES,AX
-   444 00007FBF 8E E0                           		MOV		FS,AX
-   445 00007FC1 8E E8                           		MOV		GS,AX
-   446 00007FC3 8E D0                           		MOV		SS,AX
-   447 00007FC5                                 
-   448 00007FC5                                 ; bootpackの転送
-   449 00007FC5                                 
-   450 00007FC5 66 BE 00008080                  		MOV		ESI,bootpack	; 転送元
-   451 00007FCB 66 BF 00280000                  		MOV		EDI,BOTPAK	; 転送先 0x00280000
-   452 00007FD1 66 B9 00020000                  		MOV		ECX,512*1024/4
-   453 00007FD7 E8 006E                         		CALL	memcpy
-   454 00007FDA                                 
-   455 00007FDA                                 ; ついでにディスクデータも本来の位置へ転送
-   456 00007FDA                                 
-   457 00007FDA                                 ; まずはブートセクタから
-   458 00007FDA                                 
-   459 00007FDA 66 BE 00000700                  		MOV		ESI,0700H	; 転送元
-   460 00007FE0 66 BF 00100000                  		MOV		EDI,DSKCAC	; 転送先 0x00100000
-   461 00007FE6 66 B9 00000080                  		MOV		ECX,512/4
-   462 00007FEC E8 0059                         		CALL	memcpy
-   463 00007FEF                                 
-   464 00007FEF                                 ; 残り全部
-   465 00007FEF                                 
-   466 00007FEF 66 BE 00000B00                  		MOV		ESI,DSKCAC0+512	; 転送元 0x00008000 0x00000900
-   467 00007FF5 66 BF 00100200                  		MOV		EDI,DSKCAC +512	; 転送先 0x00100000
-   468 00007FFB 66 B9 00000000                  		MOV		ECX,0
-   469 00008001 8A 0E 05F0                      		MOV		CL,BYTE [CYLS]
-   470 00008005 66 69 C9 00001200               		IMUL	ECX,512*18*2/4	; シリンダ数からバイト数/4に変換
-   471 0000800C 66 81 E9 00000080               		SUB		ECX,512/4		; IPLの分だけ差し引く
-   472 00008013 E8 0032                         		CALL	memcpy
-   473 00008016                                 
-   474 00008016                                 ; asmheadでしなければいけないことは全部し終わったので、
-   475 00008016                                 ;	あとはbootpackに任せる
-   476 00008016                                 
-   477 00008016                                 ; bootpackの起動
-   478 00008016                                 
-   479 00008016 66 BB 00280000                  		MOV		EBX,BOTPAK              ; 0x00280000
-   480 0000801C 67 66 8B 4B 10                  		MOV		ECX,[EBX+16]
-   481 00008021 66 83 C1 03                     		ADD		ECX,3			; ECX += 3;
-   482 00008025 66 C1 E9 02                     		SHR		ECX,2			; ECX /= 4;
-   483 00008029 74 10                           		JZ		skip			; 転送するべきものがない
-   484 0000802B 67 66 8B 73 14                  		MOV		ESI,[EBX+20]	; 転送元
-   485 00008030 66 01 DE                        		ADD		ESI,EBX
-   486 00008033 67 66 8B 7B 0C                  		MOV		EDI,[EBX+12]	; 転送先
-   487 00008038 E8 000D                         		CALL	memcpy
-   488 0000803B                                 skip:
-   489 0000803B 67 66 8B 63 0C                  		MOV		ESP,[EBX+12]	; スタック初期値
-   490 00008040 66 EA 0000001B 0010             		JMP		DWORD 2*8:0x0000001b
-   491 00008048                                 
-   492 00008048                                 ; waitkbdout:
-   493 00008048                                 ; 		IN		 AL,64H
-   494 00008048                                 ; 		AND		 AL,02H
-   495 00008048                                 ; 		JNZ		waitkbdout		; ANDの結果が0でなければwaitkbdoutへ
-   496 00008048                                 ; 		RET
-   497 00008048                                 
-   498 00008048                                 
-   499 00008048                                 memcpy:
-   500 00008048 67 66 8B 06                     		MOV		EAX,[ESI]
-   501 0000804C 66 83 C6 04                     		ADD		ESI,4
-   502 00008050 67 66 89 07                     		MOV		[EDI],EAX
-   503 00008054 66 83 C7 04                     		ADD		EDI,4
-   504 00008058 66 83 E9 01                     		SUB		ECX,1
-   505 0000805C 75 EA                           		JNZ		memcpy			; 引き算した結果が0でなければmemcpyへ
-   506 0000805E C3                              		RET
-   507 0000805F                                 ; memcpyはアドレスサイズプリフィクスを入れ忘れなければ、ストリング命令でも書ける
-   508 0000805F                                 
-   509 0000805F                                 
-   510 0000805F                                 ;fin:
-   511 0000805F                                 ;		HLT
-   512 0000805F                                 ;		JMP		fin
-   513 0000805F                                 
-   514 0000805F                                 
-   515 0000805F 00                              		ALIGNB	16
-   516 00008060                                 GDT0:
-   517 00008060 00000000 00000000               		DD 00000000H, 00000000H
-   518 00008068 0000FFFF 00CF9200               		DD 0000FFFFH, 00CF9200H
-   519 00008070 0000FFFF 00479A28               		DD 0000FFFFH, 00479A28H
-   520 00008078                                 
-   521 00008078                                 
-   522 00008078                                 
-   523 00008078 0000                            		DW		0
-   524 0000807A                                 GDTR0:
-   525 0000807A 0017                            		DW		8*3-1 ; limit 8 * n - 1
-   526 0000807C 00008060                        		DD		GDT0  ; base
-   527 00008080                                 
-   528 00008080                                 		ALIGNB	16
-   529 00008080                                 bootpack:
+   253 00007F2D                                 ;;		CMP		BYTE [ES:DI+0x19], 08H  ; number of bits per pixel
+   254 00007F2D                                 ;        CMP     BYTE [ES:DI+0x19], 10H  ; number of bits per pixel
+   255 00007F2D                                 ;;		JNE		scrn320
+   256 00007F2D                                 ;        JNE     fin
+   257 00007F2D                                 ;        JNE     scrn640                 ; <> 16 bit
+   258 00007F2D                                 
+   259 00007F2D                                 ;#00082
+   260 00007F2D                                 ;Values for VESA SuperVGA memory model type:
+   261 00007F2D                                 ; 00h	text
+   262 00007F2D                                 ; 01h	CGA graphics
+   263 00007F2D                                 ; 02h	HGC graphics
+   264 00007F2D                                 ; 03h	16-color (EGA) graphics
+   265 00007F2D                                 ; 04h	packed pixel graphics
+   266 00007F2D                                 ; 05h	"sequ 256" (non-chain 4) graphics
+   267 00007F2D                                 ; 06h	direct color (HiColor, 24-bit color)
+   268 00007F2D                                 ; 07h	YUV (luminance-chrominance, also called YIQ)
+   269 00007F2D                                 ; 08h-0Fh reserved for VESA
+   270 00007F2D                                 ; 10h-FFh OEM memory models
+   271 00007F2D                                 
+   272 00007F2D                                 ;		CMP		BYTE [ES:DI+0x1b],04H   ; memory model type (see #00082)
+   273 00007F2D 26 80 7D 1B 06                  		CMP		BYTE [ES:DI+0x1b],06H
+   274 00007F32                                 ;		JNE		scrn320
+   275 00007F32 75 35                           		JNE		scrn640 ; <> 06h
+   276 00007F34                                 
+   277 00007F34                                 ;#00080
+   278 00007F34                                 ;Bitfields for VESA SuperVGA mode attributes:
+   279 00007F34                                 ;Bit(s)	Description	)
+   280 00007F34                                 ; 0	mode supported by present hardware configuration
+   281 00007F34                                 ; 1	optional information available (must be =1 for VBE v1.2+)
+   282 00007F34                                 ; 2	BIOS output supported
+   283 00007F34                                 ; 3	set if color, clear if monochrome
+   284 00007F34                                 ; 4	set if graphics mode, clear if text mode
+   285 00007F34                                 ;---VBE v2.0+ ---
+   286 00007F34                                 ; 5	mode is not VGA-compatible
+   287 00007F34                                 ; 6	bank-switched mode not supported
+   288 00007F34                                 ; 7	linear framebuffer mode supported
+   289 00007F34                                 ; 8	double-scan mode available (e.g. 320x200 and 320x240)
+   290 00007F34                                 ;---VBE v3.0 ---
+   291 00007F34                                 ; 9	interlaced mode available
+   292 00007F34                                 ; 10	hardware supports triple buffering
+   293 00007F34                                 ; 11	hardware supports stereoscopic display
+   294 00007F34                                 ; 12	dual display start address support
+   295 00007F34                                 ; 13-15	reserved
+   296 00007F34                                 ;---VBE/AF v1.0P---
+   297 00007F34                                 ; 9	application must call EnableDirectAccess before calling bank-switching
+   298 00007F34                                 ;	  functions
+   299 00007F34                                 
+   300 00007F34 26 8B 05                        		MOV		AX,[ES:DI+00H]          ; mode attributes (see #00080)
+   301 00007F37 25 0080                         		AND		AX,0080H                ; linear framebuffer mode supported
+   302 00007F3A                                 ;		JZ		scrn320
+   303 00007F3A 74 2D                           		JZ		scrn640
+   304 00007F3C                                 
+   305 00007F3C                                 
+   306 00007F3C 26 8A 45 19                             MOV     AL, [ES:DI+0x19]        ; number of bits per pixel Color depth
+   307 00007F40 A2 05F2                                 MOV     [VMODE], AL
+   308 00007F43 26 8B 45 12                             MOV     AX, [ES:DI+0x12]  ; width in pixels (graphics) or characters (text)
+   309 00007F47 A3 05F4                                 MOV     [SCRNX], AX
+   310 00007F4A 26 8B 45 14                             MOV     AX,[ES:DI+0x14]  ; height in pixels (graphics) or characters (text)
+   311 00007F4E A3 05F6                                 MOV     [SCRNY],AX
+   312 00007F51 66 26 8B 45 28                          MOV     EAX, [ES:DI+0x28] ; physical address of linear video buffer
+   313 00007F56 66 A3 05F8                              MOV     [VRAM], EAX
+   314 00007F5A                                 ;       JMP     fin
+   315 00007F5A                                 
+   316 00007F5A                                 ;INT 10 - VESA SuperVGA BIOS - SET SuperVGA VIDEO MODE
+   317 00007F5A                                 ;
+   318 00007F5A                                 ;	AX = 4F02h
+   319 00007F5A                                 ;	BX = new video mode (see #04082,#00083,#00084)
+   320 00007F5A                                 ;	ES:DI -> (VBE 3.0+) CRTC information block, bit mode bit 11 set
+   321 00007F5A                                 ;		  (see #04083)
+   322 00007F5A                                 ;Return: AL = 4Fh if function supported
+   323 00007F5A                                 ;	AH = status
+   324 00007F5A                                 ;	    00h successful
+   325 00007F5A                                 ;	    01h failed
+   326 00007F5A                                 ;Notes:	bit 13 may only be set if the video mode is present in the list of
+   327 00007F5A                                 ;	  accelerated video modes returned by AX=4F00h
+   328 00007F5A                                 ;	if the DAC supports both 8 bits per primary color and 6 bits, it will
+   329 00007F5A                                 ;	  be reset to 6 bits after a mode set; use AX=4F08h to restore 8 bits
+   330 00007F5A                                 ;SeeAlso: AX=4E03h,AX=4F00h,AX=4F01h,AX=4F03h,AX=4F08h
+   331 00007F5A                                 
+   332 00007F5A                                 ;#00084
+   333 00007F5A                                 ;Values for S3 OEM video mode:
+   334 00007F5A                                 ; 201h	640x480x256
+   335 00007F5A                                 ; 202h	800x600x16
+   336 00007F5A                                 ; 203h	800x600x256
+   337 00007F5A                                 ; 204h	1024x768x16
+   338 00007F5A                                 ; 205h	1024x768x256
+   339 00007F5A                                 ; 206h	1280x960x16
+   340 00007F5A                                 ; 207h	1152x864x256 (Diamond Stealth 64)
+   341 00007F5A                                 ; 208h	1280x1024x16
+   342 00007F5A                                 ; 209h	1152x864x32K
+   343 00007F5A                                 ; 20Ah	1152x864x64K (Diamond Stealth 64)
+   344 00007F5A                                 ; 20Bh	1152x864x4G
+   345 00007F5A                                 ; 211h	640x480x64K (Diamond Stealth 24)
+   346 00007F5A                                 ; 211h	640x400x4G  (Diamond Stealth64 Video / Stealth64 Graphics)
+   347 00007F5A                                 ; 212h	640x480x16M (Diamond Stealth 24)
+   348 00007F5A                                 ; 301h	640x480x32K
+   349 00007F5A                                 ;Note:	these modes are only available on video cards using S3's VESA driver
+   350 00007F5A                                 ;SeeAlso: #00083,#00191,#00732 at INT 1A/AX=B102h
+   351 00007F5A                                 ;Index:	video modes;S3
+   352 00007F5A                                 
+   353 00007F5A                                 ; Input: BX = 
+   354 00007F5A                                 ; Bits 0-13 mode number; 
+   355 00007F5A                                 ; bit 14 is the LFB bit: when set, it enables the linear framebuffer, when clear, software must use bank switching. 
+   356 00007F5A                                 ; Bit 15 is the DM bit: when set, the BIOS doesn't clear the screen. Bit 15 is usually ignored and should always be cleared.
+   357 00007F5A BB 4111                                 MOV     BX, VBEMODE + 4000H
+   358 00007F5D B8 4F02                                 MOV     AX,4F02H                ; Set VBE mode
+   359 00007F60 CD 10                                   INT     10H
+   360 00007F62 3D 004F                                 CMP     AX, 004FH
+   361 00007F65                                 ;		JNE		fin
+   362 00007F65 75 02                                   JNE     scrn640                 ; ★
+   363 00007F67                                 
+   364 00007F67                                 ;#04083
+   365 00007F67                                 ;Format of VESA VBE CRTC Information Block:
+   366 00007F67                                 ;Offset	Size	Description	)
+   367 00007F67                                 ; 00h	WORD	total number of pixels horizontally
+   368 00007F67                                 ; 02h	WORD	horizontal sync start (in pixels)
+   369 00007F67                                 ; 04h	WORD	horizontal sync end (in pixels)
+   370 00007F67                                 ; 06h	WORD	total number of scan lines
+   371 00007F67                                 ; 08h	WORD	vertical sync start (in scan lines)
+   372 00007F67                                 ; 0Ah	WORD	vertical sync end (in scan lines)
+   373 00007F67                                 ; 0Ch	BYTE	flags (see #04084)
+   374 00007F67                                 ; 0Dh	DWORD	pixel clock, in Hz
+   375 00007F67                                 ; 11h	WORD	refresh rate, in 0.01 Hz units
+   376 00007F67                                 ;		this field MUST be set to pixel_clock / (HTotal * VTotal),
+   377 00007F67                                 ;		  even though it may not actually be used by the VBE
+   378 00007F67                                 ;		  implementation
+   379 00007F67                                 ; 13h 40 BYTEs	reserved
+   380 00007F67                                 
+   381 00007F67                                 
+   382 00007F67                                 
+   383 00007F67                                 
+   384 00007F67                                 
+   385 00007F67 EB 20                                   JMP     keystatus
+   386 00007F69                                 ;		jmp		fin
+   387 00007F69                                 
+   388 00007F69                                 ;scrn320:
+   389 00007F69                                 ;		MOV		AL,0x13	
+   390 00007F69                                 ;		MOV		AH,0x00
+   391 00007F69                                 ;		INT		0x10
+   392 00007F69                                 ;		MOV		BYTE [VMODE],8
+   393 00007F69                                 ;		MOV		WORD [SCRNX],320
+   394 00007F69                                 ;		MOV		WORD [SCRNY],240
+   395 00007F69                                 ;		MOV		DWORD [VRAM],000A0000H
+   396 00007F69                                 ;		JMP		keystatus
+   397 00007F69                                 ;
+   398 00007F69                                 scrn640:
+   399 00007F69                                 ; 画面モードを設定
+   400 00007F69                                 
+   401 00007F69 B4 00                           		MOV		AH, 00H
+   402 00007F6B B0 13                           		MOV		AL, 13H			; VGAグラフィックス、13H：640×480 256色
+   403 00007F6D CD 10                           		INT		10H
+   404 00007F6F                                 ;		MOV		BYTE [VMODE],16
+   405 00007F6F C6 06 05F2 08                   		MOV		BYTE [VMODE],8
+   406 00007F74 C7 06 05F4 0280                 		MOV		WORD [SCRNX],640
+   407 00007F7A C7 06 05F6 01E0                 		MOV		WORD [SCRNY],480
+   408 00007F80 66 C7 06 05F8 000A0000          		MOV		DWORD [VRAM],000A0000H
+   409 00007F89                                 ;		JMP		keystatus
+   410 00007F89                                 keystatus:
+   411 00007F89                                 
+   412 00007F89                                 
+   413 00007F89 B4 02                                   MOV     AH,02H
+   414 00007F8B CD 16                                   INT     16H                     ; keyboard BIOS
+   415 00007F8D                                 ;H->L:Ins、Caps Lock、Num Lock、Scroll Lock、Alt、Ctrl、Left Shift、Right Shift
+   416 00007F8D A2 05F1                                 MOV     [LEDS],AL  ; 05f1
+   417 00007F90                                 
+   418 00007F90                                 ; PICが一切の割り込みを受け付けないようにする
+   419 00007F90                                 ;	AT互換機の仕様では、PICの初期化をするなら、
+   420 00007F90                                 ;	こいつをCLI前にやっておかないと、たまにハングアップする
+   421 00007F90                                 ;	PICの初期化はあとでやる
+   422 00007F90                                 
+   423 00007F90 B0 FF                                   MOV     AL,0FFH
+   424 00007F92 E6 21                                   OUT     21H,AL
+   425 00007F94 90                                      NOP                             ; OUT命令を連続させるとうまくいかない機種があるらしいので
+   426 00007F95 E6 A1                                   OUT     0A1H,AL
+   427 00007F97                                 
+   428 00007F97 FA                                      CLI                             ; さらにCPUレベルでも割り込み禁止
+   429 00007F98                                 ; CPUから1MB以上のメモリにアクセスできるように、A20GATEを設定
+   430 00007F98 E4 92                                   IN  AL , 92H
+   431 00007F9A 0C 02                                   OR  AL , 02H     ; enable A20
+   432 00007F9C E6 92                                   OUT 92H, AL
+   433 00007F9E                                 
+   434 00007F9E                                 ;RD_FAT_TBL:
+   435 00007F9E                                 ;;先选择通道(Primary or Secondary), 并检查硬盘是否忙，忙则等待
+   436 00007F9E                                 ;      mov dx,0x1f7
+   437 00007F9E                                 ;     .waits:
+   438 00007F9E                                 ;         in al,dx
+   439 00007F9E                                 ;         and al,0x88
+   440 00007F9E                                 ;;jmp fin
+   441 00007F9E                                 ;         cmp al,0x80
+   442 00007F9E                                 ;         jz .waits
+   443 00007F9E                                 ;;jmp fin
+   444 00007F9E                                 ;
+   445 00007F9E                                 ;;往该通道的sector count寄存器中写入待操作的扇区数
+   446 00007F9E                                 ;            mov dx,0x1f2
+   447 00007F9E                                 ;            mov al,[7C16H] ;bsSECTORS_PER_FATF DW  ;1 个扇区 ??
+   448 00007F9E                                 ;            out dx,al
+   449 00007F9E                                 ;
+   450 00007F9E                                 ;;往该通道上的三个LBA寄存器写入扇区起始地址的低24位
+   451 00007F9E                                 ;;往device寄存器中写入LBA地址的24~27位, 并置第6位为1(LBA模式), 选择操作的硬盘(master or slave)
+   452 00007F9E                                 ;        mov dx,0x1f3
+   453 00007F9E                                 ;        mov al,[060CH] ;0x02                       ;
+   454 00007F9E                                 ;        out dx,al ;LBA 地址 7～0
+   455 00007F9E                                 ; 
+   456 00007F9E                                 ;        inc dx ;0x1f4
+   457 00007F9E                                 ;        mov al,[060DH]; 0x00                       ;
+   458 00007F9E                                 ;        out dx,al ;LBA 地址 15～8
+   459 00007F9E                                 ;
+   460 00007F9E                                 ;        inc dx ;0x1f5
+   461 00007F9E                                 ;        mov al,[060EH];                    ;
+   462 00007F9E                                 ;        out dx,al ;LBA 地址 23～16
+   463 00007F9E                                 ;
+   464 00007F9E                                 ;        inc dx ;0x1f6
+   465 00007F9E                                 ;                                        ;
+   466 00007F9E                                 ;        ;mov al,0xe0 ;LBA模式，主硬盘，以及 LBA 地址 27～24
+   467 00007F9E                                 ;        mov al,[060FH];                    ;
+   468 00007F9E                                 ;        OR AL, 0F0H
+   469 00007F9E                                 ;        AND AL, 0E0H
+   470 00007F9E                                 ;        out dx,al
+   471 00007F9E                                 ;
+   472 00007F9E                                 ;;往该通道上的command寄存器写入操作命令
+   473 00007F9E                                 ;       mov dx,0x1f7
+   474 00007F9E                                 ;       mov al,0x20   ;读命令
+   475 00007F9E                                 ;       out dx,al
+   476 00007F9E                                 ;
+   477 00007F9E                                 ;;读取该通道上的status寄存器, 判断硬盘工作是否完成
+   478 00007F9E                                 ;      mov dx,0x1f7
+   479 00007F9E                                 ;     .waits2:
+   480 00007F9E                                 ;         in al,dx
+   481 00007F9E                                 ;         and al,0x88
+   482 00007F9E                                 ;         cmp al,0x80
+   483 00007F9E                                 ;         jz .waits2
+   484 00007F9E                                 ;
+   485 00007F9E                                 ;;如果以上步骤是读硬盘, 进入下一个步骤。否则, 完工
+   486 00007F9E                                 ;;将硬盘数据读出DS:BX
+   487 00007F9E                                 ;push ds
+   488 00007F9E                                 ;        mov ax, 0000H
+   489 00007F9E                                 ;        mov es, ax
+   490 00007F9E                                 ;        mov ax, 1000H
+   491 00007F9E                                 ;        mov ds, ax
+   492 00007F9E                                 ;        mov ax, [es:7C16H] ; bsSECTORS_PER_FAT
+   493 00007F9E                                 ;;jmp fin
+   494 00007F9E                                 ;        mov BX, 0200H
+   495 00007F9E                                 ;        mov dx,0x1f0
+   496 00007F9E                                 ;    .readns:
+   497 00007F9E                                 ;push ax
+   498 00007F9E                                 ;        mov cx,512   ;总共要读取的字数
+   499 00007F9E                                 ;    .readw:
+   500 00007F9E                                 ;        in ax,dx
+   501 00007F9E                                 ;        mov  [bx],ax
+   502 00007F9E                                 ;        add bx,2
+   503 00007F9E                                 ;        loop .readw
+   504 00007F9E                                 ;;jmp fin
+   505 00007F9E                                 ;pop ax
+   506 00007F9E                                 ;        dec ax
+   507 00007F9E                                 ;        cmp ax, 00h
+   508 00007F9E                                 ;        jnz .readns
+   509 00007F9E                                 ;pop ds
+   510 00007F9E                                 
+   511 00007F9E                                 ;;------------------------------------------------------;----------------
+   512 00007F9E                                 ;                            MOV  AX, [7C16H] ;bsSECTORS_PER_FAT
+   513 00007F9E                                 ;                            MOV  [7C42H], AX        ; dapSECTORS_READREAD FATTABLE SECTOR CUONT
+   514 00007F9E                                 ;                            MOV  DX,  [060EH]
+   515 00007F9E                                 ;                            MOV  AX,  [060CH]
+   516 00007F9E                                 ;                            MOV  WORD [7C44H], 0200H      ; dapOFFSET 0000:4800 FATTABLE
+   517 00007F9E                                 ;                            MOV  WORD [7C46H], 0100H      ; dapOFFSET 0000:4800 FATTABLE
+   518 00007F9E                                 ;                            MOV  [7C4AH], DX ; dapLHLBA
+   519 00007F9E                                 ;                            MOV  [7C48H], AX ; dapLLLBA
+   520 00007F9E                                 ;;jmp fin
+   521 00007F9E                                 ;                            CALL WORD READ_SECTOR             ; ES:BX0000:4800 = FATTABLE
+   522 00007F9E                                 ;
+   523 00007F9E                                 ;jmp fin
+   524 00007F9E                                 
+   525 00007F9E                                 
+   526 00007F9E                                 ; プロテクトモード移行
+   527 00007F9E 0F 01 16 808A                           LGDT	[GDTR0]			; 暫定GDTを設定
+   528 00007FA3 0F 20 C0                                MOV		EAX,CR0
+   529 00007FA6 66 25 7FFFFFFF                          AND		EAX,0x7fffffff	; bit31を0にする（ページング禁止のため）
+   530 00007FAC 66 83 C8 01                             OR		EAX,0x00000001	; bit0を1にする（プロテクトモード移行のため）
+   531 00007FB0 0F 22 C0                                MOV		CR0,EAX
+   532 00007FB3 EB 00                                   JMP		pipelineflush
+   533 00007FB5                                 pipelineflush:
+   534 00007FB5 B8 0008                                 MOV		AX,1*8			;  読み書き可能セグメント32bit
+   535 00007FB8 8E D8                                   MOV		DS,AX
+   536 00007FBA 8E C0                                   MOV		ES,AX
+   537 00007FBC 8E E0                                   MOV		FS,AX
+   538 00007FBE 8E E8                                   MOV		GS,AX
+   539 00007FC0 8E D0                                   MOV		SS,AX
+   540 00007FC2                                 
+   541 00007FC2                                 ; bootpackの転送
+   542 00007FC2                                 
+   543 00007FC2 66 BE 00008300                          MOV		ESI,bootpack	; 転送元
+   544 00007FC8 66 BF 00280000                          MOV		EDI,BOTPAK	; 転送先 0x00280000
+   545 00007FCE 66 B9 00020000                          MOV		ECX,512 * 1024 / 4
+   546 00007FD4 E8 0071                                 CALL	memcpy
+   547 00007FD7                                 
+   548 00007FD7 B9 0002                             mov cx, 2
+   549 00007FDA                                 ;    push ds
+   550 00007FDA                                 ;;    push es
+   551 00007FDA                                 ;;        mov ax, 0000H
+   552 00007FDA                                 ;;        mov es, ax
+   553 00007FDA                                 ;rd_bootpack:
+   554 00007FDA                                 ;;先选择通道(Primary or Secondary), 并检查硬盘是否忙，忙则等待
+   555 00007FDA                                 ;      mov dx,0x1f7
+   556 00007FDA                                 ;     .waitsbp:
+   557 00007FDA                                 ;         in al,dx
+   558 00007FDA                                 ;         and al,0x80
+   559 00007FDA                                 ;         cmp al,0x80
+   560 00007FDA                                 ;         jz .waitsbp
+   561 00007FDA                                 ;
+   562 00007FDA                                 ;
+   563 00007FDA                                 ;;往该通道的sector count寄存器中写入待操作的扇区数
+   564 00007FDA                                 ;            mov dx,0x1f2
+   565 00007FDA                                 ;            mov al,0FFH;[7C16H] ;bsSECTORS_PER_FATF DW  ;1 个扇区 ??
+   566 00007FDA                                 ;            out dx,al
+   567 00007FDA                                 ;
+   568 00007FDA                                 ;;往该通道上的三个LBA寄存器写入扇区起始地址的低24位
+   569 00007FDA                                 ;;往device寄存器中写入LBA地址的24~27位, 并置第6位为1(LBA模式), 选择操作的硬盘(master or slave)
+   570 00007FDA                                 ;        mov dx,0x1f3
+   571 00007FDA                                 ;        mov al,[es:0616H] ;0x02                       ;
+   572 00007FDA                                 ;        out dx,al ;LBA 地址 7～0
+   573 00007FDA                                 ; 
+   574 00007FDA                                 ;        inc dx ;0x1f4
+   575 00007FDA                                 ;        mov al,[es:0617H]; 0x00                       ;
+   576 00007FDA                                 ;        out dx,al ;LBA 地址 15～8
+   577 00007FDA                                 ;
+   578 00007FDA                                 ;        inc dx ;0x1f5
+   579 00007FDA                                 ;        mov al,[es:0618H];                    ;
+   580 00007FDA                                 ;        out dx,al ;LBA 地址 23～16
+   581 00007FDA                                 ;
+   582 00007FDA                                 ;        inc dx ;0x1f6
+   583 00007FDA                                 ;                                        ;
+   584 00007FDA                                 ;        ;mov al,0xe0 ;LBA模式，主硬盘，以及 LBA 地址 27～24
+   585 00007FDA                                 ;        mov al,[es:0619H];                    ;
+   586 00007FDA                                 ;        OR AL, 0F0H
+   587 00007FDA                                 ;        AND AL, 0E0H
+   588 00007FDA                                 ;        out dx,al
+   589 00007FDA                                 ;;jmp fin
+   590 00007FDA                                 ;;往该通道上的command寄存器写入操作命令
+   591 00007FDA                                 ;       mov dx,0x1f7
+   592 00007FDA                                 ;       mov al,0x20   ;读命令
+   593 00007FDA                                 ;       out dx,al
+   594 00007FDA                                 ;
+   595 00007FDA                                 ;;读取该通道上的status寄存器, 判断硬盘工作是否完成
+   596 00007FDA                                 ;      mov dx,0x1f7
+   597 00007FDA                                 ;     .waits2bp:
+   598 00007FDA                                 ;         in al,dx
+   599 00007FDA                                 ;         and al,0x80
+   600 00007FDA                                 ;;jmp fin
+   601 00007FDA                                 ;;         cmp al,0x80
+   602 00007FDA                                 ;         jnz .waits2bp
+   603 00007FDA                                 ;
+   604 00007FDA                                 ;;如果以上步骤是读硬盘, 进入下一个步骤。否则, 完工
+   605 00007FDA                                 ;;将硬盘数据读出DS:BX
+   606 00007FDA                                 ;push cx
+   607 00007FDA                                 ;
+   608 00007FDA                                 ;;        mov eax, 28000H
+   609 00007FDA                                 ;;        mov ds, eax
+   610 00007FDA                                 ;;jmp fin
+   611 00007FDA                                 ;        mov ax, 0FFH ;[es:7C16H] ;bsSECTORS_PER_FAT
+   612 00007FDA                                 ;
+   613 00007FDA                                 ;        mov EBX, 280000H
+   614 00007FDA                                 ;        mov dx,0x1f0
+   615 00007FDA                                 ;    .readnsbp:
+   616 00007FDA                                 ;push ax
+   617 00007FDA                                 ;        mov cx,256   ;总共要读取的字数
+   618 00007FDA                                 ;    .readwbp:
+   619 00007FDA                                 ;        in ax,dx
+   620 00007FDA                                 ;        mov  [bx],ax
+   621 00007FDA                                 ;        add bx,2
+   622 00007FDA                                 ;        loop .readwbp
+   623 00007FDA                                 ;jmp fin
+   624 00007FDA                                 ;pop ax
+   625 00007FDA                                 ;        dec ax
+   626 00007FDA                                 ;        cmp ax, 00h
+   627 00007FDA                                 ;        jnz .readnsbp
+   628 00007FDA                                 ;pop cx
+   629 00007FDA                                 ;
+   630 00007FDA                                 ;mov eax, [es:0616H]
+   631 00007FDA                                 ;;jmp fin
+   632 00007FDA                                 ;sub eax, 0FFH
+   633 00007FDA                                 ;mov [es:0616H], ax
+   634 00007FDA                                 ;;jmp fin
+   635 00007FDA                                 ;        loop rd_bootpack
+   636 00007FDA                                 ;        pop ds
+   637 00007FDA                                 ;;        pop es
+   638 00007FDA                                 
+   639 00007FDA                                 ; ついでにディスクデータも本来の位置へ転送
+   640 00007FDA                                 
+   641 00007FDA                                 ; まずはブートセクタから
+   642 00007FDA                                 
+   643 00007FDA 66 BE 00000600                          MOV		ESI,0600H	; 転送元 0600-0700
+   644 00007FE0 66 BF 00100000                          MOV		EDI,DSKCAC	; 転送先 0x00100000
+   645 00007FE6 66 B9 00000080                          MOV		ECX,512 / 4
+   646 00007FEC E8 0059                                 CALL	memcpy
+   647 00007FEF                                 
+   648 00007FEF                                 ; 残り全部
+   649 00007FEF                                 
+   650 00007FEF 66 BE 00000800                          MOV     ESI,DSKCAC0+512	; 転送元 0x00000800 0x00000900
+   651 00007FF5 66 BF 00100200                          MOV     EDI,DSKCAC +512	; 転送先 0x00100000 FAT
+   652 00007FFB 66 B9 00000000                          MOV     ECX,0
+   653 00008001 8A 0E 05F0                              MOV      CL,BYTE [CYLS]
+   654 00008005 66 69 C9 00001200                       IMUL    ECX,512*18*2/4	; シリンダ数からバイト数/4に変換
+   655 0000800C 66 81 E9 00000080                       SUB     ECX,512/4		; IPLの分だけ差し引く
+   656 00008013 E8 0032                                 CALL    memcpy
+   657 00008016                                 
+   658 00008016                                 
+   659 00008016                                 ; asmheadでしなければいけないことは全部し終わったので、
+   660 00008016                                 ;	あとはbootpackに任せる
+   661 00008016                                 
+   662 00008016                                 ; bootpackの起動
+   663 00008016                                 
+   664 00008016 66 BB 00280000                  		MOV		EBX,BOTPAK              ; 0x00280000
+   665 0000801C 67 66 8B 4B 10                  		MOV		ECX,[EBX+16]
+   666 00008021 66 83 C1 03                     		ADD		ECX,3			; ECX += 3;
+   667 00008025 66 C1 E9 02                     		SHR		ECX,2			; ECX /= 4;
+   668 00008029 74 10                           		JZ		skip			; 転送するべきものがない
+   669 0000802B 67 66 8B 73 14                  		MOV		ESI,[EBX+20]	; 転送元
+   670 00008030 66 01 DE                        		ADD		ESI,EBX
+   671 00008033 67 66 8B 7B 0C                  		MOV		EDI,[EBX+12]	; 転送先
+   672 00008038 E8 000D                         		CALL	memcpy
+   673 0000803B                                 skip:
+   674 0000803B 67 66 8B 63 0C                  		MOV		ESP,[EBX+12]	; スタック初期値
+   675 00008040 66 EA 0000001B 0010             		JMP		DWORD 2*8:0x0000001b
+   676 00008048                                 
+   677 00008048                                 ; waitkbdout:
+   678 00008048                                 ; 		IN		 AL,64H
+   679 00008048                                 ; 		AND		 AL,02H
+   680 00008048                                 ; 		JNZ		waitkbdout		; ANDの結果が0でなければwaitkbdoutへ
+   681 00008048                                 ; 		RET
+   682 00008048                                 
+   683 00008048                                 
+   684 00008048                                 memcpy:
+   685 00008048 67 66 8B 06                     		MOV		EAX,[ESI]
+   686 0000804C 66 83 C6 04                     		ADD		ESI,4
+   687 00008050 67 66 89 07                     		MOV		[EDI],EAX
+   688 00008054 66 83 C7 04                     		ADD		EDI,4
+   689 00008058 66 83 E9 01                     		SUB		ECX,1
+   690 0000805C 75 EA                           		JNZ		memcpy			; 引き算した結果が0でなければmemcpyへ
+   691 0000805E C3                              		RET
+   692 0000805F                                 ; memcpyはアドレスサイズプリフィクスを入れ忘れなければ、ストリング命令でも書ける
+   693 0000805F                                 
+   694 0000805F                                 ;READ_SECTOR:
+   695 0000805F                                 ;                            MOV AX, 00H
+   696 0000805F                                 ;                            MOV DS, AX
+   697 0000805F                                 ;                            MOV AH, 42H
+   698 0000805F                                 ;                            MOV DL, [7C24H]       ;(DL)=驱动器号
+   699 0000805F                                 ;                            MOV SI, [7C40H]
+   700 0000805F                                 ;                            INT 13H
+   701 0000805F                                 ;jmp fin
+   702 0000805F                                 ;RETURN_PRC:
+   703 0000805F                                 ;                            RET
+   704 0000805F                                 
+   705 0000805F                                 fin:
+   706 0000805F                                 ;		HLT
+   707 0000805F                                 ;        MOV BX, 55H
+   708 0000805F EB FE                           		JMP		fin
+   709 00008061                                 
+   710 00008061                                 
+   711 00008061 00 00 00 00 00 00 00 00 00 00   		ALIGNB	16
+       0000806B 00 00 00 00 00 
+   712 00008070                                 GDT0:
+   713 00008070 00000000 00000000               		DD 00000000H, 00000000H
+   714 00008078 0000FFFF 00CF9200               		DD 0000FFFFH, 00CF9200H
+   715 00008080 0000FFFF 00479A28               		DD 0000FFFFH, 00479A28H
+   716 00008088                                 
+   717 00008088                                 
+   718 00008088                                 
+   719 00008088 0000                            		DW		0
+   720 0000808A                                 GDTR0:
+   721 0000808A 0017                            		DW		8*3-1 ; limit 8 * n - 1
+   722 0000808C 00008070                        		DD		GDT0  ; base
+   723 00008090                                 
+   724 00008090 00 00 00 00 00 00 00 00 00 00   TIMES 1024 - ( $ - $$) DB 00
+       0000809A 00 00 00 00 00 00 00 00 00 00 
+       000080A4 00 00 00 00 00 00 00 00 00 00 
+       000080AE 00 00 00 00 00 00 00 00 00 00 
+       000080B8 00 00 00 00 00 00 00 00 00 00 
+       000080C2 00 00 00 00 00 00 00 00 00 00 
+       000080CC 00 00 00 00 00 00 00 00 00 00 
+       000080D6 00 00 00 00 00 00 00 00 00 00 
+       000080E0 00 00 00 00 00 00 00 00 00 00 
+       000080EA 00 00 00 00 00 00 00 00 00 00 
+       000080F4 00 00 00 00 00 00 00 00 00 00 
+       000080FE 00 00 00 00 00 00 00 00 00 00 
+       00008108 00 00 00 00 00 00 00 00 00 00 
+       00008112 00 00 00 00 00 00 00 00 00 00 
+       0000811C 00 00 00 00 00 00 00 00 00 00 
+       00008126 00 00 00 00 00 00 00 00 00 00 
+       00008130 00 00 00 00 00 00 00 00 00 00 
+       0000813A 00 00 00 00 00 00 00 00 00 00 
+       00008144 00 00 00 00 00 00 00 00 00 00 
+       0000814E 00 00 00 00 00 00 00 00 00 00 
+       00008158 00 00 00 00 00 00 00 00 00 00 
+       00008162 00 00 00 00 00 00 00 00 00 00 
+       0000816C 00 00 00 00 00 00 00 00 00 00 
+       00008176 00 00 00 00 00 00 00 00 00 00 
+       00008180 00 00 00 00 00 00 00 00 00 00 
+       0000818A 00 00 00 00 00 00 00 00 00 00 
+       00008194 00 00 00 00 00 00 00 00 00 00 
+       0000819E 00 00 00 00 00 00 00 00 00 00 
+       000081A8 00 00 00 00 00 00 00 00 00 00 
+       000081B2 00 00 00 00 00 00 00 00 00 00 
+       000081BC 00 00 00 00 00 00 00 00 00 00 
+       000081C6 00 00 00 00 00 00 00 00 00 00 
+       000081D0 00 00 00 00 00 00 00 00 00 00 
+       000081DA 00 00 00 00 00 00 00 00 00 00 
+       000081E4 00 00 00 00 00 00 00 00 00 00 
+       000081EE 00 00 00 00 00 00 00 00 00 00 
+       000081F8 00 00 00 00 00 00 00 00 00 00 
+       00008202 00 00 00 00 00 00 00 00 00 00 
+       0000820C 00 00 00 00 00 00 00 00 00 00 
+       00008216 00 00 00 00 00 00 00 00 00 00 
+       00008220 00 00 00 00 00 00 00 00 00 00 
+       0000822A 00 00 00 00 00 00 00 00 00 00 
+       00008234 00 00 00 00 00 00 00 00 00 00 
+       0000823E 00 00 00 00 00 00 00 00 00 00 
+       00008248 00 00 00 00 00 00 00 00 00 00 
+       00008252 00 00 00 00 00 00 00 00 00 00 
+       0000825C 00 00 00 00 00 00 00 00 00 00 
+       00008266 00 00 00 00 00 00 00 00 00 00 
+       00008270 00 00 00 00 00 00 00 00 00 00 
+       0000827A 00 00 00 00 00 00 00 00 00 00 
+       00008284 00 00 00 00 00 00 00 00 00 00 
+       0000828E 00 00 00 00 00 00 00 00 00 00 
+       00008298 00 00 00 00 00 00 00 00 00 00 
+       000082A2 00 00 00 00 00 00 00 00 00 00 
+       000082AC 00 00 00 00 00 00 00 00 00 00 
+       000082B6 00 00 00 00 00 00 00 00 00 00 
+       000082C0 00 00 00 00 00 00 00 00 00 00 
+       000082CA 00 00 00 00 00 00 00 00 00 00 
+       000082D4 00 00 00 00 00 00 00 00 00 00 
+       000082DE 00 00 00 00 00 00 00 00 00 00 
+       000082E8 00 00 00 00 00 00 00 00 00 00 
+       000082F2 00 00 00 00 00 00 00 00 00 00 
+       000082FC 00 00 00 00 
+   725 00008300                                 		ALIGNB	16
+   726 00008300                                 bootpack:

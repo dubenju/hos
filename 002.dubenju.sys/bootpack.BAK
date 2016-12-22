@@ -1,1066 +1,586 @@
-/* bootpackÇÃÉÅÉCÉì */
+// #pragma pack (1)
 
-#include "bootpack.h"
-#include <stdio.h>
-#include <string.h>
+/* asmhead.nas */
+struct BOOTINFO {       /* 0x05f0-0x05ff */
+    char cyls;          /* „Éñ„Éº„Éà„Çª„ÇØ„Çø„ÅØ„Å©„Åì„Åæ„Åß„Éá„Ç£„Çπ„ÇØ„ÇíË™≠„Çì„Å†„ÅÆ„Åã */
+    char leds;          /* „Éñ„Éº„ÉàÊôÇ„ÅÆ„Ç≠„Éº„Éú„Éº„Éâ„ÅÆLED„ÅÆÁä∂ÊÖã */
+    char vmode;         /* „Éì„Éá„Ç™„É¢„Éº„Éâ  ‰Ωï„Éì„ÉÉ„Éà„Ç´„É©„Éº„Åã */
+    char reserve;
+    short scrnx, scrny; /* ÁîªÈù¢Ëß£ÂÉèÂ∫¶ */
+    char * vram;
+};
+#define ADR_SHTCTL   0x000005e4
+#define ADR_LANG     0x000005e8
+#define ADR_FIFO     0x000005ec
+#define ADR_BOOTINFO 0x000005f0
+#define ADR_PT_PRIM  0x000007be
+#define ADR_BPB_PRIM 0x00007c03
+#define ADR_DISKIMG  0x00100000
+#define ADR_DMABUF   0x00268000
+#define MAX_ENTRY    4096
 
-#define KEYCMD_LED		0xed
+/* naskfunc.nas */
+void io_hlt(void);
+void io_cli(void);
+void io_sti(void);
+void io_stihlt(void);
+int  io_in8(int port);
+void io_out8(int port, int data);
+int  io_load_eflags(void);
+void io_store_eflags(int eflags);
+void load_gdtr(int limit, int addr);
+void load_idtr(int limit, int addr);
+int  load_cr0(void);
+void store_cr0(int cr0);
+void load_tr(int tr);
+void asm_inthandler0c(void);
+void asm_inthandler0d(void);
+void asm_inthandler20(void);
+void asm_inthandler21(void);
+void asm_inthandler26(void);
+void asm_inthandler2c(void);
+unsigned int memtest_sub(unsigned int start, unsigned int end);
+void farjmp(int eip, int cs);
+void farcall(int eip, int cs);
+void asm_hrb_api(void);
+void start_app(int eip, int cs, int esp, int ds, int *tss_esp0);
+void asm_end_app(void);
 
-int * u_fat;
-char fat_flag;
-char current_path[256];    /* pwd */
-char epath[1024];
-struct TASK * fdc;
-struct TASK * inout;
-struct TASK * taskmgr;
+/* fifo.c */
+struct FIFO32 {
+  int * buf;
+  int p, q, size, free, flags;
+  struct TASK * task;
+};
+void fifo32_init(struct FIFO32 *fifo, int size, int *buf, struct TASK *task);
+int fifo32_put(struct FIFO32 *fifo, int data);
+int fifo32_get(struct FIFO32 *fifo);
+int fifo32_status(struct FIFO32 *fifo);
 
-void keywin_off(struct SHEET *key_win);
-void keywin_on(struct SHEET *key_win);
-void close_console(struct SHEET *sht);
-void close_constask(struct TASK *task);
-void close_taskmgr(void);
+/* graphic.c */
+void init_palette(void);
+void set_palette(int start, int end, unsigned char *rgb);
+void boxfill8(unsigned short *vram, int xsize, unsigned char c, int x0, int y0, int x1, int y1);
+void boxfill8c(unsigned char * vram, int xsize, unsigned char c, int x0, int y0, int x1, int y1);
+void init_screen8(short *vram, int x, int y);
+void putfont8(short *vram, int xsize, int x, int y, unsigned char c, char scl, char *font);
+void putfonts8_asc(short *vram, int xsize, int x, int y, unsigned char c, char scl, unsigned char *s);
+void init_mouse_cursor8(short *mouse, unsigned char bc);
+void putblock8_8(short *vram, int vxsize, int pxsize, int pysize, int px0, int py0, short *buf, int bxsize);
 
-void init_taskbar(unsigned char * buf, int xsize, int ysize, int color);
-void init_menu(struct MNLV * mnlv, struct MENU ** menu);
+#define COL8_000000 0
+#define COL8_FF0000 1
+#define COL8_00FF00 2
+#define COL8_FFFF00 3
+#define COL8_0000FF 4
+#define COL8_FF00FF 5
+#define COL8_00FFFF 6
+#define COL8_FFFFFF 7
+#define COL8_C6C6C6 8
+#define COL8_840000 9
+#define COL8_008400 10
+#define COL8_848400 11
+#define COL8_000084 12
+#define COL8_840084 13
+#define COL8_008484 14
+#define COL8_848484 15
 
-void HariMain(void) {
-    struct BOOTINFO *binfo = (struct BOOTINFO *) ADR_BOOTINFO; /* 0x000005f0 */
-// 
-//   char s[40];
-// 
-//   struct FIFO32 fifo;
-//   int fifobuf[128];
-// 
-//   struct FIFO32 keycmd;
-//   int keycmd_buf[32];
+/* dsctbl.c */
+struct SEGMENT_DESCRIPTOR {
+	short limit_low;    /* 00-15 */
+	short base_low;     /* 00-15 */
+	char  base_mid;     /* 16-23 */
+	char  access_right; /* TYPE4,DT1,DPL2,P1 */
+	char  limit_high;   /* 16-19, AVL1, 0, D1, G1 */
+	char  base_high;    /* 24-31 */
+};
+struct GATE_DESCRIPTOR {
+	short offset_low, selector;
+	char dw_count, access_right;
+	short offset_high;
+};
+void init_gdtidt(void);
+void set_segmdesc(struct SEGMENT_DESCRIPTOR *sd, unsigned int limit, int base, int ar);
+void set_gatedesc(struct GATE_DESCRIPTOR *gd, int offset, int selector, int ar);
+#define ADR_IDT      0x0026f800
+#define LIMIT_IDT    0x000007ff
+#define ADR_GDT      0x00270000
+#define LIMIT_GDT    0x0000ffff
+#define ADR_BOTPAK   0x00280000
+#define LIMIT_BOTPAK 0x0007ffff
 
-    int mx, my; /* for mouse's position */
-//   int i;
-//   int new_mx = -1, new_my = 0, new_wx = 0x7fffffff, new_wy = 0;
-    unsigned int memtotal;
-//   struct MOUSE_DEC mdec;
-    struct MEMMAN *memman = (struct MEMMAN *) MEMMAN_ADDR; /* 0x003c0000 */
+#define SD_ATR_PRE_0 0x00
+#define SD_ATR_PRE_1 0x80
 
-    unsigned short *buf_back;      /* background */
-    unsigned short buf_mouse[256]; /* mouse      */
-//   unsigned short *buf_browser;   /* browser    */
+#define SD_ATR_DPL_0 0x00
+#define SD_ATR_DPL_1 0x20
+#define SD_ATR_DPL_2 0x40
+#define SD_ATR_DPL_3 0x60
 
-    struct SHTCTL *shtctl;         /* sheets control */
-    struct SHEET *sht_back;
-    struct SHEET *sht_mouse;
-//   struct SHEET *key_win;
-//   struct SHEET *sht_browser;
-// 
-//   struct SHEET *sht = 0;         /* moves sheet */
-//   struct SHEET *sht2;
-// 
-//   struct TASK *task_a;
-//   struct TASK *task;
-// 
-//   static char keytable0[0x80] = {
-//      0,   0,  '1', '2',  '3', '4', '5', '6', '7', '8', '9', '0', '-', '^', 0x08,  0,
-//     'Q', 'W', 'E', 'R',  'T', 'Y', 'U', 'I', 'O', 'P', '@', '[', 0x0a, 0,   'A', 'S',
-//     'D', 'F', 'G', 'H',  'J', 'K', 'L', ';', ':',  0,   0,  ']', 'Z', 'X',  'C', 'V',
-//     'B', 'N', 'M', ',',  '.', '/',  0,  '*',  0,  ' ',  0,   0,   0,   0,    0,   0,
-//      0,   0,   0,   0,    0,   0,   0,  '7', '8', '9', '-', '4', '5', '6',  '+', '1',
-//     '2', '3', '0', '.',   0,   0,   0,   0,   0,   0,   0,   0,   0,   0,    0,   0,
-//      0,   0,   0,   0,    0,   0,   0,   0,   0,   0,   0,   0,   0,   0,    0,   0,
-//      0,   0,   0,   0x5c, 0,   0,   0,   0,   0,   0,   0,   0,   0,   0x5c, 0,   0
-//   };
-//   static char keytable1[0x80] = {
-//      0,   0,  '!', 0x22, '#', '$', '%', '&', 0x27, '(', ')', '~',  '=',   '~', 0x08,  0,
-//     'Q', 'W', 'E',  'R', 'T', 'Y', 'U', 'I',  'O', 'P', '`', '{', 0x0a,    0,   'A', 'S',
-//     'D', 'F', 'G',  'H', 'J', 'K', 'L', '+',  '*', 0,    0,  '}',   'Z',  'X',  'C', 'V',
-//     'B', 'N', 'M',  '<', '>', '?',  0,  '*',   0,  ' ',  0,   0,     0,    0,    0,   0,
-//      0,   0,   0,    0,   0,   0,   0,  '7',  '8', '9', '-', '4',   '5',  '6',  '+', '1',
-//     '2', '3', '0',  '.',  0,   0,   0,   0,    0,   0,   0,   0,     0,    0,    0,   0,
-//      0,   0,   0,    0,   0,   0,   0,   0,    0,   0,   0,   0,     0,    0,    0,   0,
-//      0,   0,   0,   '_',  0,   0,   0,   0,    0,   0,   0,   0,     0,   '|',   0,   0
-//   };
-//   int key_shift = 0, key_leds = (binfo->leds >> 4) & 7, keycmd_wait = -1;
-//    int j, x, y, mmx = -1, mmy = -1, mmx2 = 0;
-// 
-//   /* *** menu *** */
-//   int fw_flg = 0;
-//   int mn_flg = -1;
-//   int rc;
-//   struct MENU * menu;
-//   struct MNLV mnlv[MAX_MNLV];
-// 
-//   /* *** font *** */
-//   unsigned char *nihongo;
-//   struct FILEINFO *finfo;
-//   extern char hankaku[4096]; /* *.c */
-// 
-//   /* *** debug *** */
-//   char dbg_msg[41];
-//   fat_flag = 0;
-// 
-//   /* *** ************** ******** *** */
-//   /* *** Initialization hardware *** */
-//   /* *** ************** ******** *** */
-// 
-//   /* *** interrupt *** */
-//   /*
-//    * Å°processor management(i386-i586)
-//    * protected mode:set gdt, idt
-//    */
-//     init_gdtidt();                           /* dsctbl.c */
-//   init_pic();                              /* int.c 8259A */
-//   /* init_RTC */
-//                                            /* IDT/PICÇÃèâä˙âªÇ™èIÇÌÇ¡ÇΩÇÃÇ≈CPUÇÃäÑÇËçûÇ›ã÷é~Çâèú */
-//   io_sti();                                /* naskfunc.nas */
-//   fifo32_init(&fifo, 128, fifobuf, 0);     /* fifo.c */
-//   *((int *) 0x0fec) = (int) &fifo;         /* Å°Save to memmory */
-// 
-//   init_pit();                              /* timer.c 8254 */
-//   init_keyboard(&fifo, 256);               /* keyboard.c 8042 */
-//   enable_mouse(&fifo, 512, &mdec);         /* mouse.c 8042 */
-//   /* io_out8(PIC0_IMR, 0xf8);                 *//* naskfunc.nas PITÇ∆PIC1Ç∆ÉLÅ[É{Å[ÉhÇãñâ¬(11111000) */
-//   io_out8(PIC0_IMR, 0xb8);                 /* naskfunc.nas FDC,PITÇ∆PIC1Ç∆ÉLÅ[É{Å[ÉhÇãñâ¬(10111000) */
-//   io_out8(PIC1_IMR, 0xef);                 /* naskfunc.nas É}ÉEÉXÇãñâ¬(11101111) */
-//   fifo32_init(&keycmd, 32, keycmd_buf, 0); /* fifo.c */
- 
-    /* *** ************** ******** *** */
-    /* *** Initialization memory   *** */
-    /* *** ************** ******** *** */
-    /* Å°memory management */
-    memtotal = memtest(0x00400000, 0xbfffffff);              /* memory.c */
-    memman_init(memman);                                     /* memory.c */
-    memman_free(memman, 0x00010000, 0x0009e000);             /* 0x00001000 - 0x0009efff */
-    memman_free(memman, 0x00400000, memtotal - 0x00400000);  /* memory.c */
+#define SD_ATR_DT_0  0x00
+#define SD_ATR_DT_1  0x10
 
-// 
-//   /* **** */
-//   /* initialization dma after memory */
-//   /* initialization fdc */
-//   /* init_fdcc(); */
-//   /* initialization sound blaster */
-// 
-//   /* *** ************** *********** *** */
-//   /* *** Initialization File System *** */
-//   /* *** ************** *********** *** */
-//   /* Å°file system management */
-//   u_fat = (int *) memman_alloc_4k(memman, 4 * 2880);
-//   file_readfat(u_fat, (unsigned char *) (ADR_DISKIMG + 0x000200)); /* file.c */
-//   file_inittbl();                                                  /* file.c */
-//   strcpy(current_path, "/");
-//       fat_flag = 1;
-//       out_log("[filesystem]file system is installed.");
+#define SD_ATR_TPE_0 0x00
+#define SD_ATR_TPE_1 0x08
 
-    /* *** ************** ******** *** */
-    /* *** Initialization gdi      *** */
-    /* *** ************** ******** *** */
- 
-    /* *** gdi *** */
-    init_palette();                                                        /* graphic.c */
-    shtctl = shtctl_init(memman, binfo->vram, binfo->scrnx, binfo->scrny); /* sheet.c */
-//   /* Å°processes management */
-//    task_a = task_init(memman);     /* task_a = system initial all task */ /* mtask.c */
-//   fifo.task = task_a;                                                    /* keyboard & mouse */
-//   task_run(task_a, 1, 2);                                                /* mtask.c */
-//   *((int *) 0x0fe4) = (int) shtctl;                                      /* Å°Save to memmory */
-//   task_a->langmode = 0;                                                  /* 0:ASCII Mode,1:SHIFTJIS,2:EUC */
- 
-    /* sht_back (Åöbackground) */
-    sht_back  = sheet_alloc(shtctl);                                       /* sheet.c */
-    // boxfill8c((unsigned char *)0xe0000000, 640, COL8_00FFFF, 40, 20, 50 - 1, 48 - 1);
-    buf_back  = (unsigned short *) memman_alloc_4k(memman, binfo->scrnx * binfo->scrny * 2); /* memory.c */
-    // boxfill8c((unsigned char *)0xe0000000, 640, COL8_FFFF00, 70, 20, 80 - 1, 48 - 1);
-    sheet_setbuf(sht_back, buf_back, binfo->scrnx, binfo->scrny, -1);      /* sheet.c ìßñæêFÇ»Çµ */
-    // boxfill8c((unsigned char *)0xe0000000, 640, COL8_C6C6C6, 80, 20, 90 - 1, 48 - 1);
-//    sheet_setbuf(sht_back, buf_back, binfo->scrnx, binfo->scrny, COL8_FFFFFF);      /* sheet.c ìßñæêFÇ»Çµ */
-//    init_screen8(buf_back, binfo->scrnx, binfo->scrny);                    /* graphic.c */
-    init_screen8(buf_back, binfo->scrnx, binfo->scrny);                    /* graphic.c */
-    // idc = 0;
-    // istep = 20;
-    // for (ida = 0; ida < 640; ida += istep) {
-    //     for (idb = 0; idb < 960; idb += istep) {
-    //         boxfill8(binfo->vram, binfo->scrnx, idc, ida, idb, ida + istep - 1, idb + istep - 1);
-    //         idc += 1;
-    //         idc %= 16;
-    //     }
-    // }
 
-//   sht_back->callback = NULL;
-// 
-//       dbg_init(sht_back);
-//       dbg_putstr0("\nCreate sheet\n", COL8_FFFFFF);
-//       out_log("[gdi]debug window is installed.");
-// 
-//       if (binfo->vmode == 8) {
-//         dbg_putstr0("vmode=8\n", COL8_FFFFFF);
-//       } else {
-//         dbg_putstr0("vmode<>8\n", COL8_FFFFFF);
-//       }
-//       memset(dbg_msg, 0, sizeof(dbg_msg));
-//   sprintf(dbg_msg, "cyls:%d.\n", binfo->cyls);
-//       dbg_putstr0(dbg_msg, COL8_FFFFFF);
-//       memset(dbg_msg, 0, sizeof(dbg_msg));
-//   sprintf(dbg_msg, "leds:%d.\n", binfo->leds);
-//       dbg_putstr0(dbg_msg, COL8_FFFFFF);
-//       memset(dbg_msg, 0, sizeof(dbg_msg));
-//   sprintf(dbg_msg, "vmode:%d.\n", binfo->vmode);
-//       dbg_putstr0(dbg_msg, COL8_FFFFFF);
-//       memset(dbg_msg, 0, sizeof(dbg_msg));
-//   sprintf(dbg_msg, "scrnx:%d.\n", binfo->scrnx);
-//       dbg_putstr0(dbg_msg, COL8_FFFFFF);
-//       memset(dbg_msg, 0, sizeof(dbg_msg));
-//   sprintf(dbg_msg, "scrny:%d.\n", binfo->scrny);
-//       dbg_putstr0(dbg_msg, COL8_FFFFFF);
-//       memset(dbg_msg, 0, sizeof(dbg_msg));
-//   sprintf(dbg_msg, "vram:%p.\n", binfo->vram);
-//       dbg_putstr0(dbg_msg, COL8_FFFFFF);
-//       out_log("[gdi]initial gdi sheet.");
-// 
-//   /* sht_cons (Åöconsole) */
-//   /* sheet_alloc          */
-//   /* memman_alloc_4k w*h  */
-//   /* sheet_setbuf    w*h  */
-//   /* init_console         */
-//   key_win = open_console(shtctl, memtotal);
-//   key_win->callback = NULL;
-//       dbg_putstr0("Open Console\n", COL8_FFFFFF);
-// /* browser */
-// 
-    /* sht_mouse (Åömouse) */
-    sht_mouse = sheet_alloc(shtctl);
-    /* buf_mouse = 16 * 16 = 256 */
-    sheet_setbuf(sht_mouse, buf_mouse, 16, 16, 99);
-    init_mouse_cursor8(buf_mouse, 99);
+#define AR_DATA32_RW 0x4092
+#define AR_CODE32_ER 0x409a
+#define AR_LDT       0x0082
+#define AR_TSS32     0x0089
+#define AR_INTGATE32 0x008e
 
-//   sht_browser = sheet_alloc(shtctl);
-//   buf_browser  = (unsigned short *) memman_alloc_4k(memman, 600 * 400 * 2); /* memory.c */
-//   sheet_setbuf(sht_browser, buf_browser, 600, 400, 99);
-//   make_window8(buf_browser, 600, 400, "browser", 0);
-//   sht_browser->task = task_alloc();
-//   int *browser_fifo = (int *) memman_alloc_4k(memman, 128 * 4);
-//   sht_browser->task->tss.esp = memman_alloc_4k(memman, 64 * 1024) + 64 * 1024 - 8;
-//   sht_browser->task->tss.eip = (int) &browser_task;
-//   sht_browser->task->tss.es = 1 * 8;
-//   sht_browser->task->tss.cs = 2 * 8;
-//   sht_browser->task->tss.ss = 1 * 8;
-//   sht_browser->task->tss.ds = 1 * 8;
-//   sht_browser->task->tss.fs = 1 * 8;
-//   sht_browser->task->tss.gs = 1 * 8;
-//   strcpy( sht_browser->task->name, "browser");
-//   *((int *) (sht_browser->task->tss.esp + 4)) = (int) sht_browser;
-//   *((int *) (sht_browser->task->tss.esp + 8)) = memtotal;
-//  task_run(sht_browser->task, 3, 2);/* level=3, priority=2 */
-//   fifo32_init(&(sht_browser->task->fifo), 128, browser_fifo, sht_browser->task);
-//   sht_browser->callback = brow_callback;
+/* int.c */
+void init_pic(void);
+#define PIC0_OCW2  0x0020
+#define PIC0_IMR   0x0021
+#define PIC0_ICW1  0x0020
+#define PIC0_ICW2  0x0021
+#define PIC0_ICW3  0x0021
+#define PIC0_ICW4  0x0021
+#define PIC1_OCW2  0x00a0
+#define PIC1_IMR   0x00a1
+#define PIC1_ICW1  0x00a0
+#define PIC1_ICW2  0x00a1
+#define PIC1_ICW3  0x00a1
+#define PIC1_ICW4  0x00a1
 
-    /* for mouse */
-    mx = (binfo->scrnx - 16) / 2; /* âÊñ íÜâõÇ…Ç»ÇÈÇÊÇ§Ç…ç¿ïWåvéZ */
-    my = (binfo->scrny - 28 - 16) / 2;
+/* keyboard.c */
+void inthandler21(int *esp);
+void wait_KBC_sendready(void);
+void init_keyboard(struct FIFO32 *fifo, int data0);
+#define PORT_KEYDAT 0x0060
+#define PORT_KEYCMD 0x0064
 
-    /* set sheet's position show it by sheetlst cmd */
-    sheet_slide(sht_back,    0, 0);
-//   sheet_slide(key_win,     8, 16); /* cosole position */
-    sheet_slide(sht_mouse,  mx, my);
-//   sheet_slide(sht_browser,  4, 8);
+/* mouse.c */
+struct MOUSE_DEC {
+  unsigned char buf[3], phase;
+  int x, y, btn;
+};
+void inthandler2c(int *esp);
+void enable_mouse(struct FIFO32 *fifo, int data0, struct MOUSE_DEC *mdec);
+int  mouse_decode(struct MOUSE_DEC *mdec, unsigned char dat);
 
-     /* set sheet's layer */
-    sheet_updown(sht_back,    0);
-//   sheet_updown(sht_browser, 1);
-//   sheet_updown(key_win,     2);
-    sheet_updown(sht_mouse,   3);
-// 
-//   keywin_on(key_win);
-// 
-//   /* ç≈èâÇ…ÉLÅ[É{Å[ÉhèÛë‘Ç∆ÇÃêHÇ¢à·Ç¢Ç™Ç»Ç¢ÇÊÇ§Ç…ÅAê›íËÇµÇƒÇ®Ç≠Ç±Ç∆Ç…Ç∑ÇÈ */
-//   io_cli();   /* soon after change ss:sp */
-//   fifo32_put(&keycmd, KEYCMD_LED);
-//   fifo32_put(&keycmd, key_leds);
-//   io_sti();   /* changed ss:sp */
-// 
-// 
-//   /* *** ==>font begin<== *** */
-//   /* nihongo.fntÇÃì«Ç›çûÇ› */
-//   finfo = file_search2("/nihongo.fnt", (struct FILEINFO *) (ADR_DISKIMG + 0x002600), 224, u_fat);
-//   if (finfo != 0 && (finfo->attribute & 0x18) == 0) {
-//     /* exist */
-//     i = finfo->size;
-//     memset(dbg_msg, 0, sizeof(dbg_msg));
-//     sprintf(dbg_msg, "fong size:%d.\n", i);
-//     dbg_putstr0(dbg_msg, COL8_FFFFFF);
-//     /* nihongo = file_loadfile2(finfo->clustno, &i, fat); */
-//     nihongo = file_loadfile2(finfo->clustno, &i, u_fat);
-//         dbg_putstr0("Load Font from disk\n", COL8_FFFFFF);
-//   } else {
-//     nihongo = (unsigned char *) memman_alloc_4k(memman, 16 * 256 + 32 * 94 * 47);
-//     for (i = 0; i < 16 * 256; i++) {
-//       nihongo[i] = hankaku[i]; /* ÉtÉHÉìÉgÇ™Ç»Ç©Ç¡ÇΩÇÃÇ≈îºäpïîï™ÇÉRÉsÅ[ */
-//     }
-//     for (i = 16 * 256; i < 16 * 256 + 32 * 94 * 47; i++) {
-//       nihongo[i] = 0xff; /* ÉtÉHÉìÉgÇ™Ç»Ç©Ç¡ÇΩÇÃÇ≈ëSäpïîï™Ç0xffÇ≈ñÑÇﬂêsÇ≠Ç∑ */
-//     }
-//         dbg_putstr0("Load Font from coding.\n", COL8_FFFFFF);
-//   }
-//   *((int *) 0x0fe8) = (int) nihongo; /* Å°Save to memmory */
-//   /* *** ==>font  end <== *** */
-//        dbg_putstr0("Load Font End\n", COL8_FFFFFF);
-//        out_log("[gdi]font is installed.");
-// 
-//   /* init menu */
-//   init_menu(mnlv, &menu);
-//       dbg_putstr0("Init Menu\n", COL8_FFFFFF);
-//       out_log("[gdi]menu is installed.");
-// 
-//   struct TASK * clock = task_alloc();
-//   int * clock_fifo = (int *) memman_alloc_4k(memman, 128 * 4);
-//   clock->tss.esp = memman_alloc_4k(memman, 64 * 1024) + 64 * 1024;
-//   clock->tss.eip = (int) &sysclock_task; /* taskmgr.c */
-//   clock->tss.es = 1 * 8;
-//   clock->tss.cs = 2 * 8;
-//   clock->tss.ss = 1 * 8;
-//   clock->tss.ds = 1 * 8;
-//   clock->tss.fs = 1 * 8;
-//   clock->tss.gs = 1 * 8;
-//   strcpy(clock->name, "sysclock");
-//   task_run(clock, 1, 2);
-//   fifo32_init(&clock->fifo, 128, clock_fifo, clock);
-//       out_log("[task]clock is installed.");
-// 
-//   /* flpydsk_set_working_drive(0);
-//   flpydsk_install(38);
-//   flpydsk_set_dma(0x8000); */
-// 
-// /*  fdc = task_alloc();
-//   int *fdc_fifo = (int *) memman_alloc_4k(memman, 2880 * 4 * 4);
-//   fdc->tss.esp = memman_alloc_4k(memman, 64 * 1024) + 64 * 1024;
-//   fdc->tss.eip = (int) &fdc_task; *//* fdc.c */
-// /*  fdc->tss.es = 1 * 8;
-//   fdc->tss.cs = 2 * 8;
-//   fdc->tss.ss = 1 * 8;
-//   fdc->tss.ds = 1 * 8;
-//   fdc->tss.fs = 1 * 8;
-//   fdc->tss.gs = 1 * 8; */
-// /*  fdc->time = 0; */
-// /*  strcpy(fdc->name, "fdc"); */
-// /*  task_run(fdc, 2, 2); *//* level=2, priority=2 */
-// /*  fifo32_init(&fdc->fifo, 2880 * 4, fdc_fifo, fdc); */
-// 
-// /*  inout = task_alloc();
-//   int *inout_fifo = (int *) memman_alloc_4k(memman, 128 * 4);
-//   inout->tss.esp = memman_alloc_4k(memman, 64 * 1024) + 64 * 1024 - 8;
-//   inout->tss.eip = (int) &inout_task; *//* file.c */
-// /*  inout->tss.es = 1 * 8;
-//   inout->tss.cs = 2 * 8;
-//   inout->tss.ss = 1 * 8;
-//   inout->tss.ds = 1 * 8;
-//   inout->tss.fs = 1 * 8;
-//   inout->tss.gs = 1 * 8; */
-// /*  inout->time = 0; */
-// /*  strcpy(inout->name, "ioctrl");
-//   *((int *) (inout->tss.esp + 4)) = (int) sht_back;
-//   task_run(inout, 2, 2); *//* level=2, priority=2 */
-// /*  fifo32_init(&inout->fifo, 128, inout_fifo, inout); */
-// 
-//   for (;;) {
-//     if (fifo32_status(&keycmd) > 0 && keycmd_wait < 0) {
-//       /* ÉLÅ[É{Å[ÉhÉRÉìÉgÉçÅ[ÉâÇ…ëóÇÈÉfÅ[É^Ç™Ç†ÇÍÇŒÅAëóÇÈ */
-//       keycmd_wait = fifo32_get(&keycmd);
-//       wait_KBC_sendready();
-//       io_out8(PORT_KEYDAT, keycmd_wait);
-//     }
-// 
-//     io_cli();
-//     if (fifo32_status(&fifo) == 0) {
-//       /* FIFOÇ™Ç©ÇÁÇ¡Ç€Ç…Ç»Ç¡ÇΩÇÃÇ≈ÅAï€óØÇµÇƒÇ¢ÇÈï`âÊÇ™Ç†ÇÍÇŒé¿çsÇ∑ÇÈ */
-//       if (new_mx >= 0) {
-//         io_sti();
-//         sheet_slide(sht_mouse, new_mx, new_my);
-//         memset(dbg_msg, 0, sizeof(dbg_msg));
-//         sprintf(dbg_msg, "[%d,%d]\n", new_mx, new_my); /* 640 * 480 Å°*/
-//         dbg_putstr0(dbg_msg, COL8_FFFFFF);
-// 
-//         if (((key_win->vx0 <= new_mx) && (new_mx <= key_win->vx0 + 3))) {
-//           if (((key_win->vy0 <= new_my) && (new_my <= key_win->vy0 + 3))) {
-//             set_mouse_cursorlt8(buf_mouse, 99);
-//           } else if ((key_win->vy0 + 3 <= new_my) && (new_my <= key_win->vy0 + key_win->bysize - 3)) {
-//             set_mouse_cursorl8(buf_mouse, 99);
-//           } else if (((key_win->vy0 + key_win->bysize - 3 <= new_my) && (new_my <= key_win->vy0 + key_win->bysize))) {
-//             set_mouse_cursorrb8(buf_mouse, 99);
-//           }
-//         } else if ((key_win->vx0 + 3 <= new_mx) && (new_mx <= key_win->vx0 + key_win->bxsize - 3)) {
-//           if (((key_win->vy0 <= new_my) && (new_my <= key_win->vy0 + 3)) || 
-//               ((key_win->vy0 + key_win->bysize - 3 <= new_my) && (new_my <= key_win->vy0 + key_win->bysize))) {
-//             set_mouse_cursorh8(buf_mouse, 99);
-//           } else {
-//             init_mouse_cursor81(buf_mouse, 99);
-//           }
-//         } else if (((key_win->vx0 + key_win->bxsize - 3 <= new_mx) && (new_mx <= key_win->vx0 + key_win->bxsize))) {
-//           if (((key_win->vy0 <= new_my) && (new_my <= key_win->vy0 + 3))) {
-//             set_mouse_cursorrb8(buf_mouse, 99);
-//           } else if ((key_win->vy0 + 3 <= new_my) && (new_my <= key_win->vy0 + key_win->bysize - 3)) {
-//             set_mouse_cursorl8(buf_mouse, 99);
-//           } else if (((key_win->vy0 + key_win->bysize - 3 <= new_my) && (new_my <= key_win->vy0 + key_win->bysize))) {
-//             set_mouse_cursorlt8(buf_mouse, 99);
-//           }
-//         } else {
-//           init_mouse_cursor81(buf_mouse, 99);
-//         }
-// 
-//         (*reset_back)(new_wx, new_wy);
-//         reset_key_win(key_win, new_wx, new_wy);
-// 
-//         new_mx = -1;
-//       } else if (new_wx != 0x7fffffff) {
-//         io_sti();
-//         sheet_slide(sht, new_wx, new_wy);
-//         new_wx = 0x7fffffff;
-//       } else {
-//         task_sleep(task_a);
-//         io_sti();
-//       }
-//     } else {
-//       i = fifo32_get(&fifo);
-//       io_sti();
-//       if (key_win != 0 && key_win->flags == 0) {
-//         /* ****************** */
-//         /* (@)come from       */
-//         /* ****************** */
-//         /* window is closed. */
-//         if (shtctl->top == 1) {	/* Ç‡Ç§É}ÉEÉXÇ∆îwåiÇµÇ©Ç»Ç¢ */
-//           key_win = 0;
-//         } else {
-//           key_win = shtctl->sheets[shtctl->top - 1];
-//           keywin_on(key_win);
-//         }
-//       }
-// 
-//       /* 
-//        *  256 <= i && i <=  511:keyboard             *
-//        *  512 <= i && i <=  767:mouse                *
-//        *  768 <= i && i <= 1023:close console        *
-//        * 1024 <= i && i <= 2023:close contask        *
-//        * 2024 <= i && i <= 2279:console close only   *
-//        */
-//       if (256 <= i && i <= 511 || 4352 <= i && i <= 4607) {
-//         /* ********************* */
-//         /* (@)come from keyboard */
-//         /* ********************* */
-//         if (i == 4352 + 0x37) {	/* PrintScreen */
-//           bmp_conv(640, 480, (unsigned short *) shtctl->vram);
-//           dbg_putstr0("==Print Screen ==\n", COL8_FFFFFF);
-//         }
-// 
-//         if (mn_flg != -1) {
-//           for (;mn_flg > -1;) {
-//             mn_flg = close_menu(shtctl->sheets[0], &mnlv[mn_flg]);
-//           }
-//         }
-// 
-//         if (i < 0x80 + 256) { /* ÉLÅ[ÉRÅ[ÉhÇï∂éöÉRÅ[ÉhÇ…ïœä∑ */
-//           if (key_shift == 0) {
-//             s[0] = keytable0[i - 256];
-//           } else {
-//             s[0] = keytable1[i - 256];
-//           }
-//         } else {
-//           s[0] = 0;
-//         }
-// 
-//         if ('A' <= s[0] && s[0] <= 'Z') {	/* ì¸óÕï∂éöÇ™ÉAÉãÉtÉ@ÉxÉbÉg */
-//           if (((key_leds & 4) == 0 && key_shift == 0) || ((key_leds & 4) != 0 && key_shift != 0)) {
-//             s[0] += 0x20;	/* ëÂï∂éöÇè¨ï∂éöÇ…ïœä∑ */
-//           }
-//         }
-// 
-//         if (s[0] != 0 && key_win != 0) { /* í èÌï∂éöÅAÉoÉbÉNÉXÉyÅ[ÉXÅAEnter */
-//           io_cli();   /* soon after change ss:sp */
-//           fifo32_put(&key_win->task->fifo, s[0] + 256);
-//           io_sti();   /* changed ss:sp */
-//         }
-// 
-//         if (i == 256 + 0x0f && key_win != 0) {	/* Tab */
-//           keywin_off(key_win);
-//           j = key_win->height - 1;
-//           if (j == 0) {
-//             j = shtctl->top - 1;
-//           }
-//           key_win = shtctl->sheets[j];
-//           keywin_on(key_win);
-//         }
-//         if (i == 256 + 0x2a) {	/* ç∂ÉVÉtÉg ON */
-//           key_shift |= 1;
-//         }
-//         if (i == 256 + 0x36) {	/* âEÉVÉtÉg ON */
-//           key_shift |= 2;
-//         }
-//         if (i == 256 + 0xaa) {	/* ç∂ÉVÉtÉg OFF */
-//           key_shift &= ~1;
-//         }
-//         if (i == 256 + 0xb6) {	/* âEÉVÉtÉg OFF */
-//           key_shift &= ~2;
-//         }
-//         if (i == 256 + 0x3a) {	/* CapsLock */
-//           key_leds ^= 4;
-//           io_cli();   /* soon after change ss:sp */
-//           fifo32_put(&keycmd, KEYCMD_LED);
-//           fifo32_put(&keycmd, key_leds);
-//           io_sti();   /* changed ss:sp */
-//         }
-//         if (i == 256 + 0x45) {	/* NumLock */
-//           key_leds ^= 2;
-//           io_cli();   /* soon after change ss:sp */
-//           fifo32_put(&keycmd, KEYCMD_LED);
-//           fifo32_put(&keycmd, key_leds);
-//           io_sti();   /* changed ss:sp */
-//         }
-//         if (i == 256 + 0x46) {	/* ScrollLock */
-//           key_leds ^= 1;
-//           io_cli();   /* soon after change ss:sp */
-//           fifo32_put(&keycmd, KEYCMD_LED);
-//           fifo32_put(&keycmd, key_leds);
-//           io_sti();   /* changed ss:sp */
-//         }
-//         if (i == 256 + 0x3b && key_shift != 0 && key_win != 0) {	/* Shift+F1 */
-//           task = key_win->task;
-//           if (task != 0 && task->tss.ss0 != 0) {
-//             cons_putstr0(task->cons, "\nBreak(key) :(Shift+F1)\n");
-//             io_cli();	/* ã≠êßèIóπèàóùíÜÇ…É^ÉXÉNÇ™ïœÇÌÇÈÇ∆ç¢ÇÈÇ©ÇÁ */
-//             task->tss.eax = (int) &(task->tss.esp0);
-//             task->tss.eip = (int) asm_end_app;
-//             io_sti();
-//             task_run(task, -1, 0);	/* èIóπèàóùÇämé¿Ç…Ç‚ÇÁÇπÇÈÇΩÇﬂÇ…ÅAêQÇƒÇ¢ÇΩÇÁãNÇ±Ç∑ */
-//           }
-//         }
-//         if (i == 256 + 0x3c && key_shift != 0) {	/* Shift+F2 */
-//           /* êVÇµÇ≠çÏÇ¡ÇΩÉRÉìÉ\Å[ÉãÇì¸óÕëIëèÛë‘Ç…Ç∑ÇÈÅiÇªÇÃÇŸÇ§Ç™êeêÿÇæÇÊÇÀÅHÅj */
-//           if (key_win != 0) {
-//             keywin_off(key_win);
-//           }
-//           key_win = open_console(shtctl, memtotal);
-//           sheet_slide(key_win, 32, 4);
-//           sheet_updown(key_win, shtctl->top);
-//           keywin_on(key_win);
-//           dbg_putstr0("Shift+F2 Open Console.\n", COL8_FFFFFF);
-//         }
-//         if (i == 256 + 0x57) {	/* F11 */
-//           if (shtctl->top > 2) {
-//             sheet_updown(shtctl->sheets[1], shtctl->top - 1);
-//           }
-//         }
-//         if (i == 256 + 0xfa) {	/* ÉLÅ[É{Å[ÉhÇ™ÉfÅ[É^Çñ≥éñÇ…éÛÇØéÊÇ¡ÇΩ */
-//           keycmd_wait = -1;
-//         }
-//         if (i == 256 + 0xfe) {	/* ÉLÅ[É{Å[ÉhÇ™ÉfÅ[É^Çñ≥éñÇ…éÛÇØéÊÇÍÇ»Ç©Ç¡ÇΩ */
-//           wait_KBC_sendready();
-//           io_out8(PORT_KEYDAT, keycmd_wait);
-//         }
-// 
-//       } else if (512 <= i && i <= 767) {
-//         /* memset(dbg_msg, 0, sizeof(dbg_msg));
-//         sprintf(dbg_msg, "(%d,%d)\n", mdec.x, mdec.y);
-//         dbg_putstr0(dbg_msg, COL8_FFFFFF); */
-// 
-//         /* ****************** */
-//         /* (@)come from mouse */
-//         /* ****************** */
-//         if (mouse_decode(&mdec, i - 512) != 0) {
-//           /* É}ÉEÉXÉJÅ[É\ÉãÇÃà⁄ìÆ */
-//           mx += mdec.x;
-//           my += mdec.y;
-//           if (mx < 0) {
-//             mx = 0;
-//           }
-//           if (my < 0) {
-//             my = 0;
-//           }
-//           if (mx > binfo->scrnx - 1) {
-//             mx = binfo->scrnx - 1;
-//           }
-//           if (my > binfo->scrny - 1) {
-//             my = binfo->scrny - 1;
-//           }
-//           new_mx = mx;
-//           new_my = my;
-// /*          memset(dbg_msg, 0, sizeof(dbg_msg));
-//           sprintf(dbg_msg, "(%d,%d)\n", new_mx, new_my); *//* 640 * 480 */
-// /*          dbg_putstr0(dbg_msg, COL8_FFFFFF); */
-//           
-//           if ((mdec.btn & 0x02) != 0) {
-//             /* Right */
-//             memset(dbg_msg, 0, sizeof(dbg_msg));
-//             sprintf(dbg_msg, "right:%d.\n", mdec.btn);
-//             dbg_putstr0(dbg_msg, COL8_FFFFFF);
-//             
-//             if (i >= 512 && key_win != 0) { /* í èÌï∂éöÅAÉoÉbÉNÉXÉyÅ[ÉXÅAEnter */
-//               io_cli();   /* soon after change ss:sp */
-//               fifo32_put(&key_win->task->fifo, i);
-//               io_sti();   /* changed ss:sp */
-//             }
-//             /* init_mouse_cursor81(buf_mouse, 99); */
-//             set_mouse_cursorl8(buf_mouse, 99);
-//           } else {
-//           }
-//           
-//           if ((mdec.btn & 0x01) != 0) {
-//             /* ç∂É{É^ÉìÇâüÇµÇƒÇ¢ÇÈ */
-//             memset(dbg_msg, 0, sizeof(dbg_msg));
-//             sprintf(dbg_msg, "left:%d.\n", mdec.btn);
-//             dbg_putstr0(dbg_msg, COL8_FFFFFF);
-//             init_mouse_cursor8(buf_mouse, 99);
-//             
-//             if (i >= 512 && key_win != 0) { /* í èÌï∂éöÅAÉoÉbÉNÉXÉyÅ[ÉXÅAEnter */
-//               io_cli();   /* soon after change ss:sp */
-//               fifo32_put(&key_win->task->fifo, i);
-//               io_sti();   /* changed ss:sp  */
-//             }
-//             
-//             if (mmx < 0) {
-//               /* í èÌÉÇÅ[ÉhÇÃèÍçá */
-//               
-//               if (mn_flg != -1) {
-//                 rc = exec_menu(&mnlv[mn_flg], memtotal);
-//                 if (rc == -1) {
-//                   for (; mn_flg > -1; ) {
-//                     mn_flg = close_menu(shtctl->sheets[0], &mnlv[mn_flg]);
-//                   }
-//                 } else {
-//                   mn_flg = rc;
-//                 }
-//                 continue;
-//               }
-//               
-//               /* è„ÇÃâ∫Ç∂Ç´Ç©ÇÁèáî‘Ç…É}ÉEÉXÇ™éwÇµÇƒÇ¢ÇÈâ∫Ç∂Ç´ÇíTÇ∑ */
-//               fw_flg = 0;
-//               for (j = shtctl->top - 1; j > 0; j--) {
-//                 sht = shtctl->sheets[j];
-//                 x = mx - sht->vx0;
-//                 y = my - sht->vy0;
-//                 if (0 <= x && x < sht->bxsize && 0 <= y && y < sht->bysize) {
-//                   if ((sht->flags & 0x100) == 0 && sht->buf[y * sht->bxsize + x] != sht->col_inv) {
-//                     sheet_updown(sht, shtctl->top - 1);
-//                     if (sht != key_win) {
-//                       keywin_off(key_win);
-//                       key_win = sht;
-//                       keywin_on(key_win);
-//                     }
-//                     if ((sht->flags & 0x100) == 0 && 3 <= x && x < sht->bxsize - 3 && 3 <= y && y < 21) {
-//                       mmx = mx;	/* ÉEÉBÉìÉhÉEà⁄ìÆÉÇÅ[ÉhÇ÷ */
-//                       mmy = my;
-//                       mmx2 = sht->vx0;
-//                       new_wy = sht->vy0;
-//                     }
-//                     /* if ((sht->flags & 0x100) == 0 && sht->bxsize - 21 <= x && x < sht->bxsize - 5 && 5 <= y && y < 19) { */
-//                     if ((sht->flags & 0x100) == 0 && sht->bxsize -x - 17 < y && y < sht->bxsize - x - 2 && 5 < y && y < 16) {
-//                       /* ÅuÅ~ÅvÉ{É^ÉìÉNÉäÉbÉN */
-//                       if ((sht->flags & 0x10) != 0) {		/* ÉAÉvÉäÇ™çÏÇ¡ÇΩÉEÉBÉìÉhÉEÇ©ÅH */
-//                         task = sht->task;
-//                         cons_putstr0(task->cons, "\nBreak(mouse) :\n");
-//                         io_cli();	/* ã≠êßèIóπèàóùíÜÇ…É^ÉXÉNÇ™ïœÇÌÇÈÇ∆ç¢ÇÈÇ©ÇÁ */
-//                         task->tss.eax = (int) &(task->tss.esp0);
-//                         task->tss.eip = (int) asm_end_app;
-//                         io_sti();
-//                         task_run(task, -1, 0);
-//                       } else {	/* ÉRÉìÉ\Å[Éã */
-//                         task = sht->task;
-//                         sheet_updown(sht, -1); /* Ç∆ÇËÇ†Ç¶Ç∏îÒï\é¶Ç…ÇµÇƒÇ®Ç≠ */
-//                         keywin_off(key_win);
-//                         key_win = shtctl->sheets[shtctl->top - 1];
-//                         keywin_on(key_win);
-//                         io_cli();
-//                         fifo32_put(&task->fifo, 4);
-//                         io_sti();
-//                       }
-//                     }
-//                     if ((sht->flags & 0x100) == 0 && sht->bxsize - x - 32 < y && y < sht->bxsize - x - 17 && 5 < y && y < 16) {
-//                       sheet_updown(sht, -100);
-//                     }
-//                     fw_flg = (int) sht;
-//                     break;
-//                   }
-//                 }
-//               }
-//               if (fw_flg == 0 && mn_flg == -1) {
-//                 sht = shtctl->sheets[0];
-//                 if (2 <= mx && mx <= 60 && sht->bysize - 24 <= my && my <= sht->bysize - 3) {
-//                   mn_flg = open_menu(sht, mnlv, menu);
-//                 }
-//               }
-//             } else {
-//               /* ÉEÉBÉìÉhÉEà⁄ìÆÉÇÅ[ÉhÇÃèÍçá */
-//               x = mx - mmx;	/* É}ÉEÉXÇÃà⁄ìÆó ÇåvéZ */
-//               y = my - mmy;
-//               new_wx = (mmx2 + x + 2) & ~3;
-//               new_wy = new_wy + y;
-//               mmy = my;	/* à⁄ìÆå„ÇÃç¿ïWÇ…çXêV */
-//             }
-//           } else {
-//             /* ç∂É{É^ÉìÇâüÇµÇƒÇ¢Ç»Ç¢ */
-//             mmx = -1;	/* í èÌÉÇÅ[ÉhÇ÷ */
-//             if (new_wx != 0x7fffffff) {
-//               sheet_slide(sht, new_wx, new_wy);	/* àÍìxämíËÇ≥ÇπÇÈ */
-//               new_wx = 0x7fffffff;
-//             } else if (mn_flg != -1) {
-//               x = mx - mnlv[mn_flg].sht->vx0;
-//               y = my - mnlv[mn_flg].sht->vy0;
-//               select_menu(&mnlv[mn_flg], x, y);
-//             }
-//           }
-// 
-//         }
-// 
-//       } else if (768 <= i && i <= 1023) {
-//         /* ÉRÉìÉ\Å[ÉãèIóπèàóù */
-//         close_console(shtctl->sheets0 + (i - 768));
-//       } else if (1024 <= i && i <= 2023) {
-// 
-//         close_constask(taskctl->tasks0 + (i - 1024));
-//       } else if (2024 <= i && i <= 2279) {
-// 
-//         /* ÉRÉìÉ\Å[ÉãÇæÇØÇï¬Ç∂ÇÈ */
-//         sht2 = shtctl->sheets0 + (i - 2024);
-//         memman_free_4k(memman, (int) sht2->buf, 256 * 165);
-//         sheet_free(sht2);
-//       } else if (i == 2280) {
-//         close_taskmgr(); /* close taskmgr */
-//       }
-//     }
-//   }
-    for (;;) {
-        //io_hlt();
-        io_loop();
-    }
-}
+/* memory.c */
+#define MEMMAN_FREES 4090	/* „Åì„Çå„ÅßÁ¥Ñ32KB */
+#define MEMMAN_ADDR  0x003c0000
+struct FREEINFO {	/* „ÅÇ„ÅçÊÉÖÂ†± */
+  unsigned int addr;
+  unsigned int size;
+};
+struct MEMMAN {		/* „É°„É¢„É™ÁÆ°ÁêÜ */
+  int frees;
+  int maxfrees;
+  int lostsize;
+  int losts;
+  struct FREEINFO free[MEMMAN_FREES];
+};
+unsigned int memtest(unsigned int start, unsigned int end);
+void memman_init(struct MEMMAN *man);
+unsigned int memman_total(struct MEMMAN *man);
+unsigned int memman_alloc(struct MEMMAN *man, unsigned int size);
+int memman_free(struct MEMMAN *man, unsigned int addr, unsigned int size);
+unsigned int memman_alloc_4k(struct MEMMAN *man, unsigned int size);
+int memman_free_4k(struct MEMMAN *man, unsigned int addr, unsigned int size);
 
-/*
- * lost focus.
- */
-void keywin_off(struct SHEET *key_win) {
-  change_wtitle8(key_win, 0);
-  if ((key_win->flags & 0x20) != 0) {
-    io_cli();   /* soon after change ss:sp */
-    fifo32_put(&key_win->task->fifo, 3); /* ÉRÉìÉ\Å[ÉãÇÃÉJÅ[É\ÉãOFF */
-    io_sti();   /* changed ss:sp */
-  }
-  return;
-}
-
-/*
- * set focus.
- */
-void keywin_on(struct SHEET *key_win) {
-  change_wtitle8(key_win, 1);
-  if ((key_win->flags & 0x20) != 0) {
-    io_cli();   /* soon after change ss:sp */
-    fifo32_put(&key_win->task->fifo, 2); /* ÉRÉìÉ\Å[ÉãÇÃÉJÅ[É\ÉãON */
-    io_sti();   /* changed ss:sp */
-  }
-  return;
-}
-
-struct TASK *open_constask(struct SHEET *sht, unsigned int memtotal) {
-  struct MEMMAN *memman = (struct MEMMAN *) MEMMAN_ADDR;
-  struct TASK *task = task_alloc();
-  int *cons_fifo = (int *) memman_alloc_4k(memman, 128 * 4);
-  task->cons_stack = memman_alloc_4k(memman, 64 * 1024);
-  task->tss.esp = task->cons_stack + 64 * 1024 - 12;
-  task->tss.eip = (int) &console_task;
-  task->tss.es = 1 * 8;
-  task->tss.cs = 2 * 8;
-  task->tss.ss = 1 * 8;
-  task->tss.ds = 1 * 8;
-  task->tss.fs = 1 * 8;
-  task->tss.gs = 1 * 8;
-  strcpy(task->name, "console");
-  *((int *) (task->tss.esp + 4)) = (int) sht;
-  *((int *) (task->tss.esp + 8)) = memtotal;
-  task_run(task, 3, 2); /* level=3, priority=2 */
-  fifo32_init(&task->fifo, 128, cons_fifo, task);
-  return task;
-}
-
-struct SHEET *open_console(struct SHTCTL *shtctl, unsigned int memtotal) {
-  struct MEMMAN *memman = (struct MEMMAN *) MEMMAN_ADDR;
-  struct SHEET *sht = sheet_alloc(shtctl);
-  unsigned short *buf = (unsigned short *) memman_alloc_4k(memman, 600 * 400 * 2);
-  sheet_setbuf(sht, buf, 600, 400, -1); /* ìßñæêFÇ»Çµ */
-  make_window8(buf, 600, 400, "console", 0);
-  make_textbox8(sht, 8, 28, 584, 363, COL8_000000);
-  sht->task = open_constask(sht, memtotal);
-  sht->flags |= 0x20;	/* ÉJÅ[É\ÉãÇ†ÇË */
-  dbg_putstr0("open console\n", COL8_FF0000);
-
-  return sht;
-}
-
-void close_constask(struct TASK *task) {
-  struct MEMMAN *memman = (struct MEMMAN *) MEMMAN_ADDR;
-  task_sleep(task);
-  memman_free_4k(memman, task->cons_stack, 64 * 1024);
-  memman_free_4k(memman, (int) task->fifo.buf, 128 * 4);
-  task->flags = 0; /* task_free(task); ÇÃë„ÇÌÇË */
-  dbg_putstr0("close console\n", COL8_FF0000);
-  return;
-}
-
-void close_console(struct SHEET *sht) {
-  struct MEMMAN *memman = (struct MEMMAN *) MEMMAN_ADDR;
-  struct TASK *task = sht->task;
-  memman_free_4k(memman, (int) sht->buf, 600 * 400 * 2);
-  sheet_free(sht);
-  close_constask(task);
-  return;
-}
-
-void debug_msg(int no, const char * msg) {
-  char s[100];
-  struct SHTCTL *ctl = (struct SHTCTL *) *((int *) 0x0fe4);
-  struct SHEET *sht = &ctl->sheets0[0];
-  sprintf(s, "[%s]", msg);
-
-  putfonts8_asc(sht->buf, sht->bxsize, 56, 6 + no * 20, COL8_000000, 1, s);
-}
-
-void open_taskmgr(unsigned int memtotal) {
-  int i;
-  struct SHEET * sht;
-  struct SHTCTL *ctl = (struct SHTCTL *) *((int *) 0x0fe4);
-  struct MEMMAN * memman = (struct MEMMAN *) MEMMAN_ADDR;
-  if (taskmgr != 0) {
-    for (i = 0; i < MAX_SHEETS; i ++) {
-      sht = &(ctl->sheets0[i]);
-      if (sht->task == taskmgr) {
-        keywin_on(sht);
-      }
-    }
-    return ;
-  }
-  taskmgr = task_alloc();
-  int * tmgr_fifo = (int *) memman_alloc_4k(memman, 128 * 4);
-  taskmgr->tss.esp = memman_alloc_4k(memman, 64 * 1024) + 64 *1024 - 8;
-  taskmgr->tss.eip = (int) &taskmgr_task; /* taskmgr.c */
-  taskmgr->tss.es = 1 * 8;
-  taskmgr->tss.cs = 2 * 8;
-  taskmgr->tss.ss = 1 * 8;
-  taskmgr->tss.ds = 1 * 8;
-  taskmgr->tss.fs = 1 * 8;
-  taskmgr->tss.gs = 1 * 8;
-  strcpy(taskmgr->name, "taskmgr");
-  taskmgr->time = 0;
-  *((int *) (taskmgr->tss.esp + 4)) = memtotal;
-  task_run(taskmgr, 2, 2);
-  fifo32_init(&taskmgr->fifo, 128, tmgr_fifo, taskmgr);
-  dbg_putstr0("open taskmgr\n", COL8_FF0000);
-  return ;
-}
-
-void close_taskmgr(void) {
-  struct MEMMAN * memman = (struct MEMMAN *) MEMMAN_ADDR;
-  task_sleep(taskmgr);
-  memman_free_4k(memman, (int) taskmgr->fifo.buf, 128 * 4);
-  task_free(taskmgr);
-  taskmgr = 0;
-  dbg_putstr0("close taskmgr\n", COL8_FF0000);
-  return ;
-}
-
-int open_menu(struct SHEET * sht, struct MNLV * mnlv, struct MENU * menu) {
-  struct MEMMAN * memman = (struct MEMMAN *) MEMMAN_ADDR;
-  struct SHTCTL * ctl = (struct SHTCTL *) *((int *) 0x0fe4);
-  int xsize = 144, ysize;
-  int num_menu;
-  int x, y;
-  int yp;
-  for (num_menu = 0; num_menu < MAX_MENU; num_menu ++) {
-    if (menu[num_menu].next == 0) {
-      break;
-    }
-  }
-  num_menu ++;
-
-  if (menu->level == 0) {
-    push_menu(sht->buf, sht->bxsize, sht->bysize);
-    sheet_refresh(sht, 2, sht->bysize - 24, 61, sht->bysize - 2);
-  }
-
-  ysize = num_menu * 24 + (num_menu - 1) * 2 + 4;
-  if (menu->level == 0) {
-    ysize += 18;
-  }
-  mnlv->sht = sheet_alloc(ctl);
-  mnlv->sht->flags |= 0x100;
-  mnlv->buf = (unsigned short *) memman_alloc_4k(memman, xsize * ysize * 2);
-  sheet_setbuf(mnlv->sht, mnlv->buf, xsize, ysize, -1);
-  make_menu8(mnlv->buf, xsize, ysize, "OS Menu", menu, num_menu);
-
-  if (menu->level == 0) {
-    x = 0;
-    y = ctl->ysize - (ysize + 28);
-  } else {
-    x = (xsize - 4) * menu->level;
-    yp = (mnlv - 1)->pos * 26 + 2;
-    if (menu->level == 1) {
-      yp += 18;
-    }
-    y = (mnlv - 1)->sht->vy0 + yp - ysize;
-  }
-  sheet_slide(mnlv->sht, x, y);
-  sheet_updown(mnlv->sht, ctl->top);
-  mnlv->menu = menu;
-  mnlv->pos = 0;
-  mnlv->num = num_menu;
-
-  return menu->level;
-}
-
-int close_menu(struct SHEET * sht, struct MNLV * mnlv) {
-  struct MEMMAN * memman = (struct MEMMAN *) MEMMAN_ADDR;
-  sheet_updown(mnlv->sht, -1);
-  memman_free_4k(memman, (int) mnlv->buf, mnlv->sht->bxsize * mnlv->sht->bysize * 2);
-  sheet_free(mnlv->sht);
-  if (mnlv->menu->level == 0) {
-    pull_menu(sht->buf, sht->bxsize, sht->bysize);
-    sheet_refresh(sht, 2, sht->bysize - 24, 61, sht->bysize - 2);
-  }
-  return mnlv->menu->level - 1;
-}
-
-void select_menu(struct MNLV * mnlv, int x, int y) {
-  int yp = 1;
-  if (mnlv->pos != 0) {
-    change_mtitle8(mnlv->sht, mnlv->menu->level, mnlv->pos, 0);
-  }
-  if (mnlv->menu->level == 0) {
-    yp += 18;
-  }
-  if (2 <= x && x < mnlv->sht->bxsize - 2 && yp < y && y < mnlv->sht->bysize - 2) {
-    mnlv->pos = (int) ((y - yp) / 26) + 1;
-    change_mtitle8(mnlv->sht, mnlv->menu->level, mnlv->pos, 1);
-  } else {
-    mnlv->pos = 0;
-  }
-  return ;
-}
-
-int exec_menu(struct MNLV * mnlv, unsigned int memtotal) {
-  struct SHTCTL * ctl = (struct SHTCTL *) *((int *) 0x0fe4);
-  struct MENU *menu;
+/* sheet.c */
+typedef void (* fp)(struct SHEET * sht, int msg, int param1, int param2);
+#define MAX_SHEETS		256
+struct SHEET {
+  unsigned short *buf;
+  int bxsize;             /* width */
+  int bysize;             /* heiht */
+  int vx0;
+  int vy0;
+  int col_inv;            /* color */
+  int height;             /* -1:no dispaly, */
+  int flags;              /* 0x0100 */
+  struct SHTCTL *ctl;
   struct TASK *task;
-  struct SHEET *key_win;
+  fp callback;
+};
+struct SHTCTL {
+  unsigned char * vram, *map;
+  int xsize, ysize, top;
+  struct SHEET *sheets[MAX_SHEETS];
+  struct SHEET sheets0[MAX_SHEETS];
+};
+struct SHTCTL *shtctl_init(struct MEMMAN *memman, unsigned char *vram, int xsize, int ysize);
+struct SHEET *sheet_alloc(struct SHTCTL *ctl);
+void sheet_setbuf(struct SHEET *sht, unsigned short *buf, int xsize, int ysize, int col_inv);
+void sheet_updown(struct SHEET *sht, int height);
+void sheet_refreshmap(struct SHTCTL *ctl, int vx0, int vy0, int vx1, int vy1, int h0);
+void sheet_refresh(struct SHEET *sht, int bx0, int by0, int bx1, int by1);
+void sheet_slide(struct SHEET *sht, int vx0, int vy0);
+void sheet_free(struct SHEET *sht);
+
+/* timer.c */
+#define MAX_TIMER 500
+struct TIMER {
+  struct TIMER *next;
+  unsigned int timeout;
+  char flags, flags2;
   struct FIFO32 *fifo;
-  int i, end = mnlv->num - mnlv->pos;
-  if (mnlv->pos == 0) {
-    return -1;
-  }
-  menu = mnlv->menu;
-  for(i = 0; i < end; i ++) {
-    menu = menu->next;
-  }
-  if (strcmp(menu->cmd_line, "<submenu>") == 0) {
-    return open_menu(0, mnlv + 1, menu->sub);
-  } else if (strcmp(menu->cmd_line, "<console>") == 0) {
-    key_win = open_console(ctl, memtotal);
-    sheet_slide(key_win, 8, 8);
-    sheet_updown(key_win, ctl->top);
-    keywin_on(key_win);
-  } else if (strcmp(menu->cmd_line, "<taskmgr>") == 0) {
-    debug_msg(1, "open taskmgr");
-    open_taskmgr(memtotal);
-  } else {
-    task = open_constask(0, memtotal);
-    fifo = &task->fifo;
-    for (i = 0; menu->cmd_line[i] != 0; i ++) {
-      io_cli();   /* soon after change ss:sp */
-      /* fifo32_put_io(fifo, menu->cmd_line[i] + 256); */
-      fifo32_put(fifo, menu->cmd_line[i] + 256);
-      io_sti();   /* changed ss:sp */
-    }
-    io_cli();   /* soon after change ss:sp */
-    /* fifo32_put_io(fifo, 10 + 256); *//* Enter */
-    fifo32_put(fifo, 10 + 256); /* Enter */
-    io_sti();   /* changed ss:sp */
-  }
-  return -1;
-}
+  int data;
+  char name[16]; /* memo timer's name */
+};
+struct TIMERCTL {
+  unsigned int count, next;
+  struct TIMER *t0;
+  struct TIMER timers0[MAX_TIMER];
+};
+extern struct TIMERCTL timerctl;
+void init_pit(void);
+/* struct TIMER *timer_alloc(void); */
+struct TIMER *timer_alloc(const char * timer_name);
+void timer_free(struct TIMER *timer);
+void timer_init(struct TIMER *timer, struct FIFO32 *fifo, int data);
+void timer_settime(struct TIMER *timer, unsigned int timeout);
+void inthandler20(int *esp);
+int timer_cancel(struct TIMER *timer);
+void timer_cancelall(struct FIFO32 *fifo);
 
-int set_menu(struct MENU * menu, int level, char * item_name, char * cmd_line, char * parent_name, char * prev_name) {
-  int i;
-  int fs_flag = -1;
-  struct MENU * parent_menu = 0;
-  struct MENU * prev_menu = 0;
-  for (i = 0; i < MAX_MENU; i ++) {
-    if (parent_name != 0) {
-      if (strcmp(menu[i].name, parent_name) == 0) {
-        parent_menu = &menu[i];
-      }
-    } else if (prev_name != 0) {
-      if (strcmp(menu[i].name, prev_name) == 0) {
-        prev_menu = &menu[i];
-      }
-    }
-    if (menu[i].name[0] == 0) {
-      if ((parent_name != 0 && parent_menu == 0) || (prev_name != 0 && prev_menu ==0)) {
-        break;
-      }
-      if (parent_name != 0) {
-        parent_menu->sub = &menu[i];
-      } else if (prev_name != 0) {
-        prev_menu->next = &menu[i];
-      }
-      menu[i].level = level;
-      strcpy(menu[i].name, item_name);
-      strcpy(menu[i].cmd_line, cmd_line);
-      fs_flag = i;
-      break;
-    }
-  }
-  return fs_flag;
-}
+/* mtask.c */
+#define MAX_TASKS      1000 /* ÊúÄÂ§ß„Çø„Çπ„ÇØÊï∞ */
+#define TASK_GDT0      3    /* TSS„ÇíGDT„ÅÆ‰ΩïÁï™„Åã„ÇâÂâ≤„ÇäÂΩì„Å¶„Çã„ÅÆ„Åã */
+#define MAX_TASKS_LV   100
+#define MAX_TASKLEVELS 10
+struct TSS32 {
+	int backlink, esp0, ss0, esp1, ss1, esp2, ss2, cr3;
+	int eip, eflags, eax, ecx, edx, ebx, esp, ebp, esi, edi;
+	int es, cs, ss, ds, fs, gs;
+	int ldtr, iomap;
+};
+struct TASK {
+  int sel;            /* sel„ÅØGDT„ÅÆÁï™Âè∑„ÅÆ„Åì„Å® */
+  int flags;          /* Áä∂ÊÖã0:Unused,1:sleeping,2:running */
+  int level;          /* „É¨„Éô„É´ */
+  int priority;       /* ÂÑ™ÂÖàÂ∫¶ */
+  struct FIFO32 fifo; /* IO */
+  struct TSS32 tss;   /* TSS Info */
+  struct SEGMENT_DESCRIPTOR ldt[2];
+  struct CONSOLE *cons;
+  int ds_base, cons_stack;
+  struct FILEHANDLE *fhandle;
+  int *fat;
+  char *cmdline;           /* Command Line */
+  unsigned char langmode;  /* 0:no ShfitJIS,1:ShiftJIS,2: */
+  unsigned char langbyte1; /* 0: */
+  char name[16];     /* task name */
+  unsigned int time;
+};
+struct TASKLEVEL {
+	int running; /* Âãï‰Ωú„Åó„Å¶„ÅÑ„Çã„Çø„Çπ„ÇØ„ÅÆÊï∞ */
+	int now;     /* ÁèæÂú®Âãï‰Ωú„Åó„Å¶„ÅÑ„Çã„Çø„Çπ„ÇØ„Åå„Å©„Çå„Å†„ÅãÂàÜ„Åã„Çã„Çà„ÅÜ„Å´„Åô„Çã„Åü„ÇÅ„ÅÆÂ§âÊï∞ */
+	struct TASK *tasks[MAX_TASKS_LV];
+};
+struct TASKCTL {
+  int    now_lv;      /* ÁèæÂú®Âãï‰Ωú‰∏≠„ÅÆ„É¨„Éô„É´ */
+  char   lv_change;   /* Ê¨°Âõû„Çø„Çπ„ÇØ„Çπ„Ç§„ÉÉ„ÉÅ„ÅÆ„Å®„Åç„Å´„ÄÅ„É¨„Éô„É´„ÇÇÂ§â„Åà„Åü„Åª„ÅÜ„Åå„ÅÑ„ÅÑ„Åã„Å©„ÅÜ„Åã */
+                      /* 0:‰ªä„ÅÆ„Åæ„Åæ„ÄÅ1:ReStart */
+  struct TASKLEVEL level[MAX_TASKLEVELS];
+  struct TASK tasks0[MAX_TASKS];
+  int alloc, alive;
+};
+extern struct TASKCTL *taskctl;
+extern struct TIMER *task_timer;
+struct TASK *task_now(void);
+struct TASK *task_init(struct MEMMAN *memman);
+struct TASK *task_alloc(void);
+void task_run(struct TASK *task, int level, int priority);
+void task_switch(void);
+void task_sleep(struct TASK *task);
+void inout_task(struct SHEET *sht_back);
+void task_free(struct TASK * task);
+
+/* window.c */
+void make_window8(unsigned short *buf, int xsize, int ysize, char *title, char act);
+void putfonts8_asc_sht(struct SHEET *sht, int x, int y, int c, int b, char *s, int l);
+void make_textbox8(struct SHEET *sht, int x0, int y0, int sx, int sy, int c);
+void make_wtitle8(unsigned short *buf, int xsize, char *title, char act);
+void change_wtitle8(struct SHEET *sht, char act);
+void set_title(struct SHEET * sht, char * title);
+
+/* console.c */
+struct CONSOLE {
+	struct SHEET *sht;
+	int cur_x, cur_y, cur_c;
+	struct TIMER *timer;
+};
+struct FILEHANDLE {
+	char *buf;
+	int size;
+	int pos;
+
+  int bsize;
+  int bpos;
+  int clustno;
+  struct FILEINFO *finfo;
+};
+void console_task(struct SHEET *sheet, int memtotal);
+void cons_putchar(struct CONSOLE *cons, int chr, char move);
+void cons_newline(struct CONSOLE *cons);
+void cons_putstr0(struct CONSOLE *cons, char *s);
+void cons_putstr1(struct CONSOLE *cons, char *s, int l);
+void cons_runcmd(char *cmdline, struct CONSOLE *cons, int *fat, int memtotal);
+void cmd_mem(struct CONSOLE *cons, int memtotal);
+void cmd_cls(struct CONSOLE *cons);
+void cmd_dir(struct CONSOLE *cons);
+void cmd_exit(struct CONSOLE *cons, int *fat);
+void cmd_start(struct CONSOLE *cons, char *cmdline, int memtotal);
+void cmd_ncst(struct CONSOLE *cons, char *cmdline, int memtotal);
+void cmd_langmode(struct CONSOLE *cons, char *cmdline);
+void cmd_help(struct CONSOLE *cons, char *cmdline);
+void cmd_ver(struct CONSOLE *cons, char *cmdline);
+void cmd_time(struct CONSOLE *cons, char *cmdline);
+void cmd_tasklst(struct CONSOLE *cons, char *cmdline);
+void cmd_timerlst(struct CONSOLE *cons, char *cmdline);
+void cmd_title(struct CONSOLE * cons, char * cmdline);
+void cmd_sheetlst(struct CONSOLE *cons, char *cmdline);
+void cmd_cd(struct CONSOLE *cons, char *cmdline, int * fat);
+void cmd_md(struct CONSOLE *cons, char *cmdline, int * fat);
+void cmd_rd(struct CONSOLE *cons, char *cmdline, int * fat);
+void cmd_del(struct CONSOLE *cons, char *cmdline);
+void cmd_pwd(struct CONSOLE *cons);
+void set_console_title(struct CONSOLE *cons, char * title);
+
+int cmd_app(struct CONSOLE *cons, int *fat, char *cmdline);
+int *hrb_api(int edi, int esi, int ebp, int esp, int ebx, int edx, int ecx, int eax);
+int *inthandler0c(int *esp);
+int *inthandler0d(int *esp);
+void hrb_api_linewin(struct SHEET *sht, int x0, int y0, int x1, int y1, int col);
+
+/* browser.c */
+void browser_task(struct SHEET *sheet, int memtotal);
+void brow_callback(struct SHEET * sht, int msg, int param1, int param2);
+
+/* file.c */
+/* 32 Byte */
+struct FILEINFO {
+  unsigned char name[8];   /* 8 */
+  unsigned char ext[3];    /* 3 */
+  unsigned char attribute; /* 1 */
+  char reserve[10];        /* 10 */
+  unsigned short mod_time; /* 2 */
+  unsigned short mod_date; /* 2 */
+  unsigned short clustno;  /* 2 */
+  unsigned int size;       /* 4 */
+};
+void file_readfat(int *fat, unsigned char *img);
+void file_loadfile(int clustno, int size, char *buf, int *fat, char *img);
+char *file_loadfile2(int clustno, int *psize, int *fat);
+struct FILEINFO *file_search(char *name, struct FILEINFO *finfo, int max);
+struct FILEINFO *file_search2(char *name, struct FILEINFO *finfo, int max, int *fat);
+void file_clearfat(int *fat, int clustno);
+int file_savefile(struct FILEHANDLE *fh, int size, int *fat, char *img);
+int file_skipfile(struct FILEHANDLE *fh, int size, int *fat, char *img, int mode);
+struct FILEINFO *file_insert(char *name, struct FILEINFO *finfo, int max, int *fat);
+void file_move(char *name, struct FILEINFO *finfo);
+void file_path(char *fpath, char *name, int size);
+void file_inittbl(void);
+int  hrb_api_fopen(char *fname, int mode, struct FILEHANDLE *fh, int *fat);
+void hrb_api_fclose(struct FILEHANDLE *fh, int *fat);
+int  hrb_api_fwrite(char *sbuf, int size, struct FILEHANDLE *fh, int *fat);
+int  hrb_api_remove(char *fname, int *fat);
 
 
-void init_menu(struct MNLV * mnlv, struct MENU ** menu) {
-  struct MEMMAN * memman = (struct MEMMAN *) MEMMAN_ADDR;
-  int i;
-  *menu = (struct MENU *) memman_alloc_4k(memman, 64 * MAX_MENU);
-  /* init menu */
-  for (i = 0; i < MAX_MENU; i ++) {
-    (*menu)[i].level = 0;
-    (*menu)[i].name[0] = 0;
-    (*menu)[i].cmd_line[0] = 0;
-    (*menu)[i].next = 0;
-    (*menu)[i].sub = 0;
-  }
-  for (i = 0; i < MAX_MNLV; i ++) {
-    mnlv[i].menu = 0;
-    mnlv[i].sht = 0;
-    mnlv[i].buf = 0;
-    mnlv[i].pos = 0;
-    mnlv[i].num = 0;
-  }
+/* tek.c */
+int tek_getsize(unsigned char *p);
+int tek_decomp(unsigned char *p, char *q, int size);
 
-  /* level 1 */
-  set_menu(*menu, 0, "taskmgr",   "<taskmgr>",    0, 0);
-  set_menu(*menu, 0, "console",   "<console>",    0, "taskmgr");
-  set_menu(*menu, 0, "explorer",  "explorer.hrb", 0, "console");
-  set_menu(*menu, 0, "programs+", "<submenu>",    0, "explorer");
+/* bootpack.c */
+struct TASK *open_constask(struct SHEET *sht, unsigned int memtotal);
+struct SHEET *open_console(struct SHTCTL *shtctl, unsigned int memtotal);
+void open_taskmgr(unsigned int memtotal);
 
-  /* level 2 */
-  set_menu(*menu, 1, "walk",      "walk",          "programs+", 0);
 
-  return ;
-}
 
-void reset_back(int x, int y) {
-  int idx;
+/* dbgs.c */
+struct DBGWIN {
+  struct SHEET *sht;
+  int bc;
+  int x0, y0;
+  int cx, cy;
+  int wd, ht;
+  char init_flag;
+};
+void dbg_init(struct SHEET *sht);
+void dbg_putstr0(char *s, int c);
+void dbg_putstr1(char *s, int l, int c);
+void out_log(char * msg);
+
+/* menu.c */
+/* *** menu begin *** */
+#define MAX_MENU 256
+#define MAX_MNLV 8
+
+struct MENU {
+  int  level; /* level */
+  char name[16]; /* Menu Name */
+  char cmd_line[32];  /* command */
+  struct MENU * next;
+  struct MENU * sub;
+};
+
+struct MNLV {
+  struct MENU * menu;
   struct SHEET * sht;
+  unsigned short * buf;
+  int pos;
+  int num;
+};
+int open_menu(struct SHEET * sht, struct MNLV * mnlv, struct MENU * menu);
+int close_menu(struct SHEET * sht, struct MNLV * mnlv);
+void select_menu(struct MNLV * mnlv, int x, int y);
+int exec_menu(struct MNLV * mnlv, unsigned int memtotal);
+void push_menu(char * vram, int bxsize, int bysize);
+void pull_menu(char * vram, int bxsize, int bysize);
 
-/*   struct SHTCTL * shtctl = (struct SHTCTL *) 0x0fe4;
+/* bmp.c  begin */
+struct BMPFLHDR {
+  unsigned short dummy;
+  unsigned short type;
+  unsigned long  size;
+  unsigned short rsv1;
+  unsigned short rsv2;
+  unsigned long  offbits;
+};
+struct BMPIFHDR {
+  unsigned long  size;
+  long           width;
+  long           height;
+  unsigned short planes;
+  unsigned short bitcnt;
+  unsigned long  comp;
+  unsigned long  sizeimg;
+  long           xperm;
+  long           yperm;
+  unsigned long  clused;
+  unsigned long  climpt;
+};
+void bmp_conv(int xsize, int ysize, unsigned short *vram);
+/* bmp.c  <end> */
 
-  for (idx = 0; idx < shtctl->top; idx ++) {
-    sht = &shtctl->sheets0[idx];
-    if (sht != NULL) {
-      if (sht->callback != NULL) {
-        (* sht->callback)(sht, 1, 0, 0);
-      }
-    }
-  } */
-}
 
-void reset_key_win(struct SHEET * sht, int x, int y) {
-  
-}
+/* tasksmgr.c begin */
+void tasksmgr_task(struct SHEET *sheet, int memtotal);
+void taskmgr_task(unsigned int memtotal);
+void sysclock_task(void);
+/* tasksmgr.c <end> */
+
+
+/* menu.c begin */
+void make_menu8(unsigned short * buf, int xsize, int ysize, char * title, struct MENU *menu, int num);
+void make_mtitle8(unsigned short *buf, int xsize, char *title, char act);
+void change_mtitle8(struct SHEET *sht, int level, int mn_flg, char act);
+/* menu.c <end> */
+
+
+/* jpeg.c begin */
+struct DLL_STRPICENV {	/* 64KB */
+  int work[64 * 1024 / 4];
+};
+struct RGB {
+  unsigned char b, g, r, t;
+};
+int info_JPEG(struct DLL_STRPICENV *env, int *info, int size, unsigned char *fp);
+int decode0_JPEG(struct DLL_STRPICENV *env, int size, unsigned char *fp, int b_type, unsigned char *buf, int skip);
+/* jpeg.c <end> */
+
+
+/* rtc.c begin */
+struct TIME_INFO {
+  int year, month, day, hour, minutes, second;
+};
+int rtc_get(int type);
+#define CMOD_RAM_IDX_REG 0x0070
+#define CMOS_RAM_DATA    0x0071
+/* rtc.c <end> */
+
+/* dma.c begin */
+void dma_reset(int dma);
+void dma_mask_channel(unsigned char channel);
+void dma_unmask_channel(unsigned char channel);
+void dma_reset_flipflop(int dma);
+void dma_set_address(unsigned char channel, unsigned char low, unsigned char hight);
+void dma_set_count(unsigned char channel, unsigned char low, unsigned char hight);
+void dma_set_mode(unsigned char channel, unsigned char mode);
+void dma_set_read(unsigned char channel);
+void dma_set_write(unsigned char channel);
+void dma_set_external_page_register(unsigned char reg, unsigned char val);
+void dma_unmask_all (int dma);
+/* dma.c <end> */
+
+/* fdc.c begin */
+struct FDCSV {
+  int  rw; /* 1:read, */
+  char cyl;
+  char hed;
+  char sec;
+  char num;
+};
+void fdc_task(void);
+void inthandler26(int *esp);
+
+/* void flpydsk_set_working_drive(unsigned char drive); */
+#define FDC_DOR 0x03F2
+/* fdc.c <end> */
+
+/* sb16.c */
+void dsp_data_avail();
+void get_dsp_version(void);
+void read_dsp(unsigned char * value);
+
+struct CtrlLabel {
+  int x;
+  int y;
+  int w;
+  int h;
+  char * text;
+  int attr;
+};
+
+struct Point {
+  int x; /* x */
+  int y; /* y */
+};
+
+struct MinMaxInfo {
+  struct Point ptReserved;
+  struct Point ptMaxSize;
+  struct Point ptMaxPosition;
+  struct Point ptMinTrackSize;
+  struct Point ptMaxTrackSize;
+};
+
+void reset_back(int x, int y);
+
+/* partition */
+struct PartitionEntry {
+    unsigned char status;
+    unsigned char start_head;
+    unsigned char start_sector;
+    unsigned char start_cylinder;
+    unsigned char type;
+    unsigned char end_head;
+    unsigned char end_sector;
+    unsigned char end_cylinder;
+    unsigned int  start_sector_no;
+    unsigned int  sector_total;
+};
+
+/* fat */
+struct BPB1216 {
+  unsigned short bpb_BytesPerSector;    /* Bytes Per Sector    ÊØèÊâáÂå∫Â≠óËäÇÊï∞ */
+  unsigned char  bpb_SectorsPerCluster; /* Sectors Per Cluster ÊØèÁ∞áÊâáÂå∫Êï∞ */
+  unsigned short bpb_ReservedSectorst;  /* Reserved Sectors    ‰øùÁïôÊâáÂå∫Êï∞ */
+  unsigned char  bpb_FatCopies;         /* Number of FATs      Â§á‰ªΩÊï∞ */
+  unsigned short bpb_RootDirEntries;    /* Root Entries        Ê†πÁõÆÂΩïÈ°πÊï∞ */
+  unsigned short bpb_NumSectors;        /* Small Sectors       Á£ÅÁõòÊÄªÊâáÂå∫Êï∞ */
+  unsigned char  bpb_MediaType;         /* Media Descriptor    ÊèèËø∞‰ªãË¥® */
+  unsigned short bpb_SectorsPerFAT;     /* Sectors Per FAT     ÊØèFATÊâáÂå∫Êï∞ */
+  unsigned short bpb_SectorsPerTrack;   /* Sectors Per Track   ÊØèÁ£ÅÈÅìÊâáÂå∫Êï∞ */
+  unsigned short bpb_NumberOfHeads;     /* Number of Heads     Á£ÅÂ§¥Êï∞ */
+  unsigned int   bpb_HiddenSectors;     /* Hidden Sectors      ÁâπÊÆäÈöêÂê´ÊâáÂå∫Êï∞ */
+  unsigned int   bpb_SectorsBig;        /* Large Sectors       ÊÄªÊâáÂå∫Êï∞ */
+};

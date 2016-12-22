@@ -162,10 +162,15 @@ void sysclock_task(void) {
           }
         }
 
-        struct SHTCTL *ctl = (struct SHTCTL *) *((int *) 0x0fe4);
+        struct SHTCTL *ctl = (struct SHTCTL *) *((int *) ADR_SHTCTL);
         struct SHEET *sht = &ctl->sheets0[0];
-        sprintf(s, "%02X:%02X\0", t[2], t[1]);
-        putfonts8_asc_sht(sht, sht->bxsize - 45, sht->bysize - 21, COL8_000000, COL8_C6C6C6, s, 5);
+        memset(s, 0, sizeof(s));
+        //sprintf(s, "%02X:%02X\0", t[2], t[1]);
+        sprintf(s, "test");
+        //sprintf(s, "aa%02X:%02X\0", t[2], t[1]);
+        // putfonts8_asc_sht(sht, sht->bxsize - 45, sht->bysize - 21, COL8_000000, COL8_C6C6C6, s, 5);
+        //dbg_putstr0(s, COL8_FFFFFF);
+        putfonts8_asc_sht(sht, sht->bxsize - 45, sht->bysize - 21, COL8_00FF00, COL8_FFFF00, s, 5); /* window.c */
         timer_settime(clock_timer, 100);
       }
     }

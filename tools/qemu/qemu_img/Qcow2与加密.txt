@@ -1,0 +1,29 @@
+Qcow2压缩与加密
+
+压缩
+..\qemu-img convert -c -O qcow2 qcow2m.qcow2 qcow2m_c.qcow2
+
+C:\Users\DBJ\git\hos\fat\edqcow2\edqcow2 qcow2m.qcow2 info > qcow2m.qcow2_info.txt
+C:\Users\DBJ\git\hos\fat\edqcow2\edqcow2 qcow2m_c.qcow2 info > qcow2m_c.qcow2_info.txt
+
+加密
+..\qemu-img convert -e -O qcow2 qcow2m.qcow2 qcow2m_e.qcow2
+
+C:\Users\DBJ\git\hos\fat\edqcow2\edqcow2 qcow2m_e.qcow2 info > qcow2m_e.qcow2_info.txt
+
+
+C:\Users\DBJ\git\hos\tools\qemu\qemu_img>C:\Users\DBJ\git\hos\fat\edqcow2\edqcow
+2 qcow2m.qcow2 info > qcow2m.qcow2_info.txt
+
+C:\Users\DBJ\git\hos\tools\qemu\qemu_img>C:\Users\DBJ\git\hos\fat\edqcow2\edqcow
+2 qcow2m_c.qcow2 info > qcow2m_c.qcow2_info.txt
+
+C:\Users\DBJ\git\hos\tools\qemu\qemu_img>..\qemu-img convert -e -O qcow2 qcow2m.
+qcow2 qcow2m_e.qcow2
+Disk image 'qcow2m_e.qcow2' is encrypted.
+Password: abc
+
+C:\Users\DBJ\git\hos\tools\qemu\qemu_img>C:\Users\DBJ\git\hos\fat\edqcow2\edqcow
+2 qcow2m_e.qcow2 info > qcow2m_e.qcow2_info.txt
+
+C:\Users\DBJ\git\hos\tools\qemu\qemu_img>

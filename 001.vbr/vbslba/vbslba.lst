@@ -1,39 +1,39 @@
      1                                                              ORG 7C00H
      2                                  
-     3 00000000 EB4E                                                JMP SHORT VBR_START        ; 跳过数BPB
+     3 00000000 EB4E                                                JMP SHORT VBR_START             ; 跳过数BPB
      4 00000002 90                                                  NOP
-     5 00000003 52444C4241312E30        bsOEM_NAME            DB      'RDLBA1.0'      ; 8 bytes
-     6 0000000B 0000                    bsBYTES_PER_SECTOR    DW      00h             ; 2
-     7 0000000D 00                      bsSECTORS_PER_CLUSTER DB      00h             ; 1
-     8 0000000E 0000                    bsRESERVED_SECTORS    DW      00h             ; 2
-     9 00000010 00                      bsFAT_COPIES          DB      00h             ; 1
-    10 00000011 0000                    bsROOT_DIR_ENTRIES    DW      00h             ; 2
-    11 00000013 0000                    bsTOTAL_DISK_SECTORS  DW      00h             ; 2
-    12 00000015 00                      bsMEDIA_DESCRIPTOR    DB      00h             ; 1
-    13 00000016 0000                    bsSECTORS_PER_FAT     DW      00h             ; 2
-    14 00000018 0000                    bsSECTORS_PER_TRACK   DW      00h             ; 2
-    15 0000001A 0000                    bsSIDES               DW      00h             ; 2
-    16 0000001C 0000                    bsHIDDEN_SECTORS_HIGH DW      00h             ; 2
-    17 0000001E 0000                    bsHIDDEN_SECTORS_LOW  DW      00h             ; 2
-    18 00000020 00000000                bsTOTAL_NUM_SECTORS   DD      00h             ; 4
-    19 00000024 00                      bsPHYS_DRIVE_NUMBER_1 DB      00h             ; 1
-    20 00000025 00                      bsPHYS_DRIVE_NUMBER_2 DB      00h             ; 1
-    21 00000026 29                      bsBOOT_RECORD_SIG     DB      29h             ; 1
-    22 00000027 00A8611F                bsVOL_SERIAL_NUM      DD      1F61A800h       ; 4
-    23 0000002B 4E4F204E414D452020-     bsVOLUME_LABEL        DB      'NO NAME    '   ; 11 bytes
+     5 00000003 52444C4241312E30        bsOEM_NAME            DB      'RDLBA1.0'                    ; 8 bytes
+     6 0000000B 0000                    bsBYTES_PER_SECTOR    DW      00h                           ; 2
+     7 0000000D 00                      bsSECTORS_PER_CLUSTER DB      00h                           ; 1
+     8 0000000E 0000                    bsRESERVED_SECTORS    DW      00h                           ; 2
+     9 00000010 00                      bsFAT_COPIES          DB      00h                           ; 1
+    10 00000011 0000                    bsROOT_DIR_ENTRIES    DW      00h                           ; 2
+    11 00000013 0000                    bsTOTAL_DISK_SECTORS  DW      00h                           ; 2
+    12 00000015 00                      bsMEDIA_DESCRIPTOR    DB      00h                           ; 1
+    13 00000016 0000                    bsSECTORS_PER_FAT     DW      00h                           ; 2
+    14 00000018 0000                    bsSECTORS_PER_TRACK   DW      00h                           ; 2
+    15 0000001A 0000                    bsSIDES               DW      00h                           ; 2
+    16 0000001C 0000                    bsHIDDEN_SECTORS_HIGH DW      00h                           ; 2
+    17 0000001E 0000                    bsHIDDEN_SECTORS_LOW  DW      00h                           ; 2
+    18 00000020 00000000                bsTOTAL_NUM_SECTORS   DD      00h                           ; 4
+    19 00000024 00                      bsPHYS_DRIVE_NUMBER_1 DB      00h                           ; 1
+    20 00000025 00                      bsPHYS_DRIVE_NUMBER_2 DB      00h                           ; 1
+    21 00000026 29                      bsBOOT_RECORD_SIG     DB      29h                           ; 1
+    22 00000027 00A8611F                bsVOL_SERIAL_NUM      DD      1F61A800h                     ; 4
+    23 0000002B 4E4F204E414D452020-     bsVOLUME_LABEL        DB      'NO NAME    '                 ; 11 bytes
     24 00000034 2020               
-    25 00000036 4641543136202020        bsFILE_SYSTEM_ID      DB      'FAT16   '      ;  8 bytes
+    25 00000036 4641543136202020        bsFILE_SYSTEM_ID      DB      'FAT16   '                    ;  8 bytes
     26 0000003E 00<rept>                TIMES 2 DB 00
     27                                  DISK_ADDRESS_PACKET:
-    28 00000040 10                      dapSIZE               DB      10H ; 1
-    29 00000041 00                      dapUNUSED             DB      00H ; 1
-    30 00000042 0000                    dapSECTORS_READ       DW      0000H ; 2
-    31 00000044 0000                    dapOFFSET             DW      0000H ; 2
-    32 00000046 0000                    dapSEGMENT            DW      0000H ; 2
-    33 00000048 0000                    dapLLLBA              DW      0000H ; 2
-    34 0000004A 0000                    dapLHLBA              DW      0000H ; 2
-    35 0000004C 0000                    dapHLLBA              DW      0000H ; 2
-    36 0000004E 0000                    dapHHLBA              DW      0000H ; 2
+    28 00000040 10                      dapSIZE               DB      10H                           ; 1
+    29 00000041 00                      dapUNUSED             DB      00H                           ; 1
+    30 00000042 0000                    dapSECTORS_READ       DW      0000H                         ; 2
+    31 00000044 0000                    dapOFFSET             DW      0000H                         ; 2
+    32 00000046 0000                    dapSEGMENT            DW      0000H                         ; 2
+    33 00000048 0000                    dapLLLBA              DW      0000H                         ; 2
+    34 0000004A 0000                    dapLHLBA              DW      0000H                         ; 2
+    35 0000004C 0000                    dapHLLBA              DW      0000H                         ; 2
+    36 0000004E 0000                    dapHHLBA              DW      0000H                         ; 2
     37                                  ;[========================================================================]
     38                                  ;    Disk Parameter Block
     39                                  ;
@@ -70,171 +70,192 @@
     70                                  ;     bytes will be destroyed later on as described above.
     71                                  ;[========================================================================]
     72                                  VBR_START:
-    73 00000050 FA                                                  CLI                        ; Disable interrupts
-    74 00000051 31C0                                                XOR  AX,AX                 ; AX=0000
-    75 00000053 8ED0                                                MOV  SS,AX                 ; SS=0000
-    76 00000055 BC007C                                              MOV  SP,7C00H              ; 初始化堆栈; SP grows in decrements
+    73 00000050 FA                                                  CLI                             ; Disable interrupts
+    74 00000051 31C0                                                XOR  AX,AX                      ; AX=0000
+    75 00000053 8ED0                                                MOV  SS,AX                      ; SS=0000
+    76 00000055 BC007C                                              MOV  SP,7C00H                   ; 初始化堆栈; SP grows in decrements
     77 00000058 16                                                  PUSH SS
-    78 00000059 07                                                  POP  ES                    ; ES=0000
-    79 0000005A BB7800                                              MOV  BX,0078H              ; 1EH 号中断向量的地址为0000:0078H;指向磁盘驱动器参数表指针
-    80                                                                                         ; The address of the ROM BIOS disk table is 78h. (INT 18h).  ROM routine copies this address during cold boot initialization.
-    81 0000005D 36C537                                              LDS  SI,[SS:BX]            ; 0000:0078H SI points to ROMBIOS table The source for the copy
+    78 00000059 07                                                  POP  ES                         ; ES=0000
+    79 0000005A BB7800                                              MOV  BX,0078H                   ; 1EH 号中断向量的地址为0000:0078H;指向磁盘驱动器参数表指针
+    80                                                                                              ; The address of the ROM BIOS disk table is 78h. (INT 18h).  ROM routine copies this address during cold boot initialization.
+    81 0000005D 36C537                                              LDS  SI,[SS:BX]                 ; 0000:0078H SI points to ROMBIOS table The source for the copy
     82 00000060 1E                                                  PUSH DS
     83 00000061 56                                                  PUSH SI
     84 00000062 16                                                  PUSH SS
     85 00000063 53                                                  PUSH BX
-    86 00000064 BF0006                                              MOV  DI,0600H              ;VBR_START          ; VBR_START ; Address of destination
-    87 00000067 B90B00                                              MOV  CX,000BH              ; 11字节 ; Size of area to copy (Disk parameters) Set direction flag to inc Move 11 bytes from the disk parameter area to overlap with the start  of the code 
+    86 00000064 BF0006                                              MOV  DI,0600H                   ;VBR_START          ; VBR_START ; Address of destination
+    87 00000067 B90B00                                              MOV  CX,000BH                   ; 11字节 ; Size of area to copy (Disk parameters) Set direction flag to inc Move 11 bytes from the disk parameter area to overlap with the start  of the 
     88 0000006A FC                                                  CLD
-    89 0000006B F3A4                                                REP  MOVSB                 ; DS:SI-11->ES:DI(0000:7C3E)
+    89 0000006B F3A4                                                REP  MOVSB                      ; DS:SI-11->ES:DI(0000:7C3E)
     90 0000006D 06                                                  PUSH ES
-    91 0000006E 1F                                                  POP  DS                    ; DS=ES ; DS=0000
-    92 0000006F C645FE0F                                            MOV  BYTE [DI-02H],0FH     ; At this point, DI points  to 7C49, one byte after  the last thing copied.  Destination operand is  dpbHEAD_SETTLE_TIME.
-    93                                                                                         ; 7C47 = 0F
+    91 0000006E 1F                                                  POP  DS                         ; DS=ES ; DS=0000
+    92 0000006F C645FE0F                                            MOV  BYTE [DI-02H],0FH          ; At this point, DI points  to 7C49, one byte after  the last thing copied.  Destination operand is  dpbHEAD_SETTLE_TIME.
+    93                                                                                              ; 7C47 = 0F
     94 00000073 8B0E[1800]                                          MOV  CX, [bsSECTORS_PER_TRACK]
-    95 00000077 884DF9                                              MOV  [DI-07H],CL           ; Destination operand is dpbSECTORS_PER_TRACK.
-    96 0000007A 894702                                              MOV  [BX+02H],AX           ; (AX)=0000H,修改1EH号中断向量(段址) ; Destination operand is  dpbMOTOR_OFF_DELAY.
-    97 0000007D C7070006                                            MOV  WORD [BX],0600H       ; VBR_START   ; 修改1EH号中断向量(偏移),这样1EH号中断向量的内容为0000:7C3EH,指向新的磁盘参数表
-    98                                                                                         ; The code at 7C6B installs the new Int 1E into the interrupt table at 0000:0078. At 7C68, AX is 0. START is the offset for the new INT 1E.
+    95 00000077 884DF9                                              MOV  [DI-07H],CL                ; Destination operand is dpbSECTORS_PER_TRACK.
+    96 0000007A 894702                                              MOV  [BX+02H],AX                ; (AX)=0000H,修改1EH号中断向量(段址) ; Destination operand is  dpbMOTOR_OFF_DELAY.
+    97 0000007D C7070006                                            MOV  WORD [BX],0600H            ; VBR_START   ; 修改1EH号中断向量(偏移),这样1EH号中断向量的内容为0000:7C3EH,指向新的磁盘参数表
+    98                                                                                              ; The code at 7C6B installs the new Int 1E into the interrupt table at 0000:0078. At 7C68, AX is 0. START is the offset for the new INT 1E.
     99 00000081 FB                                                  STI
    100                                  ;功能00H 功能描述： 磁盘系统复位
    101                                  ;AH＝00H DL＝驱动器，00H~7FH：软盘；80H~0FFH：硬盘
    102                                  ;CF＝0——操作成功，AH＝00H，否则，AH＝状态代码，参见功能号01H中的说明
-   103 00000082 CD13                                                INT  13H                    ; 用新的磁盘参数表来复位磁盘; Reset drives (AX=0000)
-   104 00000084 0F828D00                                            JC   DSP_MSG                 ; 出错则转出错处理
+   103 00000082 CD13                                                INT  13H                        ; 用新的磁盘参数表来复位磁盘; Reset drives (AX=0000)
+   104 00000084 0F828800                                            JC   DSP_MSG                    ; 出错则转出错处理
    105                                  ;------------------------------------------------------;----------------
    106 00000088 31C0                                                XOR  AX,AX
-   107 0000008A 3906[1300]                                          CMP  [bsTOTAL_DISK_SECTORS],AX ; BPB_ToSec16FAT32必须等于0，FAT12/FAT16为扇区总数。 
+   107 0000008A 3906[1300]                                          CMP  [bsTOTAL_DISK_SECTORS],AX  ; BPB_ToSec16FAT32必须等于0，FAT12/FAT16为扇区总数。 
    108 0000008E 7408                                                JZ   LBL00000084
    109 00000090 8B0E[1300]                                          MOV  CX,[bsTOTAL_DISK_SECTORS]
-   110 00000094 890E[2000]                                          MOV  [bsTOTAL_NUM_SECTORS],CX             ; BPB_ToSec32
+   110 00000094 890E[2000]                                          MOV  [bsTOTAL_NUM_SECTORS],CX    ; BPB_ToSec32
    111                                  LBL00000084:
-   112 00000098 A0[1000]                                            MOV AL,  [bsFAT_COPIES]          ; FAT表个数 2
-   113 0000009B F726[1600]                                          MUL WORD [bsSECTORS_PER_FAT]     ; * FAT 表所占的扇区数 40
-   114 0000009F 0306[1C00]                                          ADD AX,  [bsHIDDEN_SECTORS_HIGH] ; + 隐藏的扇区数H
-   115 000000A3 1316[1E00]                                          ADC DX,  [bsHIDDEN_SECTORS_LOW]  ; + 隐藏的扇区数L 63
-   116 000000A7 0306[0E00]                                          ADD AX,  [bsRESERVED_SECTORS]    ; + 保留扇区数L 1
-   117 000000AB 83D200                                              ADC DX,  BYTE +00H               ; + 保留扇区数H
-   118 000000AE A31206                                              MOV [0612H],AX                   ; ROOT扇区NOL
-   119 000000B1 89161406                                            MOV [0614H],DX                   ; ROOT扇区NOH
-   120 000000B5 A30B06                                              MOV [060BH],AX
-   121 000000B8 89160D06                                            MOV [060DH],DX
-   122 000000BC B82000                                              MOV AX,  20H                        ; 32字节
-   123 000000BF F726[1100]                                          MUL WORD [bsROOT_DIR_ENTRIES]     ; 根目录中目录的个数
-   124 000000C3 8B1E[0B00]                                          MOV BX,  [bsBYTES_PER_SECTOR]     ; 每扇区字节数
-   125 000000C7 01D8                                                ADD AX,  BX                       ; 
-   126 000000C9 48                                                  DEC AX                            ; ( 32 * n + 511 ) / 512
-   127 000000CA F7F3                                                DIV BX                            ; 根目录所占扇区数
-   128 000000CC 01060B06                                            ADD [060BH],AX                    ; FILE扇区NOL
-   129 000000D0 83160D0600                                          ADC WORD [060DH],BYTE + 00H       ; FILE扇区NOH
-   130                                  ;------------------------------------------------------;----------------
-   131 000000D5 8B161406                                            MOV  DX,  [0614H]
-   132 000000D9 A11206                                              MOV  AX,  [0612H]
-   133                                  
-   134 000000DC C706[4400]0008                                      MOV  WORD [dapOFFSET], 0800H      ; 0000:0800 ROOTDIR
-   135 000000E2 8916[4A00]                                          MOV  [dapLHLBA], DX
-   136 000000E6 A3[4800]                                            MOV  [dapLLLBA], AX
-   137 000000E9 C706[4200]0100                                      MOV  WORD [dapSECTORS_READ],  01H
-   138 000000EF E87E00                                              CALL WORD READ_SECTOR             ; ES:BX0000:0800 = ROOTDIR
-   139 000000F2 BB0100                                              MOV  BX, 01H
-   140 000000F5 721E                                                JC   DSP_MSG ; Error?  Print message and reboot.
-   141                                  ;------------------------------------------------------;----------------
-   142 000000F7 BF0008                                              MOV DI,0800H
-   143 000000FA B90B00                                              MOV CX,000BH                      ; 11 characters in DOS filename.
-   144 000000FD BEE67D                                              MOV SI,7DE6H                      ; 1E6:DUBENJU SYS
-   145 00000100 F3A6                                                REPE CMPSB
-   146 00000102 BB0200                                              MOV  BX, 02H
-   147 00000105 750E                                                JNZ DSP_MSG                       ; First file in root dir is not IO.SYS?  Print error.
-   148 00000107 8D3E2008                                            LEA DI,[0820H]                   ; NEXT:MSDOS   SYS
-   149 0000010B B90B00                                              MOV CX,0BH                        ; 11 characters in DOS filename.
-   150 0000010E F3A6                                                REPE CMPSB                        ; Is second file in root MSDOS.SYS?
-   151 00000110 741B                                                JZ   RD_DBJ_SYS                    ; Yes?  Then continue on.
-   152 00000112 BB0300                                              MOV  BX, 03H
-   153                                  DSP_MSG:
-   154 00000115 BE[8101]                                            MOV SI,MSG1           ; MSG
-   155 00000118 E84700                                              CALL WORD WRITE_STR
-   156 0000011B 31C0                                                XOR AX,AX
-   157 0000011D CD16                                                INT 16H
-   158 0000011F 5E                                                  POP SI
-   159 00000120 1F                                                  POP DS
-   160 00000121 8F04                                                POP WORD [SI]
-   161 00000123 8F4402                                              POP WORD [SI+02H]
-   162 00000126 CD19                                                INT 19H
-   163                                  SHW_ERR_MSG:
-   164 00000128 58                                                  POP AX
-   165 00000129 58                                                  POP AX
-   166 0000012A 58                                                  POP AX
-   167 0000012B EBE8                                                JMP SHORT DSP_MSG
-   168                                  
-   169                                  RD_DBJ_SYS:
-   170 0000012D A11A08                                              MOV AX,[081AH]
-   171 00000130 48                                                  DEC AX
-   172 00000131 48                                                  DEC AX
-   173 00000132 8A1E[0D00]                                          MOV BL,[bsSECTORS_PER_CLUSTER]  ; bsSECTORS_PER_CLUSTER
-   174 00000136 30FF                                                XOR BH,BH
-   175 00000138 F7E3                                                MUL BX
-   176 0000013A 03060B06                                            ADD AX,[060BH]
-   177 0000013E 13160D06                                            ADC DX,[060DH]
-   178                                  
-   179 00000142 C706[4400]007F                                      MOV  WORD [dapOFFSET], 7F00H    ; DOS loading buffer
-   180 00000148 8916[4A00]                                          MOV  [dapLHLBA], DX
-   181 0000014C A3[4800]                                            MOV  [dapLLLBA], AX
-   182 0000014F C706[4200]FF00                                      MOV  WORD [dapSECTORS_READ], 00FFH
-   183 00000155 E81800                                              CALL WORD READ_SECTOR
-   184 00000158 BB0400                                              MOV  BX, 04H
-   185 0000015B 72B8                                                JC   DSP_MSG
-   186                                  
-   187                                  ;                            MOV CH,[7C15H]        ; bsMEDIA_DESCRIPTOR
-   188                                  ;                            MOV DL,[7C24H]        ; bsPHYS_DRIVE_NUMBER_1
-   189                                  ;                            MOV BX,[060BH]        
-   190                                  ;                            MOV AX,[060DH]        
-   191                                  ;                            JMP FIN
-   192 0000015D EA0000F007                                          JMP WORD 07F0H:0000H ; Transfer to ROM BIOS
-   193                                  
-   194                                  ;[========================================================================]
-   195                                  ;     Procedure     WRITE_STRING
-   196                                  ;[========================================================================]
-   197                                  ;     Parameters:
-   198                                  ;                   SI:  Address of string to write
-   199                                  WRITE_STR:
-   200 00000162 AC                                                  LODSB
-   201 00000163 08C0                                                OR  AL,AL
-   202 00000165 7419                                                JZ  RETURN_PRC
-   203 00000167 B40E                                                MOV AH,0EH
-   204 00000169 BB0700                                              MOV BX,07H
-   205 0000016C CD10                                                INT 10H
-   206 0000016E EBF2                                                JMP SHORT WRITE_STR
-   207                                  
-   208                                  READ_SECTOR:
-   209 00000170 B80000                                              MOV AX, 00H
-   210 00000173 8ED8                                                MOV DS, AX
-   211 00000175 B442                                                MOV AH, 42H
-   212 00000177 8A16247C                                            MOV DL,[7C24H]       ;(DL)=驱动器号
-   213 0000017B BE[4000]                                            MOV SI, DISK_ADDRESS_PACKET
-   214 0000017E CD13                                                INT 13H
-   215                                  RETURN_PRC:
-   216 00000180 C3                                                  RET
-   217 00000181 0D0A4E6F6E2D537973-     MSG1     DB 0DH,0AH,'Non-System disk or disk error'
-   218 0000018A 74656D206469736B20-
-   219 00000193 6F72206469736B2065-
-   220 0000019C 72726F72           
-   221 000001A0 0D0A5265706C616365-              DB 0DH,0AH,'Replace and press any key when ready'
-   222 000001A9 20616E642070726573-
-   223 000001B2 7320616E79206B6579-
-   224 000001BB 207768656E20726561-
-   225 000001C4 6479               
-   226 000001C6 0D0A00                           DB 0DH,0AH,00H
-   227                                  
-   228                                  FIN:
-   229 000001C9 EBFE                                                JMP FIN
-   230                                  
-   231 000001CB 00<rept>                                            times 486 - ( $ - $$) DB 0
-   232                                  
-   233 000001E6 445542454E4A552053-     FILE1 DB 'DUBENJU SYSMSDOS   SYS'
-   234 000001EF 59534D53444F532020-
-   235 000001F8 20535953           
-   236                                  
-   237 000001FC 00<rept>                                            times 2 DB 0
-   238                                  
-   239 000001FE 55                      DB 55H
-   240 000001FF AA                      DB 0AAH
+   112                                                              ;MOV AL,  [bsFAT_COPIES]          ; FAT表个数 2
+   113                                                              ;MUL WORD [bsSECTORS_PER_FAT]     ; * FAT 表所占的扇区数 40
+   114                                                              ;ADD AX,  [bsHIDDEN_SECTORS_HIGH] ; + 隐藏的扇区数H
+   115                                                              ;ADC DX,  [bsHIDDEN_SECTORS_LOW]  ; + 隐藏的扇区数L 63
+   116 00000098 A1[1C00]                                            MOV AX,  [bsHIDDEN_SECTORS_HIGH] ; + 隐藏的扇区数H
+   117 0000009B 8B16[1E00]                                          MOV DX,  [bsHIDDEN_SECTORS_LOW]  ; + 隐藏的扇区数L 63
+   118 0000009F 0306[0E00]                                          ADD AX,  [bsRESERVED_SECTORS]    ; + 保留扇区数L 1
+   119 000000A3 83D200                                              ADC DX,  BYTE +00H               ; + 保留扇区数H
+   120 000000A6 A30C06                                              MOV [060CH],AX
+   121 000000A9 89160E06                                            MOV [060EH],DX
+   122 000000AD 31C0                                                XOR AX, AX
+   123 000000AF 31D2                                                XOR DX, DX
+   124 000000B1 A0[1000]                                            MOV AL,  [bsFAT_COPIES]          ; FAT表个数 2
+   125 000000B4 F726[1600]                                          MUL WORD [bsSECTORS_PER_FAT]     ; * FAT 表所占的扇区数 40
+   126 000000B8 03060C06                                            ADD AX,  [060CH]
+   127 000000BC 13160E06                                            ADC DX,  [060EH]
+   128 000000C0 A31206                                              MOV [0612H],AX                   ; ROOT扇区NOL
+   129 000000C3 89161406                                            MOV [0614H],DX                   ; ROOT扇区NOH
+   130 000000C7 A31606                                              MOV [0616H],AX
+   131 000000CA 89161806                                            MOV [0618H],DX
+   132 000000CE B82000                                              MOV AX,  20H                        ; 32字节
+   133 000000D1 F726[1100]                                          MUL WORD [bsROOT_DIR_ENTRIES]     ; 根目录中目录的个数
+   134 000000D5 8B1E[0B00]                                          MOV BX,  [bsBYTES_PER_SECTOR]     ; 每扇区字节数
+   135 000000D9 01D8                                                ADD AX,  BX                       ; 
+   136 000000DB 48                                                  DEC AX                            ; ( 32 * n + 511 ) / 512
+   137 000000DC F7F3                                                DIV BX                            ; 根目录所占扇区数
+   138 000000DE 01061606                                            ADD [0616H],AX                    ; FILE扇区NOL
+   139 000000E2 8316180600                                          ADC WORD [0618H],BYTE + 00H       ; FILE扇区NOH
+   140                                  ;------------------------------------------------------;----------------
+   141 000000E7 A3[4200]                                            MOV  [dapSECTORS_READ], AX        ; READ ROOTDIR SECTOR CUONT
+   142 000000EA 8B161406                                            MOV  DX,  [0614H]
+   143 000000EE A11206                                              MOV  AX,  [0612H]
+   144 000000F1 C706[4400]0008                                      MOV  WORD [dapOFFSET], 0800H      ; 0000:0800 ROOTDIR
+   145 000000F7 8916[4A00]                                          MOV  [dapLHLBA], DX
+   146 000000FB A3[4800]                                            MOV  [dapLLLBA], AX
+   147                                  ;                            MOV  WORD [dapSECTORS_READ],  01H
+   148 000000FE E86700                                              CALL WORD READ_SECTOR             ; ES:BX0000:0800 = ROOTDIR
+   149                                  ;                            MOV  BX, 01H
+   150 00000101 720D                                                JC   DSP_MSG                      ; Error?  Print message and reboot.
+   151                                  ;------------------------------------------------------;----------------
+   152 00000103 BF0008                                              MOV DI,0800H
+   153 00000106 B90B00                                              MOV CX,000BH                      ; 11 characters in DOS filename.
+   154 00000109 BE[F101]                                            MOV SI,FILE1; 7DE6H                      ; 1E6:DUBENJU SYS
+   155 0000010C F3A6                                                REPE CMPSB
+   156                                  ;                            MOV  BX, 02H
+   157                                  ;                            JNZ DSP_MSG                       ; First file in root dir is not IO.SYS?  Print error.
+   158                                  ;                            LEA DI,[0820H]                    ; NEXT:MSDOS   SYS
+   159                                  ;                            MOV CX,0BH                        ; 11 characters in DOS filename.
+   160                                  ;                            REPE CMPSB                        ; Is second file in root MSDOS.SYS?
+   161 0000010E 7418                                                JZ   RD_DBJ_SYS                   ; Yes?  Then continue on.
+   162                                  ;                            MOV  BX, 03H
+   163                                  DSP_MSG:
+   164 00000110 BE[7901]                                            MOV SI,MSG1           ; MSG
+   165 00000113 E84400                                              CALL WORD WRITE_STR
+   166 00000116 31C0                                                XOR AX,AX
+   167 00000118 CD16                                                INT 16H
+   168 0000011A 5E                                                  POP SI
+   169 0000011B 1F                                                  POP DS
+   170 0000011C 8F04                                                POP WORD [SI]
+   171 0000011E 8F4402                                              POP WORD [SI+02H]
+   172 00000121 CD19                                                INT 19H
+   173                                  SHW_ERR_MSG:
+   174 00000123 58                                                  POP AX
+   175 00000124 58                                                  POP AX
+   176 00000125 58                                                  POP AX
+   177 00000126 EBE8                                                JMP SHORT DSP_MSG
+   178                                  ;RD_FAT_TBL:
+   179                                  ;;------------------------------------------------------;----------------
+   180                                  ;                            MOV  AX, [bsSECTORS_PER_FAT]
+   181                                  ;                            MOV  [dapSECTORS_READ], AX        ; READ FATTABLE SECTOR CUONT
+   182                                  ;                            MOV  DX,  [060EH]
+   183                                  ;                            MOV  AX,  [060CH]
+   184                                  ;                            MOV  WORD [dapOFFSET], 4800H      ; 0000:4800 FATTABLE
+   185                                  ;                            MOV  [dapLHLBA], DX
+   186                                  ;                            MOV  [dapLLLBA], AX
+   187                                  ;                            CALL WORD READ_SECTOR             ; ES:BX0000:4800 = FATTABLE
+   188                                  ;                            MOV  BX, 05H
+   189                                  ;                            JC   DSP_MSG                      ; Error?  Print message and reboot.
+   190                                  RD_DBJ_SYS:
+   191                                  ;------------------------------------------------------;----------------
+   192 00000128 A11A08                                              MOV AX,[081AH]
+   193 0000012B 48                                                  DEC AX
+   194 0000012C 48                                                  DEC AX
+   195 0000012D 8A1E[0D00]                                          MOV BL,[bsSECTORS_PER_CLUSTER]  ; bsSECTORS_PER_CLUSTER
+   196 00000131 30FF                                                XOR BH,BH
+   197 00000133 F7E3                                                MUL BX
+   198 00000135 03061606                                            ADD AX,[0616H]
+   199 00000139 13161806                                            ADC DX,[0618H]
+   200                                  
+   201 0000013D C706[4400]007F                                      MOV  WORD [dapOFFSET], 7F00H    ; DOS loading buffer
+   202 00000143 8916[4A00]                                          MOV  [dapLHLBA], DX
+   203 00000147 A3[4800]                                            MOV  [dapLLLBA], AX
+   204 0000014A C706[4200]FF00                                      MOV  WORD [dapSECTORS_READ], 00FFH
+   205 00000150 E81500                                              CALL WORD READ_SECTOR
+   206                                  ;                            MOV  BX, 04H
+   207 00000153 72BB                                                JC   DSP_MSG
+   208                                  
+   209                                  ;                            MOV CH,[7C15H]        ; bsMEDIA_DESCRIPTOR
+   210                                  ;                            MOV DL,[7C24H]        ; bsPHYS_DRIVE_NUMBER_1
+   211                                  ;                            MOV BX,[0616H]        
+   212                                  ;                            MOV AX,[0618H]        
+   213                                  ;                            JMP FIN
+   214 00000155 EA0000F007                                          JMP WORD 07F0H:0000H ; Transfer to ROM BIOS
+   215                                  
+   216                                  ;[========================================================================]
+   217                                  ;     Procedure     WRITE_STRING
+   218                                  ;[========================================================================]
+   219                                  ;     Parameters:
+   220                                  ;                   SI:  Address of string to write
+   221                                  WRITE_STR:
+   222 0000015A AC                                                  LODSB
+   223 0000015B 08C0                                                OR  AL,AL
+   224 0000015D 7419                                                JZ  RETURN_PRC
+   225 0000015F B40E                                                MOV AH,0EH
+   226 00000161 BB0700                                              MOV BX,07H
+   227 00000164 CD10                                                INT 10H
+   228 00000166 EBF2                                                JMP SHORT WRITE_STR
+   229                                  
+   230                                  READ_SECTOR:
+   231 00000168 B80000                                              MOV AX, 00H
+   232 0000016B 8ED8                                                MOV DS, AX
+   233 0000016D B442                                                MOV AH, 42H
+   234 0000016F 8A16247C                                            MOV DL,[7C24H]       ;(DL)=驱动器号
+   235 00000173 BE[4000]                                            MOV SI, DISK_ADDRESS_PACKET
+   236 00000176 CD13                                                INT 13H
+   237                                  RETURN_PRC:
+   238 00000178 C3                                                  RET
+   239 00000179 0D0A4E6F6E2D537973-     MSG1     DB 0DH,0AH,'Non-System disk or disk error'
+   240 00000182 74656D206469736B20-
+   241 0000018B 6F72206469736B2065-
+   242 00000194 72726F72           
+   243 00000198 0D0A5265706C616365-              DB 0DH,0AH,'Replace and press any key when ready'
+   244 000001A1 20616E642070726573-
+   245 000001AA 7320616E79206B6579-
+   246 000001B3 207768656E20726561-
+   247 000001BC 6479               
+   248 000001BE 0D0A00                           DB 0DH,0AH,00H
+   249                                  
+   250                                  FIN:
+   251 000001C1 EBFE                                                JMP FIN
+   252                                  
+   253 000001C3 00<rept>                                            times 497 - ( $ - $$) DB 0
+   254                                  
+   255 000001F1 445542454E4A552053-     FILE1 DB 'DUBENJU SYS';MSDOS   SYS'
+   256 000001FA 5953               
+   257                                  
+   258 000001FC 00<rept>                                            times 2 DB 0
+   259                                  
+   260 000001FE 55                      DB 55H
+   261 000001FF AA                      DB 0AAH

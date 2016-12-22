@@ -30,22 +30,23 @@ _task_display:
 	movl	_taskctl, %eax
 	movl	12(%ebp), %esi
 	addl	$28, %esp
-	cmpl	216088(%eax), %esi
+	cmpl	214085(%eax), %esi
 	jge	L3
 	movl	%esi, %edx
-	imull	$212, %edx, %edx
+	imull	$210, %edx, %edx
 	movl	$48, -72(%ebp)
 	movl	%edx, -68(%ebp)
 L8:
-	movl	-68(%ebp), %edx
-	addl	%eax, %edx
-	cmpl	$0, 4092(%edx)
+	movl	-68(%ebp), %ebx
+	addl	%eax, %ebx
+	leal	4080(%ebx), %edx
+	cmpl	$0, 9(%edx)
 	jne	L14
 L4:
 	movl	_taskctl, %eax
 	incl	%esi
-	addl	$212, -68(%ebp)
-	cmpl	216088(%eax), %esi
+	addl	$210, -68(%ebp)
+	cmpl	214085(%eax), %esi
 	jl	L8
 L3:
 	cmpl	$0, 16(%ebp)
@@ -84,7 +85,7 @@ L9:
 	movl	_taskctl, %eax
 	movl	20(%ebp), %edx
 	cmpl	$100, %edx
-	pushl	216092(%eax)
+	pushl	214089(%eax)
 	jle	L11
 	movl	$100, %edx
 L11:
@@ -140,20 +141,20 @@ L14:
 	xorl	%eax, %eax
 	leal	-60(%ebp), %edi
 	movl	$10, %ecx
-	leal	-60(%ebp), %ebx
 	rep
 	stosl
-	pushl	4092(%edx)
-	pushl	4100(%edx)
-	pushl	4096(%edx)
-	leal	4278(%edx), %eax
+	pushl	9(%edx)
+	pushl	17(%edx)
+	pushl	13(%edx)
+	leal	4275(%ebx), %eax
+	leal	-60(%ebp), %edi
 	pushl	%eax
 	pushl	%esi
 	pushl	$LC0
-	pushl	%ebx
+	pushl	%edi
 	call	_sprintf
 	movl	8(%ebp), %eax
-	pushl	%ebx
+	pushl	%edi
 	incl	-64(%ebp)
 	pushl	$1
 	pushl	$7
@@ -277,7 +278,7 @@ _taskmgr_task:
 	call	_timer_init
 	addl	$36, %esp
 	movl	_taskctl, %eax
-	movl	4508(%eax), %esi
+	movl	4501(%eax), %esi
 	pushl	$1
 	pushl	-104(%ebp)
 	subl	$99, %esi
@@ -325,7 +326,7 @@ L38:
 	jmp	L28
 L37:
 	movl	_taskctl, %eax
-	movl	216092(%eax), %eax
+	movl	214089(%eax), %eax
 	subl	$12, %eax
 	cmpl	%eax, -96(%ebp)
 	jge	L28
@@ -358,7 +359,7 @@ L36:
 	pushl	-104(%ebp)
 	call	_timer_settime
 	movl	_taskctl, %eax
-	movl	4508(%eax), %ebx
+	movl	4501(%eax), %ebx
 	movl	%ebx, %eax
 	pushl	8(%ebp)
 	subl	%esi, %eax
@@ -396,7 +397,7 @@ _max.1:
 LC6:
 	.ascii "sck\0"
 LC7:
-	.ascii "%02X:%02X\0\0"
+	.ascii "test\0"
 	.text
 	.balign 2
 .globl _sysclock_task
@@ -480,20 +481,18 @@ L57:
 	cmpb	$2, %al
 	jle	L63
 L47:
-	movzbl	_t+1, %eax
-	movl	4068, %esi
+	movl	1508, %esi
 	leal	-28(%ebp), %ebx
-	pushl	%eax
-	addl	$1044, %esi
-	movzbl	_t+2, %eax
-	pushl	%eax
 	pushl	$LC7
+	addl	$1044, %esi
 	pushl	%ebx
+	movl	$0, -28(%ebp)
+	movw	$0, -24(%ebp)
 	call	_sprintf
 	pushl	$5
 	pushl	%ebx
-	pushl	$8
-	pushl	$0
+	pushl	$3
+	pushl	$2
 	movl	8(%esi), %eax
 	subl	$21, %eax
 	pushl	%eax
@@ -502,7 +501,7 @@ L47:
 	pushl	%eax
 	pushl	%esi
 	call	_putfonts8_asc_sht
-	addl	$44, %esp
+	addl	$36, %esp
 	pushl	$100
 	pushl	-40(%ebp)
 	call	_timer_settime

@@ -1,7 +1,4 @@
 	.file	"dbgs.c"
-	.data
-LC0:
-	.ascii "Debug Window\0"
 	.text
 	.balign 2
 .globl _dbg_init
@@ -25,17 +22,8 @@ _dbg_init:
 	movl	$400, _dbg+24
 	movl	$240, _dbg+28
 	call	_make_textbox8
-	pushl	$12
-	pushl	$LC0
-	pushl	_dbg+4
-	pushl	$7
-	pushl	_dbg+12
-	pushl	_dbg+8
-	pushl	_dbg
-	call	_putfonts8_asc_sht
 	movl	_dbg+8, %edx
 	movl	_dbg+12, %ecx
-	addl	$52, %esp
 	movl	%ecx, %eax
 	subl	$3, %ecx
 	addl	_dbg+28, %eax
@@ -54,7 +42,7 @@ _dbg_init:
 	leave
 	ret
 	.data
-LC1:
+LC0:
 	.ascii " \0"
 	.text
 	.balign 2
@@ -131,7 +119,7 @@ L20:
 L19:
 	pushl	$1
 	movl	_dbg+20, %eax
-	pushl	$LC1
+	pushl	$LC0
 	addl	_dbg+12, %eax
 	pushl	_dbg+4
 	pushl	%ebx
@@ -335,9 +323,9 @@ L67:
 	jl	L67
 	jmp	L69
 	.data
-LC2:
+LC1:
 	.ascii "/ztext.txt\0"
-LC3:
+LC2:
 	.ascii "[log]%s\12\0"
 	.text
 	.balign 2
@@ -366,7 +354,7 @@ L72:
 	pushl	%esi
 	leal	-300(%ebp), %ebx
 	pushl	$0
-	pushl	$LC2
+	pushl	$LC1
 	call	_hrb_api_fopen
 	xorl	%eax, %eax
 	cld
@@ -374,7 +362,7 @@ L72:
 	rep
 	stosl
 	pushl	8(%ebp)
-	pushl	$LC3
+	pushl	$LC2
 	movl	%ebx, %edi
 	pushl	%ebx
 	call	_sprintf
@@ -399,12 +387,12 @@ L72:
 	.data
 	.balign 16
 _dbg:
-	.space 36
+	.space 33
 	.def	_hrb_api_fclose;	.scl	2;	.type	32;	.endef
 	.def	_hrb_api_fwrite;	.scl	2;	.type	32;	.endef
 	.def	_sprintf;	.scl	2;	.type	32;	.endef
 	.def	_hrb_api_fopen;	.scl	2;	.type	32;	.endef
 	.def	_dbg_newline;	.scl	2;	.type	32;	.endef
-	.def	_sheet_refresh;	.scl	2;	.type	32;	.endef
 	.def	_putfonts8_asc_sht;	.scl	2;	.type	32;	.endef
+	.def	_sheet_refresh;	.scl	2;	.type	32;	.endef
 	.def	_make_textbox8;	.scl	2;	.type	32;	.endef

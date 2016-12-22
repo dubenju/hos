@@ -8,19 +8,19 @@ extern int * u_fat;
 extern char fat_flag;
 
 void dbg_init(struct SHEET *sht) {
-  dbg.sht = sht;
-  dbg.bc  = 16 + 1 + 3 * 6 + 4 * 36;
-  dbg.x0  = 12;
-  dbg.y0  = 200;
-  dbg.cx  = 0;
-  dbg.cy  = 0;
-  dbg.wd  = 400;
-  dbg.ht  = 240;
-  make_textbox8(dbg.sht, dbg.x0, dbg.y0, dbg.wd, dbg.ht, dbg.bc);
-  putfonts8_asc_sht(dbg.sht, dbg.x0, dbg.y0, COL8_FFFFFF, dbg.bc, "Debug Window", 12);
-  sheet_refresh(dbg.sht, dbg.x0 - 3, dbg.y0 - 3, dbg.x0 + dbg.wd + 3, dbg.y0 + dbg.ht + 3);
-  dbg.init_flag = 1;
-  return;
+    dbg.sht = sht;
+    dbg.bc  = 16 + 1 + 3 * 6 + 4 * 36;
+    dbg.x0  = 12;
+    dbg.y0  = 200;
+    dbg.cx  = 0;
+    dbg.cy  = 0;
+    dbg.wd  = 400;
+    dbg.ht  = 240;
+    make_textbox8(dbg.sht, dbg.x0, dbg.y0, dbg.wd, dbg.ht, dbg.bc);
+//    putfonts8_asc_sht(dbg.sht, dbg.x0, dbg.y0, COL8_FFFFFF, dbg.bc, "Debug Window", 12); /* window.c */
+    sheet_refresh(dbg.sht, dbg.x0 - 3, dbg.y0 - 3, dbg.x0 + dbg.wd + 3, dbg.y0 + dbg.ht + 3);
+    dbg.init_flag = 1;
+    return;
 }
 
 void dbg_putchar(int chr, int fc) {

@@ -62,11 +62,11 @@ table[00063]=0000049152, 0X000000C000 table[00070]=0000053248, 0X000000D000 tabl
 
 ----- read_qcow2 begin -----<<
 >>----- print_qcow2_file -----.
-HEADER:00A81958.
-L1    :00A819A8.
-RFT   :009613E0.
-RFB   :00A88CE8.
-L2    :009617C8.
+HEADER:004B1958.
+L1    :004B19A8.
+RFT   :00CE13E0.
+RFB   :004B8D08.
+L2    :00CE17C8.
 
 簇大小4096
 ----- print_qcow2_file -----<<.
@@ -361,12 +361,12 @@ table[00031]=0000032768, 0X0000008000 table[00039]=0000036864, 0X0000009000 tabl
 
 写入根目录结束。
 写入FAT1开始。
-pfat=96B7D0.
+pfat=CEB7D0.
 fat_size=10065.
 bpb_SectorsPerFAT=40.
 file_system_index=16.
 >>----- make_fat begin -----
-in=96B7D0.
+in=CEB7D0.
 in_size=10065.
 size=40.
 size_byte=20480.

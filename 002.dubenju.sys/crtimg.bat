@@ -17,8 +17,9 @@ REM C:\Users\DBJ\git\hos\fat\edqcow2\edqcow2 C:\Users\DBJ\git\hos\001.vbr\vbs\qc
 
 copy C:\Users\DBJ\git\hos\002.dubenju.sys\qcow2_20m_fmt.qcow2 C:\Users\DBJ\git\hos\002.dubenju.sys\qcow2_20m_rt.qcow2 > crtimg_01_cp_rt.log
 C:\Users\DBJ\git\hos\fat\edqcow2\edqcow2 C:\Users\DBJ\git\hos\002.dubenju.sys\qcow2_20m_rt.qcow2 copy C:/Users/DBJ/git/hos/002.dubenju.sys/dubenju.sys to /drv1/DUBENJU.SYS > crtimg_02.log
-C:\Users\DBJ\git\hos\fat\edqcow2\edqcow2 C:\Users\DBJ\git\hos\002.dubenju.sys\qcow2_20m_rt.qcow2 copy C:/Users/DBJ/git/hos/001.vbr/vbs/a/msdos.sys    to /drv1/MSDOS.SYS   > crtimg_03.log
+REM C:\Users\DBJ\git\hos\fat\edqcow2\edqcow2 C:\Users\DBJ\git\hos\002.dubenju.sys\qcow2_20m_rt.qcow2 copy C:/Users/DBJ/git/hos/001.vbr/vbs/a/msdos.sys    to /drv1/MSDOS.SYS   > crtimg_03.log
 C:\Users\DBJ\git\hos\fat\edqcow2\edqcow2 C:\Users\DBJ\git\hos\002.dubenju.sys\qcow2_20m_rt.qcow2 copy C:/Users/DBJ/git/hos/001.vbr/vbs/a/COMMAND.COM  to /drv1/COMMAND.COM > crtimg_04.log
 C:\Users\DBJ\git\hos\fat\edqcow2\edqcow2 C:\Users\DBJ\git\hos\002.dubenju.sys\qcow2_20m_rt.qcow2 copy C:/Users/DBJ/git/hos/001.vbr/vbs/a/DRVSPACE.BIN to /drv1/DRVSPACE.BIN  > crtimg_05.log
+REM C:\Users\DBJ\git\hos\fat\edqcow2\edqcow2 C:\Users\DBJ\git\hos\002.dubenju.sys\qcow2_20m_rt.qcow2 copy C:/Users/DBJ/git/hos/901.nihongo/nihongo.fnt to /drv1/nihongo.fnt  > crtimg_06.log
 
 C:\Users\DBJ\git\hos\fat\edqcow2\edqcow2 C:\Users\DBJ\git\hos\002.dubenju.sys\qcow2_20m_rt.qcow2 info > qcow2_20m_rt.qcow2_info.txt

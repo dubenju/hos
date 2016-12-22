@@ -1323,25 +1323,29 @@ L218:
 	movl	%ecx, -48(%ebp)
 	jns	L218
 L330:
-	movl	$0, -48(%ebp)
 	movl	-100(%ebp), %edx
+	movl	%edx, %esi
+	movl	%edx, %ebx
+	movl	%edx, %ecx
+	addl	$96, %esi
+	addl	$736, %ebx
+	addl	$992, %ecx
 L225:
 	xorl	%eax, %eax
-	cmpl	$3, -48(%ebp)
+	cmpl	%esi, %edx
 	setg	%al
 	movl	%eax, 48(%edx)
+	cmpl	%ebx, %edx
 	movl	$16384, %eax
-	cmpl	$23, -48(%ebp)
 	jle	L224
 	movl	$8192, %eax
 L224:
+	movl	%eax, 52(%edx)
 	movb	$0, 30(%edx)
 	movb	$5, 29(%edx)
 	movb	$5, 28(%edx)
-	incl	-48(%ebp)
-	movl	%eax, 52(%edx)
 	addl	$32, %edx
-	cmpl	$31, -48(%ebp)
+	cmpl	%ecx, %edx
 	jle	L225
 	movl	24(%ebp), %ecx
 	movl	$1024, %eax
@@ -1379,77 +1383,77 @@ L237:
 	movl	$31, -48(%ebp)
 L268:
 	movl	-128(%ebp), %edx
+	movl	-128(%ebp), %ecx
 	movzbl	29(%edx), %eax
 	pushl	%eax
-	movzbl	28(%edx), %eax
+	addl	$28, %edx
+	movzbl	28(%ecx), %eax
 	pushl	%eax
-	movl	%edx, %eax
-	addl	$28, %eax
-	pushl	%eax
+	pushl	%edx
 	call	_tek_setbm5
 	addl	$12, %esp
 	addl	$32, -128(%ebp)
 	decl	-48(%ebp)
 	jns	L268
-	movl	-100(%ebp), %ecx
-	pushl	1052(%ecx)
+	movl	-100(%ebp), %eax
+	pushl	1052(%eax)
 	pushl	$0
 	pushl	$113
 	pushl	-104(%ebp)
-	pushl	%ecx
+	pushl	%eax
 	call	_tek_rdget1
 	addl	$20, %esp
 	cmpl	-80(%ebp), %eax
 	je	L213
-	movl	20(%ebp), %eax
-	incl	20(%ebp)
-	movl	%eax, -108(%ebp)
 	movl	-100(%ebp), %eax
+	movl	20(%ebp), %edx
 	addl	$796, %eax
+	movl	%edx, -108(%ebp)
 	pushl	%eax
-	movl	-104(%ebp), %eax
+	incl	20(%ebp)
 	pushl	$1
-	addl	$8256, %eax
+	movl	-104(%ebp), %eax
 	pushl	-92(%ebp)
+	addl	$8256, %eax
 	pushl	%eax
 	pushl	-100(%ebp)
 	call	_tek_rdget1
-	movl	-108(%ebp), %edx
+	movl	-108(%ebp), %ecx
 	addl	$20, %esp
-	movb	%al, (%edx)
-	movl	16(%ebp), %ecx
+	movb	%al, (%ecx)
+	movl	16(%ebp), %eax
 	movl	$1, -68(%ebp)
 	movl	$0, -60(%ebp)
 	movl	$0, -64(%ebp)
-	cmpl	%ecx, -68(%ebp)
+	cmpl	%eax, -68(%ebp)
 	jge	L343
 L326:
-	movl	-68(%ebp), %eax
-	movl	-100(%ebp), %edx
-	andl	-72(%ebp), %eax
-	movl	-104(%ebp), %ecx
-	movl	%eax, -88(%ebp)
+	movl	-68(%ebp), %edx
 	xorl	%eax, %eax
+	andl	-72(%ebp), %edx
+	movl	-100(%ebp), %ecx
 	cmpl	$0, -64(%ebp)
 	setg	%al
-	pushl	1052(%edx,%eax,4)
-	imull	$28, -88(%ebp), %eax
+	movl	%edx, -88(%ebp)
+	pushl	1052(%ecx,%eax,4)
+	imull	$28, %edx, %eax
 	addl	-64(%ebp), %eax
+	movl	-104(%ebp), %edx
 	pushl	$0
 	pushl	$113
-	leal	(%ecx,%eax,8), %eax
+	leal	(%edx,%eax,8), %eax
 	pushl	%eax
 	movl	%eax, -112(%ebp)
-	pushl	%edx
+	pushl	%ecx
 	call	_tek_rdget1
 	addl	$20, %esp
 	cmpl	-80(%ebp), %eax
 	je	L273
-	movl	20(%ebp), %eax
-	movb	-84(%ebp), %cl
-	movzbl	-1(%eax), %edx
+	movl	20(%ebp), %ecx
 	movl	-68(%ebp), %eax
 	andl	-76(%ebp), %eax
+	movzbl	-1(%ecx), %edx
+	movb	-84(%ebp), %cl
 	sarl	%cl, %edx
 	movb	24(%ebp), %cl
 	sall	%cl, %eax

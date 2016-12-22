@@ -5,17 +5,17 @@
 extern unsigned short table_16_65536[65536];
 
 void make_window8(unsigned short *buf, int xsize, int ysize, char *title, char act) {
-  boxfill8(buf, xsize, COL8_C6C6C6, 0,         0,         xsize - 1, 0        );
-  boxfill8(buf, xsize, COL8_FFFFFF, 1,         1,         xsize - 2, 1        );
-  boxfill8(buf, xsize, COL8_C6C6C6, 0,         0,         0,         ysize - 1);
-  boxfill8(buf, xsize, COL8_FFFFFF, 1,         1,         1,         ysize - 2);
-  boxfill8(buf, xsize, COL8_848484, xsize - 2, 1,         xsize - 2, ysize - 2);
-  boxfill8(buf, xsize, COL8_000000, xsize - 1, 0,         xsize - 1, ysize - 1);
-  dbg_putstr0(title, COL8_C6C6C6);
-  boxfill8(buf, xsize, COL8_C6C6C6, 2,         2,         xsize - 3, ysize - 3); /* background */
-  boxfill8(buf, xsize, COL8_848484, 1,         ysize - 2, xsize - 2, ysize - 2);
-  boxfill8(buf, xsize, COL8_000000, 0,         ysize - 1, xsize - 1, ysize - 1);
-  make_wtitle8(buf, xsize, title, act);
+    boxfill8(buf, xsize, COL8_C6C6C6, 0,         0,         xsize - 1, 0        );
+    boxfill8(buf, xsize, COL8_FFFFFF, 1,         1,         xsize - 2, 1        );
+    boxfill8(buf, xsize, COL8_C6C6C6, 0,         0,         0,         ysize - 1);
+    boxfill8(buf, xsize, COL8_FFFFFF, 1,         1,         1,         ysize - 2);
+    boxfill8(buf, xsize, COL8_848484, xsize - 2, 1,         xsize - 2, ysize - 2);
+    boxfill8(buf, xsize, COL8_000000, xsize - 1, 0,         xsize - 1, ysize - 1);
+//  dbg_putstr0(title, COL8_C6C6C6);
+    boxfill8(buf, xsize, COL8_C6C6C6, 2,         2,         xsize - 3, ysize - 3); /* background */
+    boxfill8(buf, xsize, COL8_848484, 1,         ysize - 2, xsize - 2, ysize - 2);
+    boxfill8(buf, xsize, COL8_000000, 0,         ysize - 1, xsize - 1, ysize - 1);
+    make_wtitle8(buf, xsize, title, act);
   return;
 }
 
@@ -135,16 +135,17 @@ void make_wtitle8(unsigned short *buf, int xsize, char *title, char act) {
 }
 
 void putfonts8_asc_sht(struct SHEET *sht, int x, int y, int c, int b, char *s, int l) {
-  struct TASK *task = task_now();
-  boxfill8(sht->buf, sht->bxsize, b, x, y, x + l * 8 - 1, y + 15);
-  if (task->langmode != 0 && task->langbyte1 != 0) {
-    putfonts8_asc(sht->buf, sht->bxsize, x, y, c, 1, s);
-    sheet_refresh(sht, x - 8, y, x + l * 8, y + 16);
-  } else {
-    putfonts8_asc(sht->buf, sht->bxsize, x, y, c, 1, s); /* graphic.c */
-    sheet_refresh(sht, x, y, x + l * 8, y + 16);
-  }
-  return;
+    struct TASK *task = task_now();
+    boxfill8(sht->buf, sht->bxsize, b, x, y, x + l * 8 - 1, y + 15);
+    if (task->langmode != 0 && task->langbyte1 != 0) {
+        putfonts8_asc(sht->buf, sht->bxsize, x, y, c, 1, s);
+        sheet_refresh(sht, x - 8, y, x + l * 8, y + 16);
+    } else {
+        putfonts8_asc(sht->buf, sht->bxsize, x, y, c, 1, s); /* graphic.c */
+//        boxfill8(sht->buf, sht->bxsize, c, x, y, x + l * 8 - 1, y + 15);
+        sheet_refresh(sht, x, y, x + l * 8, y + 16);
+    }
+    return;
 }
 
 void make_textbox8(struct SHEET *sht, int x0, int y0, int sx, int sy, int c) {

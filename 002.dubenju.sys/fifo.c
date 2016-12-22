@@ -12,14 +12,14 @@
  * TASK * task
  */
 void fifo32_init(struct FIFO32 *fifo, int size, int *buf, struct TASK *task) {
-  fifo->size = size;
-  fifo->buf = buf;
-  fifo->free = size; /* 空き */
-  fifo->flags = 0;
-  fifo->p = 0;       /* 書き込み位置 */
-  fifo->q = 0;       /* 読み込み位置 */
-  fifo->task = task; /* データが入ったときに起こすタスク */
-  return;
+    fifo->size  = size;
+    fifo->buf   = buf;
+    fifo->free  = size;     /* 空き */
+    fifo->flags = 0;
+    fifo->p     = 0;        /* 書き込み位置 */
+    fifo->q     = 0;        /* 読み込み位置 */
+    fifo->task  = task;     /* データが入ったときに起こすタスク */
+    return;
 }
 
 /* FIFOへデータを送り込んで蓄える */

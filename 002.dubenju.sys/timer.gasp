@@ -18,13 +18,13 @@ _init_pit:
 	pushl	$46
 	pushl	$64
 	call	_io_out8
-	movl	$_timerctl+17984, %edx
+	movl	$_timerctl+16986, %edx
 	movl	$0, _timerctl
 	addl	$24, %esp
 	movl	$_timerctl+20, %eax
 L6:
 	movb	$0, (%eax)
-	addl	$36, %eax
+	addl	$34, %eax
 	cmpl	%edx, %eax
 	jle	L6
 	pushl	$LC0
@@ -54,8 +54,8 @@ L15:
 	cmpb	$0, 8(%ebx)
 	je	L18
 	incl	%edx
-	addl	$36, %ebx
-	addl	$36, %eax
+	addl	$34, %ebx
+	addl	$34, %eax
 	cmpl	$499, %edx
 	jle	L15
 	xorl	%eax, %eax
@@ -65,7 +65,7 @@ L9:
 	ret
 L18:
 	pushl	%edx
-	addl	$_timerctl+32, %eax
+	addl	$_timerctl+30, %eax
 	pushl	8(%ebp)
 	pushl	$LC1
 	pushl	%eax
@@ -82,7 +82,7 @@ _timer_free:
 	movl	%esp, %ebp
 	movl	8(%ebp), %eax
 	movb	$0, 8(%eax)
-	movb	$0, 20(%eax)
+	movb	$0, 18(%eax)
 	popl	%ebp
 	ret
 	.balign 2
@@ -93,9 +93,9 @@ _timer_init:
 	movl	%esp, %ebp
 	movl	8(%ebp), %eax
 	movl	12(%ebp), %edx
-	movl	%edx, 12(%eax)
+	movl	%edx, 10(%eax)
 	movl	16(%ebp), %edx
-	movl	%edx, 16(%eax)
+	movl	%edx, 14(%eax)
 	popl	%ebp
 	ret
 	.balign 2
@@ -163,8 +163,8 @@ L31:
 	movb	$1, 8(%ebx)
 	cmpl	_task_timer, %ebx
 	je	L35
-	pushl	16(%ebx)
-	pushl	12(%ebx)
+	pushl	14(%ebx)
+	pushl	10(%ebx)
 	call	_fifo32_put
 	popl	%eax
 	popl	%edx
@@ -257,11 +257,11 @@ L55:
 	je	L52
 	cmpb	$0, 9(%ebx)
 	je	L52
-	cmpl	%edi, 12(%ebx)
+	cmpl	%edi, 10(%ebx)
 	je	L58
 L52:
-	addl	$36, %ebx
-	cmpl	$_timerctl+17976, %ebx
+	addl	$34, %ebx
+	cmpl	$_timerctl+16978, %ebx
 	jle	L55
 	movl	%esi, 8(%ebp)
 	leal	-12(%ebp), %esp
@@ -282,7 +282,7 @@ L58:
 	.data
 	.balign 16
 _timerctl:
-	.space 18012
+	.space 17012
 	.def	_task_switch;	.scl	2;	.type	32;	.endef
 	.def	_fifo32_put;	.scl	2;	.type	32;	.endef
 	.def	_io_store_eflags;	.scl	2;	.type	32;	.endef
