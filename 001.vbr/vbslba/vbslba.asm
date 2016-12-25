@@ -196,14 +196,28 @@ RD_DBJ_SYS:
                             MUL BX
                             ADD AX,[0616H]
                             ADC DX,[0618H]
+                            MOV [dapLHLBA], DX
+                            MOV [dapLLLBA], AX
+
+                            ADD AX, 02H
+                            ADC DX, 00H
+                            MOV [05A0H], AX
+                            MOV [05A2H], DX
 
                             MOV  WORD [dapOFFSET], 7F00H    ; DOS loading buffer
-                            MOV  [dapLHLBA], DX
-                            MOV  [dapLLLBA], AX
-                            MOV  WORD [dapSECTORS_READ], 00FFH
+;                            MOV  CX, 02H
+;RD_NEXT:
+;                            MOV  WORD [dapSECTORS_READ], 00FFH
+                            MOV  WORD [dapSECTORS_READ], 0002H
                             CALL WORD READ_SECTOR
-;                            MOV  BX, 04H
                             JC   DSP_MSG
+;                            MOV AX, [05A0H]
+;                            MOV DX, [05A2H]
+;                            MOV  [dapLHLBA], DX
+;                            MOV  [dapLLLBA], AX
+;                            MOV  WORD [dapSEGMENT], 2000H   ; NG A20 is need.
+;                            MOV  WORD [dapOFFSET], 7D00H    ; DOS loading buffer
+;                            LOOP RD_NEXT
 
 ;                            MOV CH,[7C15H]        ; bsMEDIA_DESCRIPTOR
 ;                            MOV DL,[7C24H]        ; bsPHYS_DRIVE_NUMBER_1
@@ -239,8 +253,8 @@ MSG1     DB 0DH,0AH,'Non-System disk or disk error'
          DB 0DH,0AH,'Replace and press any key when ready'
          DB 0DH,0AH,00H
 
-FIN:
-                            JMP FIN
+;FIN:
+;                            JMP FIN
 
                             times 497 - ( $ - $$) DB 0
 

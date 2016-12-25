@@ -145,7 +145,7 @@
    145 000000F7 8916[4A00]                                          MOV  [dapLHLBA], DX
    146 000000FB A3[4800]                                            MOV  [dapLLLBA], AX
    147                                  ;                            MOV  WORD [dapSECTORS_READ],  01H
-   148 000000FE E86700                                              CALL WORD READ_SECTOR             ; ES:BX0000:0800 = ROOTDIR
+   148 000000FE E87400                                              CALL WORD READ_SECTOR             ; ES:BX0000:0800 = ROOTDIR
    149                                  ;                            MOV  BX, 01H
    150 00000101 720D                                                JC   DSP_MSG                      ; Error?  Print message and reboot.
    151                                  ;------------------------------------------------------;----------------
@@ -161,8 +161,8 @@
    161 0000010E 7418                                                JZ   RD_DBJ_SYS                   ; Yes?  Then continue on.
    162                                  ;                            MOV  BX, 03H
    163                                  DSP_MSG:
-   164 00000110 BE[7901]                                            MOV SI,MSG1           ; MSG
-   165 00000113 E84400                                              CALL WORD WRITE_STR
+   164 00000110 BE[8601]                                            MOV SI,MSG1           ; MSG
+   165 00000113 E85100                                              CALL WORD WRITE_STR
    166 00000116 31C0                                                XOR AX,AX
    167 00000118 CD16                                                INT 16H
    168 0000011A 5E                                                  POP SI
@@ -197,65 +197,79 @@
    197 00000133 F7E3                                                MUL BX
    198 00000135 03061606                                            ADD AX,[0616H]
    199 00000139 13161806                                            ADC DX,[0618H]
-   200                                  
-   201 0000013D C706[4400]007F                                      MOV  WORD [dapOFFSET], 7F00H    ; DOS loading buffer
-   202 00000143 8916[4A00]                                          MOV  [dapLHLBA], DX
-   203 00000147 A3[4800]                                            MOV  [dapLLLBA], AX
-   204 0000014A C706[4200]FF00                                      MOV  WORD [dapSECTORS_READ], 00FFH
-   205 00000150 E81500                                              CALL WORD READ_SECTOR
-   206                                  ;                            MOV  BX, 04H
-   207 00000153 72BB                                                JC   DSP_MSG
-   208                                  
-   209                                  ;                            MOV CH,[7C15H]        ; bsMEDIA_DESCRIPTOR
-   210                                  ;                            MOV DL,[7C24H]        ; bsPHYS_DRIVE_NUMBER_1
-   211                                  ;                            MOV BX,[0616H]        
-   212                                  ;                            MOV AX,[0618H]        
-   213                                  ;                            JMP FIN
-   214 00000155 EA0000F007                                          JMP WORD 07F0H:0000H ; Transfer to ROM BIOS
-   215                                  
-   216                                  ;[========================================================================]
-   217                                  ;     Procedure     WRITE_STRING
-   218                                  ;[========================================================================]
-   219                                  ;     Parameters:
-   220                                  ;                   SI:  Address of string to write
-   221                                  WRITE_STR:
-   222 0000015A AC                                                  LODSB
-   223 0000015B 08C0                                                OR  AL,AL
-   224 0000015D 7419                                                JZ  RETURN_PRC
-   225 0000015F B40E                                                MOV AH,0EH
-   226 00000161 BB0700                                              MOV BX,07H
-   227 00000164 CD10                                                INT 10H
-   228 00000166 EBF2                                                JMP SHORT WRITE_STR
+   200 0000013D 8916[4A00]                                          MOV [dapLHLBA], DX
+   201 00000141 A3[4800]                                            MOV [dapLLLBA], AX
+   202                                  
+   203 00000144 83C002                                              ADD AX, 02H
+   204 00000147 83D200                                              ADC DX, 00H
+   205 0000014A A3A005                                              MOV [05A0H], AX
+   206 0000014D 8916A205                                            MOV [05A2H], DX
+   207                                  
+   208 00000151 C706[4400]007F                                      MOV  WORD [dapOFFSET], 7F00H    ; DOS loading buffer
+   209                                  ;                            MOV  CX, 02H
+   210                                  ;RD_NEXT:
+   211                                  ;                            MOV  WORD [dapSECTORS_READ], 00FFH
+   212 00000157 C706[4200]0200                                      MOV  WORD [dapSECTORS_READ], 0002H
+   213 0000015D E81500                                              CALL WORD READ_SECTOR
+   214 00000160 72AE                                                JC   DSP_MSG
+   215                                  ;                            MOV AX, [05A0H]
+   216                                  ;                            MOV DX, [05A2H]
+   217                                  ;                            MOV  [dapLHLBA], DX
+   218                                  ;                            MOV  [dapLLLBA], AX
+   219                                  ;                            MOV  WORD [dapSEGMENT], 2000H   ; NG A20 is need.
+   220                                  ;                            MOV  WORD [dapOFFSET], 7D00H    ; DOS loading buffer
+   221                                  ;                            LOOP RD_NEXT
+   222                                  
+   223                                  ;                            MOV CH,[7C15H]        ; bsMEDIA_DESCRIPTOR
+   224                                  ;                            MOV DL,[7C24H]        ; bsPHYS_DRIVE_NUMBER_1
+   225                                  ;                            MOV BX,[0616H]        
+   226                                  ;                            MOV AX,[0618H]        
+   227                                  ;                            JMP FIN
+   228 00000162 EA0000F007                                          JMP WORD 07F0H:0000H ; Transfer to ROM BIOS
    229                                  
-   230                                  READ_SECTOR:
-   231 00000168 B80000                                              MOV AX, 00H
-   232 0000016B 8ED8                                                MOV DS, AX
-   233 0000016D B442                                                MOV AH, 42H
-   234 0000016F 8A16247C                                            MOV DL,[7C24H]       ;(DL)=驱动器号
-   235 00000173 BE[4000]                                            MOV SI, DISK_ADDRESS_PACKET
-   236 00000176 CD13                                                INT 13H
-   237                                  RETURN_PRC:
-   238 00000178 C3                                                  RET
-   239 00000179 0D0A4E6F6E2D537973-     MSG1     DB 0DH,0AH,'Non-System disk or disk error'
-   240 00000182 74656D206469736B20-
-   241 0000018B 6F72206469736B2065-
-   242 00000194 72726F72           
-   243 00000198 0D0A5265706C616365-              DB 0DH,0AH,'Replace and press any key when ready'
-   244 000001A1 20616E642070726573-
-   245 000001AA 7320616E79206B6579-
-   246 000001B3 207768656E20726561-
-   247 000001BC 6479               
-   248 000001BE 0D0A00                           DB 0DH,0AH,00H
-   249                                  
-   250                                  FIN:
-   251 000001C1 EBFE                                                JMP FIN
-   252                                  
-   253 000001C3 00<rept>                                            times 497 - ( $ - $$) DB 0
-   254                                  
-   255 000001F1 445542454E4A552053-     FILE1 DB 'DUBENJU SYS';MSDOS   SYS'
-   256 000001FA 5953               
-   257                                  
-   258 000001FC 00<rept>                                            times 2 DB 0
-   259                                  
-   260 000001FE 55                      DB 55H
-   261 000001FF AA                      DB 0AAH
+   230                                  ;[========================================================================]
+   231                                  ;     Procedure     WRITE_STRING
+   232                                  ;[========================================================================]
+   233                                  ;     Parameters:
+   234                                  ;                   SI:  Address of string to write
+   235                                  WRITE_STR:
+   236 00000167 AC                                                  LODSB
+   237 00000168 08C0                                                OR  AL,AL
+   238 0000016A 7419                                                JZ  RETURN_PRC
+   239 0000016C B40E                                                MOV AH,0EH
+   240 0000016E BB0700                                              MOV BX,07H
+   241 00000171 CD10                                                INT 10H
+   242 00000173 EBF2                                                JMP SHORT WRITE_STR
+   243                                  
+   244                                  READ_SECTOR:
+   245 00000175 B80000                                              MOV AX, 00H
+   246 00000178 8ED8                                                MOV DS, AX
+   247 0000017A B442                                                MOV AH, 42H
+   248 0000017C 8A16247C                                            MOV DL,[7C24H]       ;(DL)=驱动器号
+   249 00000180 BE[4000]                                            MOV SI, DISK_ADDRESS_PACKET
+   250 00000183 CD13                                                INT 13H
+   251                                  RETURN_PRC:
+   252 00000185 C3                                                  RET
+   253 00000186 0D0A4E6F6E2D537973-     MSG1     DB 0DH,0AH,'Non-System disk or disk error'
+   254 0000018F 74656D206469736B20-
+   255 00000198 6F72206469736B2065-
+   256 000001A1 72726F72           
+   257 000001A5 0D0A5265706C616365-              DB 0DH,0AH,'Replace and press any key when ready'
+   258 000001AE 20616E642070726573-
+   259 000001B7 7320616E79206B6579-
+   260 000001C0 207768656E20726561-
+   261 000001C9 6479               
+   262 000001CB 0D0A00                           DB 0DH,0AH,00H
+   263                                  
+   264                                  ;FIN:
+   265                                  ;                            JMP FIN
+   266                                  
+   267 000001CE 00<rept>                                            times 497 - ( $ - $$) DB 0
+   268                                  
+   269 000001F1 445542454E4A552053-     FILE1 DB 'DUBENJU SYS';MSDOS   SYS'
+   270 000001FA 5953               
+   271                                  
+   272 000001FC 00<rept>                                            times 2 DB 0
+   273                                  
+   274 000001FE 55                      DB 55H
+   275 000001FF AA                      DB 0AAH

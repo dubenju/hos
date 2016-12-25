@@ -407,9 +407,11 @@ scrn640:
 		MOV		WORD [SCRNY],480
 		MOV		DWORD [VRAM],000A0000H
 ;		JMP		keystatus
+
+
+
+
 keystatus:
-
-
         MOV     AH,02H
         INT     16H                     ; keyboard BIOS
 ;H->L:Ins、Caps Lock、Num Lock、Scroll Lock、Alt、Ctrl、Left Shift、Right Shift
@@ -431,96 +433,94 @@ keystatus:
         OR  AL , 02H     ; enable A20
         OUT 92H, AL
 
-;RD_FAT_TBL:
-;;先选择通道(Primary or Secondary), 并检查硬盘是否忙，忙则等待
-;      mov dx,0x1f7
-;     .waits:
-;         in al,dx
-;         and al,0x88
-;;jmp fin
-;         cmp al,0x80
-;         jz .waits
-;;jmp fin
-;
-;;往该通道的sector count寄存器中写入待操作的扇区数
-;            mov dx,0x1f2
-;            mov al,[7C16H] ;bsSECTORS_PER_FATF DW  ;1 个扇区 ??
-;            out dx,al
-;
-;;往该通道上的三个LBA寄存器写入扇区起始地址的低24位
-;;往device寄存器中写入LBA地址的24~27位, 并置第6位为1(LBA模式), 选择操作的硬盘(master or slave)
-;        mov dx,0x1f3
-;        mov al,[060CH] ;0x02                       ;
-;        out dx,al ;LBA 地址 7～0
-; 
-;        inc dx ;0x1f4
-;        mov al,[060DH]; 0x00                       ;
-;        out dx,al ;LBA 地址 15～8
-;
-;        inc dx ;0x1f5
-;        mov al,[060EH];                    ;
-;        out dx,al ;LBA 地址 23～16
-;
-;        inc dx ;0x1f6
-;                                        ;
-;        ;mov al,0xe0 ;LBA模式，主硬盘，以及 LBA 地址 27～24
-;        mov al,[060FH];                    ;
-;        OR AL, 0F0H
-;        AND AL, 0E0H
-;        out dx,al
-;
-;;往该通道上的command寄存器写入操作命令
-;       mov dx,0x1f7
-;       mov al,0x20   ;读命令
-;       out dx,al
-;
-;;读取该通道上的status寄存器, 判断硬盘工作是否完成
-;      mov dx,0x1f7
-;     .waits2:
-;         in al,dx
-;         and al,0x88
-;         cmp al,0x80
-;         jz .waits2
-;
-;;如果以上步骤是读硬盘, 进入下一个步骤。否则, 完工
-;;将硬盘数据读出DS:BX
-;push ds
-;        mov ax, 0000H
-;        mov es, ax
-;        mov ax, 1000H
-;        mov ds, ax
-;        mov ax, [es:7C16H] ; bsSECTORS_PER_FAT
-;;jmp fin
-;        mov BX, 0200H
-;        mov dx,0x1f0
-;    .readns:
-;push ax
-;        mov cx,512   ;总共要读取的字数
-;    .readw:
-;        in ax,dx
-;        mov  [bx],ax
-;        add bx,2
-;        loop .readw
-;;jmp fin
-;pop ax
-;        dec ax
-;        cmp ax, 00h
-;        jnz .readns
-;pop ds
+                            mov cx, 2
+;    push ds
+;    push es
+                            mov ax, 0000H
+                            mov es, ax
+rd_bootpack:
+;先选择通道(Primary or Secondary), 并检查硬盘是否忙，忙则等待
+                            mov dx,0x1f7
+     .waitsbp:
+                            in  al,dx
+                            and al,0x80
+                            cmp al,0x80
+                            jz .waitsbp
 
-;;------------------------------------------------------;----------------
-;                            MOV  AX, [7C16H] ;bsSECTORS_PER_FAT
-;                            MOV  [7C42H], AX        ; dapSECTORS_READREAD FATTABLE SECTOR CUONT
-;                            MOV  DX,  [060EH]
-;                            MOV  AX,  [060CH]
-;                            MOV  WORD [7C44H], 0200H      ; dapOFFSET 0000:4800 FATTABLE
-;                            MOV  WORD [7C46H], 0100H      ; dapOFFSET 0000:4800 FATTABLE
-;                            MOV  [7C4AH], DX ; dapLHLBA
-;                            MOV  [7C48H], AX ; dapLLLBA
-;;jmp fin
-;                            CALL WORD READ_SECTOR             ; ES:BX0000:4800 = FATTABLE
-;
+
+;往该通道的sector count寄存器中写入待操作的扇区数
+                            mov dx,0x1f2
+                            mov al,0FFH;[7C16H] ;bsSECTORS_PER_FATF DW  ;1 个扇区 ??
+                            out dx,al
+
+;往该通道上的三个LBA寄存器写入扇区起始地址的低24位
+;往device寄存器中写入LBA地址的24~27位, 并置第6位为1(LBA模式), 选择操作的硬盘(master or slave)
+                            mov dx,0x1f3
+                            mov al,[es:05A0H] ;0x02                       ;
+                            OUT DX,AL ;LBA 地址 7～0
+                            inc dx ;0x1f4
+                            mov al,[es:05A1H]; 0x00                       ;
+                            OUT DX,AL ;LBA 地址 15～8
+                            inc dx ;0x1f5
+                            mov al,[es:05A2H];                    ;
+                            OUT DX,AL ;LBA 地址 23～16
+                            inc dx ;0x1f6
+                            ;mov al,0xe0 ;LBA模式，主硬盘，以及 LBA 地址 27～24
+                            mov al,[es:05A3H];                    ;
+                            OR  AL, 0F0H
+                            AND AL, 0E0H
+                            OUT DX,AL
 ;jmp fin
+;往该通道上的command寄存器写入操作命令
+                            mov dx,0x1f7
+                            mov al,0x20   ;读命令
+                            out dx,al
+
+;读取该通道上的status寄存器, 判断硬盘工作是否完成
+                            mov dx,0x1f7
+     .waits2bp:
+                            in  al,dx
+                            and al,0x80
+;jmp fin
+;         cmp al,0x80
+                            jnz .waits2bp
+
+;如果以上步骤是读硬盘, 进入下一个步骤。否则, 完工
+;将硬盘数据读出DS:BX
+                            push cx
+;        mov eax, 28000H
+        mov eax, 10000H
+        mov ds, eax
+;jmp fin
+                            mov ax, 0FFH ;[es:7C16H] ;bsSECTORS_PER_FAT
+
+;                            mov EBX, 280000H
+                            mov bx, 00h
+                            mov dx,0x1f0
+    .readnsbp:
+                            push ax
+                            mov cx,256   ;总共要读取的字数
+    .readwbp:
+                            in  ax,dx
+                            mov [bx],ax
+                            add bx,2
+                            loop .readwbp
+
+                            pop ax
+                            dec ax
+                            cmp ax, 00h
+                            jnz .readnsbp
+    jmp fin
+                            pop cx
+
+                            mov eax, [es:05A0H]
+;jmp fin
+                            ADD eax, 0FFH
+                            mov [es:0616H], ax
+;jmp fin
+                            loop rd_bootpack
+;        pop ds
+;        pop es
 
 
 ; プロテクトモード移行
@@ -530,6 +530,7 @@ keystatus:
         OR		EAX,0x00000001	; bit0を1にする（プロテクトモード移行のため）
         MOV		CR0,EAX
         JMP		pipelineflush
+
 pipelineflush:
         MOV		AX,1*8			;  読み書き可能セグメント32bit
         MOV		DS,AX
@@ -544,97 +545,6 @@ pipelineflush:
         MOV		EDI,BOTPAK	; 転送先 0x00280000
         MOV		ECX,512 * 1024 / 4
         CALL	memcpy
-
-    mov cx, 2
-;    push ds
-;;    push es
-;;        mov ax, 0000H
-;;        mov es, ax
-;rd_bootpack:
-;;先选择通道(Primary or Secondary), 并检查硬盘是否忙，忙则等待
-;      mov dx,0x1f7
-;     .waitsbp:
-;         in al,dx
-;         and al,0x80
-;         cmp al,0x80
-;         jz .waitsbp
-;
-;
-;;往该通道的sector count寄存器中写入待操作的扇区数
-;            mov dx,0x1f2
-;            mov al,0FFH;[7C16H] ;bsSECTORS_PER_FATF DW  ;1 个扇区 ??
-;            out dx,al
-;
-;;往该通道上的三个LBA寄存器写入扇区起始地址的低24位
-;;往device寄存器中写入LBA地址的24~27位, 并置第6位为1(LBA模式), 选择操作的硬盘(master or slave)
-;        mov dx,0x1f3
-;        mov al,[es:0616H] ;0x02                       ;
-;        out dx,al ;LBA 地址 7～0
-; 
-;        inc dx ;0x1f4
-;        mov al,[es:0617H]; 0x00                       ;
-;        out dx,al ;LBA 地址 15～8
-;
-;        inc dx ;0x1f5
-;        mov al,[es:0618H];                    ;
-;        out dx,al ;LBA 地址 23～16
-;
-;        inc dx ;0x1f6
-;                                        ;
-;        ;mov al,0xe0 ;LBA模式，主硬盘，以及 LBA 地址 27～24
-;        mov al,[es:0619H];                    ;
-;        OR AL, 0F0H
-;        AND AL, 0E0H
-;        out dx,al
-;;jmp fin
-;;往该通道上的command寄存器写入操作命令
-;       mov dx,0x1f7
-;       mov al,0x20   ;读命令
-;       out dx,al
-;
-;;读取该通道上的status寄存器, 判断硬盘工作是否完成
-;      mov dx,0x1f7
-;     .waits2bp:
-;         in al,dx
-;         and al,0x80
-;;jmp fin
-;;         cmp al,0x80
-;         jnz .waits2bp
-;
-;;如果以上步骤是读硬盘, 进入下一个步骤。否则, 完工
-;;将硬盘数据读出DS:BX
-;push cx
-;
-;;        mov eax, 28000H
-;;        mov ds, eax
-;;jmp fin
-;        mov ax, 0FFH ;[es:7C16H] ;bsSECTORS_PER_FAT
-;
-;        mov EBX, 280000H
-;        mov dx,0x1f0
-;    .readnsbp:
-;push ax
-;        mov cx,256   ;总共要读取的字数
-;    .readwbp:
-;        in ax,dx
-;        mov  [bx],ax
-;        add bx,2
-;        loop .readwbp
-;jmp fin
-;pop ax
-;        dec ax
-;        cmp ax, 00h
-;        jnz .readnsbp
-;pop cx
-;
-;mov eax, [es:0616H]
-;;jmp fin
-;sub eax, 0FFH
-;mov [es:0616H], ax
-;;jmp fin
-;        loop rd_bootpack
-;        pop ds
-;;        pop es
 
 ; ついでにディスクデータも本来の位置へ転送
 
@@ -704,7 +614,7 @@ memcpy:
 
 fin:
 ;		HLT
-;        MOV BX, 55H
+        MOV BX, 55H
 		JMP		fin
 
 

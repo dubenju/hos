@@ -17,7 +17,7 @@ typedef struct _tag_FILEHDR_{
 } FILEHDR, * PFILEHDR;
 
 void display_coff_header(PFILEHDR pCoffHeader) {
-    printf("print the information of the COFF header.\n\n");
+    printf("print the information of the COFF header文件头.\n\n");
     printf("Target Machine           =0X%04X.", pCoffHeader->usMachine);
     switch(pCoffHeader->usMachine) {
         case 0x0000: printf("UNKNOWN\n");                  break;
@@ -107,7 +107,7 @@ typedef struct _tag_OPTHDR_{
 } OPTHDR, * POPTHDR;
 
 void display_optional_header(POPTHDR pOpHeader) {
-    printf("print the information of the optional header.\n\n");
+    printf("print the information of the optional header可选头.\n\n");
     printf("Magic Number            =%04x\n", pOpHeader->usMagic);
     printf("Version stamp           =%04d\n", pOpHeader->usVersion);
     printf("Text size in bytes      =%04d\n", pOpHeader->ulTextSize);
@@ -139,7 +139,7 @@ typedef struct _tag_SECHDR_{
 
 void display_section_header(PSECHDR pSecHeader, unsigned short idx) {
     char section_header_name[9];
-    printf("print the information of the section header.\n\n");
+    printf("print the information of the section header段落头.\n\n");
     memset(section_header_name, 0, sizeof(section_header_name));
     memcpy(section_header_name, pSecHeader->cName, 8);
     printf("%d Section Header ----------\n", idx);
@@ -360,6 +360,19 @@ void display_string_table(char * buf, unsigned long size) {
     }
 }
 
+void print_ary(unsigned char * buf, size_t size) {
+
+    /* 变量定义 */
+    /* 变量初始化 */
+    /* 处理开始 */
+    int idx =0;
+    for (idx = 0; idx < size; idx ++) {
+        printf("0X%02X ", *(buf + idx));
+        if ((idx + 1) % 16 == 0) {printf("\n");}
+    }
+    printf("\n");
+}
+
 int main(int argc, char * argv[]) {
 //    test_syment();
 //    return 0;
@@ -379,9 +392,11 @@ int main(int argc, char * argv[]) {
     unsigned long relocation_cnt = 0;
     unsigned long symbol_table_cnt = 0;
     unsigned long symbol_table_size = 0;
-    unsigned long string_table_offset = 0;
+    long string_table_offset = 0;
     unsigned long string_table_size = 0;
-    unsigned long file_size = 0;
+    long file_size = 0;
+    int cur_pos_file = 0;
+    char * section_data = NULL;
 
     /* 处理开始 */
     printf(">>----- main begin -----\n");
@@ -439,11 +454,33 @@ int main(int argc, char * argv[]) {
             }
             total_relocation_cnt  = total_relocation_cnt + section_header.usNumRel;
         }
+        if (section_header.ulSize != 0) {
+            cur_pos_file = file_size = ftell(fp_in_file);
+            fseek(fp_in_file, section_header.ulSecOffset, SEEK_SET);
+            section_data = (char *) malloc(section_header.ulSize);
+            if (section_data == NULL) {
+                goto err_main;
+            }
+            memset(section_data, 0, section_header.ulSize);
+            read_size = fread(section_data, sizeof(char), section_header.ulSize, fp_in_file);
+            if (read_size < section_header.ulSize) {
+                printf("read coff's optional header error.%d,%d\n", read_size, section_header.ulSize);
+                goto err_main;
+            } else {
+                print_ary(section_data, section_header.ulSize);
+                printf("\n");
+            }
+            if (section_data != NULL) {
+                free(section_data);
+                section_data = NULL;
+            }
+            fseek(fp_in_file, cur_pos_file, SEEK_SET);
+        }
     }
 
-    printf("the pos is before Raw Data:0X%06X.\n", ftell(fp_in_file));
+    // printf("the pos is before Raw Data:0X%06X.\n", ftell(fp_in_file));
     /* Raw Data 段落数据（Section Data） */
-    printf("!!!WARNING the Raw Data is skiped.\n\n");
+    // printf("!!!WARNING the Raw Data is skiped.\n\n");
 
     fseek(fp_in_file, first_relocation_offset, SEEK_SET);
     printf("the pos is before Relocation Entries:0X%06X.\n", ftell(fp_in_file));
@@ -462,7 +499,6 @@ int main(int argc, char * argv[]) {
 
     printf("the pos is before Line Number Entries:0X%06X.\n", ftell(fp_in_file));
     /* Line Number Entries 行号表 */
-    /* printf("!!!WARNING the Line Number Entries is skiped.\n\n"); */
     long line_num_table_size = coff_header.ulSymbolOffset - ftell(fp_in_file);
     long line_num_readed_byte = 0;
     printf("sizeof(LINENO)=%d.\n", sizeof(LINENO));
@@ -518,13 +554,14 @@ int main(int argc, char * argv[]) {
     } else {
         printf("String Table Size is :%d(readed).\n", string_table_size);
     }
-    unsigned long cur_pos = ftell(fp_in_file);
+    long cur_pos = ftell(fp_in_file);
+    printf("postion:%d.\n", cur_pos);
     printf("String Table Size is :%d(file).\n", (file_size - cur_pos));
 
-    unsigned long str_tbl_size = file_size - string_table_offset + 1;
+    long str_tbl_size = file_size - string_table_offset + 1;
     printf("String Table Size is :%d\n", (str_tbl_size - 1));
     str_tbl_size = (file_size - cur_pos) + 1;
-
+    printf("String Table Size is :%d\n", (str_tbl_size));
     if (str_tbl_size > 0) {
         char * buf = (char *) malloc(sizeof(char) * str_tbl_size);
         if (buf != NULL) {
