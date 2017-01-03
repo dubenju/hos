@@ -208,8 +208,8 @@
    208 00000151 C706[4400]007F                                      MOV  WORD [dapOFFSET], 7F00H    ; DOS loading buffer
    209                                  ;                            MOV  CX, 02H
    210                                  ;RD_NEXT:
-   211                                  ;                            MOV  WORD [dapSECTORS_READ], 00FFH
-   212 00000157 C706[4200]0200                                      MOV  WORD [dapSECTORS_READ], 0002H
+   211 00000157 C706[4200]FF00                                      MOV  WORD [dapSECTORS_READ], 00FFH
+   212                                  ;                            MOV  WORD [dapSECTORS_READ], 0002H
    213 0000015D E81500                                              CALL WORD READ_SECTOR
    214 00000160 72AE                                                JC   DSP_MSG
    215                                  ;                            MOV AX, [05A0H]

@@ -1,0 +1,58 @@
+// GetFileSpaceSize.cpp : Defines the entry point for the console application.
+ //
+ /************************************************************************
+  * author: HwangBae
+  * created:    2012/07/23
+  * Blog: http://hwangbae.cnblogs.com/
+  * Email: hwangbae@live.cn
+  ************************************************************************/
+ 
+ #include <windows.h>
+ #include <tchar.h>
+ #include <stdio.h>
+ 
+ #define CLOSE_HANDLE(handle) \
+     do \
+     { \
+         CloseHandle(handle); \
+         handle = NULL; \
+     } while (FALSE)
+ 
+ int _tmain(int argc, _TCHAR* argv[])
+ {
+     if (argc < 2)
+     {
+         _tprintf_s(_T("Usage: GetFileSpaceSize filename\n"));
+         return -1;
+     }
+ 
+     // 文件路径
+     LPCTSTR szFileName = argv[1];
+ 
+     // 打开文件句柄
+     HANDLE hFile = ::CreateFile(szFileName, GENERIC_READ | FILE_SHARE_READ, 0, 
+         NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+     if (hFile == INVALID_HANDLE_VALUE)
+     {
+         _tprintf_s(_T("Failed to create file handle: %s ! error code:%d\n"), szFileName, GetLastError());
+         return -1;
+     }
+ 
+     // 获取文件大小
+     UINT64 uFileSize = 0;
+     ::GetFileSizeEx(hFile, reinterpret_cast<PLARGE_INTEGER>(&uFileSize));
+ 
+     FILE_STANDARD_INFO fsi = {0};
+     if (!::GetFileInformationByHandleEx(hFile, FileStandardInfo, &fsi, sizeof(FILE_STANDARD_INFO)))
+     {
+         _tprintf_s(_T("Failed to get file info! error code:%d\n"), GetLastError());
+         CLOSE_HANDLE(hFile);
+         return -1;
+     }
+ 
+     _tprintf_s(_T("FileName : %s\n"), szFileName);
+     _tprintf_s(_T("FileSize : %I64u Byte\n"), uFileSize);
+     _tprintf_s(_T("FileSpacesSize : %I64u Byte\n"), fsi.AllocationSize);
+     CLOSE_HANDLE(hFile);
+     return 0;
+ }

@@ -207,8 +207,8 @@ RD_DBJ_SYS:
                             MOV  WORD [dapOFFSET], 7F00H    ; DOS loading buffer
 ;                            MOV  CX, 02H
 ;RD_NEXT:
-                            MOV  WORD [dapSECTORS_READ], 00FFH
-;                            MOV  WORD [dapSECTORS_READ], 0002H
+;                            MOV  WORD [dapSECTORS_READ], 00FFH
+                            MOV  WORD [dapSECTORS_READ], 0002H
                             CALL WORD READ_SECTOR
                             JC   DSP_MSG
 ;                            MOV AX, [05A0H]

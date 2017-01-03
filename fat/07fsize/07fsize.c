@@ -1,0 +1,80 @@
+// GetFileSpaceSize.cpp : Defines the entry point for the console application.
+//
+/************************************************************************
+ * author:
+ * created:
+ * Blog:
+ * Email:
+ ************************************************************************/
+
+#include <windows.h>
+#include <tchar.h>
+#include <stdio.h>
+#include <math.h>
+
+
+int _tmain(int argc, _TCHAR* argv[]) {
+    LPCTSTR szFileName = NULL;
+    HANDLE hFile = NULL;
+    UINT64 uFileSize = 0;
+    TCHAR szVolumePathName[] = _T("C:\\");
+    // 保存簇信息的变量
+    DWORD dwSectorsPerCluster = 0;
+    DWORD dwBytesPerSector = 0;
+    DWORD dwNumberOfFreeClusters = 0;
+    DWORD dwTotalNumberOfClusters = 0;
+    DWORD dwClusterSize = 0;
+    UINT64 dwFileSpacesize = 0;
+
+    if (argc < 2) {
+        printf("Usage: GetFileSpaceSize filename\n");
+        return -1;
+    }
+
+    // 文件路径
+    szFileName = argv[1];
+
+    // 打开文件句柄
+    hFile = CreateFile(szFileName, GENERIC_READ | FILE_SHARE_READ, 0, 
+        NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (hFile == INVALID_HANDLE_VALUE)
+    {
+        _tprintf_s(_T("Failed to create file handle: %s ! error code:%d\n"), szFileName, GetLastError());
+        return -1;
+    }
+
+    // 获取文件大小
+    GetFileSizeEx(hFile, (&uFileSize));
+    CloseHandle(hFile);
+
+    // 获取磁盘根路径
+    GetVolumePathName(szFileName, szVolumePathName, sizeof(szVolumePathName) / sizeof(TCHAR));
+
+
+    // 获取簇信息
+    if (!GetDiskFreeSpace(
+                szVolumePathName,            //磁盘根路径
+                &dwSectorsPerCluster,        //每簇的扇区数
+                &dwBytesPerSector,            //每扇区的字节数
+                &dwNumberOfFreeClusters,    //空余簇的数量
+                &dwTotalNumberOfClusters    //全部簇的数量
+                )
+        )
+    {
+        _tprintf_s(_T("Failed to get disk cluster info! error code: %d\n"), GetLastError());
+        return -1;
+    }
+    // 簇大小 = 每簇的扇区数 * 每扇区的字节数
+    dwClusterSize = dwSectorsPerCluster * dwBytesPerSector;
+
+    // 计算文件占用空间
+    // 公式:(以字节为单位)
+    // 簇数 = 向上取整(文件大小 / 簇大小)
+    // 占用空间 = 簇数 * 簇大小
+    dwFileSpacesize = (ceil(uFileSize / (dwClusterSize)) * dwClusterSize);
+
+    _tprintf_s(_T("FileName : %s\n"), szFileName);
+    _tprintf_s(_T("FileSize : %I64u Byte\n"), uFileSize);
+    _tprintf_s(_T("FileSpacesSize : %I64u Byte\n"), dwFileSpacesize);
+    return 0;
+}

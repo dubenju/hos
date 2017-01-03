@@ -1,0 +1,141 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+
+void print_ary(unsigned char * buf, size_t size) {
+
+    /* 变量定义 */
+    unsigned char ch;
+    /* 变量初始化 */
+    
+    /* 处理开始 */
+    int idx =0;
+    for (idx = 1; idx < 1025; idx ++) {
+        printf("%02.2d ", (idx / 10));
+        if ((idx) % 8 == 0) {printf("- ");}
+    }
+    printf("\n");
+    for (idx = 1; idx < 1025; idx ++) {
+        printf(" %01d ", (idx % 10));
+        if ((idx) % 8 == 0) {printf("- ");}
+    }
+    printf("\n");
+    for (idx = 0; idx < size; idx ++) {
+        ch = *(buf + idx);
+        if (ch == 0) {
+            printf("__ ");
+        } else {
+            printf("%02X ", ch);
+        }
+        if ((idx + 1) % 8 == 0) {printf("- ");}
+        if ((idx + 1) % 512 == 0) {printf("\n");}
+    }
+    printf("\n");
+}
+
+/*
+ * pgm 4096 file.
+  */
+int main(int argc, char **argv) {
+    /* 变量定义 */
+    int returnCode;
+    int osize;
+    FILE * pFile;
+    char outfilename[256];
+    int idx;
+    int pos;
+    int cnt;
+    int readed,write;
+    char * buf;
+    int write_file_flag;
+
+    /* 变量初始化 */
+    returnCode = 0;
+    osize = 0x500000;
+    pFile = NULL;
+    idx = 0;
+    buf = NULL;
+    write_file_flag = 0;
+
+    /* 处理开始 */
+    printf(">>----- main begin -----\n");
+    printf(">>----- print paramters begin -----\n");
+    printf("argc=%d.\n", argc);
+    for (idx = 0; idx < argc; idx ++) {
+        printf("argv[%d]=%s.\n", idx, argv[idx]);
+        if (memcmp("-o", argv[idx], 2) == 0) {
+            write_file_flag = 1;
+        }
+    }
+    printf(">>----- print paramters  end  -----\n");
+    if (argc < 3) {
+        returnCode = -1;
+        goto err_main;
+    }
+
+    // pFile = fopen("C:\\pho\\1025.z", "rw+b");
+    pFile = fopen(argv[1], "rw+b");
+    if (pFile == NULL) {
+        returnCode = -1;
+        goto err_main;
+    }
+    fseek(pFile, 0, SEEK_END);
+    pos = ftell(pFile);
+    fseek(pFile, 0, SEEK_SET);
+    printf("size:%d.\n", pos);
+
+    osize = atoi(argv[2]);
+    printf("osize=%d.\n", osize);
+
+    cnt = pos / osize;
+    if (pos % osize != 0) {
+        cnt ++;
+    }
+    printf("cnt:%d.\n", cnt);
+
+    buf = (char * ) malloc(osize);
+    if (buf == NULL) {
+        returnCode = -1;
+        goto err_main;
+    }
+    printf("write_file_flag=%d.\n", write_file_flag);
+    for (idx = 0; idx < cnt; idx ++) {
+        memset(buf, 0, osize);
+        readed = fread(buf, 1, osize, pFile);
+        printf("第%08d个簇的内容:\n", (idx + 1) );
+        print_ary(buf, osize);
+        if (write_file_flag == 1) {
+            sprintf(outfilename, "C:\\pho\\1025.z%d", idx);
+            printf("idx:%d.%s\n", idx, outfilename);
+            FILE * pOut = fopen(outfilename, "w+b");
+            if (pOut == NULL) {
+                returnCode = -1;
+                goto err_main;
+            }
+            write = fwrite(buf, 1, readed, pOut);
+            printf("read:%d.write:%d.\n", readed, write);
+            if (pOut != NULL) {
+                fclose(pOut);
+                pOut = NULL;
+            }
+        }
+    }
+    goto end_main;
+err_main:
+end_main:
+    /* 处理结束 */
+    printf("----- main end -----<<\n");
+
+    if (buf != NULL) {
+        free(buf);
+        buf = NULL;
+    }
+    if (pFile != NULL) {
+        fclose(pFile);
+        pFile = NULL;
+    }
+
+    return returnCode;
+}

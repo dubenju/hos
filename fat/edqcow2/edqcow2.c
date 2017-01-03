@@ -3337,6 +3337,10 @@ uint64_t *  print_l1_table_64(const uint64_t * table, const uint32_t size, FILE 
 
     /* 变量定义 */
     size_t readedcnt;
+    int k;
+    int mask_bits;
+    char cluster_size_bin[33];
+    int compress_size;
 
     /* 变量初始化 */
     /* 处理开始 */
@@ -3347,6 +3351,16 @@ uint64_t *  print_l1_table_64(const uint64_t * table, const uint32_t size, FILE 
     int max_cnt     = cluster_size / 8;
     uint64_t l2_item = -1LL;
     uint64_t * l2_table = NULL;
+    /* for compressed clusters */
+    memset(cluster_size_bin, 0, sizeof(cluster_size_bin));
+    itoa(cluster_size, cluster_size_bin, 2);
+    int cluster_bits = strlen(cluster_size_bin);
+    mask_bits = 62 - (cluster_bits - 8);
+    printf("cluster_size=%d cluster_bits=%d[%s]mask_bits=%d.\n", cluster_size, cluster_bits, cluster_size_bin, mask_bits);
+    uint64_t mask = (1LL << (mask_bits + 1)) - 1LL;
+    printf("mask=%lld.\n", mask);
+    uint64_t mask2_size = (1LL << (62 - mask_bits - 1)) - 1LL;
+    printf("mask2_size=%lld.\n", mask2_size);
 
     printf("表2在镜像文件中的最初位置[(%lld, 0X%04X)-", *(table), *(table));
     printf("(%lld, 0X%04X)).\n", *(table) + cluster_size, *(table) + cluster_size);
@@ -3359,7 +3373,6 @@ uint64_t *  print_l1_table_64(const uint64_t * table, const uint32_t size, FILE 
         if (offset == 0) { continue; }
         printf("offset[%05lld]=%lld, 0X%X ", idx, offset, offset);
         printf("\n");
-        idz= 0;
         if( fseek(pFile, offset, SEEK_SET) ) { goto err_print_l1_table_64; }
         /* 1个完整的簇存储，所以可以一次读取。 */
         readedcnt = fread(l2_table + idx * max_cnt, sizeof(uint64_t), max_cnt, pFile);
@@ -3367,11 +3380,52 @@ uint64_t *  print_l1_table_64(const uint64_t * table, const uint32_t size, FILE 
             fprintf(stderr, "read level 2 table error(%d != %d).\n", readedcnt, max_cnt);
             goto err_print_l1_table_64;
         }
+        idz = 0;
+        for (idy = 0; idy < max_cnt; idy ++) {
+            l2_item = *(l2_table + idx * max_cnt + idy);
+            if (l2_item == 0LL) { continue; }
+
+            printf("%03d", idy);
+            l2_item = be64_to_cpu(l2_item);
+            char s[8][10];
+            memset(s, 0, sizeof(s));
+            for (k = 7; k >= 0; k --) {
+                int il2_item = (int) ((l2_item >> (k * 8)) & 0x00FF);
+                printf(" %02.2x", il2_item);
+                itoa(il2_item, s[k], 2);
+            }
+
+            for (k = 7; k >= 0; k --) {
+                printf(" %08s", s[k]);
+            }
+            if (((l2_item >> 62) & 0x01) == 0x00) {
+                printf(" standard clusters");
+            }
+            if (((l2_item >> 62) & 0x01) == 0x01) {
+                printf(" compressed clusters");
+                l2_item = ( l2_item & mask );
+                printf(" l2_item=%lld ", l2_item);
+                l2_item = ( l2_item >> (mask_bits + 1) );
+                compress_size = (int) (l2_item & mask2_size);
+                printf(" compress_size=%d.", compress_size);
+                printf(" compress_size=%X.", compress_size);
+            }
+            printf(".\n");
+        }
+        idz = 0;
         for (idy = 0; idy < max_cnt; idy ++) {
             l2_item = *(l2_table + idx * max_cnt + idy);
             if (l2_item == 0LL) { continue; }
             l2_item = be64_to_cpu(l2_item);
-            l2_item = l2_item & 0x3FFFFFFFFFFFFFFF;
+            if (((l2_item >> 62) & 0x01) == 0x00) {
+                /* standard clusters */
+                // l2_item = l2_item & 0x3FFFFFFFFFFFFFFF;
+                l2_item = l2_item & 0x00FFFFFFFFFFFFFF;
+            }
+            if (((l2_item >> 62) & 0x01) == 0x01) {
+                /* compressed clusters */
+                l2_item = l2_item & mask;
+            }
             printf("l2[%03d]=%013lld. 0X%010X.", idy, l2_item, l2_item);
             idz ++;
             if (idz % 8 ==0) { printf("\n"); }
